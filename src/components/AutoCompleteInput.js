@@ -10,7 +10,7 @@ class AutoCompleteInput extends React.Component {
     }
     
 
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
     }
   
     render() {

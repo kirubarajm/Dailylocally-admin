@@ -66,7 +66,7 @@ const InputField = ({
 
 var mobilenumber, roleType;
 class MobileVerifyForm extends React.Component {
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     mobilenumber = this.props.mobilenumber;
     roleType = this.props.roleType;
     this.submitMobile = this.submitMobile.bind(this);

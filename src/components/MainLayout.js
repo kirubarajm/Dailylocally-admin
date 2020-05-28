@@ -18,7 +18,7 @@ class MainLayout extends React.Component {
       .classList.contains('cr-sidebar--open');
   }
 
-  componentWillReceiveProps({ breakpoint }) {
+  UNSAFE_componentWillReceiveProps({ breakpoint }) {
     if (breakpoint !== this.props.breakpoint) {
       this.checkBreakpoint(breakpoint);
     }
@@ -28,7 +28,7 @@ class MainLayout extends React.Component {
     this.checkBreakpoint(this.props.breakpoint);
   }
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.Logout=this.Logout.bind(this);
   }
 

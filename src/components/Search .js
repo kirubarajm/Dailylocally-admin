@@ -17,7 +17,7 @@ class Search extends Component {
     isLoad:false
   }
   
-  componentWillMount(){
+  UNSAFE_componentWillMount(){
     this.setState({results:this.props.List});
     this.handleInputChange=this.handleInputChange.bind(this);
   }

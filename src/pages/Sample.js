@@ -10,9 +10,9 @@ class Sample extends React.Component {
     super();
   }
 
-  componentWillMount() {}
-  componentWillUpdate() {}
-  componentWillReceiveProps() {}
+  UNSAFE_componentWillMount() {}
+  UNSAFE_componentWillUpdate() {}
+  UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
   componentDidMount() {}

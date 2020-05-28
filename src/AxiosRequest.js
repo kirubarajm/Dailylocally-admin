@@ -2,6 +2,7 @@ import axios from 'axios'
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
 const BASE_URL_LIVE = 'http://localhost:4000/';
+const ADMIN_URL= BASE_URL_LIVE+'admin';
 let token = window.localStorage.getItem('jwt');
 const responseBody = res => res.data;
 const fileUploadHeader= {'headers':{'Content-Type': 'multipart/form-data'}};
@@ -12,13 +13,13 @@ const setheader=(version) =>{
 }
 const requests = {
   del: (url,version) =>
-  axios.del(`${BASE_URL_LIVE}${url}`,setheader(version)).then(responseBody),
+  axios.del(`${ADMIN_URL}${url}`,setheader(version)).then(responseBody),
   get: (url,version) =>
-  axios.get(`${BASE_URL_LIVE}${url}`,setheader(version)).then(responseBody),
+  axios.get(`${ADMIN_URL}${url}`,setheader(version)).then(responseBody),
   put: (url, body,version) =>
-  axios.put(`${BASE_URL_LIVE}${url}`, body,setheader(version)).then(responseBody),
+  axios.put(`${ADMIN_URL}${url}`, body,setheader(version)).then(responseBody),
   post: (url, body,version) =>
-  axios.post(`${BASE_URL_LIVE}${url}`, body,setheader(version)).then(responseBody)
+  axios.post(`${ADMIN_URL}${url}`, body,setheader(version)).then(responseBody)
 };
 
 const Auth = {
@@ -30,6 +31,11 @@ const Auth = {
     requests.post('/users', { user: { username, email, password } }),
   save: user =>
     requests.put('/user', { user })
+};
+
+const Catelog = {
+  getCategory: (data) =>
+    requests.post('/categorylist',data)
 };
 
 

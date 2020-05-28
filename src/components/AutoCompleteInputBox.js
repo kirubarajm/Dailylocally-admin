@@ -7,7 +7,7 @@ class AutoCompleteInputBox extends React.Component {
         value: '',
       }
     }
-    componentWillMount() {
+    UNSAFE_componentWillMount() {
     }
     render() {
       var placeholder= this.props.placeholder ||""

@@ -2,7 +2,7 @@ import React from 'react';
 
 class ItemIncrementButton extends React.Component {
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
   }
 
   render() {

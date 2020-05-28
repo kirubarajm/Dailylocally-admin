@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Card,Button } from "reactstrap";
+import { Card, Button } from "reactstrap";
 import { Field, reduxForm } from "redux-form";
 import { SIGN_UP_FORM } from "../utils/constant";
 import renderInputField from "../components/renderInputField";
@@ -13,25 +13,23 @@ const mapDispatchToProps = (dispatch) => ({});
 class Signup extends React.Component {
   constructor() {
     super();
-    
   }
- 
-  componentWillMount() {}
-  componentWillUpdate() {
-    this.submit=this.submit.bind(this);
+
+  UNSAFE_componentWillMount() {}
+  UNSAFE_componentWillUpdate() {
+    this.submit = this.submit.bind(this);
   }
-  componentWillReceiveProps() {}
+  UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
-  
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {}
   componentDidCatch() {}
 
-  submit = values => {
-    console.log("values---",values);
+  submit = (values) => {
+    console.log("values---", values);
     this.props.history.push("/dashboard");
-  }
+  };
   render() {
     return (
       <div className="signup-bg">

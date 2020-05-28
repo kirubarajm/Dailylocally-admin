@@ -28,7 +28,7 @@ const sidebarBackground = {
 var LoginName=null;
 var LoginEmail=null;
 class Header extends React.Component {
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
   }
   state = {
     isOpenNotificationPopover: false,

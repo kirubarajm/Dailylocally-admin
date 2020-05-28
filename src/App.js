@@ -16,10 +16,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => ({});
 class App extends React.Component {
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     loadProgressBar();
   }
-  componentWillMount() {}
+  UNSAFE_componentWillMount() {}
 
   render() {
     return (

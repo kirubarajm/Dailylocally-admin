@@ -110,7 +110,7 @@ class Sidebar extends React.Component {
     isAutoOpen: true,
   };
 
-  componentWillMount() {}
+  UNSAFE_componentWillMount() {}
   componentDidMount() {}
 
   componentDidUpdate(nextProps, nextState) {

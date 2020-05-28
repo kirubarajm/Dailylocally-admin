@@ -23,7 +23,7 @@ class SearchInput extends Component {
   state = {
     query: '',
   }
-  componentWillMount(){
+  UNSAFE_componentWillMount(){
     this.handleInputChange=this.handleInputChange.bind(this);
     this.handleUp=this.handleUp.bind(this);
     

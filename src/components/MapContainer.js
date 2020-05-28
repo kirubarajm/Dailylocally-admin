@@ -13,13 +13,13 @@ export class MapContainer extends React.Component {
     isZoneMap=this;
     this.state = { latitude: this.props.lat || 0, longitude: this.props.lng || 0,isPolygonViewed:false }
   }
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     editMap = this.props.editMap || true;
     clocation = this.props.clocation?true:false;
     this.getMyLocation = this.getMyLocation.bind(this);
     this.addMarker = this.addMarker.bind(this);
   }
-  componentWillReceiveProps(props) {
+  UNSAFE_componentWillReceiveProps(props) {
     const { refresh } = this.props;
     if (props.refresh !== refresh) {
       this.setState({ latitude: props.lat, longitude: props.lng });
