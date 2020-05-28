@@ -81,7 +81,7 @@ Logout = event =>{
   render() {
     const { children } = this.props;
     return (
-      <main className="cr-app bg-light">
+      <main className="cr-app">
         <Sidebar/>
         <Content fluid onClick={this.handleContentClick}>
           <Header onLogout={this.Logout}/>

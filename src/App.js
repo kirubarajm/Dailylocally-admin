@@ -8,6 +8,8 @@ import Signup from "./pages/Signup";
 import { connect } from "react-redux";
 import { loadProgressBar } from "axios-progress-bar";
 import Notifications from "react-notify-toast";
+import { MainLayout } from "./components";
+import Catalog from "./pages/Catalog";
 const mapStateToProps = (state) => {
   return {};
 };
@@ -29,6 +31,12 @@ class App extends React.Component {
             path="/login"
             layout={EmptyLayout}
             component={Signup}
+          />
+          <LayoutRoute
+            exact
+            path="/dashboard"
+            layout={MainLayout}
+            component={Catalog}
           />
           <Redirect to="/login" />
         </Switch>

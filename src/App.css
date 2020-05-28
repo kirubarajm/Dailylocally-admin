@@ -116,11 +116,6 @@ input[type=number]::-webkit-outer-spin-button {
   height: calc(100vh - 60px);
   overflow: hidden;
   overflow-y: auto;
-  /* max-height: -moz-available; */
-  /* WebKit-based browsers will ignore this. */
-  /* max-height: -webkit-fill-available; */
-  /* Mozilla-based browsers will ignore this. */
-  /* max-height: -fill-available; */
 }
 .makeit-process-header {
   background-color: #9900ff;
@@ -392,6 +387,9 @@ input[type=number]::-webkit-outer-spin-button {
 
 .mr-r-10 {
   margin-right: 10px !important;
+}
+.mr-r-20 {
+  margin-right: 20px !important;
 }
 
 .mr-t-10 {
@@ -1450,10 +1448,22 @@ form > div > div > * {
 }
 
 .signup-bg{
-    background-image: url("../src/assets/img/bg/bg_login.png");
-    background-color: #d3e09e;
-    background-repeat: no-repeat;
-    background-size: fixed;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.signup-card{
+  height: 250px ;
+  width: 350px;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 20px;
 }
 
 img{
@@ -1586,4 +1596,3 @@ hr.style-moveit {
   .width-25{
     width:25px;
   }
-

@@ -8,7 +8,7 @@ const fileUploadHeader= {'headers':{'Content-Type': 'multipart/form-data'}};
 const AppVersion_1="1.0.0";
 const AppVersion_2="2.0.0";
 const setheader=(version) =>{
-  return ({headers: {'accept-version': version,'Authorization':'Token '.concat(window.localStorage.getItem('jwt'))}});
+  return ({headers: {'accept-version': version,'Authorization':'Token '.concat(token)}});
 }
 const requests = {
   del: (url,version) =>

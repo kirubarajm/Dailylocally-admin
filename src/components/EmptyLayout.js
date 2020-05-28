@@ -10,7 +10,7 @@ class EmptyLayout extends React.Component {
   
   render(){
     const { children } = this.props;
-  return(<main className="cr-app bg-light">
+  return(<main className="cr-app">
     <Content fluid onClick={this.handleContentClick}>
       {children}
     </Content>
