@@ -3,10 +3,12 @@ import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form'
 import sample from './reducers/sample'
 import auth from './reducers/auth';
+import catalog from './reducers/catalog'
 
 export default combineReducers({
   router: routerReducer,
   form: formReducer,
   auth,
   sample,
+  catalog,
 });

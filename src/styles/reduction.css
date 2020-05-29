@@ -2261,7 +2261,7 @@ fieldset:disabled a.btn {
 }
 .btn-primary:focus,
 .btn-primary.focus {
-   box-shadow: 0 0 0 0.2rem #6f42c1; /*rgba(106, 130, 251, 0.5); */
+   box-shadow: 0 0 0 0 #6f42c1; /*rgba(106, 130, 251, 0.5); */
 }
 .btn-primary.disabled,
 .btn-primary:disabled {
@@ -2280,7 +2280,7 @@ fieldset:disabled a.btn {
 .btn-primary:not(:disabled):not(.disabled):active:focus,
 .btn-primary:not(:disabled):not(.disabled).active:focus,
 .show > .btn-primary.dropdown-toggle:focus {
-   box-shadow: 0 0 0 0.2rem #6f42c1;   /*rgba(106, 130, 251, 0.5); */
+   box-shadow: 0 0 0 0 #6f42c1;   /*rgba(106, 130, 251, 0.5); */
 }
 
 .btn-secondary {
@@ -2295,7 +2295,7 @@ fieldset:disabled a.btn {
 }
 .btn-secondary:focus,
 .btn-secondary.focus {
-  box-shadow: 0 0 0 0.2rem rgba(252, 92, 125, 0.5);
+  box-shadow: 0 0 0 rem rgba(252, 92, 125, 0.5);
 }
 .btn-secondary.disabled,
 .btn-secondary:disabled {
@@ -2314,7 +2314,7 @@ fieldset:disabled a.btn {
 .btn-secondary:not(:disabled):not(.disabled):active:focus,
 .btn-secondary:not(:disabled):not(.disabled).active:focus,
 .show > .btn-secondary.dropdown-toggle:focus {
-   box-shadow: 0 0 0 0.2rem #9900ff; /*//rgba(252, 92, 125, 0.5); */
+   box-shadow: 0 0 0 0 #9900ff; /*//rgba(252, 92, 125, 0.5); */
 }
 
 .btn-success {

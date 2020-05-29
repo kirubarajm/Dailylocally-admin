@@ -13,22 +13,28 @@ export default (
     case CATELOG_CATEGORY_LIST:
       return {
         ...state,
-        category_list: action.payload.result,
+        category_list: action.payload.data || [],
+        subcat_L1:[],
+        subcat_L2:[],
+        product:[]
       };
     case CATELOG_SUBCATEGORY_L1_LIST:
       return {
         ...state,
-        subcat_L1: action.payload.result,
+        subcat_L1: action.payload.data || [],
+        subcat_L2:[],
+        product:[]
       };
     case CATELOG_SUBCATEGORY_L2_LIST:
       return {
         ...state,
-        subcat_L2: action.payload.result,
+        subcat_L2: action.payload.data || [],
+        product:[]
       };
     case CATELOG_PRODUCT_LIST:
       return {
         ...state,
-        product: action.payload.result,
+        product: action.payload.data || [],
       };
     default:
       return state;
