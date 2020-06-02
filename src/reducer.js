@@ -4,6 +4,7 @@ import { reducer as formReducer } from 'redux-form'
 import sample from './reducers/sample'
 import auth from './reducers/auth';
 import catalog from './reducers/catalog'
+import productview from './reducers/productview'
 
 export default combineReducers({
   router: routerReducer,
@@ -11,4 +12,5 @@ export default combineReducers({
   auth,
   sample,
   catalog,
+  productview,
 });

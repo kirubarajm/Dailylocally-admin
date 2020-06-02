@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { MdSearch } from 'react-icons/md';
 import { Field, reduxForm } from "redux-form";
 import { SEARCH_INPUT } from '../utils/constant';

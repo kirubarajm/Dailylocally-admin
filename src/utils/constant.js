@@ -1,4 +1,5 @@
 export const SIGN_UP_FORM = "signup";
+export const SEARCH_INPUT="search_input"
 export const Area = [
   { area_id: 1, area_name: "T Nagar" },
   { area_id: 2, area_name: "OMR" },

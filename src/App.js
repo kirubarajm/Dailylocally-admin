@@ -10,6 +10,7 @@ import { loadProgressBar } from "axios-progress-bar";
 import Notifications from "react-notify-toast";
 import { MainLayout } from "./components";
 import Catalog from "./pages/Catalog";
+import ProductView from "./pages/ProductView";
 const mapStateToProps = (state) => {
   return {};
 };
@@ -38,6 +39,14 @@ class App extends React.Component {
             layout={MainLayout}
             component={Catalog}
           />
+
+<LayoutRoute
+            exact
+            path="/product_view/:product_id"
+            layout={MainLayout}
+            component={ProductView}
+          />
+          
           <Redirect to="/login" />
         </Switch>
       </div>

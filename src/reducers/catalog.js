@@ -6,7 +6,7 @@ import {
 } from "../constants/actionTypes";
 
 export default (
-  state = {category_list: [], subcat_L1: [], subcat_L2: [], product: [] },
+  state = {category_list: [], subcat_L1: [], subcat_L2: [], product: [],search:""},
   action
 ) => {
   switch (action.type) {
