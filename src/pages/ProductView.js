@@ -1,10 +1,19 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button } from "reactstrap";
+import AxiosRequest from "../AxiosRequest";
+import { PRODUCT_VIEW } from "../constants/actionTypes";
+import Moment from "moment";
 
 const mapStateToProps = (state) => ({ ...state.productview });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+  onGetProduct: (data) =>
+    dispatch({
+      type: PRODUCT_VIEW,
+      payload: AxiosRequest.Catelog.getProductDetail(data),
+    }),
+});
 
 function CardRowCol(props) {
   var lable = props.lable ? props.lable : "";
@@ -20,6 +29,33 @@ function CardRowCol(props) {
         </Col>
         <Col lg="6" style={{ color: color }} className="pd-l-0">
           {props.value}
+        </Col>
+      </Row>
+    );
+  }
+
+  return <div />;
+}
+
+function CardRowColImage(props) {
+  var lable = props.lable ? props.lable : "";
+  var color = props.color ? props.color : "Black";
+  if (props.value !== null) {
+    return (
+      <Row className="list-text cart-item font-size-14">
+        <Col lg="4" className="color-grey pd-0">
+          {lable}
+        </Col>
+        <Col lg="1" className="color-grey pd-0">
+          {" "}
+        </Col>
+        <Col lg="6" className="pd-l-0">
+          <img
+            hidden={!props.value}
+            src={props.value}
+            className="product_detail_image"
+            alt="product_image"
+          ></img>
         </Col>
       </Row>
     );
@@ -55,7 +91,10 @@ class ProductView extends React.Component {
     super();
   }
 
-  UNSAFE_componentWillMount() {}
+  UNSAFE_componentWillMount() {
+    var productIds = this.props.match.params.product_id;
+    this.props.onGetProduct({ product_id: productIds });
+  }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
@@ -66,6 +105,7 @@ class ProductView extends React.Component {
 
   render() {
     const productdetail = this.props.productdetail || false;
+    const vendorlist = this.props.productdetail.vendorlist || [];
     return (
       <div>
         <div style={{ height: "85vh" }} className="pd-6">
@@ -74,70 +114,89 @@ class ProductView extends React.Component {
             <div>
               <Row className="pd-0 mr-l-10 mr-r-10">
                 <Col lg="4">
-                  <CardRowCol lable="Category" value={productdetail.category} />
+                  <CardRowCol
+                    lable="Category"
+                    value={productdetail.category_name}
+                  />
                   <CardRowCol
                     lable="L1 Category"
-                    value={productdetail.subCategory1}
+                    value={productdetail.subcategoryl1_name}
                   />
                   <CardRowCol
                     lable="L2 Category"
-                    value={productdetail.subCategory2}
+                    value={productdetail.subcategory2_name || "-"}
                   />
                   <CardRowCol
-                    lable="Item Name"
-                    value={productdetail.itemname}
+                    lable="Product Name"
+                    value={productdetail.Productname}
                   />
                   <CardRowCol
-                    lable="Item Code"
-                    value={productdetail.itemcode}
+                    lable="Product Code"
+                    value={productdetail.product_id}
                   />
                   <CardRowCol
                     lable="Weight (kg)"
                     value={productdetail.weight}
                   />
-                  <CardRowCol lable="UOM" value={productdetail.uom} />
+                  <CardRowCol lable="UOM" value={productdetail.uom || "-"} />
                   <CardRowCol
                     lable="Packet size"
-                    value={productdetail.packet_size}
+                    value={productdetail.packetsize || "-"}
                   />
                 </Col>
                 <Col lg="4">
-                  <CardRowCol lable="Brand" value={productdetail.category} />
+                  <CardRowCol lable="Brand" value={productdetail.brandname} />
                   <CardRowCol
                     lable="Short description"
-                    value={productdetail.subCategory1}
+                    value={productdetail.short_desc}
                   />
                   <CardRowCol
                     lable="Product details"
-                    value={productdetail.subCategory2}
+                    value={productdetail.productdetails}
                   />
                   <CardRowCol
                     lable="Zone area"
-                    value={productdetail.itemname}
+                    value={productdetail.zonemapping}
                   />
-                  <CardRowCol lable="HSN code" value={productdetail.itemcode} />
-                  <CardRowCol lable="Tag" value={productdetail.weight} />
-                  <CardRowCol lable="Perishable" value={productdetail.uom} />
+                  <CardRowCol lable="HSN code" value={productdetail.hsn_code} />
+                  <CardRowCol lable="Tag" value={productdetail.tag} />
+                  <CardRowCol
+                    lable="Perishable"
+                    value={productdetail.Perishable}
+                  />
                   <CardRowCol
                     lable="Veg/Vegan/Non veg"
-                    value={productdetail.packet_size}
+                    value={productdetail.vegtype}
                   />
                   <CardRowCol
                     lable="Targeted Base Price"
-                    value={productdetail.uom}
+                    value={productdetail.targetedbaseprice}
                   />
                 </Col>
                 <Col lg="4">
-                  <CardRowCol lable="MRP" value={productdetail.itemcode} />
-                  <CardRowCol lable="GST %" value={productdetail.itemcode} />
+                  <CardRowColImage
+                    lable="Photograph"
+                    value={productdetail.image}
+                  />
+                  <CardRowCol lable="MRP" value={productdetail.mrp} />
+                  <CardRowCol lable="GST %" value={productdetail.gst} />
                   <CardRowCol
                     lable="Discount amount"
-                    value={productdetail.itemcode}
+                    value={productdetail.discount_cost}
                   />
                   <CardRowCol
                     lable="Discounted amount"
-                    value={productdetail.itemcode}
+                    value={productdetail.discountedamount}
                   />
+                </Col>
+              </Row>
+              <Row className="mr-b-10">
+                <Col></Col>
+                <Col className="txt-align-right">
+                  <Button size="sm">Edit</Button>
+                  <Button size="sm" className="mr-l-10 mr-r-10">
+                    Back
+                  </Button>
                 </Col>
               </Row>
             </div>
@@ -150,25 +209,26 @@ class ProductView extends React.Component {
               </div>
               <div>
                 <Row className="pd-0 mr-l-10 mr-r-10">
-                  {this.props.productdetail.vendor_list.map((item, i) => (
+                  {vendorlist.map((item, i) => (
                     <Col lg="4" className="pd-0">
                       <div className="fieldset">
                         <div className="legend">
-                          {item.vendorname}-{item.vendorcode}-{item.expdate}
+                          {item.vendorname}-{item.vendorid}-
+                          {Moment(item.expiry_date).format("DD/MM/YYYY")}
                         </div>
                         <Row className="pd-0 mr-l-10 pd-b-10">
                           <Col lg="11">
                             <CardRowColVendor
                               lable="Base Price"
-                              value={item.baseprice}
+                              value={item.base_price}
                             />
                             <CardRowColVendor
                               lable="Cost Price (Calculated field)"
-                              value={item.costprice}
+                              value={item.other_charges}
                             />
                             <CardRowColVendor
                               lable="Other charges (%)"
-                              value={item.othercharges}
+                              value={item.cost_price}
                             />
                             <Row>
                               <Col></Col>

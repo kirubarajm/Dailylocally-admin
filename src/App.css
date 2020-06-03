@@ -579,6 +579,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   border-bottom: none !important;
 }
 
+.border-none {
+  border: none !important;
+}
+
 .btn-custom-primary {
   background: #e3e8ebb2 !important;
   border-color: #e3e8ebb2 !important;
@@ -1629,9 +1633,20 @@ hr.style-moveit:after {
 }
 
 .width-25 {
-  width: 25px;
+  width: 25px !important;
 }
 
+.width-50 {
+  width: 50px !important;
+}
+
+.width-150 {
+  width: 150px !important;
+}
+
+.width-120 {
+  width: 120px !important;
+}
 .cat-title {
   font-weight: bold;
   font-size: 14px;
@@ -1723,4 +1738,10 @@ hr.style-moveit:after {
   width: auto;
   padding: 2px;
   background-color: #ffffff;
+}
+
+.product_error{
+  margin-left: 150px;
+    font-size: 12px;
+    color: red;
 }

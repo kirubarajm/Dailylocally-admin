@@ -235,12 +235,12 @@ class Catalog extends React.Component {
                       className={
                         this.state.selected_cat.catid === item.catid
                           ? "cat-item-active"
-                          : " cat-item"
+                          : "cat-item"
                       }
                       active={this.state.selected_cat.catid === item.catid}
                       onClick={() => this.clickCatItem(item)}
                     >
-                      <Col lg="6">{item.name}</Col>
+                      <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
                         <div hidden={this.state.catalog_tab_type === 1}>
                           <Button
@@ -269,8 +269,7 @@ class Catalog extends React.Component {
                 </div>
               </div>
             </Col>
-            <Col
-              lg="3"
+            <Col lg="3"
               hidden={
                 this.state.catalog_tab_type == 1
                   ? this.state.selected_cat.catid == 0
@@ -304,7 +303,7 @@ class Catalog extends React.Component {
                       }
                       onClick={() => this.clickSubCat1Item(item)}
                     >
-                      <Col lg="6">{item.name}</Col>
+                      <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
                         <div hidden={this.state.catalog_tab_type === 1}>
                           <Button
@@ -360,7 +359,7 @@ class Catalog extends React.Component {
                       }
                       onClick={() => this.clickSubCat2Item(item)}
                     >
-                      <Col lg="6">{item.name}</Col>
+                      <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
                         <div hidden={this.state.catalog_tab_type === 1}>
                           <Button
