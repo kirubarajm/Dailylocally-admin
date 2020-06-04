@@ -43,6 +43,14 @@ const Catelog = {
     requests.post('/subcategoryl2list',data),
     getProduct: (data) =>
     requests.post('/productlist',data),
+    getProductDetail: (data) =>
+    requests.post('/view/product',data),
+    getUOMList: (data) =>
+    requests.post('/uomlist',data),
+    getZoneList: (data) =>
+    requests.post('/zonelist',data),
+    getBrandList: (data) =>
+    requests.post('/brandlist',data),
 };
 
 

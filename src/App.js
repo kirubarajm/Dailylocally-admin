@@ -11,6 +11,7 @@ import Notifications from "react-notify-toast";
 import { MainLayout } from "./components";
 import Catalog from "./pages/Catalog";
 import ProductView from "./pages/ProductView";
+import ProductAddEdit from "./pages/ProductAddEdit";
 const mapStateToProps = (state) => {
   return {};
 };
@@ -40,13 +41,20 @@ class App extends React.Component {
             component={Catalog}
           />
 
-<LayoutRoute
+          <LayoutRoute
             exact
             path="/product_view/:product_id"
             layout={MainLayout}
             component={ProductView}
           />
-          
+
+          <LayoutRoute
+            exact
+            path="/product_add_edit/:product_id"
+            layout={MainLayout}
+            component={ProductAddEdit}
+          />
+
           <Redirect to="/login" />
         </Switch>
       </div>

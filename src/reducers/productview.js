@@ -1,3 +1,5 @@
+import { PRODUCT_VIEW } from "../constants/actionTypes";
+
 var productdetail = {
   category: "Milk",
   subCategory1: "Avain",
@@ -49,6 +51,11 @@ var productdetail = {
 
 export default (state = { productdetail: productdetail }, action) => {
   switch (action.type) {
+    case PRODUCT_VIEW:
+      return {
+        ...state,
+        productdetail: action.payload.date[0] || false,
+      };
     default:
       return state;
   }
