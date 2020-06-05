@@ -130,11 +130,11 @@ class ProductView extends React.Component {
                   />
                   <CardRowCol
                     lable="Product Name"
-                    value={productdetail.Productname}
+                    value={productdetail.productname}
                   />
                   <CardRowCol
                     lable="Product Code"
-                    value={productdetail.product_id}
+                    value={productdetail.pid}
                   />
                   <CardRowCol
                     lable="Weight (kg)"
@@ -156,19 +156,16 @@ class ProductView extends React.Component {
                     lable="Product details"
                     value={productdetail.productdetails}
                   />
-                  <CardRowCol
-                    lable="Zone area"
-                    value={productdetail.zonemapping}
-                  />
+                  
                   <CardRowCol lable="HSN code" value={productdetail.hsn_code} />
-                  <CardRowCol lable="Tag" value={productdetail.tag} />
+                  <CardRowCol lable="Tag" value={productdetail.tagname} />
                   <CardRowCol
                     lable="Perishable"
-                    value={productdetail.Perishable}
+                    value={productdetail.Perishable?"No":"Yes"}
                   />
                   <CardRowCol
                     lable="Veg/Vegan/Non veg"
-                    value={productdetail.vegtype}
+                    value={productdetail.vegtype===0?"Veg":productdetail.vegtype===1?"Non veg":"Vegan"}
                   />
                   <CardRowCol
                     lable="Targeted Base Price"
@@ -195,7 +192,7 @@ class ProductView extends React.Component {
               <Row className="mr-b-10">
                 <Col></Col>
                 <Col className="txt-align-right">
-                <Link to={`/product_add_edit/${productdetail.product_id}`}><Button size="sm">Edit</Button></Link>
+                <Link to={`/product_edit/${productdetail.pid}`}><Button size="sm">Edit</Button></Link>
                   <Button size="sm" className="mr-l-10 mr-r-10" onClick={history.goBack}>
                     Back
                   </Button>
@@ -210,7 +207,7 @@ class ProductView extends React.Component {
                 Cost Comparison (PO/ PA- Active/PA - Expired)
               </div>
               <div>
-                <Row className="pd-0 mr-l-10 mr-r-10">
+                <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10">
                   {vendorlist.map((item, i) => (
                     <Col lg="4" className="pd-0">
                       <div className="fieldset">
@@ -226,20 +223,20 @@ class ProductView extends React.Component {
                             />
                             <CardRowColVendor
                               lable="Cost Price (Calculated field)"
-                              value={item.other_charges}
+                              value={item.cost_price}
                             />
                             <CardRowColVendor
                               lable="Other charges (%)"
-                              value={item.cost_price}
+                              value={item.other_charges}
                             />
-                            <Row>
+                            {/* <Row>
                               <Col></Col>
                               <Col className="txt-align-right">
                                 <Button size="sm" color="primary">
                                   Edit
                                 </Button>
                               </Col>
-                            </Row>
+                            </Row> */}
                           </Col>
                         </Row>
                       </div>

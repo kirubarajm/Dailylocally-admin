@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Row, Col, Button,Modal,ModalBody, ModalHeader } from "reactstrap";
+import { Row, Col, Button } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
-import Moment from "moment";
 import {
   PRODUCT_VIEW,
   UOM_LIST_VIEW,
@@ -26,7 +25,6 @@ import { required, minLength2 } from "../utils/Validation";
 import Select from "react-dropdown-select";
 import { history } from "../store";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
-import VendorEdit from "./VendorEdit";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -78,33 +76,7 @@ const InputSearchDropDown = ({
   );
 };
 
-
-
-
-
-function CardRowColVendor(props) {
-  var lable = props.lable ? props.lable : "";
-  var color = props.color ? props.color : "Black";
-  if (props.value !== null) {
-    return (
-      <Row className="list-text cart-item font-size-14">
-        <Col lg="7" className="color-grey pd-0">
-          {lable}
-        </Col>
-        <Col lg="1" className="color-grey pd-0">
-          {":"}
-        </Col>
-        <Col lg="4" style={{ color: color }} className="pd-l-0">
-          {props.value}
-        </Col>
-      </Row>
-    );
-  }
-
-  return <div />;
-}
-
-const mapStateToProps = (state) => ({ ...state.productaddedit });
+const mapStateToProps = (state) => ({ ...state.catsubaddedit });
 
 const mapDispatchToProps = (dispatch) => ({
   onGetCategory: (data) =>
@@ -126,26 +98,6 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: PRODUCT_VIEW,
       payload: AxiosRequest.Catelog.getProductDetail(data),
-    }),
-  onGetUOM: (data) =>
-    dispatch({
-      type: UOM_LIST_VIEW,
-      payload: AxiosRequest.Catelog.getUOMList(data),
-    }),
-  onGetZone: (data) =>
-    dispatch({
-      type: ZONE_LIST_VIEW,
-      payload: AxiosRequest.Catelog.getZoneList(data),
-    }),
-  onGetBrand: (data) =>
-    dispatch({
-      type: BRAND_LIST_VIEW,
-      payload: AxiosRequest.Catelog.getBrandList(data),
-    }),
-  onGetTag: (data) =>
-    dispatch({
-      type: TAG_LIST_VIEW,
-      payload: AxiosRequest.Catelog.getTagList(data),
     }),
   onUpdateMenuImages: (data) =>
     dispatch({
@@ -181,60 +133,36 @@ const mapDispatchToProps = (dispatch) => ({
       type: CLEAR_PRODUCT_DATA,
     }),
 });
-var isEdit = false;
+var isEdit=false;
 var kitchenSignatureImg = [1];
-class ProductAddEdit extends React.Component {
+class CatSubAddEdit extends React.Component {
   constructor() {
     super();
-    var ptname = window.location.pathname;
-    isEdit = false;
-    if (ptname.includes("/product_edit")) {
-      isEdit = true;
-    }
 
     this.state = {
       category: [],
       sub1Cat: [],
       sub2Cat: [],
-      vendor: [],
-      uom: [],
-      brand: [],
-      zone: [],
-      perishable: [],
-      tag: [],
-      productType: [],
       selected_cat: -1,
-      isEdit: isEdit,
       selected_cat_sub1: -1,
       selected_cat_sub2: -1,
       is_loading: true,
-      vendorEdit:false,
-      selectedVendor:{}
     };
   }
 
   UNSAFE_componentWillMount() {
-    var productIds = this.props.match.params.product_id;
-    if (isEdit) {
+    var catId = this.props.catId;
+    var scl1_id = this.props.scl1_id;
+    var scl2_id = this.props.scl2_id;
+    if(isEdit){
       this.props.onGetProduct({ product_id: productIds });
     }
     this.props.onGetCategory({ zone_id: 1 });
-    this.props.onGetUOM({});
-    this.props.onGetBrand({});
-    this.props.onGetTag({});
     this.submit = this.submit.bind(this);
-    this.selectedUOM = this.selectedUOM.bind(this);
-    this.selectedBrand = this.selectedBrand.bind(this);
-    this.selectedZone = this.selectedZone.bind(this);
-    this.selectedPer = this.selectedPer.bind(this);
-    this.selectedPrType = this.selectedPrType.bind(this);
     this.handleonRemove = this.handleonRemove.bind(this);
     this.selectedCat = this.selectedCat.bind(this);
     this.selectedSub1Cat = this.selectedSub1Cat.bind(this);
     this.selectedSub2Cat = this.selectedSub2Cat.bind(this);
-    this.selectedTag = this.selectedTag.bind(this);
-    this.toggleVendorEditPopup=this.toggleVendorEditPopup.bind(this);
-    this.onEditVendor=this.onEditVendor.bind(this);
     this.handleKitchenSignatureimages = this.handleKitchenSignatureimages.bind(
       this
     );
@@ -245,94 +173,13 @@ class ProductAddEdit extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    if (
-      this.props.productdetail &&
-      this.state.is_loading &&
-      this.state.isEdit
-    ) {
+    if (this.props.productdetail && this.state.is_loading&&this.state.isEdit) {
       var productDe = this.props.productdetail;
-      var initData = {
-        productname: productDe.productname,
-        pid: productDe.pid,
-        weight: productDe.weight,
-        packetsize: productDe.packetsize || 0,
-        short_desc: productDe.short_desc,
-        productdetails: productDe.productdetails,
-        hsn_code: productDe.hsn_code || 0,
-        tag: productDe.tag,
-        targetedbaseprice: productDe.targetedbaseprice || 0,
-        mrp: productDe.mrp,
-        gst: productDe.gst,
-        discount_cost: productDe.discount_cost,
-        //discountedamount: productDe.discountedamount,
-      };
-
-      if (productDe && productDe.catid) {
-        var cat = [{ catid: productDe.catid, name: productDe.category_name }];
-        this.setState({ category: cat, is_loading: false });
-      }
-
-      if (productDe && productDe.scl1_id) {
-        var subcat = [
-          { scl1_id: productDe.scl1_id, name: productDe.subcategoryl1_name },
-        ];
-        this.setState({ sub1Cat: subcat });
-      }
-
-      if (productDe && productDe.scl1_id) {
-        var subcat2 = [
-          { scl2_id: productDe.scl2_id, name: productDe.subcategory2_name },
-        ];
-        this.setState({ sub2Cat: subcat2 });
-      }
-
-      if (productDe && productDe.uomid) {
-        var uom = [{ uomid: productDe.uomid, name: productDe.uom }];
-        this.setState({ uom: uom });
-      }
-
-      if (productDe && productDe.brand_id) {
-        var brand = [
-          { id: productDe.brand_id, brandname: productDe.brandname },
-        ];
-        this.setState({ brand: brand });
-      }
-      if (productDe && productDe.tag_id) {
-        var tag = [{ tagid: productDe.tag_id, name: productDe.tagname }];
-        this.setState({ tag: tag });
-      }
-
-      if (productDe) {
-        var perishable = productDe.Perishable === 1 ? "Yes" : "No";
-        var Perishable = [{ id: productDe.Perishable, name: perishable }];
-        this.setState({ perishable: Perishable });
-      }
-
-      if (productDe) {
-        var vegName =
-          productDe.vegtype === 0
-            ? "Veg"
-            : productDe.vegtype === 1
-            ? "Non Veg"
-            : "Vegan";
-        var productType = [{ id: productDe.vegtype, name: vegName }];
-        this.setState({ productType: productType });
-      }
-      if (productDe.image) {
-        this.props.onSetImages(productDe.image);
-      }
-
-      if (productDe.vendorlist) {
-        var vendors = productDe.vendorlist;
-        for (var i = 0; i < vendors.length; i++) {
-          vendors[i].isEdit = false;
-        }
-        this.setState({ vendor: vendors });
-      }
-
+      var initData={}
       this.setState({ is_loading: false });
       this.props.initialize(initData);
     }
+    
     if (this.props.isProductUpdated) {
       this.props.onClearProduct();
       this.props.history.goBack();
@@ -414,20 +261,6 @@ class ProductAddEdit extends React.Component {
   selectedTag = (item) => {
     this.setState({ tag: item });
   };
-  toggleVendorEditPopup = () => {
-    this.setState({
-      vendorEdit: !this.state.vendorEdit,
-    });
-  };
-  
-  onEditVendor = Item => {
-    this.setState({
-      selectedVendor: Item,
-    });
-    this.toggleVendorEditPopup();
-  };
-  
-  
   handleonRemove = (imgid, imgType, index) => {
     const { removeimages } = this.state;
     this.props.onDeleteMenuImages(imgType, index);
@@ -732,85 +565,13 @@ class ProductAddEdit extends React.Component {
               </form>
             </div>
           </div>
-
-          <div className="mr-t-20" hidden={this.state.vendor.length == 0}>
-            <div className="fieldset">
-              <div className="legend">
-                Cost Comparison (PO/ PA- Active/PA - Expired)
-              </div>
-              <div>
-                <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10">
-                  {this.state.vendor.map((item, i) => (
-                    <Col lg="4" className="pd-0">
-                      <div className="fieldset">
-                        <div className="legend">
-                          {item.vendorname}-{item.vendorid}-
-                          {Moment(item.expiry_date).format("DD/MM/YYYY")}
-                        </div>
-                        <Row className="pd-0 mr-l-10 pd-b-10">
-                          <Col lg="11">
-                            <CardRowColVendor
-                              lable="Base Price"
-                              value={item.base_price}
-                            />
-                            <CardRowColVendor
-                              lable="Cost Price (Calculated field)"
-                              value={item.cost_price}
-                              disabled={true}
-                            />
-                            <CardRowColVendor
-                              lable="Other charges (%)"
-                              value={item.other_charges}
-                            />
-                            <Row>
-                              <Col></Col>
-                              <Col className="txt-align-right">
-                                <Button size="sm" color="primary" onClick={()=>this.onEditVendor(item)}>
-                                  Edit
-                                </Button>
-                              </Col>
-                            </Row>
-                          </Col>
-                        </Row>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
-              </div>
-            </div>
-          </div>
         </div>
-        <Modal
-          isOpen={this.state.vendorEdit}
-          toggle={this.toggleVendorEditPopup}
-          className={this.props.className}
-          backdrop={true}
-        >
-          <ModalHeader toggle={this.toggleVendorEditPopup}>
-            Vendor Detail
-          </ModalHeader>
-          <ModalBody>
-            <VendorEdit vendor={this.state.selectedVendor} pid={this.props.match.params.product_id} update={this.toggleVendorEditPopup}/>
-            {/* <div className="mr-t-20 txt-align-center">
-              <Button onClick={this.updateVendor} size="sm">
-                Done
-              </Button>{" "}
-              <Button
-                onClick={this.togglePaymentPopup}
-                size="sm"
-                className="color-black border-color-black mr-l-10"
-              >
-                Cancel
-              </Button>
-            </div> */}
-          </ModalBody>
-        </Modal>
       </div>
     );
   }
 }
 
-ProductAddEdit = reduxForm({
-  form: PRODUCT_ADD_EDIT, // a unique identifier for this form
-})(ProductAddEdit);
-export default connect(mapStateToProps, mapDispatchToProps)(ProductAddEdit);
+CatSubAddEdit = reduxForm({
+  form: CAT_SUB_ADD_EDIT, // a unique identifier for this form
+})(CatSubAddEdit);
+export default connect(mapStateToProps, mapDispatchToProps)(CatSubAddEdit);

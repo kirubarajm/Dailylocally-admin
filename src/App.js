@@ -50,7 +50,14 @@ class App extends React.Component {
 
           <LayoutRoute
             exact
-            path="/product_add_edit/:product_id"
+            path="/product_edit/:product_id"
+            layout={MainLayout}
+            component={ProductAddEdit}
+          />
+
+          <LayoutRoute
+            exact
+            path="/product_add"
             layout={MainLayout}
             component={ProductAddEdit}
           />

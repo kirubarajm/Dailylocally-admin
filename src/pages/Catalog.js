@@ -138,15 +138,15 @@ class Catalog extends React.Component {
   };
 
   catList() {
-    this.props.onGetCategory({});
+    this.props.onGetCategory({zone_id:1});
   }
 
   subCat1List(cat_id) {
-    this.props.onGetSubCat1({ catid: cat_id });
+    this.props.onGetSubCat1({ catid: cat_id,zone_id:1 });
   }
 
   subCat2List(scl1_id) {
-    this.props.onGetSubCat2({ scl1_id: scl1_id });
+    this.props.onGetSubCat2({ scl1_id: scl1_id,zone_id:1});
   }
 
   getProduct(scl1_id, scl2_id, zone_id) {
@@ -396,13 +396,14 @@ class Catalog extends React.Component {
                     className="btn"
                     hidden={this.state.catalog_tab_type === 0}
                   >
+                    <Link to={`/product_add`}>
                     <Button size="sm">
                       Add New{" "}
                       <span className="vertical-align-center">
                         {" "}
                         <FaPlusCircle size={12} />
                       </span>
-                    </Button>
+                    </Button></Link>
                   </div>
                 </div>
                 <div className="cat-table">
@@ -423,14 +424,14 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-green btn-live"
-                            hidden={item.active_status === 1}
+                            hidden={item.live_status === "1"}
                           >
                             Live
                           </Button>
                           <Button
                             size="sm"
                             className="bg-color-red btn-unlive"
-                            hidden={item.active_status === 0}
+                            hidden={item.live_status === "0"}
                           >
                             Unlive
                           </Button>
@@ -444,7 +445,7 @@ class Catalog extends React.Component {
                           >
                             View
                           </Button></Link>
-                          <Link to={`/product_add_edit/${item.pid}`}>
+                          <Link to={`/product_edit/${item.pid}`}>
                           <Button size="sm" className="bg-color-red btn-edit">
                             Edit
                           </Button> </Link>

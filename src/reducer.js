@@ -6,7 +6,8 @@ import auth from './reducers/auth';
 import catalog from './reducers/catalog'
 import productview from './reducers/productview'
 import productaddedit from './reducers/productaddedit'
-
+import catsubaddedit from './reducers/catsubaddedit'
+import vendoredit from './reducers/vendoredit'
 export default combineReducers({
   router: routerReducer,
   form: formReducer,
@@ -15,4 +16,6 @@ export default combineReducers({
   catalog,
   productview,
   productaddedit,
+  catsubaddedit,
+  vendoredit
 });
