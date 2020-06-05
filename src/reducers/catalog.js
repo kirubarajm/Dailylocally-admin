@@ -40,5 +40,4 @@ export default (
       return state;
   }
 
-  return state;
 };

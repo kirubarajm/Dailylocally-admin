@@ -60,5 +60,4 @@ export default (state = { productdetail: productdetail }, action) => {
       return state;
   }
 
-  return state;
 };

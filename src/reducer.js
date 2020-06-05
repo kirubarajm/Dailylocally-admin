@@ -5,6 +5,7 @@ import sample from './reducers/sample'
 import auth from './reducers/auth';
 import catalog from './reducers/catalog'
 import productview from './reducers/productview'
+import productaddedit from './reducers/productaddedit'
 
 export default combineReducers({
   router: routerReducer,
@@ -13,4 +14,5 @@ export default combineReducers({
   sample,
   catalog,
   productview,
+  productaddedit,
 });

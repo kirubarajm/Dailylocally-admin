@@ -2,8 +2,10 @@ import React from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
+import { Link } from "react-router-dom";
 import { PRODUCT_VIEW } from "../constants/actionTypes";
 import Moment from "moment";
+import { history } from '../store';
 
 const mapStateToProps = (state) => ({ ...state.productview });
 
@@ -193,8 +195,8 @@ class ProductView extends React.Component {
               <Row className="mr-b-10">
                 <Col></Col>
                 <Col className="txt-align-right">
-                  <Button size="sm">Edit</Button>
-                  <Button size="sm" className="mr-l-10 mr-r-10">
+                <Link to={`/product_add_edit/${productdetail.product_id}`}><Button size="sm">Edit</Button></Link>
+                  <Button size="sm" className="mr-l-10 mr-r-10" onClick={history.goBack}>
                     Back
                   </Button>
                 </Col>

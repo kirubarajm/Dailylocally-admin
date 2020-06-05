@@ -437,15 +437,17 @@ class Catalog extends React.Component {
                         </div>
 
                         <div hidden={this.state.catalog_tab_type === 0}>
+                        <Link to={`/product_view/${item.pid}`}>
                           <Button
                             size="sm"
                             className="bg-color-red btn-edit mr-r-10"
                           >
                             View
-                          </Button>
+                          </Button></Link>
+                          <Link to={`/product_add_edit/${item.pid}`}>
                           <Button size="sm" className="bg-color-red btn-edit">
                             Edit
-                          </Button>
+                          </Button> </Link>
                         </div>
                       </Col>
                     </Row>
