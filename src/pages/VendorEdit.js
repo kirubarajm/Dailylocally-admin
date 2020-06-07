@@ -80,11 +80,7 @@ function CardRowColVendorEdit(props) {
 }
 
 class VendorEdit extends React.Component {
-  constructor() {
-    super();
-    //this.state = { selectedVendor: this.props.vendor };
-  }
-
+  
   UNSAFE_componentWillMount() {
     this.updateVendor = this.updateVendor.bind(this);
     this.setState({ selectedVendor: this.props.vendor });

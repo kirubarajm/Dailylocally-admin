@@ -10,6 +10,7 @@ import {
 } from "../constants/actionTypes";
 import { Link } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
+import { IoIosClose } from "react-icons/io";
 import {
   Row,
   Col,
@@ -19,8 +20,12 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
+  Modal,
+  ModalBody,
+  ModalHeader,
 } from "reactstrap";
 import { Area } from "../utils/constant";
+import CatSubAddEdit from "./CatSubAddEdit";
 
 const mapStateToProps = (state) => ({ ...state.catalog });
 
@@ -58,6 +63,11 @@ class Catalog extends React.Component {
       selected_cat_sub1: -1,
       selected_cat_sub2: -1,
       selected_product: -1,
+      cat_edit_modal: false,
+      isCat: false,
+      edit_cat_item: -1,
+      edit_cat_sub1_item: -1,
+      edit_cat_sub2_item: -1,
     };
   }
 
@@ -70,9 +80,14 @@ class Catalog extends React.Component {
     this.clickCatItem = this.clickCatItem.bind(this);
     this.clickSubCat1Item = this.clickSubCat1Item.bind(this);
     this.clickSubCat2Item = this.clickSubCat2Item.bind(this);
-    this.onSearch=this.onSearch.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.toggleCatEditPopup = this.toggleCatEditPopup.bind(this);
+    this.catAddEditClick = this.catAddEditClick.bind(this);
+    this.sub1catAddEditClick = this.sub1catAddEditClick.bind(this);
+    this.sub2catAddEditClick = this.sub2catAddEditClick.bind(this);
+    this.onUpdate = this.onUpdate.bind(this);
+    this.onCancel = this.onCancel.bind(this);
     this.setState({ areaItem: Area[0] });
-
   }
   UNSAFE_componentWillUpdate() {
     console.log("--componentWillUpdate-->");
@@ -94,13 +109,11 @@ class Catalog extends React.Component {
     console.log("--componentDidCatch-->");
   }
 
-  onSearch = e => {
+  onSearch = (e) => {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
-      
-    }else if(e.target.value===''){
+    } else if (e.target.value === "") {
       e.preventDefault();
-      
     }
   };
 
@@ -112,7 +125,7 @@ class Catalog extends React.Component {
     this.setState({ areaItem: item });
   };
 
-  clickCatItem = (item) => {
+  clickCatItem = (item) => (ev) => {
     this.setState({ selected_cat: item });
     this.subCat1List(item.catid);
   };
@@ -136,17 +149,38 @@ class Catalog extends React.Component {
       isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
     }));
   };
+  catAddEditClick = (isEdit, item) => {
+    this.setState({ isCat: true, isEdit: isEdit, edit_cat_item: item });
+    this.toggleCatEditPopup();
+  };
+  sub1catAddEditClick = (isEdit, item) => {
+    this.setState({
+      isSubCat1: true,
+      isEdit: isEdit,
+      edit_cat_sub1_item: item,
+    });
+    this.toggleCatEditPopup();
+  };
+
+  sub2catAddEditClick = (isEdit, item) => {
+    this.setState({
+      isSubCat2: true,
+      isEdit: isEdit,
+      edit_cat_sub2_item: item,
+    });
+    this.toggleCatEditPopup();
+  };
 
   catList() {
-    this.props.onGetCategory({zone_id:1});
+    this.props.onGetCategory({ zone_id: 1 });
   }
 
   subCat1List(cat_id) {
-    this.props.onGetSubCat1({ catid: cat_id,zone_id:1 });
+    this.props.onGetSubCat1({ catid: cat_id, zone_id: 1 });
   }
 
   subCat2List(scl1_id) {
-    this.props.onGetSubCat2({ scl1_id: scl1_id,zone_id:1});
+    this.props.onGetSubCat2({ scl1_id: scl1_id, zone_id: 1 });
   }
 
   getProduct(scl1_id, scl2_id, zone_id) {
@@ -156,6 +190,22 @@ class Catalog extends React.Component {
       zone_id: zone_id,
     });
   }
+
+  toggleCatEditPopup = () => {
+    this.setState({
+      cat_edit_modal: !this.state.cat_edit_modal,
+    });
+  };
+
+  onUpdate = () => {
+    this.setState({ isCat: false, isSubCat1: false, isSubCat2: false });
+    this.toggleCatEditPopup();
+  };
+
+  onCancel = () => {
+    this.setState({ isCat: false, isSubCat1: false, isSubCat2: false });
+    this.toggleCatEditPopup();
+  };
 
   render() {
     const category_list = this.props.category_list || [];
@@ -184,7 +234,13 @@ class Catalog extends React.Component {
                 </Button>
               </ButtonGroup>
             </Col>
-            <Col><SearchInput onSearch={this.onSearch} value={this.props.search} placeholder="Search category, L1SC, L2SC or Product"/></Col>
+            <Col>
+              <SearchInput
+                onSearch={this.onSearch}
+                value={this.props.search}
+                placeholder="Search category, L1SC, L2SC or Product"
+              />
+            </Col>
             <Col>
               <div className="float-right">
                 Area{"  "}
@@ -220,7 +276,10 @@ class Catalog extends React.Component {
                     className="btn"
                     hidden={this.state.catalog_tab_type === 0}
                   >
-                    <Button size="sm">
+                    <Button
+                      size="sm"
+                      onClick={() => this.catAddEditClick(false)}
+                    >
                       Add New{" "}
                       <span className="vertical-align-center">
                         {" "}
@@ -238,7 +297,7 @@ class Catalog extends React.Component {
                           : "cat-item"
                       }
                       active={this.state.selected_cat.catid === item.catid}
-                      onClick={() => this.clickCatItem(item)}
+                      onClick={this.clickCatItem(item)}
                     >
                       <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
@@ -259,7 +318,11 @@ class Catalog extends React.Component {
                           </Button>
                         </div>
                         <div hidden={this.state.catalog_tab_type === 0}>
-                          <Button size="sm" className="bg-color-red btn-edit">
+                          <Button
+                            size="sm"
+                            className="bg-color-red btn-edit"
+                            onClick={() => this.catAddEditClick(true, item)}
+                          >
                             Edit
                           </Button>
                         </div>
@@ -269,7 +332,8 @@ class Catalog extends React.Component {
                 </div>
               </div>
             </Col>
-            <Col lg="3"
+            <Col
+              lg="3"
               hidden={
                 this.state.catalog_tab_type == 1
                   ? this.state.selected_cat.catid == 0
@@ -284,7 +348,10 @@ class Catalog extends React.Component {
                     className="btn"
                     hidden={this.state.catalog_tab_type === 0}
                   >
-                    <Button size="sm">
+                    <Button
+                      size="sm"
+                      onClick={() => this.sub1catAddEditClick(false)}
+                    >
                       Add New{" "}
                       <span className="vertical-align-center">
                         {" "}
@@ -322,7 +389,11 @@ class Catalog extends React.Component {
                           </Button>
                         </div>
                         <div hidden={this.state.catalog_tab_type === 0}>
-                          <Button size="sm" className="bg-color-red btn-edit">
+                          <Button
+                            size="sm"
+                            className="bg-color-red btn-edit"
+                            onClick={() => this.sub1catAddEditClick(true, item)}
+                          >
                             Edit
                           </Button>
                         </div>
@@ -340,7 +411,10 @@ class Catalog extends React.Component {
                     className="btn"
                     hidden={this.state.catalog_tab_type === 0}
                   >
-                    <Button size="sm">
+                    <Button
+                      size="sm"
+                      onClick={() => this.sub2catAddEditClick(false)}
+                    >
                       Add New{" "}
                       <span className="vertical-align-center">
                         {" "}
@@ -378,7 +452,11 @@ class Catalog extends React.Component {
                           </Button>
                         </div>
                         <div hidden={this.state.catalog_tab_type === 0}>
-                          <Button size="sm" className="bg-color-red btn-edit">
+                          <Button
+                            size="sm"
+                            className="bg-color-red btn-edit"
+                            onClick={() => this.sub2catAddEditClick(true, item)}
+                          >
                             Edit
                           </Button>
                         </div>
@@ -397,13 +475,14 @@ class Catalog extends React.Component {
                     hidden={this.state.catalog_tab_type === 0}
                   >
                     <Link to={`/product_add`}>
-                    <Button size="sm">
-                      Add New{" "}
-                      <span className="vertical-align-center">
-                        {" "}
-                        <FaPlusCircle size={12} />
-                      </span>
-                    </Button></Link>
+                      <Button size="sm">
+                        Add New{" "}
+                        <span className="vertical-align-center">
+                          {" "}
+                          <FaPlusCircle size={12} />
+                        </span>
+                      </Button>
+                    </Link>
                   </div>
                 </div>
                 <div className="cat-table">
@@ -412,15 +491,16 @@ class Catalog extends React.Component {
                       <Col lg="8">{item.Productname}</Col>
                       <Col className="txt-align-right pd-0 mr-r-5 pd-r-5">
                         <div hidden={this.state.catalog_tab_type === 1}>
-                        <Link to={`/product_view/${item.pid}`}>
-                          <Button
-                            size="sm"
-                            color="primary"
-                            className="mr-r-10"
-                            hidden={this.state.catalog_tab_type === 1}
-                          >
-                            Details
-                          </Button></Link>
+                          <Link to={`/product_view/${item.pid}`}>
+                            <Button
+                              size="sm"
+                              color="primary"
+                              className="mr-r-10"
+                              hidden={this.state.catalog_tab_type === 1}
+                            >
+                              Details
+                            </Button>
+                          </Link>
                           <Button
                             size="sm"
                             className="bg-color-green btn-live"
@@ -438,17 +518,19 @@ class Catalog extends React.Component {
                         </div>
 
                         <div hidden={this.state.catalog_tab_type === 0}>
-                        <Link to={`/product_view/${item.pid}`}>
-                          <Button
-                            size="sm"
-                            className="bg-color-red btn-edit mr-r-10"
-                          >
-                            View
-                          </Button></Link>
+                          <Link to={`/product_view/${item.pid}`}>
+                            <Button
+                              size="sm"
+                              className="bg-color-red btn-edit mr-r-10"
+                            >
+                              View
+                            </Button>
+                          </Link>
                           <Link to={`/product_edit/${item.pid}`}>
-                          <Button size="sm" className="bg-color-red btn-edit">
-                            Edit
-                          </Button> </Link>
+                            <Button size="sm" className="bg-color-red btn-edit">
+                              Edit
+                            </Button>{" "}
+                          </Link>
                         </div>
                       </Col>
                     </Row>
@@ -458,6 +540,43 @@ class Catalog extends React.Component {
             </Col>
           </Row>
         </div>
+
+        <Modal
+          isOpen={this.state.cat_edit_modal}
+          toggle={this.toggleCatEditPopup}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalBody>
+            <Row className="mr-b-10">
+              <Col lg="8"></Col>
+              <Col className="txt-align-right">
+                <Button
+                  size="sm"
+                  onClick={this.onCancel}
+                  className="border-none"
+                >
+                  <IoIosClose size={25} />
+                </Button>
+              </Col>
+            </Row>
+            <CatSubAddEdit
+              isCat={this.state.isCat}
+              isEdit={this.state.isEdit}
+              edit_cat_item={this.state.edit_cat_item}
+
+              isSubCat1={this.state.isSubCat1}
+              selected_cat={this.state.selected_cat}
+              edit_cat_sub1_item={this.state.edit_cat_sub1_item}
+
+              isSubCat2={this.state.isSubCat2}
+              selected_cat_sub1={this.state.selected_cat_sub1}
+              edit_cat_sub2_item={this.state.edit_cat_sub2_item}
+
+              update={this.onUpdate}
+            />
+          </ModalBody>
+        </Modal>
       </div>
     );
   }
