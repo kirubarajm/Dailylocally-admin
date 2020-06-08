@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Row, Col, Button,Modal,ModalBody, ModalHeader } from "reactstrap";
+import { Row, Col, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import {
@@ -11,9 +11,9 @@ import {
   BRAND_LIST_VIEW,
   TAG_LIST_VIEW,
   DELETE_PRODUCT_IMAGES,
-  CATELOG_CATEGORY_LIST,
-  CATELOG_SUBCATEGORY_L1_LIST,
-  CATELOG_SUBCATEGORY_L2_LIST,
+  PRODUCT_CATEGORY_LIST,
+  PRODUCT_SUBCATEGORY_L1_LIST,
+  PRODUCT_SUBCATEGORY_L2_LIST,
   SET_PRODUCT_IMAGES,
   PRODUCT_ADD,
   PRODUCT_EDIT,
@@ -78,10 +78,6 @@ const InputSearchDropDown = ({
   );
 };
 
-
-
-
-
 function CardRowColVendor(props) {
   var lable = props.lable ? props.lable : "";
   var color = props.color ? props.color : "Black";
@@ -104,22 +100,27 @@ function CardRowColVendor(props) {
   return <div />;
 }
 
-const mapStateToProps = (state) => ({ ...state.productaddedit });
+const mapStateToProps = (state) => ({
+  ...state.productaddedit,
+  cat: state.catalog.selected_cat,
+  l1cat: state.catalog.selected_cat_sub1,
+  l2cat: state.catalog.selected_cat_sub2,
+});
 
 const mapDispatchToProps = (dispatch) => ({
   onGetCategory: (data) =>
     dispatch({
-      type: CATELOG_CATEGORY_LIST,
+      type: PRODUCT_CATEGORY_LIST,
       payload: AxiosRequest.Catelog.getCategory(data),
     }),
   onGetSubCat1: (data) =>
     dispatch({
-      type: CATELOG_SUBCATEGORY_L1_LIST,
+      type: PRODUCT_SUBCATEGORY_L1_LIST,
       payload: AxiosRequest.Catelog.getSubCate1(data),
     }),
   onGetSubCat2: (data) =>
     dispatch({
-      type: CATELOG_SUBCATEGORY_L2_LIST,
+      type: PRODUCT_SUBCATEGORY_L2_LIST,
       payload: AxiosRequest.Catelog.getSubCate2(data),
     }),
   onGetProduct: (data) =>
@@ -147,9 +148,9 @@ const mapDispatchToProps = (dispatch) => ({
       type: TAG_LIST_VIEW,
       payload: AxiosRequest.Catelog.getTagList(data),
     }),
-  onUpdateMenuImages: (data) =>
+  onUpdateMenuImages: (data,imgtype) =>
     dispatch({
-      type: UPDATE_PRODUCT_IMAGES,
+      type: UPDATE_PRODUCT_IMAGES,imgtype,
       payload: AxiosRequest.Catelog.fileUpload(data),
     }),
   onSetImages: (image) =>
@@ -208,17 +209,20 @@ class ProductAddEdit extends React.Component {
       selected_cat_sub1: -1,
       selected_cat_sub2: -1,
       is_loading: true,
-      vendorEdit:false,
-      selectedVendor:{}
+      vendorEdit: false,
+      selectedVendor: {},
     };
   }
 
   UNSAFE_componentWillMount() {
     var productIds = this.props.match.params.product_id;
+    this.props.onGetCategory({ zone_id: 1 });
     if (isEdit) {
       this.props.onGetProduct({ product_id: productIds });
+    }else{
+      
     }
-    this.props.onGetCategory({ zone_id: 1 });
+    
     this.props.onGetUOM({});
     this.props.onGetBrand({});
     this.props.onGetTag({});
@@ -233,8 +237,8 @@ class ProductAddEdit extends React.Component {
     this.selectedSub1Cat = this.selectedSub1Cat.bind(this);
     this.selectedSub2Cat = this.selectedSub2Cat.bind(this);
     this.selectedTag = this.selectedTag.bind(this);
-    this.toggleVendorEditPopup=this.toggleVendorEditPopup.bind(this);
-    this.onEditVendor=this.onEditVendor.bind(this);
+    this.toggleVendorEditPopup = this.toggleVendorEditPopup.bind(this);
+    this.onEditVendor = this.onEditVendor.bind(this);
     this.handleKitchenSignatureimages = this.handleKitchenSignatureimages.bind(
       this
     );
@@ -337,12 +341,38 @@ class ProductAddEdit extends React.Component {
       this.props.onClearProduct();
       this.props.history.goBack();
     }
+
+    if(!this.state.isEdit && this.state.is_loading){
+      this.setState({ is_loading: false});
+      if (this.props.cat) {
+        var addcat = [{ catid: this.props.cat.catid, name: this.props.cat.name }];
+        this.setState({ category: addcat});
+      }
+
+      if (this.props.l1cat) {
+        var addsubcat = [
+          { scl1_id: this.props.l1cat.scl1_id, name: this.props.l1cat.name },
+        ];
+        this.setState({ sub1Cat: addsubcat });
+      }
+
+      if (this.props.l2cat) {
+        var addsubcat2 = [
+          { scl2_id: this.props.l2cat.scl2_id, name: this.props.l2cat.name },
+        ];
+        this.setState({ sub2Cat: addsubcat2 });
+      }
+    }
   }
   componentDidCatch() {}
   submit = (data) => {
     // if (this.state.category.length>0) {
     //   data.catid = this.state.category[0].catid;
     // }
+if(data.KSI0){
+  delete data.KSI0;
+}
+
     if (this.state.sub1Cat.length > 0) {
       data.scl1_id = this.state.sub1Cat[0].scl1_id;
     }
@@ -419,15 +449,14 @@ class ProductAddEdit extends React.Component {
       vendorEdit: !this.state.vendorEdit,
     });
   };
-  
-  onEditVendor = Item => {
+
+  onEditVendor = (Item) => {
     this.setState({
       selectedVendor: Item,
     });
     this.toggleVendorEditPopup();
   };
-  
-  
+
   handleonRemove = (imgid, imgType, index) => {
     const { removeimages } = this.state;
     this.props.onDeleteMenuImages(imgType, index);
@@ -441,8 +470,9 @@ class ProductAddEdit extends React.Component {
 
   handleKitchenSignatureimages = (newImageFile) => {
     var data = new FormData();
-    data.append("lic", newImageFile[0]);
-    this.props.onUpdateMenuImages(data);
+    data.append("file", newImageFile[0]);
+    data.append("type", 4);
+    this.props.onUpdateMenuImages(data,4);
   };
 
   render() {
@@ -765,7 +795,11 @@ class ProductAddEdit extends React.Component {
                             <Row>
                               <Col></Col>
                               <Col className="txt-align-right">
-                                <Button size="sm" color="primary" onClick={()=>this.onEditVendor(item)}>
+                                <Button
+                                  size="sm"
+                                  color="primary"
+                                  onClick={() => this.onEditVendor(item)}
+                                >
                                   Edit
                                 </Button>
                               </Col>
@@ -790,7 +824,11 @@ class ProductAddEdit extends React.Component {
             Vendor Detail
           </ModalHeader>
           <ModalBody>
-            <VendorEdit vendor={this.state.selectedVendor} pid={this.props.match.params.product_id} update={this.toggleVendorEditPopup}/>
+            <VendorEdit
+              vendor={this.state.selectedVendor}
+              pid={this.props.match.params.product_id}
+              update={this.toggleVendorEditPopup}
+            />
             {/* <div className="mr-t-20 txt-align-center">
               <Button onClick={this.updateVendor} size="sm">
                 Done

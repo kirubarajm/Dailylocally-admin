@@ -192,7 +192,7 @@ class ProductView extends React.Component {
               <Row className="mr-b-10">
                 <Col></Col>
                 <Col className="txt-align-right">
-                <Link to={`/product_edit/${productdetail.pid}`}><Button size="sm">Edit</Button></Link>
+                {/* <Link to={`/product_edit/${productdetail.pid}`}><Button size="sm">Edit</Button></Link> */}
                   <Button size="sm" className="mr-l-10 mr-r-10" onClick={history.goBack}>
                     Back
                   </Button>
