@@ -3,29 +3,22 @@ import { connect } from "react-redux";
 import { Row, Col, Button } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
 import {
-  PRODUCT_VIEW,
-  UOM_LIST_VIEW,
-  UPDATE_PRODUCT_IMAGES,
-  ZONE_LIST_VIEW,
-  BRAND_LIST_VIEW,
-  TAG_LIST_VIEW,
-  DELETE_PRODUCT_IMAGES,
-  CATELOG_CATEGORY_LIST,
-  CATELOG_SUBCATEGORY_L1_LIST,
-  CATELOG_SUBCATEGORY_L2_LIST,
-  SET_PRODUCT_IMAGES,
-  PRODUCT_ADD,
-  PRODUCT_EDIT,
-  CLEAR_PRODUCT_DATA,
+  CATELOG_ADD_L1CAT,
+  CATELOG_ADD_L2CAT,
+  CATELOG_EDIT_L1CAT,
+  CATELOG_EDIT_L2CAT,
+  CATELOG_SUBCATEGORY_EDIT_L1_LIST,
+  CATELOG_ADD_CAT,
+  CATELOG_CLEAR_FROM,
+  CATELOG_EDIT_CAT,
 } from "../constants/actionTypes";
-import { PRODUCT_ADD_EDIT } from "../utils/constant";
+import { CAT_SUB_ADD_EDIT } from "../utils/constant";
 import { Field, reduxForm, change } from "redux-form";
-import renderInputField from "../components/renderInputField";
 import { required, minLength2 } from "../utils/Validation";
 import Select from "react-dropdown-select";
 import { history } from "../store";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
-import { Button} from 'react-bootstrap';
+// import { Button} from 'react-bootstrap';
 
 const InputSearchDropDown = ({
   onSelection,
@@ -42,9 +35,9 @@ const InputSearchDropDown = ({
 }) => {
   return (
     <div className="border-none" style={{ marginBottom: "10px" }}>
-      <Row className="mr-0">
-        <Col lg="5" className="pd-0">
-          <label className="mr-0">
+      <Row className="pd-0 mr-l-10 mr-r-10 border-none">
+        <Col lg="6" className="pd-0">
+          <label className="mr-0 color-grey pd-0">
             {label} <span className="must">*</span>
           </label>
         </Col>
@@ -77,70 +70,92 @@ const InputSearchDropDown = ({
   );
 };
 
-const mapStateToProps = (state) => ({ ...state.catsubaddedit });
+const InputField = ({
+  input,
+  label,
+  type,
+  meta: { touched, error, warning },
+  ...custom
+  //
+}) => {
+  return (
+    <div className="border-none">
+      <div>
+        <input {...input} placeholder={label} type={type} autoComplete="off" />
+        <span
+          style={{
+            flex: "0",
+            WebkitFlex: "0",
+            width: "100px",
+            height: "10px",
+            fontSize: "12px",
+            color: "red",
+          }}
+        >
+          {touched &&
+            ((error && <span>{error}</span>) ||
+              (warning && <span>{warning}</span>))}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const mapStateToProps = (state) => ({
+  ...state.catsubaddedit,
+  category_list: state.catalog.category_list
+});
 
 const mapDispatchToProps = (dispatch) => ({
-  onGetCategory: (data) =>
-    dispatch({
-      type: CATELOG_CATEGORY_LIST,
-      payload: AxiosRequest.Catelog.getCategory(data),
-    }),
   onGetSubCat1: (data) =>
     dispatch({
-      type: CATELOG_SUBCATEGORY_L1_LIST,
+      type: CATELOG_SUBCATEGORY_EDIT_L1_LIST,
       payload: AxiosRequest.Catelog.getSubCate1(data),
     }),
-  onGetSubCat2: (data) =>
+  OnAddCategory: (data) =>
     dispatch({
-      type: CATELOG_SUBCATEGORY_L2_LIST,
-      payload: AxiosRequest.Catelog.getSubCate2(data),
+      type: CATELOG_ADD_CAT,
+      payload: AxiosRequest.Catelog.onAddCat(data),
     }),
-  onGetProduct: (data) =>
+  OnEditCategory: (data) =>
     dispatch({
-      type: PRODUCT_VIEW,
-      payload: AxiosRequest.Catelog.getProductDetail(data),
+      type: CATELOG_EDIT_CAT,
+      payload: AxiosRequest.Catelog.onEditCat(data),
     }),
-  onUpdateMenuImages: (data) =>
+  OnAddL1Category: (data) =>
     dispatch({
-      type: UPDATE_PRODUCT_IMAGES,
-      payload: AxiosRequest.Catelog.fileUpload(data),
+      type: CATELOG_ADD_L1CAT,
+      payload: AxiosRequest.Catelog.onAddL1Cat(data),
     }),
-  onSetImages: (image) =>
+  OnEditL1Category: (data) =>
     dispatch({
-      type: SET_PRODUCT_IMAGES,
-      image,
+      type: CATELOG_EDIT_L1CAT,
+      payload: AxiosRequest.Catelog.onEditL1Cat(data),
     }),
-  onDeleteMenuImages: () =>
+  OnAddL2Category: (data) =>
     dispatch({
-      type: DELETE_PRODUCT_IMAGES,
+      type: CATELOG_ADD_L2CAT,
+      payload: AxiosRequest.Catelog.onAddL2Cat(data),
     }),
-  onUpdateProductDetails: (data) =>
+  OnEditL2Category: (data) =>
     dispatch({
-      type: DELETE_PRODUCT_IMAGES,
-      payload: AxiosRequest.Catelog.getZoneList(data),
+      type: CATELOG_EDIT_L2CAT,
+      payload: AxiosRequest.Catelog.onEditL2Cat(data),
     }),
-  onAddProductDetails: (data) =>
+  onClear: () =>
     dispatch({
-      type: PRODUCT_ADD,
-      payload: AxiosRequest.Catelog.onAddProduct(data),
-    }),
-  onEditProductDetails: (data) =>
-    dispatch({
-      type: PRODUCT_EDIT,
-      payload: AxiosRequest.Catelog.onEditProduct(data),
-    }),
-  onClearProduct: () =>
-    dispatch({
-      type: CLEAR_PRODUCT_DATA,
+      type: CATELOG_CLEAR_FROM,
     }),
 });
-var isEdit=false;
-var kitchenSignatureImg = [1];
+var isEdit = false;
 class CatSubAddEdit extends React.Component {
   constructor() {
     super();
 
     this.state = {
+      isCat: false,
+      isSubCat1: false,
+      isSubCat2: false,
       category: [],
       sub1Cat: [],
       sub2Cat: [],
@@ -152,21 +167,63 @@ class CatSubAddEdit extends React.Component {
   }
 
   UNSAFE_componentWillMount() {
-    var catId = this.props.catId;
-    var scl1_id = this.props.scl1_id;
-    var scl2_id = this.props.scl2_id;
-    if(isEdit){
-      this.props.onGetProduct({ product_id: productIds });
-    }
-    this.props.onGetCategory({ zone_id: 1 });
-    this.submit = this.submit.bind(this);
-    this.handleonRemove = this.handleonRemove.bind(this);
     this.selectedCat = this.selectedCat.bind(this);
     this.selectedSub1Cat = this.selectedSub1Cat.bind(this);
-    this.selectedSub2Cat = this.selectedSub2Cat.bind(this);
-    this.handleKitchenSignatureimages = this.handleKitchenSignatureimages.bind(
-      this
-    );
+    //this.selectedSub2Cat = this.selectedSub2Cat.bind(this);
+    isEdit = this.props.isEdit;
+    this.setState({
+      isCat: this.props.isCat,
+      isSubCat1: this.props.isSubCat1,
+      isSubCat2: this.props.isSubCat2,
+      isEdit: isEdit,
+    });
+    if (this.props.isEdit && this.props.isCat) {
+      var data = { categoryname: this.props.edit_cat_item.name };
+      this.props.initialize(data);
+    }
+
+    if (this.props.isSubCat1) {
+      // this.props.onGetCategory({ zone_id: 1 });
+      var cat = [
+        {
+          catid: this.props.selected_cat.catid,
+          name: this.props.selected_cat.name,
+        },
+      ];
+      this.setState({ category: cat });
+
+      if (this.props.isEdit) {
+        var data = { l1scname: this.props.edit_cat_sub1_item.name };
+        this.props.initialize(data);
+      }
+    }
+
+    if (this.props.isSubCat2) {
+      // this.props.onGetCategory({ zone_id: 1 });
+      this.props.onGetSubCat1({
+      catid: this.props.selected_cat.catid,
+      zone_id: 1,
+      });
+      var cat = [
+        {
+          catid: this.props.selected_cat.catid,
+          name: this.props.selected_cat.name,
+        },
+      ];
+      this.setState({ category: cat });
+      var subcat = [
+        {
+          scl1_id: this.props.selected_cat_sub1.scl1_id,
+          name: this.props.selected_cat_sub1.name,
+        },
+      ];
+      this.setState({ sub1Cat: subcat });
+
+      if (this.props.isEdit) {
+        var data = { l2scname: this.props.edit_cat_sub2_item.name };
+        this.props.initialize(data);
+      }
+    }
   }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
@@ -174,393 +231,206 @@ class CatSubAddEdit extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    if (this.props.productdetail && this.state.is_loading&&this.state.isEdit) {
-      var productDe = this.props.productdetail;
-      var initData={}
-      this.setState({ is_loading: false });
-      this.props.initialize(initData);
-    }
-    
-    if (this.props.isProductUpdated) {
-      this.props.onClearProduct();
-      this.props.history.goBack();
+    if (this.props.isCatUpdate) {
+      this.props.onClear();
+      this.props.update();
     }
   }
   componentDidCatch() {}
   submit = (data) => {
-    // if (this.state.category.length>0) {
-    //   data.catid = this.state.category[0].catid;
-    // }
-    if (this.state.sub1Cat.length > 0) {
-      data.scl1_id = this.state.sub1Cat[0].scl1_id;
+    console.log("data-->", data);
+    if (this.props.isCat && this.props.isEdit) {
+      var editCat = {
+        name: data.categoryname,
+        catid: this.props.edit_cat_item.catid,
+        image: "testimg"
+      };
+      this.props.OnEditCategory(editCat);
+    } else if (this.props.isCat && !this.props.isEdit) {
+      var addCat = { name: data.categoryname, image: "testimg" };
+      this.props.OnAddCategory(addCat);
+    }else if (this.props.isSubCat1 && this.props.isEdit) {
+      var editL1Cat = {
+        catid: this.state.category[0].catid,
+        scl1_id: this.props.edit_cat_sub1_item.scl1_id,
+        name: data.l1scname,
+        image: "testimg"
+      };
+      this.props.OnEditL1Category(editL1Cat);
+    }else if (this.props.isSubCat1 && !this.props.isEdit) {
+      var addL1Cat = {
+        catid: this.state.category[0].catid,
+        name: data.l1scname,
+        image: "testimg"
+      };
+      this.props.OnAddL1Category(addL1Cat);
+    }else if (this.props.isSubCat2 && this.props.isEdit) {
+      var editL2Cat = {
+        scl1_id: this.state.sub1Cat[0].scl1_id,
+        scl2_id: this.props.edit_cat_sub2_item.scl2_id,
+        name: data.l2scname,
+        image: "testimg"
+      };
+      this.props.OnEditL2Category(editL2Cat);
+    }else if (this.props.isSubCat2 && !this.props.isEdit) {
+      var addL2Cat = {
+        scl1_id: this.state.sub1Cat[0].scl1_id,
+        name: data.l2scname,
+        image: "testimg"
+      };
+      this.props.OnAddL2Category(addL2Cat);
     }
-    if (this.state.sub2Cat.length > 0) {
-      data.scl2_id = this.state.sub2Cat[0].scl2_id;
-    }
-
-    if (this.state.uom.length > 0) {
-      data.uom = this.state.uom[0].uomid;
-    }
-
-    if (this.state.brand.length > 0) {
-      data.brand = this.state.brand[0].id;
-    }
-
-    if (this.state.zone.length > 0) {
-      data.zone = this.state.zone[0].id;
-    }
-
-    if (this.state.perishable.length > 0) {
-      data.Perishable = this.state.perishable[0].id;
-    }
-
-    if (this.state.productType.length > 0) {
-      data.vegtype = this.state.productType[0].id;
-    }
-    if (this.state.tag.length > 0) {
-      data.tag = this.state.tag[0].tagid;
-    }
-
-    if (this.props.Signature.length > 0) {
-      data.image = this.props.Signature[0].img_url;
-    }
-    if (this.state.isEdit) {
-      var productDe = this.props.productdetail;
-      data.pid = productDe.pid;
-      this.props.onEditProductDetails(data);
-    } else this.props.onAddProductDetails(data);
   };
-  selectedCat = (item) => {
-    // this.setState({ selected_cat: item[0] });
-    this.setState({ category: item });
+  selectedCat (item) {
+    this.setState({ category: item,sub1Cat:[] });
     this.props.onGetSubCat1({ catid: item[0].catid, zone_id: 1 });
   };
-  selectedSub1Cat = (item) => {
-    //this.setState({ selected_cat_sub1: item[0] });
+  selectedSub1Cat (item)  {
     this.setState({ sub1Cat: item });
-    this.props.onGetSubCat2({ scl1_id: item[0].scl1_id, zone_id: 1 });
   };
-  selectedSub2Cat = (item) => {
+  selectedSub2Cat = (item) =>e=> {
     // this.setState({ selected_cat_sub2: item[0] });
     this.setState({ sub2Cat: item });
-  };
-  selectedUOM = (item) => {
-    this.setState({ uom: item });
-  };
-  selectedBrand = (item) => {
-    this.setState({ brand: item });
-  };
-  selectedZone = (item) => {
-    this.setState({ zone: item });
-  };
-  selectedPer = (item) => {
-    this.setState({ perishable: item });
-  };
-  selectedPrType = (item) => {
-    this.setState({ productType: item });
-  };
-  selectedTag = (item) => {
-    this.setState({ tag: item });
-  };
-  handleonRemove = (imgid, imgType, index) => {
-    const { removeimages } = this.state;
-    this.props.onDeleteMenuImages(imgType, index);
-    if (imgid) {
-      removeimages.push(imgid);
-      this.setState({
-        removeimages,
-      });
-    }
-  };
-
-  handleKitchenSignatureimages = (newImageFile) => {
-    var data = new FormData();
-    data.append("lic", newImageFile[0]);
-    this.props.onUpdateMenuImages(data);
   };
 
   render() {
     return (
       <div>
-        <div style={{ height: "85vh" }} className="pd-6">
-          <div className="fieldset">
-            <div className="legend">Product Add</div>
+        <div style={{ height: this.state.isCat?"25vh":this.state.isSubCat1?"30vh":"35vh" }} className="pd-6">
+          <div className="fieldset" hidden={!this.state.isCat}>
+            <div className="legend">
+              {this.props.isEdit ? "Category Edit" : "Category Add"}
+            </div>
             <div>
               <form onSubmit={this.props.handleSubmit(this.submit)}>
                 <Row className="pd-0 mr-l-10 mr-r-10">
-                  <Col lg="4">
-                    <Field
-                      name="cat_id"
-                      component={InputSearchDropDown}
-                      options={this.props.category_list}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="catid"
-                      noDataLabel="No matches found"
-                      values={this.state.category}
-                      onSelection={this.selectedCat}
-                      label="Category"
-                    />
-                    <Field
-                      name="scl1_id"
-                      component={InputSearchDropDown}
-                      options={this.props.subcat_L1}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="scl1_id"
-                      noDataLabel="No matches found"
-                      values={this.state.sub1Cat}
-                      onSelection={this.selectedSub1Cat}
-                      label="L1 Category"
-                    />
-                    <Field
-                      name="scl2_id"
-                      component={InputSearchDropDown}
-                      options={this.props.subcat_L2}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="scl2_id"
-                      noDataLabel="No matches found"
-                      values={this.state.sub2Cat}
-                      onSelection={this.selectedSub2Cat}
-                      label="L2 Category"
-                    />
-                    <Field
-                      name="productname"
-                      autoComplete="off"
-                      type="text"
-                      component={renderInputField}
-                      label="Product Name"
-                      validate={[required, minLength2]}
-                      required={true}
-                    />
-                    <Field
-                      name="pid"
-                      autoComplete="off"
-                      type="text"
-                      disabled={true}
-                      component={renderInputField}
-                      label="Product Code"
-                    />
-                    <Field
-                      name="weight"
-                      autoComplete="off"
-                      type="number"
-                      component={renderInputField}
-                      label="Weight (kg)"
-                      validate={[required]}
-                      required={true}
-                    />
-                    <Field
-                      name="uom"
-                      component={InputSearchDropDown}
-                      options={this.props.UOMList}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="uomid"
-                      noDataLabel="No matches found"
-                      values={this.state.uom}
-                      onSelection={this.selectedUOM}
-                      label="UOM"
-                    />
-
-                    <Field
-                      name="packetsize"
-                      autoComplete="off"
-                      type="number"
-                      component={renderInputField}
-                      label="Packet Size"
-                    />
+                  <Col lg="5" className="color-grey pd-0">
+                    Category Name
                   </Col>
-
-                  <Col lg="4">
+                  <Col lg="7">
                     <Field
-                      name="brand"
-                      component={InputSearchDropDown}
-                      options={this.props.BrandList}
-                      labelField="brandname"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="brandname"
-                      valueField="id"
-                      noDataLabel="No matches found"
-                      values={this.state.brand}
-                      onSelection={this.selectedBrand}
-                      label="Brand"
-                    />
-                    <Field
-                      name="short_desc"
+                      name="categoryname"
                       autoComplete="off"
                       type="text"
-                      component={renderInputField}
-                      label="Short Description"
-                    />
-                    <Field
-                      name="productdetails"
-                      autoComplete="off"
-                      type="text"
-                      component={renderInputField}
-                      label="Product Details"
-                      validate={[required]}
+                      component={InputField}
+                      validate={this.state.isCat?[required, minLength2]:[]}
                       required={true}
-                    />
-                    {/* <Field
-                      name="zone"
-                      component={InputSearchDropDown}
-                      options={this.props.ZoneList}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="zoneid"
-                      noDataLabel="No matches found"
-                      values={this.state.zone}
-                      onSelection={this.selectedZone}
-                      label="Zone Mapping"
-                    /> */}
-                    <Field
-                      name="hsn_code"
-                      autoComplete="off"
-                      type="text"
-                      component={renderInputField}
-                      label="HSN Code"
-                      validate={[required]}
-                      required={true}
-                    />
-
-                    {/* <Field
-                      name="tag"
-                      autoComplete="off"
-                      type="text"
-                      component={renderInputField}
-                      label="Tag"
-                      validate={[required]}
-                      required={true}
-                    /> */}
-
-                    <Field
-                      name="tag"
-                      component={InputSearchDropDown}
-                      options={this.props.TagList}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="tagid"
-                      noDataLabel="No matches found"
-                      values={this.state.tag}
-                      onSelection={this.selectedTag}
-                      label="Tag"
-                    />
-                    <Field
-                      name="Perishable"
-                      component={InputSearchDropDown}
-                      options={this.props.Perishable}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="id"
-                      noDataLabel="No matches found"
-                      values={this.state.perishable}
-                      onSelection={this.selectedPer}
-                      label="Perishable"
-                    />
-
-                    <Field
-                      name="vegtype"
-                      component={InputSearchDropDown}
-                      options={this.props.ProductType}
-                      labelField="name"
-                      searchable={true}
-                      clearable={true}
-                      searchBy="name"
-                      valueField="id"
-                      noDataLabel="No matches found"
-                      values={this.state.productType}
-                      onSelection={this.selectedPrType}
-                      label="Product Type"
-                    />
-
-                    <Field
-                      name="targetedbaseprice"
-                      autoComplete="off"
-                      type="number"
-                      component={renderInputField}
-                      label="Targeted Base Price"
-                      validate={[required]}
-                      required={true}
-                    />
-                  </Col>
-
-                  <Col lg="4">
-                    {kitchenSignatureImg.map((item, i) => (
-                      <div key={i} className="border-none">
-                        <Field
-                          name={"KSI" + i}
-                          index={i}
-                          component={DropzoneFieldMultiple}
-                          type="file"
-                          imgPrefillDetail={
-                            this.props.Signature.length
-                              ? this.props.Signature[i]
-                              : ""
-                          }
-                          label="Photogropy"
-                          handleonRemove={this.handleonRemove}
-                          handleOnDrop={() => this.handleKitchenSignatureimages}
-                        />
-                      </div>
-                    ))}
-                    <Field
-                      name="mrp"
-                      autoComplete="off"
-                      type="number"
-                      component={renderInputField}
-                      label="MRP"
-                      validate={[required, minLength2]}
-                      required={true}
-                    />
-                    <Field
-                      name="gst"
-                      autoComplete="off"
-                      type="number"
-                      component={renderInputField}
-                      label="GST"
-                      validate={[required]}
-                      required={true}
-                    />
-                    <Field
-                      name="discount_cost"
-                      autoComplete="off"
-                      type="number"
-                      component={renderInputField}
-                      label="Discount amount"
                     />
                   </Col>
                 </Row>
                 <Row className="mr-b-10">
-                  <Col lg="10"></Col>
-
+                  <Col lg="8"></Col>
                   <Col className="txt-align-right">
                     <Button size="sm">Submit</Button>
                   </Col>
+                </Row>
+              </form>
+            </div>
+          </div>
+          <div className="fieldset" hidden={!this.state.isSubCat1}>
+            <div className="legend">
+              {this.props.isEdit ? "L1 SC Edit" : "L1 SC Add"}
+            </div>
+            <div>
+              <form onSubmit={this.props.handleSubmit(this.submit)}>
+                <Row className="pd-0">
+                  <Field
+                    name="cat_id"
+                    component={InputSearchDropDown}
+                    options={this.props.category_list}
+                    labelField="name"
+                    searchable={true}
+                    clearable={true}
+                    searchBy="name"
+                    valueField="catid"
+                    noDataLabel="No matches found"
+                    values={this.state.category}
+                    onSelection={this.selectedCat}
+                    label="Category"
+                  />
+                </Row>
+                <Row className="pd-0 mr-l-10 mr-r-10">
+                  <Col lg="5" className="color-grey pd-0">
+                    L1 SC Name
+                  </Col>
+                  <Col lg="7">
+                    <Field
+                      name="l1scname"
+                      autoComplete="off"
+                      type="text"
+                      component={InputField}
+                      validate={this.state.isSubCat1?[required, minLength2]:[]}
+                      required={true}
+                    />
+                  </Col>
+                </Row>
+                <Row className="mr-b-10">
+                  <Col lg="8"></Col>
                   <Col className="txt-align-right">
-                    <Button
-                      size="sm"
-                      className="mr-l-10 mr-r-10"
-                      onClick={history.goBack}
-                    >
-                      Back
-                    </Button>
+                    <Button size="sm">Submit</Button>
+                  </Col>
+                </Row>
+              </form>
+            </div>
+          </div>
+
+          <div className="fieldset" hidden={!this.state.isSubCat2}>
+            <div className="legend">
+              {this.props.isEdit ? "L2 SC Edit" : "L2 SC Add"}
+            </div>
+            <div>
+              <form onSubmit={this.props.handleSubmit(this.submit)}>
+                <Row className="pd-0">
+                  <Field
+                    name="cat_id"
+                    component={InputSearchDropDown}
+                    options={this.props.category_list}
+                    labelField="name"
+                    searchable={true}
+                    clearable={true}
+                    searchBy="name"
+                    valueField="catid"
+                    noDataLabel="No matches found"
+                    values={this.state.category}
+                    onSelection={this.selectedCat}
+                    label="Category"
+                  />
+                </Row>
+                <Row className="pd-0">
+                  <Field
+                    name="scl1_id"
+                    component={InputSearchDropDown}
+                    options={this.props.subcat_L1}
+                    labelField="name"
+                    searchable={true}
+                    clearable={true}
+                    searchBy="name"
+                    valueField="scl1_id"
+                    noDataLabel="No matches found"
+                    values={this.state.sub1Cat}
+                    onSelection={this.selectedSub1Cat}
+                    label="L1 SC"
+                  />{" "}
+                </Row>
+                <Row className="pd-0 mr-l-10 mr-r-10">
+                  <Col lg="5" className="color-grey pd-0">
+                    L2 SC Name
+                  </Col>
+                  <Col lg="7">
+                    <Field
+                      name="l2scname"
+                      autoComplete="off"
+                      type="text"
+                      component={InputField}
+                      validate={this.state.isSubCat2?[required, minLength2]:[]}
+                      required={true}
+                    />
+                  </Col>
+                </Row>
+                <Row className="mr-b-10">
+                  <Col lg="8"></Col>
+                  <Col className="txt-align-right">
+                    <Button size="sm">Submit</Button>
                   </Col>
                 </Row>
               </form>
