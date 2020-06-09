@@ -54,6 +54,12 @@ const Catelog = {
   getZoneList: (data) => requests.post("/zonelist", data),
   getBrandList: (data) => requests.post("/brandlist", data),
   getTagList: (data) => requests.post("/taglist", data),
+  fileUpload: (file) =>requests.post("/product/imageupload",file,fileUploadHeader,AppVersion_1),
+  onAddProduct:(data) => requests.post("/add/product", data),
+  onEditProduct:(data) => requests.post("/edit/product", data),
+  onEditVendor:(data) => requests.post("/edit/vendorproductmapping", data),
+  categoryLiveUnlive:(data) => requests.put("/live/category", data),
+  L1subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl1", data),
   fileUpload: (file) =>
     requests.post(
       "/fileUpload",
@@ -70,6 +76,8 @@ const Catelog = {
    onAddCat:(data) => requests.post("/add/category", data),
    onAddL1Cat:(data) => requests.post("/add/subcategoryl1", data),
    onAddL2Cat:(data) => requests.post("/add/subcategoryl2", data),
+   L2subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl2", data),
+   ProductLiveUnlive:(data) => requests.put("/live/product", data),
 };
 
 export default {

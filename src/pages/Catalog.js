@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import AxiosRequest from "../AxiosRequest";
 import SearchInput from "../components/SearchInput";
@@ -7,6 +7,12 @@ import {
   CATELOG_SUBCATEGORY_L1_LIST,
   CATELOG_SUBCATEGORY_L2_LIST,
   CATELOG_PRODUCT_LIST,
+  CATEGORY_LIVE_UNLIVE,
+  CATEGORY_LIVE_ITEM,
+  CATEGORY_LIVE_POPUP_CLEAR,
+  L1_SUBCATEGORY_LIVE_UNLIVE,
+  L1_SUB_CATEGORY_LIVE_ITEM,
+  L1_SUB_CATEGORY_LIVE_POPUP_CLEAR,
   CATELOG_SELECTED_CAT,
   CATELOG_SELECTED_L1CAT,
   CATELOG_SELECTED_L2CAT,
@@ -15,6 +21,12 @@ import {
   CATELOG_SEARCH,
   CATELOG_SEARCH_SELECT,
   ZONE_LIST_VIEW,
+  L2_SUBCATEGORY_LIVE_UNLIVE,
+  L2_SUB_CATEGORY_LIVE_ITEM,
+  L2_SUB_CATEGORY_LIVE_POPUP_CLEAR,
+  PRODUCT_LIVE_UNLIVE,
+  PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
+  PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
 } from "../constants/actionTypes";
 import { Link } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
@@ -29,10 +41,17 @@ import {
   DropdownMenu,
   DropdownItem,
   Modal,
+  ModalHeader,
   ModalBody,
+  ModalFooter,
 } from "reactstrap";
 import { Area } from "../utils/constant";
 import CatSubAddEdit from "./CatSubAddEdit";
+
+// const [show, setShow] = useState(false);
+
+// const handleClose = () => setShow(false);
+// const handleShow = () => setShow(true);
 
 const mapStateToProps = (state) => ({ ...state.catalog });
 
@@ -62,6 +81,40 @@ const mapDispatchToProps = (dispatch) => ({
       type: CATELOG_PRODUCT_LIST,
       payload: AxiosRequest.Catelog.getProduct(data),
     }),
+  OncategoryLiveUnlive: (data) =>
+    dispatch({
+      type: CATEGORY_LIVE_UNLIVE,
+      payload: AxiosRequest.Catelog.categoryLiveUnlive(data),
+    }),
+  OncategoryLiveItem: (item, i) =>
+    dispatch({
+      type: CATEGORY_LIVE_ITEM,
+      item,
+      i,
+    }),
+  OnPopupClear: () =>
+    dispatch({
+      type: CATEGORY_LIVE_POPUP_CLEAR,
+    }),
+
+  OnL1SubcategoryLiveUnlive: (data) =>
+    dispatch({
+      type: L1_SUBCATEGORY_LIVE_UNLIVE,
+      payload: AxiosRequest.Catelog.L1subcategoryLiveUnlive(data),
+    }),
+
+  OnL1SubcategoryLiveItem: (item, i) =>
+    dispatch({
+      type: L1_SUB_CATEGORY_LIVE_ITEM,
+      item,
+      i,
+    }),
+
+  OnL1SubcategoryPopupClear: () =>
+    dispatch({
+      type: L1_SUB_CATEGORY_LIVE_POPUP_CLEAR,
+    }),
+
   onSelectedCat: (Item) =>
     dispatch({
       type: CATELOG_SELECTED_CAT,
@@ -86,15 +139,50 @@ const mapDispatchToProps = (dispatch) => ({
       type: CATELOG_SEARCH,
       payload: AxiosRequest.Catelog.getSearch(data),
     }),
-    onCatelogSearchSelected: (data) =>
+  onCatelogSearchSelected: (data) =>
     dispatch({
       type: CATELOG_SEARCH_SELECT,
       payload: AxiosRequest.Catelog.getSearchView(data),
     }),
-    onGetZone: (data) =>
+  onGetZone: (data) =>
     dispatch({
       type: ZONE_LIST_VIEW,
       payload: AxiosRequest.Catelog.getZoneList(data),
+    }),
+  OnL2SubcategoryLiveUnlive: (data) =>
+    dispatch({
+      type: L2_SUBCATEGORY_LIVE_UNLIVE,
+      payload: AxiosRequest.Catelog.L2subcategoryLiveUnlive(data),
+    }),
+
+  OnL2SubcategoryLiveItem: (item, i) =>
+    dispatch({
+      type: L2_SUB_CATEGORY_LIVE_ITEM,
+      item,
+      i,
+    }),
+
+  OnL2SubcategoryPopupClear: () =>
+    dispatch({
+      type: L2_SUB_CATEGORY_LIVE_POPUP_CLEAR,
+    }),
+
+  OnProductLiveUnlive: (data) =>
+    dispatch({
+      type: PRODUCT_LIVE_UNLIVE,
+      payload: AxiosRequest.Catelog.ProductLiveUnlive(data),
+    }),
+
+  OnProductLiveItem: (item, i) =>
+    dispatch({
+      type: PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
+      item,
+      i,
+    }),
+
+  OnProductPopupClear: () =>
+    dispatch({
+      type: PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
     }),
 });
 
@@ -114,8 +202,8 @@ class Catalog extends React.Component {
       edit_cat_item: -1,
       edit_cat_sub1_item: -1,
       edit_cat_sub2_item: -1,
-      isSearch:false,
-      isSearchView:false,
+      isSearch: false,
+      isSearchView: false,
     };
   }
 
@@ -129,6 +217,16 @@ class Catalog extends React.Component {
     this.clickCatItem = this.clickCatItem.bind(this);
     this.clickSubCat1Item = this.clickSubCat1Item.bind(this);
     this.clickSubCat2Item = this.clickSubCat2Item.bind(this);
+    this.toggleLive = this.toggleLive.bind(this);
+    this.L1subcattoggleLive = this.L1subcattoggleLive.bind(this);
+    this.L2subcattoggleLive = this.L2subcattoggleLive.bind(this);
+    this.producttoggleLive = this.producttoggleLive.bind(this);
+    this.MovetoLive = this.MovetoLive.bind(this);
+    this.L1subcatMovetoLive = this.L1subcatMovetoLive.bind(this);
+    this.L2subcatMovetoLive = this.L2subcatMovetoLive.bind(this);
+    this.productMovetoLive = this.productMovetoLive.bind(this);
+    this.toggleUnLive = this.toggleUnLive.bind(this);
+    this.formClearAndClose = this.formClearAndClose.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onSearchItemClick = this.onSearchItemClick.bind(this);
     this.onClose = this.onClose.bind(this);
@@ -138,8 +236,15 @@ class Catalog extends React.Component {
     this.sub2catAddEditClick = this.sub2catAddEditClick.bind(this);
     this.onUpdate = this.onUpdate.bind(this);
     this.onCancel = this.onCancel.bind(this);
+    this.setState({
+      areaItem: Area[0],
+      liveItem: -1,
+      L1subcattoggleliveModal: false,
+      liveModal: false,
+      L2subcattoggleliveModal: false,
+      productoggleliveModal: false,
+    });
     this.productClick = this.productClick.bind(this);
-    this.setState({ areaItem: Area[0] });
     if (this.props.isAddProduct && this.props.selected_cat_sub1)
       this.getProduct(
         this.props.selected_cat_sub1.scl1_id,
@@ -162,32 +267,137 @@ class Catalog extends React.Component {
   }
   componentDidUpdate(nextProps, nextState) {
     console.log("--componentDidUpdate-->");
+    if (this.props.iscategorylive) {
+      this.props.OnPopupClear();
+      this.toggleLive();
+    }
+
+    if (this.props.isL1subcategorylive) {
+      this.props.OnL1SubcategoryPopupClear();
+      this.L1subcattoggleLive();
+    }
+
+    if (this.props.isL2subcategorylive) {
+      this.props.OnL2SubcategoryPopupClear();
+      this.L2subcattoggleLive();
+    }
+
+    if (this.props.isProductlive) {
+      this.props.OnProductPopupClear();
+      this.producttoggleLive();
+    }
   }
   componentDidCatch() {
     console.log("--componentDidCatch-->");
   }
   onClose = (e) => {
-    this.setState({isSearch:false});
-    if(this.state.isSearchView){
-      this.setState({isSearchView:false});
+    this.setState({ isSearch: false });
+    if (this.state.isSearchView) {
+      this.setState({ isSearchView: false });
       this.catList();
     }
-  }
+  };
   onSearch = (e) => {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
       this.props.onCatelogSearch({ search: e.target.value, zone_id: 1 });
-      this.setState({isSearch:true});
+      this.setState({ isSearch: true });
     } else if (e.target.value === "") {
       e.preventDefault();
-      if(this.state.isSearch){
-        this.setState({isSearch:false});
+      if (this.state.isSearch) {
+        this.setState({ isSearch: false });
         this.catList();
       }
-      
     }
   };
 
+  toggleRemoveAll() {
+    this.setState({
+      liveModal: false,
+      L1subcattoggleliveModal: false,
+      L2subcattoggleliveModal: false,
+      productoggleliveModal: false,
+    });
+  }
+
+  toggleLive = () => {
+    this.setState((prevState) => ({
+      liveModal: !prevState.liveModal,
+    }));
+  };
+
+  L1subcattoggleLive = () => {
+    this.setState((prevState) => ({
+      L1subcattoggleliveModal: !prevState.L1subcattoggleliveModal,
+    }));
+  };
+
+  L2subcattoggleLive = () => {
+    this.setState((prevState) => ({
+      L2subcattoggleliveModal: !prevState.L2subcattoggleliveModal,
+    }));
+  };
+
+  producttoggleLive = () => {
+    this.setState((prevState) => ({
+      productoggleliveModal: !prevState.productoggleliveModal,
+    }));
+  };
+
+  Onlive = (item, i, type) => {
+    if (type === 1) {
+      this.props.OncategoryLiveItem(item, i);
+      this.toggleLive();
+    } else if (type === 2) {
+      this.props.OnL1SubcategoryLiveItem(item, i);
+      this.L1subcattoggleLive();
+    } else if (type === 3) {
+      this.props.OnL2SubcategoryLiveItem(item, i);
+      this.L2subcattoggleLive();
+    } else if (type === 4) {
+      this.props.OnProductLiveItem(item, i);
+      this.producttoggleLive();
+    }
+  };
+
+  toggleUnLive = () => {
+    this.setState((prevState) => ({
+      unliveModal: !prevState.unliveModal,
+      countModal: false,
+    }));
+  };
+
+  MovetoLive = (item, i, type) => {
+    this.props.OncategoryLiveUnlive({
+      catid: this.props.iscategoryitem.catid,
+      zone_id: 1,
+    });
+  };
+
+  L1subcatMovetoLive = () => {
+    this.props.OnL1SubcategoryLiveUnlive({
+      scl1_id: this.props.isL1subcategoryitem.scl1_id,
+      zone_id: 1,
+    });
+  };
+
+  L2subcatMovetoLive = () => {
+    this.props.OnL2SubcategoryLiveUnlive({
+      scl2_id: this.props.isL2subcategoryitem.scl2_id,
+      zone_id: 1,
+    });
+  };
+
+  productMovetoLive = () => {
+    this.props.OnProductLiveUnlive({
+      pid: this.props.isProductitem.pid,
+      zone_id: 1,
+    });
+  };
+
+  formClearAndClose = () => {
+    this.toggleRemoveAll();
+  };
   onCatlogTabClick = (tab) => {
     this.setState({ catalog_tab_type: tab });
     this.props.onSelectTabType(tab);
@@ -210,6 +420,7 @@ class Catalog extends React.Component {
     // if (item.l2_status) this.subCat2List(item.scl1_id);
     // else this.getProduct(item.scl1_id, 0, this.state.areaItem.area_id);
   };
+
   clickSubCat2Item = (item) => {
     this.setState({ selected_cat_sub2: item });
     this.props.onSelectedL2Cat(item);
@@ -297,11 +508,13 @@ class Catalog extends React.Component {
     this.toggleCatEditPopup();
   };
   onSearchItemClick = (Item) => {
-    var data={id:Item.catid,type:"pid"}
-    if(Item.type==='categoty') data={id:Item.catid,type:"catid"}
-    if(Item.type==='l1subcategoty') data={id:Item.catid,type:"scl1_id"}
-    if(Item.type==='l2subcategoty') data={id:Item.catid,type:"scl2_id"}
-    this.setState({isSearch:false,isSearchView:true});
+    var data = { id: Item.catid, type: "pid" };
+    if (Item.type === "categoty") data = { id: Item.catid, type: "catid" };
+    if (Item.type === "l1subcategoty")
+      data = { id: Item.catid, type: "scl1_id" };
+    if (Item.type === "l2subcategoty")
+      data = { id: Item.catid, type: "scl2_id" };
+    this.setState({ isSearch: false, isSearchView: true });
     this.props.onCatelogSearchSelected(data);
   };
 
@@ -367,11 +580,16 @@ class Catalog extends React.Component {
             </Col>
           </Row>
           <div hidden={!this.state.isSearch} className="search-background">
-            <div className="pd-4 search-container" >
+            <div className="pd-4 search-container">
               {this.props.search_data.map((item, i) => (
-                <Row className="pd-6 txt-cursor" onClick={()=>this.onSearchItemClick(item)}>
+                <Row
+                  className="pd-6 txt-cursor"
+                  onClick={() => this.onSearchItemClick(item)}
+                >
                   <Col lg="9">{item.name}</Col>
-                  <Col lg="3" className="color-grey font-size-12">{item.type}</Col>
+                  <Col lg="3" className="color-grey font-size-12">
+                    {item.type}
+                  </Col>
                 </Row>
               ))}
             </div>
@@ -414,6 +632,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.active_status === 1}
+                            onClick={() => this.Onlive(item, i, 1)}
                           >
                             Live
                           </Button>
@@ -421,6 +640,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-red btn-unlive"
                             hidden={item.active_status === 0}
+                            onClick={() => this.Onlive(item, i, 1)}
                           >
                             Unlive
                           </Button>
@@ -481,6 +701,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.active_status === 1}
+                            onClick={() => this.Onlive(item, i, 2)}
                           >
                             Live
                           </Button>
@@ -488,6 +709,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-red btn-unlive"
                             hidden={item.active_status === 0}
+                            onClick={() => this.Onlive(item, i, 2)}
                           >
                             Unlive
                           </Button>
@@ -552,6 +774,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.active_status === 1}
+                            onClick={() => this.Onlive(item, i, 3)}
                           >
                             Live
                           </Button>
@@ -559,6 +782,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-red btn-unlive"
                             hidden={item.active_status === 0}
+                            onClick={() => this.Onlive(item, i, 3)}
                           >
                             Unlive
                           </Button>
@@ -621,6 +845,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.live_status === "1"}
+                            onClick={() => this.Onlive(item, i, 4)}
                           >
                             Live
                           </Button>
@@ -628,6 +853,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-red btn-unlive"
                             hidden={item.live_status === "0"}
+                            onClick={() => this.Onlive(item, i, 4)}
                           >
                             Unlive
                           </Button>
@@ -659,6 +885,106 @@ class Catalog extends React.Component {
               </div>
             </Col>
           </Row>
+
+          <Modal
+            isOpen={this.state.liveModal}
+            toggle={this.toggleLive}
+            className="add_live_modal"
+            backdrop={"static"}
+          >
+            <ModalHeader>Conformation </ModalHeader>
+            <ModalBody>
+              {this.props.iscategoryitem.active_status === 1
+                ? "Are you sure you want to live Category"
+                : "Are you sure you want to unlive Category"}{" "}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.MovetoLive}>
+                Yes
+              </Button>{" "}
+              <Button color="secondary" onClick={this.formClearAndClose}>
+                NO
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          <Modal
+            isOpen={this.state.L1subcattoggleliveModal}
+            toggle={this.L1subcattoggleLive}
+            className="add_live_modal"
+            backdrop={"static"}
+          >
+            <ModalHeader>Conformation </ModalHeader>
+            <ModalBody>
+              {this.props.isL1subcategoryitem.active_status === 1
+                ? "Are you sure you want to live L1 sub Category"
+                : "Are you sure you want to unlive  L1 sub Category"}{" "}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.L1subcatMovetoLive}>
+                Yes
+              </Button>{" "}
+              <Button color="secondary" onClick={this.formClearAndClose}>
+                NO
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          <Modal
+            isOpen={this.state.L2subcattoggleliveModal}
+            toggle={this.L2subcattoggleLive}
+            className="add_live_modal"
+            backdrop={"static"}
+          >
+            <ModalHeader>Conformation </ModalHeader>
+            <ModalBody>
+              {this.props.isL1subcategoryitem.active_status === 1
+                ? "Are you sure you want to live L2 sub Category"
+                : "Are you sure you want to unlive  L2 sub Category"}{" "}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.L2subcatMovetoLive}>
+                Yes
+              </Button>{" "}
+              <Button color="secondary" onClick={this.formClearAndClose}>
+                NO
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          <Modal
+            isOpen={this.state.productoggleliveModal}
+            toggle={this.producttoggleLive}
+            className="add_live_modal"
+            backdrop={"static"}
+          >
+            <ModalHeader>Conformation </ModalHeader>
+            <ModalBody>
+              {this.props.isL1subcategoryitem.active_status === 1
+                ? "Are you sure you want to live product"
+                : "Are you sure you want to unlive  product"}{" "}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.productMovetoLive}>
+                Yes
+              </Button>{" "}
+              <Button color="secondary" onClick={this.formClearAndClose}>
+                NO
+              </Button>
+            </ModalFooter>
+          </Modal>
+
+          {/* <Modal isOpen={this.state.unliveModal} toggle={this.toggleUnLive} className="add_live_modal" backdrop={"static"}>
+          <ModalBody>ADD TO UNLIVE </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.toggleCount}>
+              Yes
+            </Button>{" "}
+            <Button color="secondary" onClick={this.formClearAndClose}>
+              NO
+            </Button>
+          </ModalFooter>
+        </Modal> */}
         </div>
 
         <Modal

@@ -3,6 +3,12 @@ import {
   CATELOG_PRODUCT_LIST,
   CATELOG_SUBCATEGORY_L2_LIST,
   CATELOG_SUBCATEGORY_L1_LIST,
+  CATEGORY_LIVE_UNLIVE,
+  CATEGORY_LIVE_ITEM,
+  CATEGORY_LIVE_POPUP_CLEAR,
+  L1_SUBCATEGORY_LIVE_UNLIVE,
+  L1_SUB_CATEGORY_LIVE_ITEM,
+  L1_SUB_CATEGORY_LIVE_POPUP_CLEAR,
   CATELOG_SELECTED_CAT,
   CATELOG_SELECTED_L1CAT,
   CATELOG_SELECTED_L2CAT,
@@ -11,6 +17,12 @@ import {
   CATELOG_SEARCH,
   CATELOG_SEARCH_SELECT,
   ZONE_LIST_VIEW,
+  L2_SUBCATEGORY_LIVE_UNLIVE,
+  L2_SUB_CATEGORY_LIVE_ITEM,
+  L2_SUB_CATEGORY_LIVE_POPUP_CLEAR,
+  PRODUCT_LIVE_UNLIVE,
+  PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
+  PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR
 } from "../constants/actionTypes";
 
 export default (
@@ -25,7 +37,19 @@ export default (
     selected_cat: -1,
     selected_cat_sub1: -1,
     selected_cat_sub2: -1,
-    isAddProduct: false,
+    isAddProduct:false,
+    iscategorylive:false,
+    iscategoryitem:false,
+    iscategoryindex:0,
+    isL1subcategorylive:false,
+    isL1subcategoryitem:false,
+    isL1subcategoryindex:0,
+    isL2subcategorylive:false,
+    isL2subcategoryitem:false,
+    isL2subcategoryindex:0,
+    isProductlive:false,
+    isProductitem:false,
+    isProductindex:0
   },
   action
 ) => {
@@ -91,7 +115,101 @@ export default (
         ...state,
         isAddProduct: true,
       };
-    case CATELOG_SEARCH:
+      case CATEGORY_LIVE_UNLIVE:
+        var data=action.payload.data[0];
+        return {
+          ...state,
+          iscategorylive: action.payload.status || false,
+          category_list :Object.assign([], state.category_list, {[state.iscategoryindex]: data})
+        };
+
+        case CATEGORY_LIVE_ITEM:
+          return {
+            ...state,
+            iscategoryitem: action.item || false,
+            iscategoryindex: action.i || 0,
+          };
+        
+          case CATEGORY_LIVE_POPUP_CLEAR:
+          return {
+            ...state,
+            iscategoryitem:  false,
+            iscategoryindex:  0,
+            iscategorylive:false
+          };
+
+          case L1_SUBCATEGORY_LIVE_UNLIVE:
+             var data=action.payload.data[0];
+            return {
+              ...state,
+              isL1subcategorylive: action.payload.status || false,
+              subcat_L1 :Object.assign([], state.subcat_L1, {[state.isL1subcategoryindex]: data})
+            }; 
+
+          case L1_SUB_CATEGORY_LIVE_ITEM:
+            return {
+                ...state,
+                isL1subcategoryitem: action.item || false,
+                isL1subcategoryindex: action.i || 0,
+              };
+            
+          case L1_SUB_CATEGORY_LIVE_POPUP_CLEAR:
+            return {
+                ...state,
+                isL1subcategoryitem:  false,
+                isL1subcategoryindex:  0,
+                isL1subcategorylive: false
+              };
+
+
+          case L2_SUBCATEGORY_LIVE_UNLIVE:
+                var data=action.payload.data[0];
+               return {
+                 ...state,
+                 isL2subcategorylive: action.payload.status || false,
+                 subcat_L2 :Object.assign([], state.subcat_L2, {[state.isL2subcategoryindex]: data})
+               }; 
+   
+          case L2_SUB_CATEGORY_LIVE_ITEM:
+               return {
+                   ...state,
+                   isL2subcategoryitem: action.item || false,
+                   isL2subcategoryindex: action.i || 0,
+                 };
+               
+          case L2_SUB_CATEGORY_LIVE_POPUP_CLEAR:
+               return {
+                   ...state,
+                   isL2subcategoryitem:  false,
+                   isL2subcategoryindex:  0,
+                   isL2subcategorylive: false
+                 };
+   
+          case PRODUCT_LIVE_UNLIVE:
+                  var data=action.payload.data[0];
+                 return {
+                   ...state,
+                   isProductlive: action.payload.status || false,
+                   product :Object.assign([], state.product, {[state.isProductindex]: data})
+                 }; 
+     
+            case PRODUCT_LIVE_UNLIVE_LIVE_ITEM:
+                 return {
+                     ...state,
+                     isProductitem: action.item || false,
+                     isProductindex: action.i || 0,
+                   };
+                 
+            case PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR:
+                 return {
+                     ...state,
+                     isProductitem:false,
+                       isProductindex:0,
+                     isProductlive: false
+                   };
+     
+
+      case CATELOG_SEARCH:
       return {
         ...state,
         search_data: action.payload.data || [],
