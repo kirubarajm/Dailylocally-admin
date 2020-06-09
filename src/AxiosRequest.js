@@ -76,6 +76,8 @@ const Catelog = {
    onAddCat:(data) => requests.post("/add/category", data),
    onAddL1Cat:(data) => requests.post("/add/subcategoryl1", data),
    onAddL2Cat:(data) => requests.post("/add/subcategoryl2", data),
+   L2subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl2", data),
+   ProductLiveUnlive:(data) => requests.put("/live/product", data),
 };
 
 export default {

@@ -20,6 +20,13 @@ import {
   CATELOG_PRODUCT_ADD_SELECT,
   CATELOG_SEARCH,
   CATELOG_SEARCH_SELECT,
+  L2_SUBCATEGORY_LIVE_UNLIVE,
+  L2_SUB_CATEGORY_LIVE_ITEM,
+  L2_SUB_CATEGORY_LIVE_POPUP_CLEAR,
+  PRODUCT_LIVE_UNLIVE,
+  PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
+  PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR
+
 } from "../constants/actionTypes";
 import { Link } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
@@ -139,6 +146,40 @@ const mapDispatchToProps = (dispatch) => ({
       type: CATELOG_SEARCH_SELECT,
       payload: AxiosRequest.Catelog.getSearchView(data),
     }),
+
+
+    OnL2SubcategoryLiveUnlive: (data) =>
+    dispatch({
+      type: L2_SUBCATEGORY_LIVE_UNLIVE,
+      payload: AxiosRequest.Catelog.L2subcategoryLiveUnlive(data),
+    }),
+
+    OnL2SubcategoryLiveItem: (item,i) =>
+    dispatch({
+      type: L2_SUB_CATEGORY_LIVE_ITEM,item,i
+    }),
+
+    OnL2SubcategoryPopupClear: () =>
+    dispatch({
+      type: L2_SUB_CATEGORY_LIVE_POPUP_CLEAR
+    }),
+
+
+    OnProductLiveUnlive: (data) =>
+    dispatch({
+      type: PRODUCT_LIVE_UNLIVE,
+      payload: AxiosRequest.Catelog.ProductLiveUnlive(data),
+    }),
+
+    OnProductLiveItem: (item,i) =>
+    dispatch({
+      type: PRODUCT_LIVE_UNLIVE_LIVE_ITEM,item,i
+    }),
+
+    OnProductPopupClear: () =>
+    dispatch({
+      type: PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR
+    }),
 });
 
 class Catalog extends React.Component {
@@ -174,8 +215,12 @@ class Catalog extends React.Component {
     this.clickSubCat2Item = this.clickSubCat2Item.bind(this);
     this.toggleLive = this.toggleLive.bind(this);
     this.L1subcattoggleLive=this.L1subcattoggleLive.bind(this);
+    this.L2subcattoggleLive=this.L2subcattoggleLive.bind(this);
+    this.producttoggleLive=this.producttoggleLive.bind(this);
     this.MovetoLive= this.MovetoLive.bind(this);
     this.L1subcatMovetoLive= this.L1subcatMovetoLive.bind(this);
+    this.L2subcatMovetoLive= this.L2subcatMovetoLive.bind(this);
+    this.productMovetoLive= this.productMovetoLive.bind(this);
     this.toggleUnLive = this.toggleUnLive.bind(this);
     this.formClearAndClose = this.formClearAndClose.bind(this);
     this.onSearch = this.onSearch.bind(this);
@@ -187,7 +232,7 @@ class Catalog extends React.Component {
     this.sub2catAddEditClick = this.sub2catAddEditClick.bind(this);
     this.onUpdate = this.onUpdate.bind(this);
     this.onCancel = this.onCancel.bind(this);
-    this.setState({ areaItem: Area[0],liveItem:-1,L1subcattoggleliveModal:false, liveModal:false});
+    this.setState({ areaItem: Area[0],liveItem:-1,L1subcattoggleliveModal:false, liveModal:false,L2subcattoggleliveModal:false,productoggleliveModal:false});
     this.productClick = this.productClick.bind(this);
     if (this.props.isAddProduct && this.props.selected_cat_sub1)
       this.getProduct(
@@ -215,9 +260,20 @@ class Catalog extends React.Component {
       this.props.OnPopupClear();
       this.toggleLive();
     }
+
     if(this.props.isL1subcategorylive){
       this.props.OnL1SubcategoryPopupClear();
       this.L1subcattoggleLive();
+    }
+
+    if(this.props.isL2subcategorylive){
+      this.props.OnL2SubcategoryPopupClear();
+      this.L2subcattoggleLive();
+    }
+
+    if(this.props.isProductlive){
+      this.props.OnProductPopupClear();
+      this.producttoggleLive();
     }
   }
   componentDidCatch() {
@@ -248,19 +304,34 @@ class Catalog extends React.Component {
   toggleRemoveAll() {
     this.setState({
       liveModal: false,
+      L1subcattoggleliveModal:false,
+      L2subcattoggleliveModal:false,
+      productoggleliveModal:false
+
     });
   }
 
   toggleLive = () => {
     this.setState(prevState => ({
       liveModal: !prevState.liveModal,
-      countModal: false
     }));
   };
 
   L1subcattoggleLive = () => {
     this.setState(prevState => ({
       L1subcattoggleliveModal: !prevState.L1subcattoggleliveModal
+    }));
+  };
+
+  L2subcattoggleLive = () => {
+    this.setState(prevState => ({
+      L2subcattoggleliveModal: !prevState.L2subcattoggleliveModal
+    }));
+  };
+
+  producttoggleLive = () => {
+    this.setState(prevState => ({
+      productoggleliveModal: !prevState.productoggleliveModal
     }));
   };
 
@@ -271,8 +342,12 @@ class Catalog extends React.Component {
     }else if (type===2) {
       this.props.OnL1SubcategoryLiveItem(item,i);
       this.L1subcattoggleLive();
-    }else{
-
+    }else if (type===3){
+      this.props.OnL2SubcategoryLiveItem(item,i);
+      this.L2subcattoggleLive();
+    }else if (type===4){
+      this.props.OnProductLiveItem(item,i);
+      this.producttoggleLive();
     }
    
   }
@@ -305,10 +380,25 @@ class Catalog extends React.Component {
   
   }
 
+
+  L2subcatMovetoLive = () => {
+    this.props.OnL2SubcategoryLiveUnlive({
+        scl2_id: this.props.isL2subcategoryitem.scl2_id,
+        zone_id: 1
+      });
+    
+    }
+
+    productMovetoLive = () => {
+      this.props.OnProductLiveUnlive({
+        pid: this.props.isProductitem.pid,
+          zone_id: 1
+        });
+      
+      }
+
   formClearAndClose= () => {
     this.toggleRemoveAll();
-    this.props.OnPopupClear();
-    
   }
   onCatlogTabClick = (tab) => {
     this.setState({ catalog_tab_type: tab });
@@ -679,7 +769,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.active_status === 1}
-                            onClick={this.toggleLive}
+                            onClick={() => this.Onlive(item,i,3)}
                           >
                             Live
                           </Button>
@@ -687,7 +777,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-red btn-unlive"
                             hidden={item.active_status === 0}
-                            onClick={this.toggleUnLive}
+                            onClick={() => this.Onlive(item,i,3)}
                           >
                             Unlive
                           </Button>
@@ -750,7 +840,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.live_status === "1"}
-                            onClick={this.toggleLive}
+                            onClick={() => this.Onlive(item,i,4)}
                           >
                             Live
                           </Button>
@@ -758,7 +848,7 @@ class Catalog extends React.Component {
                             size="sm"
                             className="bg-color-red btn-unlive"
                             hidden={item.live_status === "0"}
-                            onClick={this.toggleUnLive}
+                            onClick={() => this.Onlive(item,i,4)}
                           >
                             Unlive
                           </Button>
@@ -806,7 +896,7 @@ class Catalog extends React.Component {
 
         <Modal isOpen={this.state.L1subcattoggleliveModal} toggle={this.L1subcattoggleLive} className="add_live_modal" backdrop={"static"}>
           <ModalHeader>Conformation </ModalHeader>
-                  <ModalBody>{this.props.isL1subcategoryitem.active_status===1?'Are you sure you want to live L1 sub Category':'Are you sure you want to unlive  L1 sub'} </ModalBody>
+                  <ModalBody>{this.props.isL1subcategoryitem.active_status===1?'Are you sure you want to live L1 sub Category':'Are you sure you want to unlive  L1 sub Category'} </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.L1subcatMovetoLive}>
               Yes
@@ -817,6 +907,31 @@ class Catalog extends React.Component {
           </ModalFooter>
         </Modal>
 
+        <Modal isOpen={this.state.L2subcattoggleliveModal} toggle={this.L2subcattoggleLive} className="add_live_modal" backdrop={"static"}>
+          <ModalHeader>Conformation </ModalHeader>
+                  <ModalBody>{this.props.isL1subcategoryitem.active_status===1?'Are you sure you want to live L2 sub Category':'Are you sure you want to unlive  L2 sub Category'} </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.L2subcatMovetoLive}>
+              Yes
+            </Button>{" "}
+            <Button color="secondary" onClick={this.formClearAndClose}>
+              NO
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal isOpen={this.state.productoggleliveModal} toggle={this.producttoggleLive} className="add_live_modal" backdrop={"static"}>
+          <ModalHeader>Conformation </ModalHeader>
+                  <ModalBody>{this.props.isL1subcategoryitem.active_status===1?'Are you sure you want to live product':'Are you sure you want to unlive  product'} </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.productMovetoLive}>
+              Yes
+            </Button>{" "}
+            <Button color="secondary" onClick={this.formClearAndClose}>
+              NO
+            </Button>
+          </ModalFooter>
+        </Modal>
 
         {/* <Modal isOpen={this.state.unliveModal} toggle={this.toggleUnLive} className="add_live_modal" backdrop={"static"}>
           <ModalBody>ADD TO UNLIVE </ModalBody>

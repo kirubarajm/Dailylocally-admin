@@ -15,7 +15,13 @@ import {
   CATELOG_SELECTED_TAB,
   CATELOG_PRODUCT_ADD_SELECT,
   CATELOG_SEARCH,
-  CATELOG_SEARCH_SELECT
+  CATELOG_SEARCH_SELECT,
+  L2_SUBCATEGORY_LIVE_UNLIVE,
+  L2_SUB_CATEGORY_LIVE_ITEM,
+  L2_SUB_CATEGORY_LIVE_POPUP_CLEAR,
+  PRODUCT_LIVE_UNLIVE,
+  PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
+  PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR
 } from "../constants/actionTypes";
 
 export default (
@@ -34,9 +40,15 @@ export default (
     iscategorylive:false,
     iscategoryitem:false,
     iscategoryindex:0,
-  isL1subcategorylive:false,
-  isL1subcategoryitem:false,
-  isL1subcategoryindex:0
+    isL1subcategorylive:false,
+    isL1subcategoryitem:false,
+    isL1subcategoryindex:0,
+    isL2subcategorylive:false,
+    isL2subcategoryitem:false,
+    isL2subcategoryindex:0,
+    isProductlive:false,
+    isProductitem:false,
+    isProductindex:0
   },
   action
 ) => {
@@ -125,14 +137,12 @@ export default (
             iscategorylive:false
           };
 
-
-
           case L1_SUBCATEGORY_LIVE_UNLIVE:
              var data=action.payload.data[0];
             return {
               ...state,
               isL1subcategorylive: action.payload.status || false,
-              subcat_L1 :Object.assign([], state.subcat_L1, {[state.iscategoryindex]: data})
+              subcat_L1 :Object.assign([], state.subcat_L1, {[state.isL1subcategoryindex]: data})
             }; 
 
           case L1_SUB_CATEGORY_LIVE_ITEM:
@@ -150,11 +160,60 @@ export default (
                 isL1subcategorylive: false
               };
 
+
+          case L2_SUBCATEGORY_LIVE_UNLIVE:
+                var data=action.payload.data[0];
+               return {
+                 ...state,
+                 isL2subcategorylive: action.payload.status || false,
+                 subcat_L2 :Object.assign([], state.subcat_L2, {[state.isL2subcategoryindex]: data})
+               }; 
+   
+          case L2_SUB_CATEGORY_LIVE_ITEM:
+               return {
+                   ...state,
+                   isL2subcategoryitem: action.item || false,
+                   isL2subcategoryindex: action.i || 0,
+                 };
+               
+          case L2_SUB_CATEGORY_LIVE_POPUP_CLEAR:
+               return {
+                   ...state,
+                   isL2subcategoryitem:  false,
+                   isL2subcategoryindex:  0,
+                   isL2subcategorylive: false
+                 };
+   
+          case PRODUCT_LIVE_UNLIVE:
+                  var data=action.payload.data[0];
+                 return {
+                   ...state,
+                   isProductlive: action.payload.status || false,
+                   product :Object.assign([], state.product, {[state.isProductindex]: data})
+                 }; 
+     
+            case PRODUCT_LIVE_UNLIVE_LIVE_ITEM:
+                 return {
+                     ...state,
+                     isProductitem: action.item || false,
+                     isProductindex: action.i || 0,
+                   };
+                 
+            case PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR:
+                 return {
+                     ...state,
+                     isProductitem:false,
+                       isProductindex:0,
+                     isProductlive: false
+                   };
+     
+
       case CATELOG_SEARCH:
       return {
         ...state,
         search_data: action.payload.data || [],
       };
+
       case CATELOG_SEARCH_SELECT:
         var category=action.payload.category || [];
         var l1subcategory=action.payload.l1subcategory || [];
@@ -162,6 +221,7 @@ export default (
         var sCat=category.length?category[0]:-1
         var sL1Cat=l1subcategory.length?l1subcategory[0]:-1
         var sL2Cat=l2subcategory.length?l2subcategory[0]:-1
+
       return {
         ...state,
         category_list: category,
