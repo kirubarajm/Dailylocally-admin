@@ -1,4 +1,4 @@
-import { PRODUCT_VIEW, CLEAR_PRODUCT_DATA,UPDATE_PRODUCT_IMAGES, UOM_LIST_VIEW, ZONE_LIST_VIEW, BRAND_LIST_VIEW, DELETE_PRODUCT_IMAGES, CATELOG_SUBCATEGORY_L2_LIST, CATELOG_SUBCATEGORY_L1_LIST, CATELOG_CATEGORY_LIST, SET_PRODUCT_IMAGES, PRODUCT_EDIT, PRODUCT_ADD, TAG_LIST_VIEW } from "../constants/actionTypes";
+import { PRODUCT_VIEW, CLEAR_PRODUCT_DATA,UPDATE_PRODUCT_IMAGES, UOM_LIST_VIEW, ZONE_LIST_VIEW, BRAND_LIST_VIEW, DELETE_PRODUCT_IMAGES, CATELOG_SUBCATEGORY_L2_LIST, CATELOG_SUBCATEGORY_L1_LIST, CATELOG_CATEGORY_LIST, SET_PRODUCT_IMAGES, PRODUCT_EDIT, PRODUCT_ADD, TAG_LIST_VIEW, PRODUCT_SUBCATEGORY_L2_LIST, PRODUCT_SUBCATEGORY_L1_LIST, PRODUCT_CATEGORY_LIST } from "../constants/actionTypes";
 
 export default (
   state = {
@@ -16,17 +16,17 @@ export default (
   action
 ) => {
   switch (action.type) {
-    case CATELOG_CATEGORY_LIST:
+    case PRODUCT_CATEGORY_LIST:
       return {
         ...state,
         category_list: action.payload.data || [],
       };
-    case CATELOG_SUBCATEGORY_L1_LIST:
+    case PRODUCT_SUBCATEGORY_L1_LIST:
       return {
         ...state,
         subcat_L1: action.payload.data || [],
       };
-    case CATELOG_SUBCATEGORY_L2_LIST:
+    case PRODUCT_SUBCATEGORY_L2_LIST:
       return {
         ...state,
         subcat_L2: action.payload.data || [],
@@ -58,8 +58,8 @@ export default (
       };
       case UPDATE_PRODUCT_IMAGES:
         var imagePath = {
-          img_url: action.payload.data.Location || "https://eattovo.s3.amazonaws.com/upload/admin/makeit/1588002283587-1.jpg.jpg",
-          type: 0
+          img_url: action.payload.data.Location,
+          type: action.imgtype
         };
         return {
           ...state,

@@ -9556,6 +9556,12 @@ button,
   bottom: 5px;
 
 }
+.cr-search-form__icon-close {
+  position: absolute;
+  right: 5px;
+  bottom: 2px;
+
+}
 .cr-search-form__input {
   /* stylelint-disable-next-line */
   padding-left: 35px !important;

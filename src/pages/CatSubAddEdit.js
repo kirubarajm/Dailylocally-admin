@@ -13,10 +13,9 @@ import {
   CATELOG_EDIT_CAT,
 } from "../constants/actionTypes";
 import { CAT_SUB_ADD_EDIT } from "../utils/constant";
-import { Field, reduxForm, change } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import { required, minLength2 } from "../utils/Validation";
 import Select from "react-dropdown-select";
-import { history } from "../store";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
 // import { Button} from 'react-bootstrap';
 
@@ -193,8 +192,8 @@ class CatSubAddEdit extends React.Component {
       this.setState({ category: cat });
 
       if (this.props.isEdit) {
-        var data = { l1scname: this.props.edit_cat_sub1_item.name };
-        this.props.initialize(data);
+        var datal1 = { l1scname: this.props.edit_cat_sub1_item.name };
+        this.props.initialize(datal1);
       }
     }
 
@@ -204,13 +203,13 @@ class CatSubAddEdit extends React.Component {
       catid: this.props.selected_cat.catid,
       zone_id: 1,
       });
-      var cat = [
+      var catadd = [
         {
           catid: this.props.selected_cat.catid,
           name: this.props.selected_cat.name,
         },
       ];
-      this.setState({ category: cat });
+      this.setState({ category: catadd });
       var subcat = [
         {
           scl1_id: this.props.selected_cat_sub1.scl1_id,
@@ -220,8 +219,8 @@ class CatSubAddEdit extends React.Component {
       this.setState({ sub1Cat: subcat });
 
       if (this.props.isEdit) {
-        var data = { l2scname: this.props.edit_cat_sub2_item.name };
-        this.props.initialize(data);
+        var datal2 = { l2scname: this.props.edit_cat_sub2_item.name };
+        this.props.initialize(datal2);
       }
     }
   }

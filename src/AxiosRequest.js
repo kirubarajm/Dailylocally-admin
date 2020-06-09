@@ -47,6 +47,8 @@ const Catelog = {
   getSubCate1: (data) => requests.post("/subcategoryl1list", data),
   getSubCate2: (data) => requests.post("/subcategoryl2list", data),
   getProduct: (data) => requests.post("/productlist", data),
+  getSearch: (data) => requests.post("/search/catalog", data),
+  getSearchView: (data) => requests.post("/search/catalogdata", data),
   getProductDetail: (data) => requests.post("/view/product", data),
   getUOMList: (data) => requests.post("/uomlist", data),
   getZoneList: (data) => requests.post("/zonelist", data),
@@ -60,7 +62,7 @@ const Catelog = {
   L1subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl1", data),
   fileUpload: (file) =>
     requests.post(
-      "/product/imageupload",
+      "/fileUpload",
       file,
       fileUploadHeader,
       AppVersion_1
