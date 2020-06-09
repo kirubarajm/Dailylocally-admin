@@ -162,11 +162,6 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: DELETE_PRODUCT_IMAGES,
     }),
-  onUpdateProductDetails: (data) =>
-    dispatch({
-      type: DELETE_PRODUCT_IMAGES,
-      payload: AxiosRequest.Catelog.getZoneList(data),
-    }),
   onAddProductDetails: (data) =>
     dispatch({
       type: PRODUCT_ADD,

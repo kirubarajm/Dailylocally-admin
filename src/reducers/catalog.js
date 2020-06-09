@@ -9,7 +9,8 @@ import {
   CATELOG_SELECTED_TAB,
   CATELOG_PRODUCT_ADD_SELECT,
   CATELOG_SEARCH,
-  CATELOG_SEARCH_SELECT
+  CATELOG_SEARCH_SELECT,
+  ZONE_LIST_VIEW,
 } from "../constants/actionTypes";
 
 export default (
@@ -19,12 +20,12 @@ export default (
     subcat_L1: [],
     subcat_L2: [],
     product: [],
-    search_data:[],
+    search_data: [],
     search: "",
     selected_cat: -1,
     selected_cat_sub1: -1,
     selected_cat_sub2: -1,
-    isAddProduct:false
+    isAddProduct: false,
   },
   action
 ) => {
@@ -68,7 +69,7 @@ export default (
       return {
         ...state,
         product: action.payload.data || [],
-        isAddProduct:false
+        isAddProduct: false,
       };
     case CATELOG_SELECTED_CAT:
       return {
@@ -85,34 +86,39 @@ export default (
         ...state,
         selected_cat_sub2: action.Item,
       };
-      case CATELOG_PRODUCT_ADD_SELECT:
+    case CATELOG_PRODUCT_ADD_SELECT:
       return {
         ...state,
         isAddProduct: true,
       };
-      case CATELOG_SEARCH:
+    case CATELOG_SEARCH:
       return {
         ...state,
         search_data: action.payload.data || [],
       };
-      case CATELOG_SEARCH_SELECT:
-        var category=action.payload.category || [];
-        var l1subcategory=action.payload.l1subcategory || [];
-        var l2subcategory=action.payload.l2subcategory || [];
-        var sCat=category.length?category[0]:-1
-        var sL1Cat=l1subcategory.length?l1subcategory[0]:-1
-        var sL2Cat=l2subcategory.length?l2subcategory[0]:-1
+    case ZONE_LIST_VIEW:
+      return {
+        ...state,
+        zone_list: action.payload.data || [],
+      };
+    case CATELOG_SEARCH_SELECT:
+      var category = action.payload.category || [];
+      var l1subcategory = action.payload.l1subcategory || [];
+      var l2subcategory = action.payload.l2subcategory || [];
+      var sCat = category.length ? category[0] : -1;
+      var sL1Cat = l1subcategory.length ? l1subcategory[0] : -1;
+      var sL2Cat = l2subcategory.length ? l2subcategory[0] : -1;
       return {
         ...state,
         category_list: category,
-        subcat_L1:l1subcategory,
-        subcat_L2:l2subcategory,
+        subcat_L1: l1subcategory,
+        subcat_L2: l2subcategory,
         product: action.payload.product || [],
-        selected_cat:sCat,
-        selected_cat_sub1:sL1Cat,
-        selected_cat_sub2:sL2Cat,
+        selected_cat: sCat,
+        selected_cat_sub1: sL1Cat,
+        selected_cat_sub2: sL2Cat,
       };
-      
+
     default:
       return state;
   }

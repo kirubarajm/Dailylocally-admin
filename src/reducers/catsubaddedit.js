@@ -7,6 +7,12 @@ import {
   CATELOG_ADD_L2CAT,
   CATELOG_EDIT_L1CAT,
   CATELOG_EDIT_L2CAT,
+  UPDATE_PRODUCT_IMAGES,
+  SET_PRODUCT_IMAGES,
+  DELETE_PRODUCT_IMAGES,
+  UPDATE_CAT_IMAGES,
+  SET_CAT_IMAGES,
+  DELETE_CAT_IMAGES,
 } from "../constants/actionTypes";
 
 export default (
@@ -14,6 +20,7 @@ export default (
     category_list: [],
     subcat_L1: [],
     subcat_L2: [],
+    Signature:[],
     isCatUpdate: false,
   },
   action
@@ -49,6 +56,29 @@ export default (
         ...state,
         isCatUpdate: false,
       };
+      case UPDATE_CAT_IMAGES:
+        var imagePath = {
+          img_url: action.payload.data.Location,
+          type: action.imgtype
+        };
+        return {
+          ...state,
+          Signature: [...state.Signature, imagePath]
+        };
+        case SET_CAT_IMAGES:
+        var imagePath2 = {
+          img_url: action.image,
+          type: 0
+        };
+        return {
+          ...state,
+          Signature: [...state.Signature, imagePath2]
+        };
+        case DELETE_CAT_IMAGES:
+        return {
+          ...state,
+          Signature: []
+        };
     default:
       return state;
   }

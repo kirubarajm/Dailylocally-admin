@@ -14,6 +14,7 @@ import {
   CATELOG_PRODUCT_ADD_SELECT,
   CATELOG_SEARCH,
   CATELOG_SEARCH_SELECT,
+  ZONE_LIST_VIEW,
 } from "../constants/actionTypes";
 import { Link } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
@@ -90,6 +91,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: CATELOG_SEARCH_SELECT,
       payload: AxiosRequest.Catelog.getSearchView(data),
     }),
+    onGetZone: (data) =>
+    dispatch({
+      type: ZONE_LIST_VIEW,
+      payload: AxiosRequest.Catelog.getZoneList(data),
+    }),
 });
 
 class Catalog extends React.Component {
@@ -116,7 +122,7 @@ class Catalog extends React.Component {
   UNSAFE_componentWillMount() {
     console.log("--componentWillMount-->");
     if (this.props.category_list.length === 0) this.catList();
-
+    this.props.onGetZone();
     this.onCatlogTabClick = this.onCatlogTabClick.bind(this);
     this.clickArea = this.clickArea.bind(this);
     this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);

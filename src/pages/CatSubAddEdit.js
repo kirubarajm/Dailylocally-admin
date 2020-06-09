@@ -11,6 +11,9 @@ import {
   CATELOG_ADD_CAT,
   CATELOG_CLEAR_FROM,
   CATELOG_EDIT_CAT,
+  DELETE_CAT_IMAGES,
+  SET_CAT_IMAGES,
+  UPDATE_CAT_IMAGES,
 } from "../constants/actionTypes";
 import { CAT_SUB_ADD_EDIT } from "../utils/constant";
 import { Field, reduxForm } from "redux-form";
@@ -101,7 +104,7 @@ const InputField = ({
 
 const mapStateToProps = (state) => ({
   ...state.catsubaddedit,
-  category_list: state.catalog.category_list
+  category_list: state.catalog.category_list,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -140,12 +143,28 @@ const mapDispatchToProps = (dispatch) => ({
       type: CATELOG_EDIT_L2CAT,
       payload: AxiosRequest.Catelog.onEditL2Cat(data),
     }),
+  onUpdateCATImages: (data, imgtype) =>
+    dispatch({
+      type: UPDATE_CAT_IMAGES,
+      imgtype,
+      payload: AxiosRequest.Catelog.fileUpload(data),
+    }),
+  onSetImages: (image) =>
+    dispatch({
+      type: SET_CAT_IMAGES,
+      image,
+    }),
+    onDeleteImages: () =>
+    dispatch({
+      type: DELETE_CAT_IMAGES,
+    }),
   onClear: () =>
     dispatch({
       type: CATELOG_CLEAR_FROM,
     }),
 });
 var isEdit = false;
+var kitchenSignatureImg = [1];
 class CatSubAddEdit extends React.Component {
   constructor() {
     super();
@@ -165,6 +184,7 @@ class CatSubAddEdit extends React.Component {
   }
 
   UNSAFE_componentWillMount() {
+    this.props.onDeleteImages();
     this.selectedCat = this.selectedCat.bind(this);
     this.selectedSub1Cat = this.selectedSub1Cat.bind(this);
     //this.selectedSub2Cat = this.selectedSub2Cat.bind(this);
@@ -178,6 +198,8 @@ class CatSubAddEdit extends React.Component {
     if (this.props.isEdit && this.props.isCat) {
       var data = { categoryname: this.props.edit_cat_item.name };
       this.props.initialize(data);
+      if (this.props.edit_cat_item.image)
+        this.props.onSetImages(this.props.edit_cat_item.image);
     }
 
     if (this.props.isSubCat1) {
@@ -193,14 +215,16 @@ class CatSubAddEdit extends React.Component {
       if (this.props.isEdit) {
         var datal1 = { l1scname: this.props.edit_cat_sub1_item.name };
         this.props.initialize(datal1);
+        if (this.props.edit_cat_sub1_item.image)
+          this.props.onSetImages(this.props.edit_cat_sub1_item.image);
       }
     }
 
     if (this.props.isSubCat2) {
       // this.props.onGetCategory({ zone_id: 1 });
       this.props.onGetSubCat1({
-      catid: this.props.selected_cat.catid,
-      zone_id: 1,
+        catid: this.props.selected_cat.catid,
+        zone_id: 1,
       });
       var catadd = [
         {
@@ -220,6 +244,8 @@ class CatSubAddEdit extends React.Component {
       if (this.props.isEdit) {
         var datal2 = { l2scname: this.props.edit_cat_sub2_item.name };
         this.props.initialize(datal2);
+        if (this.props.edit_cat_sub2_item.image)
+          this.props.onSetImages(this.props.edit_cat_sub2_item.image);
       }
     }
   }
@@ -241,60 +267,104 @@ class CatSubAddEdit extends React.Component {
       var editCat = {
         name: data.categoryname,
         catid: this.props.edit_cat_item.catid,
-        image: "testimg"
+        image:
+          this.props.Signature.length === 0
+            ? ""
+            : this.props.Signature[0].img_url,
       };
       this.props.OnEditCategory(editCat);
     } else if (this.props.isCat && !this.props.isEdit) {
-      var addCat = { name: data.categoryname, image: "testimg" };
+      var addCat = {
+        name: data.categoryname,
+        image:
+          this.props.Signature.length === 0
+            ? ""
+            : this.props.Signature[0].img_url,
+      };
       this.props.OnAddCategory(addCat);
-    }else if (this.props.isSubCat1 && this.props.isEdit) {
+    } else if (this.props.isSubCat1 && this.props.isEdit) {
       var editL1Cat = {
         catid: this.state.category[0].catid,
         scl1_id: this.props.edit_cat_sub1_item.scl1_id,
         name: data.l1scname,
-        image: "testimg"
+        image:
+          this.props.Signature.length === 0
+            ? ""
+            : this.props.Signature[0].img_url,
       };
       this.props.OnEditL1Category(editL1Cat);
-    }else if (this.props.isSubCat1 && !this.props.isEdit) {
+    } else if (this.props.isSubCat1 && !this.props.isEdit) {
       var addL1Cat = {
         catid: this.state.category[0].catid,
         name: data.l1scname,
-        image: "testimg"
+        image:
+          this.props.Signature.length === 0
+            ? ""
+            : this.props.Signature[0].img_url,
       };
       this.props.OnAddL1Category(addL1Cat);
-    }else if (this.props.isSubCat2 && this.props.isEdit) {
+    } else if (this.props.isSubCat2 && this.props.isEdit) {
       var editL2Cat = {
         scl1_id: this.state.sub1Cat[0].scl1_id,
         scl2_id: this.props.edit_cat_sub2_item.scl2_id,
         name: data.l2scname,
-        image: "testimg"
+        image:
+          this.props.Signature.length === 0
+            ? ""
+            : this.props.Signature[0].img_url,
       };
       this.props.OnEditL2Category(editL2Cat);
-    }else if (this.props.isSubCat2 && !this.props.isEdit) {
+    } else if (this.props.isSubCat2 && !this.props.isEdit) {
       var addL2Cat = {
         scl1_id: this.state.sub1Cat[0].scl1_id,
         name: data.l2scname,
-        image: "testimg"
+        image:
+          this.props.Signature.length === 0
+            ? ""
+            : this.props.Signature[0].img_url,
       };
       this.props.OnAddL2Category(addL2Cat);
     }
   };
-  selectedCat (item) {
-    this.setState({ category: item,sub1Cat:[] });
+  selectedCat(item) {
+    this.setState({ category: item, sub1Cat: [] });
     this.props.onGetSubCat1({ catid: item[0].catid, zone_id: 1 });
-  };
-  selectedSub1Cat (item)  {
+  }
+  selectedSub1Cat(item) {
     this.setState({ sub1Cat: item });
-  };
-  selectedSub2Cat = (item) =>e=> {
+  }
+  selectedSub2Cat = (item) => (e) => {
     // this.setState({ selected_cat_sub2: item[0] });
     this.setState({ sub2Cat: item });
+  };
+
+  handleonRemove = (imgid, imgType, index) => {
+    this.props.onDeleteImages(imgType, index);
+  };
+
+  handleCATimages = (newImageFile) => {
+    var data = new FormData();
+    data.append("file", newImageFile[0]);
+    var type = 1;
+    if (this.state.isSubCat1) type = 2;
+    if (this.state.isSubCat2) type = 3;
+    data.append("type", type);
+    this.props.onUpdateCATImages(data, type);
   };
 
   render() {
     return (
       <div>
-        <div style={{ height: this.state.isCat?"25vh":this.state.isSubCat1?"30vh":"35vh" }} className="pd-6">
+        <div
+          style={{
+            height: this.state.isCat
+              ? "55vh"
+              : this.state.isSubCat1
+              ? "60vh"
+              : "65vh",
+          }}
+          className="pd-6"
+        >
           <div className="fieldset" hidden={!this.state.isCat}>
             <div className="legend">
               {this.props.isEdit ? "Category Edit" : "Category Add"}
@@ -311,9 +381,34 @@ class CatSubAddEdit extends React.Component {
                       autoComplete="off"
                       type="text"
                       component={InputField}
-                      validate={this.state.isCat?[required, minLength2]:[]}
+                      validate={this.state.isCat ? [required, minLength2] : []}
                       required={true}
                     />
+                  </Col>
+                </Row>
+                <Row className="pd-0 mr-l-10 mr-r-10">
+                  <Col lg="5" className="color-grey pd-0">
+                    Category Photo
+                  </Col>
+                  <Col lg="7">
+                    {kitchenSignatureImg.map((item, i) => (
+                      <div key={i} className="border-none">
+                        <Field
+                          name={"CAT" + i}
+                          index={i}
+                          component={DropzoneFieldMultiple}
+                          type="file"
+                          imgPrefillDetail={
+                            this.props.Signature.length
+                              ? this.props.Signature[i]
+                              : ""
+                          }
+                          label="Photogropy"
+                          handleonRemove={this.handleonRemove}
+                          handleOnDrop={() => this.handleCATimages}
+                        />
+                      </div>
+                    ))}
                   </Col>
                 </Row>
                 <Row className="mr-b-10">
@@ -357,9 +452,36 @@ class CatSubAddEdit extends React.Component {
                       autoComplete="off"
                       type="text"
                       component={InputField}
-                      validate={this.state.isSubCat1?[required, minLength2]:[]}
+                      validate={
+                        this.state.isSubCat1 ? [required, minLength2] : []
+                      }
                       required={true}
                     />
+                  </Col>
+                </Row>
+                <Row className="pd-0 mr-l-10 mr-r-10">
+                  <Col lg="5" className="color-grey pd-0">
+                    L1 SC Photo
+                  </Col>
+                  <Col lg="7">
+                    {kitchenSignatureImg.map((item, i) => (
+                      <div key={i} className="border-none">
+                        <Field
+                          name={"L1SC" + i}
+                          index={i}
+                          component={DropzoneFieldMultiple}
+                          type="file"
+                          imgPrefillDetail={
+                            this.props.Signature.length
+                              ? this.props.Signature[i]
+                              : ""
+                          }
+                          label="Photogropy"
+                          handleonRemove={this.handleonRemove}
+                          handleOnDrop={() => this.handleCATimages}
+                        />
+                      </div>
+                    ))}
                   </Col>
                 </Row>
                 <Row className="mr-b-10">
@@ -420,9 +542,36 @@ class CatSubAddEdit extends React.Component {
                       autoComplete="off"
                       type="text"
                       component={InputField}
-                      validate={this.state.isSubCat2?[required, minLength2]:[]}
+                      validate={
+                        this.state.isSubCat2 ? [required, minLength2] : []
+                      }
                       required={true}
                     />
+                  </Col>
+                </Row>
+                <Row className="pd-0 mr-l-10 mr-r-10">
+                  <Col lg="5" className="color-grey pd-0">
+                    L2 SC Photo
+                  </Col>
+                  <Col lg="7">
+                    {kitchenSignatureImg.map((item, i) => (
+                      <div key={i} className="border-none">
+                        <Field
+                          name={"L2SC" + i}
+                          index={i}
+                          component={DropzoneFieldMultiple}
+                          type="file"
+                          imgPrefillDetail={
+                            this.props.Signature.length
+                              ? this.props.Signature[i]
+                              : ""
+                          }
+                          label="Photogropy"
+                          handleonRemove={this.handleonRemove}
+                          handleOnDrop={() => this.handleCATimages}
+                        />
+                      </div>
+                    ))}
                   </Col>
                 </Row>
                 <Row className="mr-b-10">
