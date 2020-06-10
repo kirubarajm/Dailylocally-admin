@@ -27,6 +27,7 @@ import {
   PRODUCT_LIVE_UNLIVE,
   PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
   PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
+  ZONE_SELECTED
 } from "../constants/actionTypes";
 import { Link } from "react-router-dom";
 import { FaPlusCircle } from "react-icons/fa";
@@ -184,6 +185,10 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
     }),
+    OnZoneItemSelect: (item) =>
+    dispatch({
+      type: ZONE_SELECTED,item
+    }),
 });
 
 class Catalog extends React.Component {
@@ -209,8 +214,8 @@ class Catalog extends React.Component {
 
   UNSAFE_componentWillMount() {
     console.log("--componentWillMount-->");
-    if (this.props.category_list.length === 0) this.catList();
-    this.props.onGetZone();
+    //if (this.props.category_list.length === 0) this.catList();
+    if (this.props.zone_list.length === 0)  this.props.onGetZone();
     this.onCatlogTabClick = this.onCatlogTabClick.bind(this);
     this.clickArea = this.clickArea.bind(this);
     this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);
@@ -237,7 +242,6 @@ class Catalog extends React.Component {
     this.onUpdate = this.onUpdate.bind(this);
     this.onCancel = this.onCancel.bind(this);
     this.setState({
-      areaItem: Area[0],
       liveItem: -1,
       L1subcattoggleliveModal: false,
       liveModal: false,
@@ -249,7 +253,7 @@ class Catalog extends React.Component {
       this.getProduct(
         this.props.selected_cat_sub1.scl1_id,
         this.props.selected_cat_sub2.scl2_id,
-        Area[0].area_id
+        this.props.zoneItem.id
       );
   }
   UNSAFE_componentWillUpdate() {
@@ -270,6 +274,10 @@ class Catalog extends React.Component {
     if (this.props.iscategorylive) {
       this.props.OnPopupClear();
       this.toggleLive();
+    }
+
+    if(this.props.isLoadingZone&&!this.state.areaItem){
+      this.clickArea(this.props.zone_list[0]);
     }
 
     if (this.props.isL1subcategorylive) {
@@ -300,7 +308,7 @@ class Catalog extends React.Component {
   onSearch = (e) => {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
-      this.props.onCatelogSearch({ search: e.target.value, zone_id: 1 });
+      this.props.onCatelogSearch({ search: e.target.value, zone_id: this.props.zoneItem.id });
       this.setState({ isSearch: true });
     } else if (e.target.value === "") {
       e.preventDefault();
@@ -370,28 +378,28 @@ class Catalog extends React.Component {
   MovetoLive = (item, i, type) => {
     this.props.OncategoryLiveUnlive({
       catid: this.props.iscategoryitem.catid,
-      zone_id: 1,
+      zone_id: this.props.zoneItem.id,
     });
   };
 
   L1subcatMovetoLive = () => {
     this.props.OnL1SubcategoryLiveUnlive({
       scl1_id: this.props.isL1subcategoryitem.scl1_id,
-      zone_id: 1,
+      zone_id: this.props.zoneItem.id,
     });
   };
 
   L2subcatMovetoLive = () => {
     this.props.OnL2SubcategoryLiveUnlive({
       scl2_id: this.props.isL2subcategoryitem.scl2_id,
-      zone_id: 1,
+      zone_id: this.props.zoneItem.id,
     });
   };
 
   productMovetoLive = () => {
     this.props.OnProductLiveUnlive({
       pid: this.props.isProductitem.pid,
-      zone_id: 1,
+      zone_id: this.props.zoneItem.id,
     });
   };
 
@@ -404,7 +412,9 @@ class Catalog extends React.Component {
   };
 
   clickArea = (item) => {
+    this.props.OnZoneItemSelect(item);
     this.setState({ areaItem: item });
+    this.props.onGetCategory({ zone_id: item.id });
   };
 
   clickCatItem = (item) => (ev) => {
@@ -427,7 +437,7 @@ class Catalog extends React.Component {
     this.getProduct(
       this.props.selected_cat_sub1.scl1_id,
       item.scl2_id,
-      this.state.areaItem.area_id
+      this.props.zoneItem.id
     );
   };
 
@@ -462,15 +472,15 @@ class Catalog extends React.Component {
   };
 
   catList() {
-    this.props.onGetCategory({ zone_id: 1 });
+    this.props.onGetCategory({ zone_id: this.props.zoneItem.id });
   }
 
   subCat1List(cat_id) {
-    this.props.onGetSubCat1({ catid: cat_id, zone_id: 1 });
+    this.props.onGetSubCat1({ catid: cat_id, zone_id: this.props.zoneItem.id });
   }
 
   subCat2List(scl1_id) {
-    this.props.onGetSubCat2({ scl1_id: scl1_id, zone_id: 1 });
+    this.props.onGetSubCat2({ scl1_id: scl1_id, zone_id: this.props.zoneItem.id });
   }
 
   getProduct(scl1_id, scl2_id, zone_id) {
@@ -555,7 +565,7 @@ class Catalog extends React.Component {
             </Col>
             <Col>
               <div className="float-right">
-                Area{"  "}
+                <spna className="mr-r-20">Area</spna>
                 <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenAreaDropDown}
@@ -563,15 +573,15 @@ class Catalog extends React.Component {
                   size="sm"
                 >
                   <DropdownToggle caret>
-                    {this.state.areaItem.area_name || ""}
+                    {this.props.zoneItem.Zonename || ""}
                   </DropdownToggle>
                   <DropdownMenu>
-                    {Area.map((item, index) => (
+                    {this.props.zone_list.map((item, index) => (
                       <DropdownItem
                         onClick={() => this.clickArea(item)}
                         key={index}
                       >
-                        {item.area_name}
+                        {item.Zonename}
                       </DropdownItem>
                     ))}
                   </DropdownMenu>
@@ -631,7 +641,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-green btn-live"
-                            hidden={item.active_status === 1}
+                            hidden={item.active_status === 0}
                             onClick={() => this.Onlive(item, i, 1)}
                           >
                             Live
@@ -639,7 +649,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-red btn-unlive"
-                            hidden={item.active_status === 0}
+                            hidden={item.active_status === 1}
                             onClick={() => this.Onlive(item, i, 1)}
                           >
                             Unlive
@@ -700,7 +710,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-green btn-live"
-                            hidden={item.active_status === 1}
+                            hidden={item.active_status === 0}
                             onClick={() => this.Onlive(item, i, 2)}
                           >
                             Live
@@ -708,7 +718,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-red btn-unlive"
-                            hidden={item.active_status === 0}
+                            hidden={item.active_status === 1}
                             onClick={() => this.Onlive(item, i, 2)}
                           >
                             Unlive
@@ -773,7 +783,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-green btn-live"
-                            hidden={item.active_status === 1}
+                            hidden={item.active_status === 0}
                             onClick={() => this.Onlive(item, i, 3)}
                           >
                             Live
@@ -781,7 +791,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-red btn-unlive"
-                            hidden={item.active_status === 0}
+                            hidden={item.active_status === 1}
                             onClick={() => this.Onlive(item, i, 3)}
                           >
                             Unlive
@@ -844,7 +854,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-green btn-live"
-                            hidden={item.live_status === "1"}
+                            hidden={item.live_status ==="0"}
                             onClick={() => this.Onlive(item, i, 4)}
                           >
                             Live
@@ -852,7 +862,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-red btn-unlive"
-                            hidden={item.live_status === "0"}
+                            hidden={item.live_status ==="1"}
                             onClick={() => this.Onlive(item, i, 4)}
                           >
                             Unlive
@@ -894,7 +904,7 @@ class Catalog extends React.Component {
           >
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
-              {this.props.iscategoryitem.active_status === 1
+              {this.props.iscategoryitem.active_status === 0
                 ? "Are you sure you want to live Category"
                 : "Are you sure you want to unlive Category"}{" "}
             </ModalBody>
@@ -916,7 +926,7 @@ class Catalog extends React.Component {
           >
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
-              {this.props.isL1subcategoryitem.active_status === 1
+              {this.props.isL1subcategoryitem.active_status === 0
                 ? "Are you sure you want to live L1 sub Category"
                 : "Are you sure you want to unlive  L1 sub Category"}{" "}
             </ModalBody>
@@ -938,7 +948,7 @@ class Catalog extends React.Component {
           >
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
-              {this.props.isL1subcategoryitem.active_status === 1
+              {this.props.isL1subcategoryitem.active_status === 0
                 ? "Are you sure you want to live L2 sub Category"
                 : "Are you sure you want to unlive  L2 sub Category"}{" "}
             </ModalBody>
@@ -960,7 +970,7 @@ class Catalog extends React.Component {
           >
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
-              {this.props.isL1subcategoryitem.active_status === 1
+              {this.props.isL1subcategoryitem.active_status === 0
                 ? "Are you sure you want to live product"
                 : "Are you sure you want to unlive  product"}{" "}
             </ModalBody>

@@ -106,6 +106,7 @@ const InputField = ({
 const mapStateToProps = (state) => ({
   ...state.catsubaddedit,
   category_list: state.catalog.category_list,
+  zoneItem:state.catalog.zoneItem
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -225,7 +226,7 @@ class CatSubAddEdit extends React.Component {
       // this.props.onGetCategory({ zone_id: 1 });
       this.props.onGetSubCat1({
         catid: this.props.selected_cat.catid,
-        zone_id: 1,
+        zone_id: this.props.zoneItem.id,
       });
       var catadd = [
         {
@@ -329,7 +330,7 @@ class CatSubAddEdit extends React.Component {
   };
   selectedCat(item) {
     this.setState({ category: item, sub1Cat: [] });
-    this.props.onGetSubCat1({ catid: item[0].catid, zone_id: 1 });
+    this.props.onGetSubCat1({ catid: item[0].catid, zone_id: this.props.zoneItem.id });
   }
   selectedSub1Cat(item) {
     this.setState({ sub1Cat: item });

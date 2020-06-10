@@ -22,7 +22,8 @@ import {
   L2_SUB_CATEGORY_LIVE_POPUP_CLEAR,
   PRODUCT_LIVE_UNLIVE,
   PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
-  PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR
+  PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
+  ZONE_SELECTED
 } from "../constants/actionTypes";
 
 export default (
@@ -33,6 +34,9 @@ export default (
     subcat_L2: [],
     product: [],
     search_data: [],
+    zone_list:[],
+    isLoadingZone:false,
+    zoneItem: false,
     search: "",
     selected_cat: -1,
     selected_cat_sub1: -1,
@@ -218,6 +222,13 @@ export default (
       return {
         ...state,
         zone_list: action.payload.data || [],
+        isLoadingZone:true
+      };
+      case ZONE_SELECTED:
+      return {
+        ...state,
+        zoneItem: action.item || false,
+        isLoadingZone:false
       };
     case CATELOG_SEARCH_SELECT:
       var category = action.payload.category || [];

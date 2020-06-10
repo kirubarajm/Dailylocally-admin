@@ -7,7 +7,7 @@ import App from "./App";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={history} basename="/">
+    <Router history={history} basename="/d2admin/">
       <Switch>
         <Route path="/" component={App} />
       </Switch>
