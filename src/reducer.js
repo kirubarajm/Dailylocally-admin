@@ -8,6 +8,9 @@ import productview from './reducers/productview'
 import productaddedit from './reducers/productaddedit'
 import catsubaddedit from './reducers/catsubaddedit'
 import vendoredit from './reducers/vendoredit'
+import warehouse from './reducers/warehouse'
+import common from './reducers/common'
+import dayorders from './reducers/dayorders'
 export default combineReducers({
   router: routerReducer,
   form: formReducer,
@@ -17,5 +20,8 @@ export default combineReducers({
   productview,
   productaddedit,
   catsubaddedit,
-  vendoredit
+  vendoredit,
+  warehouse,
+  common,
+  dayorders
 });

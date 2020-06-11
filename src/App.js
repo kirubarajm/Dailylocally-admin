@@ -12,16 +12,26 @@ import { MainLayout } from "./components";
 import Catalog from "./pages/Catalog";
 import ProductView from "./pages/ProductView";
 import ProductAddEdit from "./pages/ProductAddEdit";
-const mapStateToProps = (state) => {
-  return {};
-};
+import Warehouse from "./pages/Warehouse";
+import { ZONE_LIST_VIEW } from "./constants/actionTypes";
+import AxiosRequest from "./AxiosRequest";
+import DayOrders from "./pages/DayOrders";
+const mapStateToProps = (state) => ({ ...state.common });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+  onGetZone: (data) =>
+  dispatch({
+    type: ZONE_LIST_VIEW,
+    payload: AxiosRequest.Catelog.getZoneList(data),
+  }),
+});
 class App extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     loadProgressBar();
   }
-  UNSAFE_componentWillMount() {}
+  UNSAFE_componentWillMount() {
+    if (this.props.zone_list.length === 0)  this.props.onGetZone();
+  }
 
   render() {
     return (
@@ -60,6 +70,30 @@ class App extends React.Component {
             path="/product_add"
             layout={MainLayout}
             component={ProductAddEdit}
+          />
+          <LayoutRoute
+            exact
+            path="/warehouse"
+            layout={MainLayout}
+            component={Warehouse}
+          />
+          <LayoutRoute
+            exact
+            path="/warehouse/dayoders"
+            layout={MainLayout}
+            component={Warehouse}
+          />
+           <LayoutRoute
+            exact
+            path="/warehouse/po"
+            layout={MainLayout}
+            component={Warehouse}
+          />
+           <LayoutRoute
+            exact
+            path="/warehouse/procurement"
+            layout={MainLayout}
+            component={Warehouse}
           />
 
           <Redirect to="/login" />

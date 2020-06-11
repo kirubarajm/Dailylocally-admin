@@ -78,12 +78,19 @@ const Catelog = {
    onAddL2Cat:(data) => requests.post("/add/subcategoryl2", data),
    L2subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl2", data),
    ProductLiveUnlive:(data) => requests.put("/live/product", data),
+   
 };
+
+const Warehouse = {
+  dayorderlist:(data) => requests.post("/dayorderlist", data),
+  createprocurement:(data) => requests.post("/procurement/create", data),
+}
 
 export default {
   BASE_URL_LIVE,
   Auth,
   Catelog,
+  Warehouse,
   setToken: (_token) => {
     token = _token;
   },

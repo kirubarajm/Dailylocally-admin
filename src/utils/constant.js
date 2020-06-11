@@ -1,10 +1,10 @@
 export const SIGN_UP_FORM = "signup";
 export const SEARCH_INPUT="search_input"
+export const SEARCH_INPUT_FILTER="search_input_filter"
 export const PRODUCT_ADD_EDIT="product_add_edit"
 export const VENDOR_EDIT="vendor_edit"
 export const CAT_SUB_ADD_EDIT="cat_sub_add_edit"
-export const Area = [
-  { area_id: 1, area_name: "T Nagar" },
-  { area_id: 2, area_name: "OMR" },
-  { area_id: 3, area_name: "Guindy" },
-];
+export const LoginType={1:"/",2:"/",3:"/makeit-vorders",4:"/",5:"/",6:"/"};
+export const MasterOrderStatusV={0:"Post",1:"Accept",2:"Preparing",3:"Prepared",5:"Pickedup",6:"Delivered",7:"Cancel"};
+export const MasterOrderStatus={0:"Post",1:"Accept",2:"Ready to dispatch",3:"Ready to dispatch",5:"Picked up",6:"Delivered",7:"Cancel"};
+export const notification_color = { background: "#ffffff", text: "#000000" };
