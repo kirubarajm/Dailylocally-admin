@@ -306,7 +306,6 @@ class DayOrders extends React.Component {
               </Col>
               <Col className="txt-align-right">
                 <Button size="sm" onClick={this.movetoprocurement}>
-                  {" "}
                   Add Selected orders
                 </Button>
               </Col>

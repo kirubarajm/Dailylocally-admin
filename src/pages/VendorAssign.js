@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import DateRangePicker from "react-bootstrap-daterangepicker";
 import {
   Row,
   Col,
@@ -21,6 +22,25 @@ import { notify } from "react-notify-toast";
 import { notification_color, VENDOR_ASSIGN } from "../utils/constant";
 import { Field, reduxForm } from "redux-form";
 import Select from "react-dropdown-select";
+import { required, minLength2 } from "../utils/Validation";
+
+const InputField = ({
+  input,
+  label,
+  type,
+  meta: { touched, error, warning },
+  ...custom
+  // 
+}) => {
+ return (<div>
+    <label className='pd-0' style={{minWidth:"180px"}}>{label} <span className='must' hidden={!custom.required}>*</span></label>
+    <div> <input {...input} placeholder={label} type={type} autoComplete="off" onWheel={event => { event.preventDefault(); }} style={{width:"192px"}}/>
+      {touched &&
+        ((error && <span>{error}</span>) ||
+          (warning && <span>{warning}</span>))}
+    </div>
+  </div>);
+}
 
 const mapStateToProps = (state) => ({ ...state.vendorassign });
 
@@ -51,33 +71,33 @@ const InputSearchDropDown = ({
   valueField,
 }) => {
   return (
-    <div className="border-none" style={{ marginBottom: "10px" }}>
-      <Row className="mr-0">
-        <Col className="pd-0" >
-          <label className="mr-0">
-            {label} <span className="must">*</span>
-          </label>
-        </Col>
-        <Col>
-          <Select
-            options={options}
-            labelField={labelField}
-            searchable={searchable}
-            searchBy={searchBy}
-            values={[...values]}
-            noDataLabel={noDataLabel}
-            valueField={valueField}
-            dropdownHeight={"300px"}
-            disabled={disabled}
-            onChange={(value) => {
-              onSelection(value);
-            }}
-          />
-        </Col>
-      </Row>
-    </div>
+    <Row className="mr-0 border-none">
+      <Col className="pd-0" lg="5">
+        <label className="mr-0 border-none">
+          {label} <span className="must">*</span>
+        </label>
+      </Col>
+      <Col className="pd-0" lg="5">
+        <Select
+          options={options}
+          labelField={labelField}
+          searchable={searchable}
+          searchBy={searchBy}
+          values={[...values]}
+          noDataLabel={noDataLabel}
+          valueField={valueField}
+          dropdownHeight={"300px"}
+          disabled={disabled}
+          onChange={(value) => {
+            onSelection(value);
+          }}
+        />
+      </Col>
+    </Row>
   );
 };
+
+var today;
 
 class VendorAssign extends React.Component {
   constructor() {
@@ -91,10 +111,13 @@ class VendorAssign extends React.Component {
   }
 
   UNSAFE_componentWillMount() {
+    today = Moment().add(1, "days").format("YYYY-MM-DD");
     this.onGetPoWaitngList = this.onGetPoWaitngList.bind(this);
     this.onAddVendor = this.onAddVendor.bind(this);
     this.toggleAddVendorPopUp = this.toggleAddVendorPopUp.bind(this);
     this.selectedSuplier = this.selectedSuplier.bind(this);
+    this.startSelect = this.startSelect.bind(this);
+    this.confirmToAddVendor=this.confirmToAddVendor.bind(this);
     this.onGetPoWaitngList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -123,6 +146,8 @@ class VendorAssign extends React.Component {
   selectedSuplier = (item) => {
     this.setState({ suplier: item });
   };
+  confirmToAddVendor= () => {
+  }
 
   onAddVendor = () => {
     var checkItem = this.state.selected_proid;
@@ -132,6 +157,7 @@ class VendorAssign extends React.Component {
         zone_id: 1,
         products: Values,
       });
+      this.setState({ startdate: today });
       this.toggleAddVendorPopUp();
     } else {
       notify.show(
@@ -141,6 +167,10 @@ class VendorAssign extends React.Component {
         notification_color
       );
     }
+  };
+  startSelect = (event, picker) => {
+    var startdate = picker.startDate.format("YYYY-MM-DD");
+    this.setState({ startdate: startdate });
   };
   submit = (values) => {};
 
@@ -319,13 +349,44 @@ class VendorAssign extends React.Component {
                 onSelection={this.selectedSuplier}
                 label="Suplier Name"
               />
+              <Row>
+                <Col className="pd-0" lg="5">
+                  Due Date{" "}
+                </Col>
+                <Col className="pd-0" lg="5">
+                  <DateRangePicker
+                    opens="right"
+                    singleDatePicker
+                    maxDate={today}
+                    drops="down"
+                    onApply={this.startSelect}
+                  >
+                    <Button
+                      className="mr-r-10"
+                      style={{ width: "30px", height: "30px", padding: "0px" }}
+                    >
+                      <i className="far fa-calendar-alt"></i>
+                    </Button>
+                    {this.state.startdate}
+                  </DateRangePicker>
+                </Col>
+              </Row>
+              <Field
+                name="buyer_comment"
+                autoComplete="off"
+                type="text"
+                component={InputField}
+                label="Buyer Comment"
+                validate={[required, minLength2]}
+                required={true}
+              />
             </form>
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
             <Button size="sm" onClick={this.toggleAddVendorPopUp}>
               Cancel
             </Button>
-            <Button size="sm" onClick={this.confirmToprocurment}>
+            <Button size="sm" onClick={this.confirmToAddVendor}>
               ADD
             </Button>
           </ModalFooter>
