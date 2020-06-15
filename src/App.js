@@ -15,21 +15,22 @@ import ProductAddEdit from "./pages/ProductAddEdit";
 import Warehouse from "./pages/Warehouse";
 import { ZONE_LIST_VIEW } from "./constants/actionTypes";
 import AxiosRequest from "./AxiosRequest";
+import VendorAssign from "./pages/VendorAssign";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
   onGetZone: (data) =>
-  dispatch({
-    type: ZONE_LIST_VIEW,
-    payload: AxiosRequest.Catelog.getZoneList(data),
-  }),
+    dispatch({
+      type: ZONE_LIST_VIEW,
+      payload: AxiosRequest.Catelog.getZoneList(data),
+    }),
 });
 class App extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
     loadProgressBar();
   }
   UNSAFE_componentWillMount() {
-    if (this.props.zone_list.length === 0)  this.props.onGetZone();
+    if (this.props.zone_list.length === 0) this.props.onGetZone();
   }
 
   render() {
@@ -82,17 +83,24 @@ class App extends React.Component {
             layout={MainLayout}
             component={Warehouse}
           />
-           <LayoutRoute
+          <LayoutRoute
             exact
             path="/warehouse/po"
             layout={MainLayout}
             component={Warehouse}
           />
-           <LayoutRoute
+          <LayoutRoute
             exact
             path="/warehouse/procurement"
             layout={MainLayout}
             component={Warehouse}
+          />
+
+          <LayoutRoute
+            exact
+            path="/vendor-assign"
+            layout={MainLayout}
+            component={VendorAssign}
           />
 
           <Redirect to="/login" />

@@ -13,6 +13,7 @@ import common from './reducers/common'
 import dayorders from './reducers/dayorders'
 import procurement from './reducers/procurement'
 import po from './reducers/po'
+import vendorassign from './reducers/vendorassign'
 export default combineReducers({
   router: routerReducer,
   form: formReducer,
@@ -27,5 +28,6 @@ export default combineReducers({
   common,
   dayorders,
   procurement,
-  po
+  po,
+  vendorassign
 });

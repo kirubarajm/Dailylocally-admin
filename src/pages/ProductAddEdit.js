@@ -44,7 +44,7 @@ const InputSearchDropDown = ({
   return (
     <div className="border-none" style={{ marginBottom: "10px" }}>
       <Row className="mr-0">
-        <Col lg="5" className="pd-0">
+        <Col lg="10" className="pd-0 border-none">
           <label className="mr-0">
             {label} <span className="must">*</span>
           </label>

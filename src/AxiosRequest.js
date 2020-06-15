@@ -77,6 +77,8 @@ const Warehouse = {
   procurementwaitinglist:(data) => requests.post("/procurement/list", data),
   createPo:(data) => requests.post("/procurement/movetopurchase", data),
   getPoList:(data) => requests.post("/po/getpolist", data),
+  getPrWaitingList:(data) => requests.post("/po/waitingpolist", data),
+  getVendorList:(data) => requests.post("/po/productwisevendorlist", data),
 }
 
 export default {
