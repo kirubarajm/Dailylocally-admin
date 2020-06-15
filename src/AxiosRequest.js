@@ -60,16 +60,6 @@ const Catelog = {
   onEditVendor:(data) => requests.post("/edit/vendorproductmapping", data),
   categoryLiveUnlive:(data) => requests.put("/live/category", data),
   L1subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl1", data),
-  fileUpload: (file) =>
-    requests.post(
-      "/fileUpload",
-      file,
-      fileUploadHeader,
-      AppVersion_1
-    ),
-   onAddProduct:(data) => requests.post("/add/product", data),
-   onEditProduct:(data) => requests.post("/edit/product", data),
-   onEditVendor:(data) => requests.post("/edit/vendorproductmapping", data),
    onEditCat:(data) => requests.post("/edit/category", data),
    onEditL1Cat:(data) => requests.post("/edit/subcategoryl1", data),
    onEditL2Cat:(data) => requests.post("/edit/subcategoryl2", data),
@@ -84,6 +74,9 @@ const Catelog = {
 const Warehouse = {
   dayorderlist:(data) => requests.post("/dayorderlist", data),
   createprocurement:(data) => requests.post("/procurement/create", data),
+  procurementwaitinglist:(data) => requests.post("/procurement/list", data),
+  createPo:(data) => requests.post("/procurement/movetopurchase", data),
+  getPoList:(data) => requests.post("/po/getpolist", data),
 }
 
 export default {

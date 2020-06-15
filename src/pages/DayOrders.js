@@ -47,8 +47,6 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
-var startDate;
-var endDate;
 var today;
 class DayOrders extends React.Component {
   constructor() {
@@ -76,6 +74,16 @@ class DayOrders extends React.Component {
     this.confirmToprocurment = this.confirmToprocurment.bind(this);
     this.onReset = this.onReset.bind(this);
     this.onSuccessRefresh=this.onSuccessRefresh.bind(this);
+    this.onGetOrders=this.onGetOrders.bind(this);
+    this.onGetOrders();
+  }
+  onGetOrders=()=>{
+    if (this.props.zoneItem && !this.state.isLoading) {
+      this.setState({ isLoading: true });
+      this.props.onGetDayorders({
+        zoneid: this.props.zoneItem.id,
+      });
+    }
   }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
@@ -83,12 +91,7 @@ class DayOrders extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    if (this.props.zoneItem && !this.state.isLoading) {
-      this.setState({ isLoading: true });
-      this.props.onGetDayorders({
-        zoneid: this.props.zoneItem.id,
-      });
-    }
+    this.onGetOrders();
 
     if (this.props.movetoprocurement) {
       this.props.onClear();

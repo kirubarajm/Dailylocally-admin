@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import AxiosRequest from "../AxiosRequest";
 import SearchInput from "../components/SearchInput";
@@ -46,7 +46,6 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
-import { Area } from "../utils/constant";
 import CatSubAddEdit from "./CatSubAddEdit";
 
 // const [show, setShow] = useState(false);

@@ -1,8 +1,6 @@
 import React, { Component } from "react";
-import { MdSearch } from "react-icons/md";
-import { IoIosClose } from "react-icons/io";
 import { Field, reduxForm } from "redux-form";
-import { SEARCH_INPUT, SEARCH_INPUT_FILTER } from "../utils/constant";
+import { SEARCH_INPUT_FILTER } from "../utils/constant";
 const searchInputField = ({
   input,
   placeholder,
@@ -78,7 +76,6 @@ class Search extends Component {
   render() {
     const placeholder = this.props.placeholder || " Search...";
     const type = this.props.type || "text";
-    const value =this.props.value || "";
     return (
       <div className="cr-search-form width-200">
         <form>

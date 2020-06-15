@@ -15,7 +15,6 @@ import ProductAddEdit from "./pages/ProductAddEdit";
 import Warehouse from "./pages/Warehouse";
 import { ZONE_LIST_VIEW } from "./constants/actionTypes";
 import AxiosRequest from "./AxiosRequest";
-import DayOrders from "./pages/DayOrders";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({

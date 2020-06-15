@@ -20,7 +20,7 @@ import {
   CLEAR_PRODUCT_DATA,
 } from "../constants/actionTypes";
 import { PRODUCT_ADD_EDIT } from "../utils/constant";
-import { Field, reduxForm, change } from "redux-form";
+import { Field, reduxForm } from "redux-form";
 import renderInputField from "../components/renderInputField";
 import { required, minLength2 } from "../utils/Validation";
 import Select from "react-dropdown-select";
@@ -758,7 +758,7 @@ if(data.KSI0){
             </div>
           </div>
 
-          <div className="mr-t-20" hidden={this.state.vendor.length == 0}>
+          <div className="mr-t-20" hidden={this.state.vendor.length === 0}>
             <div className="fieldset">
               <div className="legend">
                 Cost Comparison (PO/ PA- Active/PA - Expired)

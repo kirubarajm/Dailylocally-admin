@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
-import { Link } from "react-router-dom";
 import { PRODUCT_VIEW } from "../constants/actionTypes";
 import Moment from "moment";
 import { history } from '../store';
@@ -41,7 +40,6 @@ function CardRowCol(props) {
 
 function CardRowColImage(props) {
   var lable = props.lable ? props.lable : "";
-  var color = props.color ? props.color : "Black";
   if (props.value !== null) {
     return (
       <Row className="list-text cart-item font-size-14">
@@ -89,10 +87,6 @@ function CardRowColVendor(props) {
 }
 
 class ProductView extends React.Component {
-  constructor() {
-    super();
-  }
-
   UNSAFE_componentWillMount() {
     var productIds = this.props.match.params.product_id;
     this.props.onGetProduct({ product_id: productIds });

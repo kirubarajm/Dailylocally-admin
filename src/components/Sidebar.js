@@ -2,10 +2,7 @@ import logo200Image from "../assets/img/logo/tovo_logo.png";
 import sidebarBgImage from "../assets/img/sidebar/sidebar-14.png";
 import SourceLink from "./SourceLink";
 import React from "react";
-import { connect } from "react-redux";
 import { MdKeyboardArrowDown } from "react-icons/md";
-
-import { SidebarSuperAdmin } from "../utils/SidebarSuperAdmin";
 import { NavLink } from "react-router-dom";
 import {
   Collapse,
@@ -140,7 +137,6 @@ class Sidebar extends React.Component {
     switch (roleid) {
       default:
         return navBarSuperAdminItems;
-        break;
     }
   }
 

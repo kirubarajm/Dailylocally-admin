@@ -11,7 +11,6 @@ import {
   ButtonGroup,
   Button,
 } from "reactstrap";
-import AxiosRequest from "../AxiosRequest";
 import {
   WARE_HOUSE_ZONE_SELECTED,
   WARE_HOUSE_SELECTED_TAB,

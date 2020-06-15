@@ -11,10 +11,6 @@ const mapStateToProps = (state) => ({ ...state.auth });
 const mapDispatchToProps = (dispatch) => ({});
 
 class Signup extends React.Component {
-  constructor() {
-    super();
-  }
-
   UNSAFE_componentWillMount() {}
   UNSAFE_componentWillUpdate() {
     this.submit = this.submit.bind(this);

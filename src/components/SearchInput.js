@@ -34,7 +34,7 @@ const searchInputField = ({
         <IoIosClose
           size="30"
           className="cr-search-form__icon-close txt-cursor pd-4 text-secondary"
-          hidden={input.value.length == 0}
+          hidden={input.value.length === 0}
           onClick={onClose}
         />{" "}
       </span>

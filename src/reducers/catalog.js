@@ -143,11 +143,11 @@ export default (
           };
 
           case L1_SUBCATEGORY_LIVE_UNLIVE:
-             var data=action.payload.data[0];
+             var l1data=action.payload.data[0];
             return {
               ...state,
               isL1subcategorylive: action.payload.status || false,
-              subcat_L1 :Object.assign([], state.subcat_L1, {[state.isL1subcategoryindex]: data})
+              subcat_L1 :Object.assign([], state.subcat_L1, {[state.isL1subcategoryindex]: l1data})
             }; 
 
           case L1_SUB_CATEGORY_LIVE_ITEM:
@@ -167,11 +167,11 @@ export default (
 
 
           case L2_SUBCATEGORY_LIVE_UNLIVE:
-                var data=action.payload.data[0];
+                var l2data=action.payload.data[0];
                return {
                  ...state,
                  isL2subcategorylive: action.payload.status || false,
-                 subcat_L2 :Object.assign([], state.subcat_L2, {[state.isL2subcategoryindex]: data})
+                 subcat_L2 :Object.assign([], state.subcat_L2, {[state.isL2subcategoryindex]: l2data})
                }; 
    
           case L2_SUB_CATEGORY_LIVE_ITEM:
@@ -190,11 +190,11 @@ export default (
                  };
    
           case PRODUCT_LIVE_UNLIVE:
-                  var data=action.payload.data[0];
+                  var pdata=action.payload.data[0];
                  return {
                    ...state,
                    isProductlive: action.payload.status || false,
-                   product :Object.assign([], state.product, {[state.isProductindex]: data})
+                   product :Object.assign([], state.product, {[state.isProductindex]: pdata})
                  }; 
      
             case PRODUCT_LIVE_UNLIVE_LIVE_ITEM:
