@@ -26,17 +26,17 @@ export default (
     // case CATELOG_CATEGORY_LIST:
     //   return {
     //     ...state,
-    //     category_list: action.payload.data || [],
+    //     category_list: action.payload.result || [],
     //   };
     case CATELOG_SUBCATEGORY_EDIT_L1_LIST:
       return {
         ...state,
-        subcat_L1: action.payload.data || [],
+        subcat_L1: action.payload.result || [],
       };
     // case CATELOG_SUBCATEGORY_L2_LIST:
     //   return {
     //     ...state,
-    //     subcat_L2: action.payload.data || [],
+    //     subcat_L2: action.payload.result || [],
     //   };
     case CATELOG_ADD_CAT:
     case CATELOG_EDIT_CAT:
@@ -55,7 +55,7 @@ export default (
       };
       case UPDATE_CAT_IMAGES:
         var imagePath = {
-          img_url: action.payload.data.Location,
+          img_url: action.payload.result.Location,
           type: action.imgtype
         };
         return {

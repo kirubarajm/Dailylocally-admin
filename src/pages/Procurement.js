@@ -86,7 +86,7 @@ class Procurement extends React.Component {
 
     if (this.props.movetopo) {
       this.props.onClear();
-      this.props.history.push("/warehouse/po");
+      this.props.history.push("/vendor-assign");
       store.dispatch({ type: WARE_HOUSE_SELECTED_TAB, tab_type: 2 });
     }
   }

@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Switch, Route, Link, Redirect } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
 import {
   ButtonDropdown,
   DropdownToggle,
@@ -52,6 +52,9 @@ class Warehouse extends React.Component {
     this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);
     this.clickArea = this.clickArea.bind(this);
     this.onWarehouseTabClick = this.onWarehouseTabClick.bind(this);
+    if (this.props.zone_list.length > 0 && !this.state.areaItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
 
     if (path.includes("/warehouse/dayoders")) {
       this.props.onSelectTabType(0);
@@ -62,7 +65,8 @@ class Warehouse extends React.Component {
     }
   }
   UNSAFE_componentWillUpdate() {}
-  UNSAFE_componentWillReceiveProps() {}
+  UNSAFE_componentWillReceiveProps() {
+  }
   componentWillUnmount() {}
 
   componentDidMount() {}
@@ -79,6 +83,13 @@ class Warehouse extends React.Component {
   onWarehouseTabClick = (tab) => {
     this.setState({ catalog_tab_type: tab });
     this.props.onSelectTabType(tab);
+    if(tab===0){
+      this.props.history.push('/warehouse/dayoders')
+    }else if(tab===1){
+      this.props.history.push('/warehouse/procurement')
+    }else if(tab===2){
+      this.props.history.push('/warehouse/po')
+    }
   };
   toggleAreaDropDown = () => {
     this.setState((prevState) => ({
@@ -90,12 +101,10 @@ class Warehouse extends React.Component {
     
     return (
       <div>
-        {path}
         <div className="pd-12">
           <Row>
             <Col>
               <ButtonGroup size="sm">
-                <Link to={`${path}/dayoders`}>
                   <Button
                     color="primary"
                     size="sm"
@@ -104,8 +113,6 @@ class Warehouse extends React.Component {
                   >
                     Day order
                   </Button>
-                </Link>
-                <Link to={`${path}/procurement`}>
                 <Button
                   color="primary"
                   size="sm"
@@ -113,8 +120,7 @@ class Warehouse extends React.Component {
                   active={this.props.warehouse_tab_type === 1}
                 >
                   Procurement
-                </Button> </Link>
-                <Link to={`${path}/po`}>
+                </Button>
                 <Button
                   color="primary"
                   size="sm"
@@ -122,7 +128,7 @@ class Warehouse extends React.Component {
                   active={this.props.warehouse_tab_type === 2}
                 >
                   PO
-                </Button> </Link>
+                </Button> 
                 <Button
                   color="primary"
                   onClick={() => this.onWarehouseTabClick(3)}

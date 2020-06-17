@@ -8,7 +8,7 @@ export default (
     case PO_LIST:
       return {
         ...state,
-        poList: action.payload.data || [],
+        poList: action.payload.result || [],
       };
     default:
       return state;

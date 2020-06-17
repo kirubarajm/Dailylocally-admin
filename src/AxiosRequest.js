@@ -54,7 +54,7 @@ const Catelog = {
   getZoneList: (data) => requests.post("/zonelist", data),
   getBrandList: (data) => requests.post("/brandlist", data),
   getTagList: (data) => requests.post("/taglist", data),
-  fileUpload: (file) =>requests.post("/product/imageupload",file,fileUploadHeader,AppVersion_1),
+  fileUpload: (file) =>requests.post("/fileUpload",file,fileUploadHeader,AppVersion_1),
   onAddProduct:(data) => requests.post("/add/product", data),
   onEditProduct:(data) => requests.post("/edit/product", data),
   onEditVendor:(data) => requests.post("/edit/vendorproductmapping", data),
@@ -79,6 +79,7 @@ const Warehouse = {
   getPoList:(data) => requests.post("/po/getpolist", data),
   getPrWaitingList:(data) => requests.post("/po/waitingpolist", data),
   getVendorList:(data) => requests.post("/po/productwisevendorlist", data),
+  createPoConfirm:(data) => requests.post("/po/createpo", data),
 }
 
 export default {

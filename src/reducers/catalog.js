@@ -66,7 +66,7 @@ export default (
     case CATELOG_CATEGORY_LIST:
       return {
         ...state,
-        category_list: action.payload.data || [],
+        category_list: action.payload.result || [],
         subcat_L1: [],
         subcat_L2: [],
         product: [],
@@ -77,7 +77,7 @@ export default (
     case CATELOG_SUBCATEGORY_L1_LIST:
       return {
         ...state,
-        subcat_L1: action.payload.data || [],
+        subcat_L1: action.payload.result || [],
         subcat_L2: [],
         product: [],
         selected_cat_sub1: -1,
@@ -86,7 +86,7 @@ export default (
     case CATELOG_SUBCATEGORY_L2_LIST:
       var subL2 = [];
       subL2.push({ name: "No L2 SC", scl2_id: 0 });
-      subL2 = subL2.concat(action.payload.data || []);
+      subL2 = subL2.concat(action.payload.result || []);
       return {
         ...state,
         subcat_L2: subL2,
@@ -96,7 +96,7 @@ export default (
     case CATELOG_PRODUCT_LIST:
       return {
         ...state,
-        product: action.payload.data || [],
+        product: action.payload.result || [],
         isAddProduct: false,
       };
     case CATELOG_SELECTED_CAT:
@@ -120,7 +120,7 @@ export default (
         isAddProduct: true,
       };
       case CATEGORY_LIVE_UNLIVE:
-        var data=action.payload.data[0];
+        var data=action.payload.result[0];
         return {
           ...state,
           iscategorylive: action.payload.status || false,
@@ -143,7 +143,7 @@ export default (
           };
 
           case L1_SUBCATEGORY_LIVE_UNLIVE:
-             var l1data=action.payload.data[0];
+             var l1data=action.payload.result[0];
             return {
               ...state,
               isL1subcategorylive: action.payload.status || false,
@@ -167,7 +167,7 @@ export default (
 
 
           case L2_SUBCATEGORY_LIVE_UNLIVE:
-                var l2data=action.payload.data[0];
+                var l2data=action.payload.result[0];
                return {
                  ...state,
                  isL2subcategorylive: action.payload.status || false,
@@ -190,7 +190,7 @@ export default (
                  };
    
           case PRODUCT_LIVE_UNLIVE:
-                  var pdata=action.payload.data[0];
+                  var pdata=action.payload.result[0];
                  return {
                    ...state,
                    isProductlive: action.payload.status || false,
@@ -216,12 +216,12 @@ export default (
       case CATELOG_SEARCH:
       return {
         ...state,
-        search_data: action.payload.data || [],
+        search_data: action.payload.result || [],
       };
     case ZONE_LIST_VIEW:
       return {
         ...state,
-        zone_list: action.payload.data || [],
+        zone_list: action.payload.result || [],
         isLoadingZone:true
       };
       case ZONE_SELECTED:

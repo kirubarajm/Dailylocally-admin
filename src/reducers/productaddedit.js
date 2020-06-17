@@ -19,17 +19,17 @@ export default (
     case PRODUCT_CATEGORY_LIST:
       return {
         ...state,
-        category_list: action.payload.data || [],
+        category_list: action.payload.result || [],
       };
     case PRODUCT_SUBCATEGORY_L1_LIST:
       return {
         ...state,
-        subcat_L1: action.payload.data || [],
+        subcat_L1: action.payload.result || [],
       };
     case PRODUCT_SUBCATEGORY_L2_LIST:
       return {
         ...state,
-        subcat_L2: action.payload.data || [],
+        subcat_L2: action.payload.result || [],
       };
     case PRODUCT_VIEW:
       return {
@@ -39,26 +39,26 @@ export default (
     case UOM_LIST_VIEW:
       return {
         ...state,
-        UOMList: action.payload.data || [],
+        UOMList: action.payload.result || [],
       };
       case TAG_LIST_VIEW:
       return {
         ...state,
-        TagList: action.payload.data || [],
+        TagList: action.payload.result || [],
       };
     case ZONE_LIST_VIEW:
       return {
         ...state,
-        ZoneList: action.payload.data || [],
+        ZoneList: action.payload.result || [],
       };
     case BRAND_LIST_VIEW:
       return {
         ...state,
-        BrandList: action.payload.data || [],
+        BrandList: action.payload.result || [],
       };
       case UPDATE_PRODUCT_IMAGES:
         var imagePath = {
-          img_url: action.payload.data.Location,
+          img_url: action.payload.result.Location,
           type: action.imgtype
         };
         return {

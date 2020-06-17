@@ -13,7 +13,7 @@ import {
 } from "reactstrap";
 import bn from "../utils/bemnames";
 import { version } from "../../package.json";
-import { navBarSuperAdminItems } from "../utils/SidebarSuperAdmin";
+import { SidebarSuperAdmin,navBarSuperAdminItems } from "../utils/SidebarSuperAdmin";
 const sidebarBackground = {
   backgroundImage: `url("${sidebarBgImage}")`,
   backgroundSize: "cover",
@@ -141,7 +141,7 @@ class Sidebar extends React.Component {
   }
 
   render() {
-    navItems = this.ongetSideBar();
+    navItems = SidebarSuperAdmin;
     return (
       <aside className={bem.b()} data-image={sidebarBgImage}>
         <div className={bem.e("background")} style={sidebarBackground} />

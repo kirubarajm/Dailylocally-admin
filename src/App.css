@@ -412,6 +412,18 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   margin-right: 20px !important;
 }
 
+.mr-l-20 {
+  margin-left: 20px !important;
+}
+
+.mr-r-50 {
+  margin-right: 50px !important;
+}
+
+.mr-l-50 {
+  margin-left: 50px !important;
+}
+
 .mr-t-10 {
   margin-top: 10px !important;
 }
@@ -762,9 +774,21 @@ a, a:focus, a:hover, a:visited {
   background: #ffffff !important;
   height: 55vh !important;
 }
+
+.search-v-scroll {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  height: 70vh !important;
+}
+
 .search-horizantal-scroll {
     width: 86%;
     overflow: auto;
+}
+
+.width-84 {
+  width: 84% !important;
 }
 
 .card-body-with-scroll {

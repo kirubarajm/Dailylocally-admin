@@ -6,7 +6,7 @@ export default (state = {zone_list:[]}, action) => {
     case ZONE_LIST_VIEW:
       return {
         ...state,
-        zone_list: action.payload.data || [],
+        zone_list: action.payload.result || [],
       };
     default:
       return state;

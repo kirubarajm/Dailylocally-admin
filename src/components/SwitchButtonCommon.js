@@ -15,7 +15,7 @@ export default class SwitchButtonCommon extends Component {
  
   render() {
     return (
-      <div className='txt-align-center'>
+      <div style={{width:"30px",float:"right"}}>
       <Switch onChange={this.handleChange} checked={this.props.checked} height={15} width={30}/>
       </div>
     );

@@ -73,18 +73,18 @@ class DayOrders extends React.Component {
     this.toggleProcuremPopUp = this.toggleProcuremPopUp.bind(this);
     this.confirmToprocurment = this.confirmToprocurment.bind(this);
     this.onReset = this.onReset.bind(this);
-    this.onSuccessRefresh=this.onSuccessRefresh.bind(this);
-    this.onGetOrders=this.onGetOrders.bind(this);
+    this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
+    this.onGetOrders = this.onGetOrders.bind(this);
     this.onGetOrders();
   }
-  onGetOrders=()=>{
+  onGetOrders = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       this.props.onGetDayorders({
         zoneid: this.props.zoneItem.id,
       });
     }
-  }
+  };
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
@@ -210,62 +210,53 @@ class DayOrders extends React.Component {
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset">
             <div className="legend">Day Order - Search</div>
-            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="2" className="pd-0">
-                From Date/Time:{" "}
-                <DateRangePicker
-                  opens="right"
-                  singleDatePicker
-                  maxDate={today}
-                  drops="down"
-                  onApply={this.startSelect}
+            <div className="pd-10 font-size-14">
+              <span className="mr-r-20">From Date/Time: </span>
+              <DateRangePicker
+                opens="right"
+                singleDatePicker
+                maxDate={today}
+                drops="down"
+                onApply={this.startSelect}
+              >
+                <Button
+                  className="mr-r-10"
+                  style={{ width: "30px", height: "30px", padding: "0px" }}
                 >
-                  <Button
-                    className="mr-r-10"
-                    style={{ width: "30px", height: "30px", padding: "0px" }}
-                  >
-                    <i className="far fa-calendar-alt"></i>
-                  </Button>
-                </DateRangePicker>
-              </Col>
-              <Col lg="1" className="pd-0">
-                <span className="mr-l-10">
-                  {this.state.startdate
-                    ? Moment(this.state.startdate).format("DD/MM/YYYY")
-                    : ""}
-                </span>
-              </Col>
-              <Col lg="2" className="pd-0">
-                To Date/Time:{" "}
-                <DateRangePicker
-                  opens="right"
-                  singleDatePicker
-                  maxDate={today}
-                  drops="down"
-                  onApply={this.endSelect}
+                  <i className="far fa-calendar-alt"></i>
+                </Button>
+              </DateRangePicker>
+              <span className="mr-l-10">
+                {this.state.startdate
+                  ? Moment(this.state.startdate).format("DD/MM/YYYY")
+                  : ""}
+              </span>
+              <span className="mr-l-50 mr-r-20">To Date/Time: </span>
+              <DateRangePicker
+                opens="right"
+                singleDatePicker
+                maxDate={today}
+                drops="down"
+                onApply={this.endSelect}
+              >
+                <Button
+                  className="mr-r-10"
+                  style={{ width: "30px", height: "30px", padding: "0px" }}
                 >
-                  <Button
-                    className="mr-r-10"
-                    style={{ width: "30px", height: "30px", padding: "0px" }}
-                  >
-                    <i className="far fa-calendar-alt"></i>
-                  </Button>
-                </DateRangePicker>
-              </Col>
-              <Col lg="1" className="pd-0">
-                <span className="mr-l-10">
-                  {this.state.enddate
-                    ? Moment(this.state.enddate).format("DD/MM/YYYY")
-                    : ""}
-                </span>
-              </Col>
-              <Col lg="2"></Col>
-            </Row>
-            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
+                  <i className="far fa-calendar-alt"></i>
+                </Button>
+              </DateRangePicker>
+              <span className="mr-l-10">
+                {this.state.enddate
+                  ? Moment(this.state.enddate).format("DD/MM/YYYY")
+                  : ""}{" "}
+              </span>
+            </div>
+            <Row className="pd-10 mr-r-10 mr-b-10 font-size-14">
               <Col lg="1">
                 <div>Order No : </div>{" "}
               </Col>
-              <Col lg="3">
+              <Col lg="3" className="pd-0">
                 <Search
                   onSearch={this.onSearchInput}
                   type="number"
@@ -349,8 +340,8 @@ class DayOrders extends React.Component {
                       <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
                       <td>{item.userid}</td>
                       <td>{item.id}</td>
-                      <td>{item.dayorderstatus}</td>
-                      <td>{item.quantity}</td>
+                      <td>{item.u_product_count}</td>
+                      <td>{item.order_quantity}</td>
                       <td>{getOrderStatus(item.orderstatus)}</td>
                     </tr>
                   ))}

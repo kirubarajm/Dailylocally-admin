@@ -15,14 +15,19 @@ import { FaRegEdit, FaTrashAlt } from "react-icons/fa";
 import {
   PR_VENDOR_ASSIGN_LIST,
   GET_VENDOR_LIST,
+  UPDATE_VENDOR_LIST,
+  CREATE_PO,
+  CLEAR_PO,
+  WARE_HOUSE_SELECTED_TAB
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { notify } from "react-notify-toast";
 import { notification_color, VENDOR_ASSIGN } from "../utils/constant";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, reset } from "redux-form";
 import Select from "react-dropdown-select";
 import { required, minLength2 } from "../utils/Validation";
+import { store } from "../store";
 
 const InputField = ({
   input,
@@ -30,17 +35,35 @@ const InputField = ({
   type,
   meta: { touched, error, warning },
   ...custom
-  // 
+  //
 }) => {
- return (<div>
-    <label className='pd-0' style={{minWidth:"180px"}}>{label} <span className='must' hidden={!custom.required}>*</span></label>
-    <div> <input {...input} placeholder={label} type={type} autoComplete="off" onWheel={event => { event.preventDefault(); }} style={{width:"192px"}}/>
-      {touched &&
-        ((error && <span>{error}</span>) ||
-          (warning && <span>{warning}</span>))}
+  return (
+    <div>
+      <label className="pd-0" style={{ minWidth: "180px" }}>
+        {label}{" "}
+        <span className="must" hidden={!custom.required}>
+          *
+        </span>
+      </label>
+      <div>
+        {" "}
+        <input
+          {...input}
+          placeholder={label}
+          type={type}
+          autoComplete="off"
+          onWheel={(event) => {
+            event.preventDefault();
+          }}
+          style={{ width: "192px" }}
+        />
+        {touched &&
+          ((error && <span>{error}</span>) ||
+            (warning && <span>{warning}</span>))}
+      </div>
     </div>
-  </div>);
-}
+  );
+};
 
 const mapStateToProps = (state) => ({ ...state.vendorassign });
 
@@ -55,6 +78,21 @@ const mapDispatchToProps = (dispatch) => ({
       type: GET_VENDOR_LIST,
       payload: AxiosRequest.Warehouse.getVendorList(data),
     }),
+    onCreatePo: (data) =>
+    dispatch({
+      type: CREATE_PO,
+      payload: AxiosRequest.Warehouse.createPoConfirm(data),
+    }),
+    onClear: () =>
+    dispatch({
+      type: CLEAR_PO
+    }),
+  onUpdateVendorList: (data) =>
+    dispatch({
+      type: UPDATE_VENDOR_LIST,
+      data,
+    }),
+  onFromClear: () => dispatch(reset(VENDOR_ASSIGN)),
 });
 
 const InputSearchDropDown = ({
@@ -107,6 +145,8 @@ class VendorAssign extends React.Component {
       isLoading: false,
       isaddvendor: false,
       suplier: [],
+      isconfirm: false,
+      sPoList: [],
     };
   }
 
@@ -115,9 +155,13 @@ class VendorAssign extends React.Component {
     this.onGetPoWaitngList = this.onGetPoWaitngList.bind(this);
     this.onAddVendor = this.onAddVendor.bind(this);
     this.toggleAddVendorPopUp = this.toggleAddVendorPopUp.bind(this);
+    this.toggleConfirmPopUp = this.toggleConfirmPopUp.bind(this);
     this.selectedSuplier = this.selectedSuplier.bind(this);
     this.startSelect = this.startSelect.bind(this);
-    this.confirmToAddVendor=this.confirmToAddVendor.bind(this);
+    this.submitPo = this.submitPo.bind(this);
+    this.createPo = this.createPo.bind(this);
+    this.savePo = this.savePo.bind(this);
+    this.confirmToAddVendor = this.confirmToAddVendor.bind(this);
     this.onGetPoWaitngList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -127,6 +171,11 @@ class VendorAssign extends React.Component {
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
     this.onGetPoWaitngList();
+    if(this.props.poCreated){
+      this.props.onClear();
+      this.props.history.push('/warehouse/po');
+      store.dispatch({ type: WARE_HOUSE_SELECTED_TAB, tab_type: 2 });
+    }
   }
   componentDidCatch() {}
   onGetPoWaitngList = () => {
@@ -142,22 +191,68 @@ class VendorAssign extends React.Component {
       isaddvendor: !this.state.isaddvendor,
     });
   };
+  toggleConfirmPopUp = () => {
+    this.setState({
+      isconfirm: !this.state.isconfirm,
+    });
+  };
 
   selectedSuplier = (item) => {
     this.setState({ suplier: item });
   };
-  confirmToAddVendor= () => {
-  }
+  confirmToAddVendor = () => {};
+  savePo = () => {};
+  createPo = () => {
+    var item = {
+      zone_id: 1,
+      polist: this.state.sPoList,
+    };
+    this.props.onCreatePo(item);
+  };
+  submitPo = () => {
+    var poList = this.props.pocreatelist;
+    var sPoList = [];
+    var isPoSelected = true;
+    for (var i = 0; i < poList.length; i++) {
+      if (poList[i].vendor_code) {
+        var item = {
+          prid: poList[i].prid,
+          pid: poList[i].pid,
+          vid: poList[i].vendor_code,
+          qty: poList[i].quantity,
+        };
+        sPoList.push(item);
+      } else {
+        isPoSelected = false;
+      }
+    }
+    if (sPoList.length !== 0) {
+      this.setState({ sPoList: sPoList });
+      this.toggleConfirmPopUp();
+    } else {
+      notify.show(
+        "Please add vendor after try again",
+        "custom",
+        3000,
+        notification_color
+      );
+    }
+  };
 
   onAddVendor = () => {
-    var checkItem = this.state.selected_proid;
+    var checkItem = this.state.selected_proid; //JSON.parse(JSON.stringify(this.state.selected_proid));
+    //delete checkItem["selectall"];
     var Values = Object.keys(checkItem);
+    console.log("Values-->", Values.length);
     if (Values.length > 0) {
+      var indexof = Values.indexOf("selectall");
+      if (indexof !== -1) Values.splice(indexof, 1);
       this.props.onGetVendorList({
         zone_id: 1,
         products: Values,
       });
-      this.setState({ startdate: today });
+      this.setState({ startdate: today, suplier: [] });
+      this.props.onFromClear();
       this.toggleAddVendorPopUp();
     } else {
       notify.show(
@@ -172,7 +267,22 @@ class VendorAssign extends React.Component {
     var startdate = picker.startDate.format("YYYY-MM-DD");
     this.setState({ startdate: startdate });
   };
-  submit = (values) => {};
+  submit = (values) => {
+    console.log(values);
+    var checkItem = this.state.selected_proid;
+    var Values = Object.keys(checkItem);
+    var data = {
+      buyer_comment: values.buyer_comment,
+      exp_date: this.state.startdate,
+      suplier: this.state.suplier[0],
+      pridList: Values,
+    };
+    this.props.onUpdateVendorList(data);
+    this.toggleAddVendorPopUp();
+    this.setState({
+      selected_proid: [],
+    });
+  };
 
   handleChange(e) {
     const target = e.target;
@@ -241,7 +351,7 @@ class VendorAssign extends React.Component {
               </Col>
             </Row>
             <div className="search-horizantal-scroll">
-              <div className="search-vscroll">
+              <div className="search-v-scroll">
                 <Table style={{ width: "2000px" }}>
                   <thead>
                     <tr>
@@ -318,6 +428,14 @@ class VendorAssign extends React.Component {
             </div>
           </div>
         </div>
+        <div className="txt-align-right width-84 mr-b-10">
+          <Button size="sm" hidden="ture">
+            Save
+          </Button>
+          <Button size="sm" className="mr-l-10" onClick={this.submitPo}>
+            Submit
+          </Button>
+        </div>
         <Modal
           isOpen={this.state.isaddvendor}
           toggle={this.toggleAddVendorPopUp}
@@ -328,7 +446,7 @@ class VendorAssign extends React.Component {
             toggle={this.toggleAddVendorPopUp}
             className="pd-10 border-none"
           >
-            Add- Vendor
+            Add-Vendor
           </ModalHeader>
           <ModalBody className="pd-10">
             <form
@@ -380,14 +498,37 @@ class VendorAssign extends React.Component {
                 validate={[required, minLength2]}
                 required={true}
               />
+              <div className="float-right">
+                <Button size="sm" onClick={this.toggleAddVendorPopUp}>
+                  Cancel
+                </Button>
+                <Button size="sm" className="mr-l-10">
+                  ADD
+                </Button>
+              </div>
             </form>
           </ModalBody>
-          <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.toggleAddVendorPopUp}>
-              Cancel
-            </Button>
-            <Button size="sm" onClick={this.confirmToAddVendor}>
-              ADD
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isconfirm}
+          toggle={this.toggleConfirmPopUp}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalHeader
+            toggle={this.toggleConfirmPopUp}
+            className="pd-10 border-none"
+          >
+            Confrim
+          </ModalHeader>
+          <ModalBody className="pd-10">
+            Are you sure you want to create the PO ?
+          </ModalBody>
+          <ModalFooter>
+            <Button size="sm" onClick={this.toggleConfirmPopUp}>No</Button>
+            <Button size="sm" onClick={this.createPo}>
+              Yes
             </Button>
           </ModalFooter>
         </Modal>
