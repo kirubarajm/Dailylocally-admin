@@ -1672,6 +1672,9 @@ hr.style-moveit:after {
 .txt-cursor {
   cursor: pointer !important;
 }
+.height-25 {
+  height: 25px !important;
+}
 
 .width-full {
   width: 100% !important;

@@ -9,14 +9,16 @@ export default class SwitchButtonCommon extends Component {
   }
  
   handleChange() {
-   // this.setState({ checked });
     this.props.handleSwitchChange();
+  }
+  handleClick(){
+    this.props.handleClick();
   }
  
   render() {
     return (
       <div style={{width:"30px",float:"right"}}>
-      <Switch onChange={this.handleChange} checked={this.props.checked} height={15} width={30}/>
+      <Switch onChange={this.handleChange} onClick={this.handleClick} checked={this.props.checked} height={15} width={30}/>
       </div>
     );
   }

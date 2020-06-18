@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
+import { notify } from "react-notify-toast";
+import { notification_color } from "../utils/constant";
 import {
   CATELOG_ADD_L1CAT,
   CATELOG_ADD_L2CAT,
@@ -39,7 +41,7 @@ const InputSearchDropDown = ({
     <div className="border-none" style={{ marginBottom: "10px" }}>
       <Row className="pd-0 mr-l-10 mr-r-10 border-none">
         <Col lg="6" className="pd-0">
-          <label className="mr-0 color-grey pd-0">
+          <label className="mr-0 color-grey pd-0 ">
             {label} <span className="must">*</span>
           </label>
         </Col>
@@ -264,7 +266,15 @@ class CatSubAddEdit extends React.Component {
   }
   componentDidCatch() {}
   submit = (data) => {
-    console.log("data-->", data);
+    if(this.props.Signature.length===0){
+      notify.show(
+        "Please upload the photo. after try again",
+        "custom",
+        3000,
+        notification_color
+      );
+      return;
+    }
     if (this.props.isCat && this.props.isEdit) {
       var editCat = {
         name: data.categoryname,
@@ -375,7 +385,7 @@ class CatSubAddEdit extends React.Component {
               <form onSubmit={this.props.handleSubmit(this.submit)}>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    Category Name
+                    <div className="border-none">Category Name <span className="must width-25">*</span></div>
                   </Col>
                   <Col lg="7">
                     <Field
@@ -390,7 +400,7 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    Category Photo
+                    <div className="border-none">Category Photo <span className="must width-25">*</span></div> 
                   </Col>
                   <Col lg="7">
                     {kitchenSignatureImg.map((item, i) => (
@@ -446,7 +456,7 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    L1 SC Name
+                    <div className="border-none">L1 SC Name <span className="must width-25">*</span></div>
                   </Col>
                   <Col lg="7">
                     <Field
@@ -463,7 +473,7 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    L1 SC Photo
+                    <div className="border-none">L1 SC Photo <span className="must width-25">*</span></div>
                   </Col>
                   <Col lg="7">
                     {kitchenSignatureImg.map((item, i) => (
@@ -536,7 +546,7 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    L2 SC Name
+                    <div className="border-none">L2 SC Name <span className="must width-25">*</span></div>
                   </Col>
                   <Col lg="7">
                     <Field
@@ -553,7 +563,7 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    L2 SC Photo
+                    <div className="border-none">L2 SC Photo <span className="must width-25">*</span></div>
                   </Col>
                   <Col lg="7">
                     {kitchenSignatureImg.map((item, i) => (

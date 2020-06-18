@@ -192,6 +192,7 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
+var liveClicked = false;
 class Catalog extends React.Component {
   constructor() {
     super();
@@ -227,6 +228,7 @@ class Catalog extends React.Component {
     this.L1subcattoggleLive = this.L1subcattoggleLive.bind(this);
     this.L2subcattoggleLive = this.L2subcattoggleLive.bind(this);
     this.producttoggleLive = this.producttoggleLive.bind(this);
+    this.warningtoggleLive = this.warningtoggleLive.bind(this);
     this.MovetoLive = this.MovetoLive.bind(this);
     this.L1subcatMovetoLive = this.L1subcatMovetoLive.bind(this);
     this.L2subcatMovetoLive = this.L2subcatMovetoLive.bind(this);
@@ -241,6 +243,8 @@ class Catalog extends React.Component {
     this.sub1catAddEditClick = this.sub1catAddEditClick.bind(this);
     this.sub2catAddEditClick = this.sub2catAddEditClick.bind(this);
     this.onUpdate = this.onUpdate.bind(this);
+    this.Onlive = this.Onlive.bind(this);
+    this.OnClickSwitch = this.OnClickSwitch.bind(this);
     this.onCancel = this.onCancel.bind(this);
     this.setState({
       liveItem: -1,
@@ -248,9 +252,11 @@ class Catalog extends React.Component {
       liveModal: false,
       L2subcattoggleliveModal: false,
       productoggleliveModal: false,
+      warningModal:false,
+      warningmessage:""
     });
     this.productClick = this.productClick.bind(this);
-    
+
     if (this.props.isLoadingZone && !this.state.areaItem) {
       this.clickArea(this.props.zone_list[0]);
     }
@@ -280,6 +286,9 @@ class Catalog extends React.Component {
     if (this.props.iscategorylive) {
       this.props.OnPopupClear();
       this.toggleLive();
+      if (this.state.selected_cat !== -1) {
+        this.clickCatItem(this.props.updatedItem);
+      }
     }
 
     if (this.props.isLoadingZone && !this.state.areaItem) {
@@ -289,14 +298,20 @@ class Catalog extends React.Component {
     if (this.props.isL1subcategorylive) {
       this.props.OnL1SubcategoryPopupClear();
       this.L1subcattoggleLive();
+      if (this.state.selected_cat_sub1 !== -1)
+        this.clickSubCat1Item(this.props.updatedItem);
+      
     }
 
     if (this.props.isL2subcategorylive) {
       this.props.OnL2SubcategoryPopupClear();
       this.L2subcattoggleLive();
+      if (this.state.selected_cat_sub2 !== -1)
+        this.clickSubCat2Item(this.props.updatedItem);
     }
 
     if (this.props.isProductlive) {
+      liveClicked = false;
       this.props.OnProductPopupClear();
       this.producttoggleLive();
     }
@@ -360,20 +375,48 @@ class Catalog extends React.Component {
       productoggleliveModal: !prevState.productoggleliveModal,
     }));
   };
-
-  Onlive = (item, i, type) => {
+  warningtoggleLive = () => {
+    this.setState((prevState) => ({
+      warningModal: !prevState.warningModal,
+    }));
+  };
+  OnClickSwitch = () => (ev) => {
+    if (ev) ev.stopPropagation();
+  };
+  Onlive = (item, i, type) => (ev) => {
+    liveClicked = true;
+    if (ev) ev.stopPropagation();
     if (type === 1) {
       this.props.OncategoryLiveItem(item, i);
       this.toggleLive();
     } else if (type === 2) {
-      this.props.OnL1SubcategoryLiveItem(item, i);
-      this.L1subcattoggleLive();
+      if(item.active_status===0&&this.props.selected_cat.active_status===0){
+        this.setState({warningmessage:"Please Category live after try to live the L1 Category"})
+        this.warningtoggleLive();
+      }else{
+        this.props.OnL1SubcategoryLiveItem(item, i);
+        this.L1subcattoggleLive();
+      }
+      
     } else if (type === 3) {
-      this.props.OnL2SubcategoryLiveItem(item, i);
-      this.L2subcattoggleLive();
+      if(item.active_status===0&&this.props.selected_cat_sub1.active_status===0){
+        this.setState({warningmessage:"Please L1 Category live after try to live the L2 Category"})
+        this.warningtoggleLive();
+      }else{
+        this.props.OnL2SubcategoryLiveItem(item, i);
+        this.L2subcattoggleLive();
+      }
     } else if (type === 4) {
+      if(item.live_status==="0"&&this.props.selected_cat_sub2.active_status===0){
+        this.setState({warningmessage:"Please L2 Category live after try to live the Product"})
+        this.warningtoggleLive();
+      }else if(item.live_status==="0"&&this.props.selected_cat_sub1.active_status===0){
+        this.setState({warningmessage:"Please L1 Category live after try to live the L2 Category"})
+        this.warningtoggleLive();
+      }else{
       this.props.OnProductLiveItem(item, i);
       this.producttoggleLive();
+      }
     }
   };
 
@@ -426,13 +469,21 @@ class Catalog extends React.Component {
     this.props.onGetCategory({ zone_id: item.id });
   };
 
-  clickCatItem = (item) => (ev) => {
+  clickCatItem = (item) => {
+    if (liveClicked) {
+      liveClicked = false;
+      return;
+    }
     this.setState({ selected_cat: item });
     this.props.onSelectedCat(item);
     this.subCat1List(item.catid);
   };
 
   clickSubCat1Item = (item) => {
+    if (liveClicked) {
+      liveClicked = false;
+      return;
+    }
     this.setState({ selected_cat_sub1: item });
     this.props.onSelectedL1Cat(item);
     this.subCat2List(item.scl1_id);
@@ -440,7 +491,11 @@ class Catalog extends React.Component {
     // else this.getProduct(item.scl1_id, 0, this.state.areaItem.area_id);
   };
 
-  clickSubCat2Item = (item) => {
+  clickSubCat2Item = (item) =>{
+    if (liveClicked) {
+      liveClicked = false;
+      return;
+    }
     this.setState({ selected_cat_sub2: item });
     this.props.onSelectedL2Cat(item);
     this.getProduct(
@@ -645,11 +700,11 @@ class Catalog extends React.Component {
                           ? "cat-item-active"
                           : "cat-item"
                       }
-                      onClick={this.clickCatItem(item)}
+                      onClick={() => this.clickCatItem(item)}
                     >
                       <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
-                          {/* <Button
+                        {/* <Button
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.active_status === 0}
@@ -665,15 +720,13 @@ class Catalog extends React.Component {
                           >
                             Unlive
                           </Button> */}
-                          <div hidden={this.props.catalog_tab_type === 1}>
+                        <div hidden={this.props.catalog_tab_type === 1}>
                           <SwitchButtonCommon
-                                checked={
-                                  item.active_status === 0 ? false : true
-                                }
-                                handleSwitchChange={() =>
-                                  this.Onlive(item, i, 1)
-                                }
-                              ></SwitchButtonCommon> </div>
+                            checked={item.active_status === 0 ? false : true}
+                            handleClick={this.OnClickSwitch()}
+                            handleSwitchChange={this.Onlive(item, i, 1)}
+                          ></SwitchButtonCommon>{" "}
+                        </div>
                         <div hidden={this.props.catalog_tab_type === 0}>
                           <Button
                             size="sm"
@@ -721,7 +774,7 @@ class Catalog extends React.Component {
                           ? "cat-item-active"
                           : " cat-item"
                       }
-                      onClick={() => this.clickSubCat1Item(item)}
+                      onClick={()=>this.clickSubCat1Item(item)}
                     >
                       <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
@@ -743,13 +796,9 @@ class Catalog extends React.Component {
                             Unlive
                           </Button> */}
                           <SwitchButtonCommon
-                                checked={
-                                  item.active_status === 0 ? false : true
-                                }
-                                handleSwitchChange={() =>
-                                  this.Onlive(item, i, 2)
-                                }
-                              ></SwitchButtonCommon>
+                            checked={item.active_status === 0 ? false : true}
+                            handleSwitchChange={this.Onlive(item, i, 2)}
+                          ></SwitchButtonCommon>
                         </div>
                         <div hidden={this.props.catalog_tab_type === 0}>
                           <Button
@@ -798,7 +847,7 @@ class Catalog extends React.Component {
                           ? "cat-item-active"
                           : " cat-item"
                       }
-                      onClick={() => this.clickSubCat2Item(item)}
+                      onClick={()=>this.clickSubCat2Item(item)}
                     >
                       <Col lg="7">{item.name}</Col>
                       <Col
@@ -824,13 +873,9 @@ class Catalog extends React.Component {
                             Unlive
                           </Button> */}
                           <SwitchButtonCommon
-                                checked={
-                                  item.active_status === 0 ? false : true
-                                }
-                                handleSwitchChange={() =>
-                                  this.Onlive(item, i, 3)
-                                }
-                              ></SwitchButtonCommon>
+                            checked={item.active_status === 0 ? false : true}
+                            handleSwitchChange={this.Onlive(item, i, 3)}
+                          ></SwitchButtonCommon>
                         </div>
                         <div hidden={this.props.catalog_tab_type === 0}>
                           <Button
@@ -874,29 +919,28 @@ class Catalog extends React.Component {
                   {product.map((item, i) => (
                     <Row className="product-item">
                       <Col lg="7">{item.Productname}</Col>
-                      <Col lg="4" className="txt-align-right pd-0 mr-r-5 pd-r-5">
-                          <div hidden={this.props.catalog_tab_type === 1}>
-                              <Link to={`/product_view/${item.pid}`}>
-                                <Button
-                                  size="sm"
-                                  color="primary"
-                                  className="bg-color-red btn-edit mr-r-10"
-                                  hidden={this.props.catalog_tab_type === 1}
-                                >
-                                  Details
-                                </Button>
-                              </Link>
-                              <SwitchButtonCommon
-                                checked={
-                                  item.live_status === "0" ? false : true
-                                }
-                                className="mr-r-10"
-                                handleSwitchChange={() =>
-                                  this.Onlive(item, i, 4)
-                                }
-                              ></SwitchButtonCommon>
-                          </div>
-                          {/* <Button
+                      <Col
+                        lg="4"
+                        className="txt-align-right pd-0 mr-r-5 pd-r-5"
+                      >
+                        <div hidden={this.props.catalog_tab_type === 1}>
+                          <Link to={`/product_view/${item.pid}`}>
+                            <Button
+                              size="sm"
+                              color="primary"
+                              className="bg-color-red btn-edit mr-r-10"
+                              hidden={this.props.catalog_tab_type === 1}
+                            >
+                              Details
+                            </Button>
+                          </Link>
+                          <SwitchButtonCommon
+                            checked={item.live_status === "0" ? false : true}
+                            className="mr-r-10"
+                            handleSwitchChange={this.Onlive(item, i, 4)}
+                          ></SwitchButtonCommon>
+                        </div>
+                        {/* <Button
                             size="sm"
                             className="bg-color-green btn-live"
                             hidden={item.live_status ==="0"}
@@ -948,7 +992,9 @@ class Catalog extends React.Component {
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
               {this.props.iscategoryitem.active_status === 0
-                ? "Are you sure you want to live Category"
+                ? "you have to live these '" +
+                  this.props.iscategoryitem.name +
+                  "' category"
                 : "Are you sure you want to unlive Category"}{" "}
             </ModalBody>
             <ModalFooter>
@@ -970,7 +1016,9 @@ class Catalog extends React.Component {
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
               {this.props.isL1subcategoryitem.active_status === 0
-                ? "Are you sure you want to live L1 sub Category"
+                ? "you have to live these '" +
+                  this.props.isL1subcategoryitem.name +
+                  "' L1 sub category"
                 : "Are you sure you want to unlive  L1 sub Category"}{" "}
             </ModalBody>
             <ModalFooter>
@@ -991,8 +1039,10 @@ class Catalog extends React.Component {
           >
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
-              {this.props.isL1subcategoryitem.active_status === 0
-                ? "Are you sure you want to live L2 sub Category"
+              {this.props.isL2subcategoryitem.active_status === 0
+                ? "you have to live these '" +
+                  this.props.isL2subcategoryitem.name +
+                  "' L2 sub category"
                 : "Are you sure you want to unlive  L2 sub Category"}{" "}
             </ModalBody>
             <ModalFooter>
@@ -1014,7 +1064,9 @@ class Catalog extends React.Component {
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
               {this.props.isProductitem.live_status === "0"
-                ? "Are you sure you want to live product"
+                ? "you have to live these '" +
+                  this.props.isProductitem.Productname +
+                  "' product"
                 : "Are you sure you want to unlive  product"}{" "}
             </ModalBody>
             <ModalFooter>
@@ -1073,6 +1125,24 @@ class Catalog extends React.Component {
             />
           </ModalBody>
         </Modal>
+
+
+        <Modal
+            isOpen={this.state.warningModal}
+            toggle={this.warningtoggleLive}
+            className="add_live_modal"
+            backdrop={"static"}
+          >
+            <ModalHeader>Warning </ModalHeader>
+            <ModalBody>
+              {this.state.warningmessage}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="secondary" onClick={this.warningtoggleLive}>
+                OK
+              </Button>
+            </ModalFooter>
+          </Modal>
       </div>
     );
   }

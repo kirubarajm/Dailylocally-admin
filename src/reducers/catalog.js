@@ -23,7 +23,7 @@ import {
   PRODUCT_LIVE_UNLIVE,
   PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
   PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
-  ZONE_SELECTED
+  ZONE_SELECTED,
 } from "../constants/actionTypes";
 
 export default (
@@ -34,26 +34,27 @@ export default (
     subcat_L2: [],
     product: [],
     search_data: [],
-    zone_list:[],
-    isLoadingZone:false,
+    zone_list: [],
+    isLoadingZone: false,
     zoneItem: false,
     search: "",
     selected_cat: -1,
     selected_cat_sub1: -1,
     selected_cat_sub2: -1,
-    isAddProduct:false,
-    iscategorylive:false,
-    iscategoryitem:false,
-    iscategoryindex:0,
-    isL1subcategorylive:false,
-    isL1subcategoryitem:false,
-    isL1subcategoryindex:0,
-    isL2subcategorylive:false,
-    isL2subcategoryitem:false,
-    isL2subcategoryindex:0,
-    isProductlive:false,
-    isProductitem:false,
-    isProductindex:0
+    isAddProduct: false,
+    iscategorylive: false,
+    iscategoryitem: false,
+    iscategoryindex: 0,
+    isL1subcategorylive: false,
+    isL1subcategoryitem: false,
+    isL1subcategoryindex: 0,
+    isL2subcategorylive: false,
+    isL2subcategoryitem: false,
+    isL2subcategoryindex: 0,
+    isProductlive: false,
+    isProductitem: false,
+    isProductindex: 0,
+    updatedItem:false
   },
   action
 ) => {
@@ -119,101 +120,110 @@ export default (
         ...state,
         isAddProduct: true,
       };
-      case CATEGORY_LIVE_UNLIVE:
-        var data=action.payload.result[0];
-        return {
-          ...state,
-          iscategorylive: action.payload.status || false,
-          category_list :Object.assign([], state.category_list, {[state.iscategoryindex]: data})
-        };
+    case CATEGORY_LIVE_UNLIVE:
+      var data = action.payload.result[0];
+      return {
+        ...state,
+        updatedItem:data,
+        iscategorylive: action.payload.status || false,
+        category_list: Object.assign([], state.category_list, {
+          [state.iscategoryindex]: data,
+        }),
+      };
 
-        case CATEGORY_LIVE_ITEM:
-          return {
-            ...state,
-            iscategoryitem: action.item || false,
-            iscategoryindex: action.i || 0,
-          };
-        
-          case CATEGORY_LIVE_POPUP_CLEAR:
-          return {
-            ...state,
-            iscategoryitem:  false,
-            iscategoryindex:  0,
-            iscategorylive:false
-          };
+    case CATEGORY_LIVE_ITEM:
+      return {
+        ...state,
+        iscategoryitem: action.item || false,
+        iscategoryindex: action.i || 0,
+      };
 
-          case L1_SUBCATEGORY_LIVE_UNLIVE:
-             var l1data=action.payload.result[0];
-            return {
-              ...state,
-              isL1subcategorylive: action.payload.status || false,
-              subcat_L1 :Object.assign([], state.subcat_L1, {[state.isL1subcategoryindex]: l1data})
-            }; 
+    case CATEGORY_LIVE_POPUP_CLEAR:
+      return {
+        ...state,
+        iscategoryitem: false,
+        iscategoryindex: 0,
+        iscategorylive: false,
+      };
 
-          case L1_SUB_CATEGORY_LIVE_ITEM:
-            return {
-                ...state,
-                isL1subcategoryitem: action.item || false,
-                isL1subcategoryindex: action.i || 0,
-              };
-            
-          case L1_SUB_CATEGORY_LIVE_POPUP_CLEAR:
-            return {
-                ...state,
-                isL1subcategoryitem:  false,
-                isL1subcategoryindex:  0,
-                isL1subcategorylive: false
-              };
+    case L1_SUBCATEGORY_LIVE_UNLIVE:
+      var l1data = action.payload.result[0];
+      return {
+        ...state,
+        updatedItem:l1data,
+        isL1subcategorylive: action.payload.status || false,
+        subcat_L1: Object.assign([], state.subcat_L1, {
+          [state.isL1subcategoryindex]: l1data,
+        }),
+      };
 
+    case L1_SUB_CATEGORY_LIVE_ITEM:
+      return {
+        ...state,
+        isL1subcategoryitem: action.item || false,
+        isL1subcategoryindex: action.i || 0,
+      };
 
-          case L2_SUBCATEGORY_LIVE_UNLIVE:
-                var l2data=action.payload.result[0];
-               return {
-                 ...state,
-                 isL2subcategorylive: action.payload.status || false,
-                 subcat_L2 :Object.assign([], state.subcat_L2, {[state.isL2subcategoryindex]: l2data})
-               }; 
-   
-          case L2_SUB_CATEGORY_LIVE_ITEM:
-               return {
-                   ...state,
-                   isL2subcategoryitem: action.item || false,
-                   isL2subcategoryindex: action.i || 0,
-                 };
-               
-          case L2_SUB_CATEGORY_LIVE_POPUP_CLEAR:
-               return {
-                   ...state,
-                   isL2subcategoryitem:  false,
-                   isL2subcategoryindex:  0,
-                   isL2subcategorylive: false
-                 };
-   
-          case PRODUCT_LIVE_UNLIVE:
-                  var pdata=action.payload.result[0];
-                 return {
-                   ...state,
-                   isProductlive: action.payload.status || false,
-                   product :Object.assign([], state.product, {[state.isProductindex]: pdata})
-                 }; 
-     
-            case PRODUCT_LIVE_UNLIVE_LIVE_ITEM:
-                 return {
-                     ...state,
-                     isProductitem: action.item || false,
-                     isProductindex: action.i || 0,
-                   };
-                 
-            case PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR:
-                 return {
-                     ...state,
-                     isProductitem:false,
-                       isProductindex:0,
-                     isProductlive: false
-                   };
-     
+    case L1_SUB_CATEGORY_LIVE_POPUP_CLEAR:
+      return {
+        ...state,
+        isL1subcategoryitem: false,
+        isL1subcategoryindex: 0,
+        isL1subcategorylive: false,
+      };
 
-      case CATELOG_SEARCH:
+    case L2_SUBCATEGORY_LIVE_UNLIVE:
+      var l2data = action.payload.result[0];
+      return {
+        ...state,
+        updatedItem:l2data,
+        isL2subcategorylive: action.payload.status || false,
+        subcat_L2: Object.assign([], state.subcat_L2, {
+          [state.isL2subcategoryindex]: l2data,
+        }),
+      };
+
+    case L2_SUB_CATEGORY_LIVE_ITEM:
+      return {
+        ...state,
+        isL2subcategoryitem: action.item || false,
+        isL2subcategoryindex: action.i || 0,
+      };
+
+    case L2_SUB_CATEGORY_LIVE_POPUP_CLEAR:
+      return {
+        ...state,
+        isL2subcategoryitem: false,
+        isL2subcategoryindex: 0,
+        isL2subcategorylive: false,
+      };
+
+    case PRODUCT_LIVE_UNLIVE:
+      var pdata = action.payload.result[0];
+      return {
+        ...state,
+        isProductlive: action.payload.status || false,
+        product: Object.assign([], state.product, {
+          [state.isProductindex]: pdata,
+        }),
+      };
+
+    case PRODUCT_LIVE_UNLIVE_LIVE_ITEM:
+      return {
+        ...state,
+        isProductitem: action.item || false,
+        isProductindex: action.i || 0,
+      };
+
+    case PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR:
+      return {
+        ...state,
+        isProductitem: false,
+        isProductindex: 0,
+        isProductlive: false,
+      };
+
+    case CATELOG_SEARCH:
       return {
         ...state,
         search_data: action.payload.result || [],
@@ -222,13 +232,13 @@ export default (
       return {
         ...state,
         zone_list: action.payload.result || [],
-        isLoadingZone:true
+        isLoadingZone: true,
       };
-      case ZONE_SELECTED:
+    case ZONE_SELECTED:
       return {
         ...state,
         zoneItem: action.item || false,
-        isLoadingZone:false
+        isLoadingZone: false,
       };
     case CATELOG_SEARCH_SELECT:
       var category = action.payload.category || [];
