@@ -1,6 +1,8 @@
 export const SIGN_UP_FORM = "signup";
 export const SEARCH_INPUT="search_input"
 export const SEARCH_INPUT_FILTER="search_input_filter"
+export const SEARCH_NEW="search_new"
+export const SEARCH_ITEM="search_item"
 export const PRODUCT_ADD_EDIT="product_add_edit"
 export const VENDOR_EDIT="vendor_edit"
 export const VENDOR_ASSIGN="vendor_assign"

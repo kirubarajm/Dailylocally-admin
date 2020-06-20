@@ -212,7 +212,7 @@ class VendorAssign extends React.Component {
   submitPo = () => {
     var poList = this.props.pocreatelist;
     var sPoList = [];
-    var isPoSelected = true;
+    //var isPoSelected = true;
     for (var i = 0; i < poList.length; i++) {
       if (poList[i].vendor_code) {
         var item = {
@@ -223,7 +223,7 @@ class VendorAssign extends React.Component {
         };
         sPoList.push(item);
       } else {
-        isPoSelected = false;
+       // isPoSelected = false;
       }
     }
     if (sPoList.length !== 0) {
@@ -429,8 +429,8 @@ class VendorAssign extends React.Component {
           </div>
         </div>
         <div className="txt-align-right width-84 mr-b-10">
-          <Button size="sm" hidden="ture">
-            Save
+          <Button size="sm"  onClick={()=>this.props.history.goBack()}>
+            Back
           </Button>
           <Button size="sm" className="mr-l-10" onClick={this.submitPo}>
             Submit

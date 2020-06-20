@@ -9,6 +9,10 @@ import {
   ModalHeader,
   Modal,
   ModalFooter,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
+  ButtonDropdown,
 } from "reactstrap";
 import {
   DAT_ORDER_LIST,
@@ -48,7 +52,6 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
-var today= Moment(new Date()).format("YYYY-MM-DD");
 class DayOrders extends React.Component {
   constructor() {
     super();
@@ -60,13 +63,17 @@ class DayOrders extends React.Component {
       search: "",
       orderid: false,
       isprocur: false,
-      today:Moment(new Date()),
+      today: Moment(new Date()),
       orderid_refresh: false,
+      isOpenOrderStatus: false,
+      select_order_status: {
+        id: -1,
+        status: "All",
+      },
     };
   }
 
   UNSAFE_componentWillMount() {
-    today = Moment(new Date()).format("YYYY-MM-DD");
     this.startSelect = this.startSelect.bind(this);
     this.endSelect = this.endSelect.bind(this);
     this.onSearch = this.onSearch.bind(this);
@@ -76,8 +83,15 @@ class DayOrders extends React.Component {
     this.confirmToprocurment = this.confirmToprocurment.bind(this);
     this.onReset = this.onReset.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
+    this.clickOrderStatus = this.clickOrderStatus.bind(this);
+    this.toggleOrderStatus = this.toggleOrderStatus.bind(this);
     this.onGetOrders = this.onGetOrders.bind(this);
     this.onGetOrders();
+  }
+  toggleOrderStatus= () => {
+    this.setState({
+      isOpenOrderStatus: !this.state.isOpenOrderStatus,
+    });
   }
   onGetOrders = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
@@ -153,6 +167,9 @@ class DayOrders extends React.Component {
       isprocur: !this.state.isprocur,
     });
   };
+  clickOrderStatus = (Item) => {
+    this.setState({ select_order_status: Item });
+  };
 
   confirmToprocurment = () => {
     var checkItem = this.state.selected_dayorderid;
@@ -184,11 +201,13 @@ class DayOrders extends React.Component {
 
   onSearch = () => {
     var data = {
-      zoneid: this.props.zoneItem.id,
-      starting_date: this.state.startdate,
-      end_date: this.state.enddate,
+      zoneid: this.props.zoneItem.id
     };
-    if (this.state.orderid) data.orderid = this.state.orderid;
+    if(this.state.startdate)data.starting_date = this.state.startdate;
+    if(this.state.enddate)data.end_date = this.state.enddate;
+    if (this.state.orderid) data.doid = this.state.orderid;
+    if (this.state.select_order_status && this.state.select_order_status.id !== -1)
+      data.dayorderstatus = this.state.select_order_status.id;
     this.props.onGetDayorders(data);
   };
 
@@ -198,6 +217,13 @@ class DayOrders extends React.Component {
       enddate: "",
       orderid: "",
       orderid_refresh: true,
+      select_order_status: {
+        id: -1,
+        status: "All",
+      }
+    });
+    this.props.onGetDayorders({
+      zoneid: this.props.zoneItem.id
     });
   };
 
@@ -218,7 +244,7 @@ class DayOrders extends React.Component {
                 opens="right"
                 singleDatePicker
                 maxDate={this.state.today}
-                endDate='+0d'
+                endDate="+0d"
                 drops="down"
                 onApply={this.startSelect}
               >
@@ -232,14 +258,14 @@ class DayOrders extends React.Component {
               <span className="mr-l-10">
                 {this.state.startdate
                   ? Moment(this.state.startdate).format("DD/MM/YYYY")
-                  : ""}
+                  : "DD/MM/YYYY"}
               </span>
               <span className="mr-l-50 mr-r-20">To Date/Time: </span>
               <DateRangePicker
                 opens="right"
                 singleDatePicker
                 maxDate={this.state.today}
-                endDate='+0d'
+                endDate="+0d"
                 drops="down"
                 onApply={this.endSelect}
               >
@@ -253,20 +279,45 @@ class DayOrders extends React.Component {
               <span className="mr-l-10">
                 {this.state.enddate
                   ? Moment(this.state.enddate).format("DD/MM/YYYY")
-                  : ""}{" "}
+                  : ""}{"DD/MM/YYYY"}
               </span>
             </div>
             <Row className="pd-10 mr-r-10 mr-b-10 font-size-14">
               <Col lg="1">
                 <div>Order No : </div>{" "}
               </Col>
-              <Col lg="3" className="pd-0">
+              <Col lg="2" className="pd-0">
                 <Search
                   onSearch={this.onSearchInput}
                   type="number"
                   onRefreshUpdate={this.onSuccessRefresh}
                   isRefresh={this.state.orderid_refresh}
                 />
+              </Col>
+              <Col lg="2">
+                <div>Order Status : </div>{" "}
+              </Col>
+              <Col lg="3" className="pd-0">
+                <ButtonDropdown
+                  className="max-height-30"
+                  isOpen={this.state.isOpenOrderStatus}
+                  toggle={this.toggleOrderStatus}
+                  size="sm"
+                >
+                  <DropdownToggle caret>
+                    {this.state.select_order_status.status || ""}
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {this.props.orderStatus.map((item, index) => (
+                      <DropdownItem
+                        onClick={() => this.clickOrderStatus(item)}
+                        key={index}
+                      >
+                        {item.status}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </ButtonDropdown>
               </Col>
             </Row>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
@@ -335,6 +386,7 @@ class DayOrders extends React.Component {
                           <input
                             type="checkbox"
                             name={"" + item.id}
+                            disabled={item.dayorderstatus !== 0}
                             checked={this.state.selected_dayorderid[item.id]}
                             onChange={(e) => this.handleChange(e)}
                           />
@@ -346,7 +398,7 @@ class DayOrders extends React.Component {
                       <td>{item.id}</td>
                       <td>{item.u_product_count}</td>
                       <td>{item.order_quantity}</td>
-                      <td>{getOrderStatus(item.orderstatus)}</td>
+                      <td>{getOrderStatus(item.dayorderstatus)}</td>
                     </tr>
                   ))}
                 </tbody>

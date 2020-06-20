@@ -12,6 +12,8 @@ import {
 } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
+import Search from "../components/Search";
+import DateRangePicker from "react-bootstrap-daterangepicker";
 import { QA_LIST, QA_QUALITY_LIST, UPDATE_QA_LIST,ORDERS_QA_SUBMIT, ORDERS_QA_CLEAR } from "../constants/actionTypes";
 
 const mapStateToProps = (state) => ({
@@ -54,7 +56,10 @@ class QAPage extends React.Component {
       poid_refresh: false,
       qaModal: false,
       isQuality: false,
+      orderdate:false,
+      orderid:"",
       selectedItem: { products: [] },
+      today: Moment(new Date()),
     };
   }
 
@@ -74,6 +79,13 @@ class QAPage extends React.Component {
     this.onQaSubmit = this.onQaSubmit.bind(this);
 
     this.onQAModal = this.onQAModal.bind(this);
+
+    this.orderDate = this.orderDate.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.onReset = this.onReset.bind(this);
+    this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
+    this.onSearchOrderId = this.onSearchOrderId.bind(this);
+
     this.props.onGetQualityOpation({});
     this.onQAList();
   }
@@ -174,7 +186,7 @@ class QAPage extends React.Component {
           if (Item.vpid===ck.vpid) {
             var qaidArray=ck.qaid || [];
             var qindex=qaidArray.indexOf(qItem.qaid);
-            if(qindex!=-1){
+            if(qindex!==-1){
               qaidArray.splice(qindex, 1);
               ck.qaid=qaidArray;
             }
@@ -210,21 +222,102 @@ class QAPage extends React.Component {
     data.checklist=this.state.selectedItem.checklist;
     this.props.onSubmitQAOrders(data);
   };
+  orderDate = (event, picker) => {
+    var orderdate = picker.startDate.format("YYYY-MM-DD");
+    this.setState({ orderdate: orderdate });
+  };
+  onSuccessRefresh = () => {
+    this.setState({ search_refresh: false });
+  };
+  onSearch = () => {
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.orderdate) data.date = this.state.orderdate;
+    if (this.state.orderid) data.doid = this.state.orderid;
+
+    this.props.onGetQAList(data);
+  };
+
+  onReset = () => {
+    this.setState({
+      orderdate: false,
+      orderid:"",
+      search_refresh: true,
+    });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    this.props.onGetQAList(data);
+  };
+
+  onSearchOrderId = (e) => {
+    const value = e.target.value || "";
+    this.setState({ orderid: value });
+  };
   
 
   render() {
     const qaList = this.props.qaList || [];
-    const qualitytype = this.props.qualitytype || [];
-
     return (
       <div className="width-full">
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset">
-            <div className="legend">QA / packing Search criteria</div>
-            <Row className="pd-0 mr-l-10 mr-r-10">
-              <Col></Col>
-              <Col></Col>
-              <Col></Col>
+            <div className="legend">Order Search criteria</div>
+            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
+              <Col lg="4" className="pd-0">
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div className="mr-r-10 flex-row-vertical-center width-100">
+                  Order ID :{" "}
+                  </div>
+                  <Search
+                    onSearch={this.onSearchOrderId}
+                    type="text"
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.search_refresh}
+                  />
+                </div>
+              </Col>
+                <Col lg="4" className="pd-0">
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className="mr-r-10 width-50">Date: </div>
+                  <DateRangePicker
+                    opens="right"
+                    singleDatePicker
+                    maxDate={this.state.today}
+                    drops="down"
+                    onApply={this.orderDate}
+                  >
+                    <Button
+                      className="mr-r-10"
+                      style={{ width: "30px", height: "30px", padding: "0px" }}
+                    >
+                      <i className="far fa-calendar-alt"></i>
+                    </Button>
+                  </DateRangePicker>
+                  {this.state.orderdate
+                    ? Moment(this.state.orderdate).format("DD/MM/YYYY")
+                    : "DD/MM/YYYY"}
+                </div>
+              </Col>
+              
+            </Row>
+            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
+              <Col lg="10"></Col>
+              <Col className="txt-align-right">
+                <Button size="sm" className="mr-r-10" onClick={this.onReset}>
+                  Reset
+                </Button>
+                <Button size="sm" onClick={this.onSearch}>
+                  Search
+                </Button>
+              </Col>
             </Row>
           </div>
           <div className="pd-6">

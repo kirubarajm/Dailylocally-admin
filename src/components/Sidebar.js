@@ -111,7 +111,7 @@ class Sidebar extends React.Component {
   componentDidMount() {}
 
   componentDidUpdate(nextProps, nextState) {
-    var ptname = window.location.pathname;
+    //var ptname = window.location.pathname;
   }
 
   handleClick = (name) => () => {

@@ -7,7 +7,6 @@ import {
   Button,
   Modal,
   ModalBody,
-  ModalFooter,
   ModalHeader,
 } from "reactstrap";
 import Select from "react-dropdown-select";
@@ -16,7 +15,11 @@ import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { Field, reduxForm,reset } from "redux-form";
 import { required, minLength2 } from "../utils/Validation";
-import { CAT_SUB_ADD_EDIT, RECEIVING_FORM } from "../utils/constant";
+import { RECEIVING_FORM } from "../utils/constant";
+import DateRangePicker from "react-bootstrap-daterangepicker";
+import Search from "../components/Search";
+import Searchnew from "../components/Searchnew";
+import SearchItem from "../components/SearchItem";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -141,6 +144,12 @@ class Receiving extends React.Component {
       recevingModal: false,
       receivingSelection: [],
       selectedItem: false,
+      search_refresh: false,
+      pono: false,
+      supplier_name: false,
+      item_name:false,
+      po_createdate: false,
+      today: Moment(new Date()),
     };
   }
 
@@ -150,6 +159,13 @@ class Receiving extends React.Component {
     this.selectedReceiving = this.selectedReceiving.bind(this);
     this.onActionClick = this.onActionClick.bind(this);
     this.submit = this.submit.bind(this);
+    this.pocreateDate = this.pocreateDate.bind(this);
+    this.onSearchPOno = this.onSearchPOno.bind(this);
+    this.onSearchSupplier = this.onSearchSupplier.bind(this);
+    this.onSearchItem = this.onSearchItem.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.onReset = this.onReset.bind(this);
+    this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
     this.onReceivingList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -183,6 +199,19 @@ class Receiving extends React.Component {
     this.setState({ receivingSelection: item });
   };
 
+  onSearchPOno = (e) => {
+    const value = e.target.value || "";
+    this.setState({ pono: value });
+  };
+  onSearchSupplier = (e) => {
+    const value = e.target.value || "";
+    this.setState({ supplier_name: value });
+  };
+
+  onSearchItem = (e) => {
+    const value = e.target.value || "";
+    this.setState({ item_name: value });
+  };
   onReceivingModal = () => {
     this.setState((prevState) => ({
       recevingModal: !prevState.recevingModal,
@@ -201,17 +230,131 @@ class Receiving extends React.Component {
     }
     this.props.onUpdateList(data1);
   };
+
+  pocreateDate = (event, picker) => {
+    var po_createdate = picker.startDate.format("YYYY-MM-DD");
+    this.setState({ po_createdate: po_createdate });
+  };
+
+
+  onSearch = () => {
+    var data = {
+      zone_id: this.props.zoneItem.id,
+    };
+    if (this.state.po_createdate) data.date = this.state.po_createdate;
+    if (this.state.supplier_name) data.vid = this.state.supplier_name;
+    if (this.state.item_name) data.vpid = this.state.item_name;
+    if (this.state.pono) data.poid = this.state.pono;
+
+    this.props.onGetReceivingList(data);
+  };
+
+  onReset = () => {
+    this.setState({
+      po_createdate: false,
+      pono: "",
+      supplier_name:"",
+      item_name:"",
+      search_refresh: true,
+    });
+    var data = {
+      zone_id: this.props.zoneItem.id,
+    };
+    this.props.onGetReceivingList(data);
+  };
+  onSuccessRefresh = () => {
+    this.setState({ search_refresh: false });
+  };
   render() {
     const recevingList = this.props.recevingList || [];
     return (
       <div className="width-full">
         <div style={{ height: "85vh" }} className="pd-6">
-          <div className="fieldset">
-            <div className="legend">Order search Criteria</div>
-            <Row className="pd-0 mr-l-10 mr-r-10">
-              <Col></Col>
-              <Col></Col>
-              <Col></Col>
+          <div className="fieldset width-84">
+            <div className="legend">PO search Criteri</div>
+            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
+              <Col lg="4" className="pd-0">
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div className="mr-r-10 flex-row-vertical-center width-120">
+                    PO No :{" "}
+                  </div>
+                  <Search
+                    onSearch={this.onSearchPOno}
+                    type="text"
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.search_refresh}
+                  />
+                </div>
+              </Col>
+              <Col lg="4" className="pd-0">
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className="mr-r-10 width-120">Date: </div>
+                  <DateRangePicker
+                    opens="right"
+                    singleDatePicker
+                    maxDate={this.state.today}
+                    drops="down"
+                    onApply={this.pocreateDate}
+                  >
+                    <Button
+                      className="mr-r-10"
+                      style={{ width: "30px", height: "30px", padding: "0px" }}
+                    >
+                      <i className="far fa-calendar-alt"></i>
+                    </Button>
+                  </DateRangePicker>
+                  {this.state.po_createdate
+                    ? Moment(this.state.po_createdate).format("DD/MM/YYYY")
+                    : "DD/MM/YYYY"}
+                </div>
+              </Col>
+              
+            </Row>
+            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
+              <Col lg="4" className="pd-0">
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div className="mr-r-10 flex-row-vertical-center width-120">
+                    Supplier Name :{" "}
+                  </div>
+                  <Searchnew
+                    onSearch={this.onSearchSupplier}
+                    type="text"
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.search_refresh}
+                  />
+                </div>
+              </Col>
+
+              <Col lg="4" className="pd-0">
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div className="mr-r-10 flex-row-vertical-center width-120">
+                  Item/Item Code :{" "}
+                  </div>
+                  <SearchItem
+                    onSearch={this.onSearchItem}
+                    type="text"
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.search_refresh}
+                  />
+                </div>
+              </Col>
+            </Row>
+            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
+              <Col lg="10"></Col>
+              <Col className="txt-align-right">
+                <Button size="sm" className="mr-r-10" onClick={this.onReset}>
+                  Reset
+                </Button>
+                <Button size="sm" onClick={this.onSearch}>
+                  Search
+                </Button>
+              </Col>
             </Row>
           </div>
           <div className="pd-6">

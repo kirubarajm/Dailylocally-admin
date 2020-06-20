@@ -47,7 +47,6 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
-var today;
 class Procurement extends React.Component {
   constructor() {
     super();
@@ -58,13 +57,13 @@ class Procurement extends React.Component {
       enddate: false,
       search: "",
       itemid: false,
+      today: Moment(new Date()),
       isprocur: false,
       itemid_refresh: false,
     };
   }
 
   UNSAFE_componentWillMount() {
-    today = Moment(new Date()).format("YYYY-MM-DD");
     this.startSelect = this.startSelect.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onSearchInput = this.onSearchInput.bind(this);
@@ -73,7 +72,7 @@ class Procurement extends React.Component {
     this.confirmTopo = this.confirmTopo.bind(this);
     this.onReset = this.onReset.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
-    this.onGetProcumentList=this.onGetProcumentList.bind(this);
+    this.onGetProcumentList = this.onGetProcumentList.bind(this);
     this.onGetProcumentList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -91,14 +90,17 @@ class Procurement extends React.Component {
     }
   }
   componentDidCatch() {}
-  onGetProcumentList =()=>{
+  onGetProcumentList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      this.props.onGetProcurement({
-        zoneid: this.props.zoneItem.id,
-      });
+      var data = {
+        zone_id: this.props.zoneItem.id
+      };
+      if (this.state.search) data.search = this.state.search;
+      if (this.state.pr_createdate) data.starting_date = this.state.pr_createdate;
+      this.props.onGetProcurement(data);
     }
-  }
+  };
   handleChange(e) {
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
@@ -154,7 +156,7 @@ class Procurement extends React.Component {
     var Values = Object.keys(checkItem);
     this.props.onCreatePo({
       pridlist: Values,
-      zoneid: this.props.zoneItem.id,
+      zone_id: this.props.zoneItem.id,
     });
   };
   movetopo = () => {
@@ -178,17 +180,17 @@ class Procurement extends React.Component {
 
   onSearch = () => {
     var data = {
-      zoneid: this.props.zoneItem.id,
-      starting_date: this.state.pr_createdate,
+      zone_id: this.props.zoneItem.id
     };
-    if (this.state.itemcode) data.itemcode = this.state.itemcode;
+    if (this.state.pr_createdate) data.starting_date = this.state.pr_createdate;
+    if (this.state.search) data.search = this.state.search;
     this.props.onGetProcurement(data);
   };
 
   onReset = () => {
     this.setState({
-      pr_createdate: "",
-      itemid: "",
+      pr_createdate: false,
+      search: "",
       itemid_refresh: true,
     });
   };
@@ -205,12 +207,13 @@ class Procurement extends React.Component {
           <div className="fieldset">
             <div className="legend">Procurement - Search</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="2" className="pd-0">
-                Date/Time:{" "}
+              <Col lg="3" className="pd-0">
+              <div style={{ display: "flex", flexDirection: "row",alignItems:"center" }}>
+                <div className="mr-r-10">Date/Time: </div>
                 <DateRangePicker
                   opens="right"
                   singleDatePicker
-                  maxDate={today}
+                  maxDate={this.state.today}
                   drops="down"
                   onApply={this.startSelect}
                 >
@@ -221,26 +224,22 @@ class Procurement extends React.Component {
                     <i className="far fa-calendar-alt"></i>
                   </Button>
                 </DateRangePicker>
+                {this.state.pr_createdate
+                  ? Moment(this.state.pr_createdate).format("DD/MM/YYYY")
+                  : "DD/MM/YYYY"}
+                  </div>
               </Col>
-              <Col lg="1" className="pd-0">
-                <span className="mr-l-10">
-                  {this.state.pr_createdate
-                    ? Moment(this.state.pr_createdate).format("DD/MM/YYYY")
-                    : ""}
-                </span>
+              <Col lg="4" className="pd-0">
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div className="mr-r-10 flex-row-vertical-center">Item/Item Code : </div>
+                  <Search
+                    onSearch={this.onSearchInput}
+                    type="text"
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.itemid_refresh}
+                  />
+                </div>
               </Col>
-              <Col lg="2">
-                <div>Item/Item Code : </div>{" "}
-              </Col>
-              <Col lg="3">
-                <Search
-                  onSearch={this.onSearchInput}
-                  type="text"
-                  onRefreshUpdate={this.onSuccessRefresh}
-                  isRefresh={this.state.itemid_refresh}
-                />
-              </Col>
-              <Col lg="2"></Col>
             </Row>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
               <Col lg="10"></Col>

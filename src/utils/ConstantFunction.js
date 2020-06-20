@@ -11,6 +11,7 @@ export const getOrderStatus = (orderstatus) => {
   return morder;
 };
 
+
 export const getdeliveryOrderStatus = (orderstatus) => {
   orderstatus = orderstatus || 0;
   orderstatus = orderstatus > 7 ? 0 : orderstatus;

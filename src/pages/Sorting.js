@@ -10,7 +10,6 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
-import { FaEye, FaRegFilePdf, FaTrashAlt } from "react-icons/fa";
 import {
   SORTING_LIST,
   SORTING_SAVING_ITEM,
@@ -21,6 +20,8 @@ import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
+import Search from "../components/Search";
+import DateRangePicker from "react-bootstrap-daterangepicker";
 
 const mapStateToProps = (state) => ({
   ...state.sorting,
@@ -54,10 +55,13 @@ class Sorting extends React.Component {
     super();
     this.state = {
       isLoading: false,
-      poid_refresh: false,
+      search_refresh: false,
       sortingModal: false,
       selected_dopid: false,
+      orderdate:false,
+      orderid:"",
       selectedItem: { products: [] },
+      today: Moment(new Date()),
     };
   }
 
@@ -67,6 +71,13 @@ class Sorting extends React.Component {
     this.onSortingModal = this.onSortingModal.bind(this);
     this.onSortingSave = this.onSortingSave.bind(this);
     this.onSortingSubmit = this.onSortingSubmit.bind(this);
+
+    this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
+    this.orderDate = this.orderDate.bind(this);
+    this.onSearch = this.onSearch.bind(this);
+    this.onReset = this.onReset.bind(this);
+    this.onSearchOrderId = this.onSearchOrderId.bind(this);
+
     this.onSortingList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -170,6 +181,39 @@ class Sorting extends React.Component {
     });
   }
 
+  orderDate = (event, picker) => {
+    var orderdate = picker.startDate.format("YYYY-MM-DD");
+    this.setState({ orderdate: orderdate });
+  };
+  onSuccessRefresh = () => {
+    this.setState({ search_refresh: false });
+  };
+  onSearch = () => {
+    var data = {
+      zone_id: this.props.zoneItem.id,
+    };
+    if (this.state.orderdate) data.date = this.state.orderdate;
+    if (this.state.orderid) data.doid = this.state.orderid;
+
+    this.props.onGetSortingList(data);
+  };
+
+  onReset = () => {
+    this.setState({
+      orderdate: false,
+      orderid:"",
+      search_refresh: true,
+    });
+    var data = {
+      zone_id: this.props.zoneItem.id,
+    };
+    this.props.onGetSortingList(data);
+  };
+
+  onSearchOrderId = (e) => {
+    const value = e.target.value || "";
+    this.setState({ orderid: value });
+  };
   render() {
     const sortingList = this.props.sortingList || [];
     return (
@@ -177,11 +221,61 @@ class Sorting extends React.Component {
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset">
             <div className="legend">Sorting / packing Search criteria</div>
-            <Row className="pd-0 mr-l-10 mr-r-10">
-              <Col></Col>
-              <Col></Col>
-              <Col></Col>
+            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
+              <Col lg="4" className="pd-0">
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div className="mr-r-10 flex-row-vertical-center width-100">
+                  Order ID :{" "}
+                  </div>
+                  <Search
+                    onSearch={this.onSearchOrderId}
+                    type="text"
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.search_refresh}
+                  />
+                </div>
+              </Col>
+                <Col lg="4" className="pd-0">
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <div className="mr-r-10 width-50">Date: </div>
+                  <DateRangePicker
+                    opens="right"
+                    singleDatePicker
+                    maxDate={this.state.today}
+                    drops="down"
+                    onApply={this.orderDate}
+                  >
+                    <Button
+                      className="mr-r-10"
+                      style={{ width: "30px", height: "30px", padding: "0px" }}
+                    >
+                      <i className="far fa-calendar-alt"></i>
+                    </Button>
+                  </DateRangePicker>
+                  {this.state.orderdate
+                    ? Moment(this.state.orderdate).format("DD/MM/YYYY")
+                    : "DD/MM/YYYY"}
+                </div>
+              </Col>
+              
             </Row>
+            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
+              <Col lg="10"></Col>
+              <Col className="txt-align-right">
+                <Button size="sm" className="mr-r-10" onClick={this.onReset}>
+                  Reset
+                </Button>
+                <Button size="sm" onClick={this.onSearch}>
+                  Search
+                </Button>
+              </Col>
+            </Row> 
           </div>
           <div className="pd-6">
             <div className="search-horizantal-scroll width-full">

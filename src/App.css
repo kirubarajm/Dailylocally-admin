@@ -302,6 +302,12 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   flex-direction: row;
 }
 
+.flex-row-vertical-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .flex-column {
   display: flex;
   flex-direction: column;
@@ -1896,7 +1902,12 @@ hr.style-moveit:after {
 .container-check input:checked~.checkmark:after {
   display: block;
 }
-
+.container-check input:disabled~.checkmark,
+.container-check input:disabled~.checkmark:after {
+  border-color: #eee;
+    color: #ccc;
+    background: #fff;
+}
 /* Style the checkmark/indicator */
 
 .container-check .checkmark:after {
