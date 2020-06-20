@@ -98,6 +98,26 @@ class App extends React.Component {
 
           <LayoutRoute
             exact
+            path="/warehouse/receiving"
+            layout={MainLayout}
+            component={Warehouse}
+          />
+
+          <LayoutRoute
+            exact
+            path="/warehouse/sorting"
+            layout={MainLayout}
+            component={Warehouse}
+          />
+          <LayoutRoute
+            exact
+            path="/warehouse/qa"
+            layout={MainLayout}
+            component={Warehouse}
+          />
+
+          <LayoutRoute
+            exact
             path="/vendor-assign"
             layout={MainLayout}
             component={VendorAssign}

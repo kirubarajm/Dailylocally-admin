@@ -14,6 +14,9 @@ import dayorders from './reducers/dayorders'
 import procurement from './reducers/procurement'
 import po from './reducers/po'
 import vendorassign from './reducers/vendorassign'
+import receiving from './reducers/receiving'
+import sorting from './reducers/sorting'
+import qapage from './reducers/qapage'
 export default combineReducers({
   router: routerReducer,
   form: formReducer,
@@ -29,5 +32,8 @@ export default combineReducers({
   dayorders,
   procurement,
   po,
-  vendorassign
+  vendorassign,
+  receiving,
+  sorting,
+  qapage
 });

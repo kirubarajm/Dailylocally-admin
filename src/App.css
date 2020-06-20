@@ -273,6 +273,7 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 
 .css-12zlm52-ReactDropdownSelect {
   border: 0px solid #ccc !important;
+  min-height: 25px !important;
 }
 
 .edit_makeit_form .auto-complete>div>div>div, .product_form .auto-complete>div>div>div, .product_form .package-complete>div>div>div {
@@ -1687,6 +1688,10 @@ hr.style-moveit:after {
   width: 50px !important;
 }
 
+.width-100 {
+  width: 100px !important;
+}
+
 .width-150 {
   width: 150px !important;
 }
@@ -1697,6 +1702,10 @@ hr.style-moveit:after {
 
 .width-200 {
   width: 200px !important;
+}
+
+.max-width-1000 {
+  max-width: 1000px !important;
 }
 
 .cat-title {

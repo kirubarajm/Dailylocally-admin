@@ -80,6 +80,14 @@ const Warehouse = {
   getPrWaitingList:(data) => requests.post("/po/waitingpolist", data),
   getVendorList:(data) => requests.post("/po/productwisevendorlist", data),
   createPoConfirm:(data) => requests.post("/po/createpo", data),
+  getReceivingList:(data) => requests.post("/po/getporeceivelist", data),
+  updateReceiving:(data) => requests.post("/po/updateporeceive", data),
+  getSortingList:(data) => requests.post("/sorting/getsortinglist", data),
+  getQaList:(data) => requests.post("/quality/dayorderlist", data),
+  saveSorting:(data) => requests.post("/sorting/savesorting", data),
+  submitSorting:(data) => requests.post("/sorting/movetoqa", data),
+  getQaQualityList:(data) => requests.post("/quality/type", data),
+  submitQA:(data) => requests.post("/quality/qualitycheck", data),
 }
 
 export default {

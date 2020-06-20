@@ -18,6 +18,9 @@ import {
 import DayOrders from "./DayOrders";
 import Procurement from "./Procurement";
 import Po from "./Po";
+import Receiving from "./Receiving";
+import Sorting from "./Sorting";
+import QAPage from "./QAPage";
 
 const mapStateToProps = (state) => ({
   ...state.warehouse,
@@ -89,6 +92,12 @@ class Warehouse extends React.Component {
       this.props.history.push('/warehouse/procurement')
     }else if(tab===2){
       this.props.history.push('/warehouse/po')
+    }else if(tab===3){
+      this.props.history.push('/warehouse/receiving')
+    }else if(tab===4){
+      this.props.history.push('/warehouse/sorting')
+    }else if(tab===5){
+      this.props.history.push('/warehouse/qa')
     }
   };
   toggleAreaDropDown = () => {
@@ -152,14 +161,14 @@ class Warehouse extends React.Component {
                 >
                   QA
                 </Button>
-                <Button
+                {/* <Button
                   color="primary"
                   size="sm"
                   onClick={() => this.onWarehouseTabClick(6)}
                   active={this.props.warehouse_tab_type === 6}
                 >
                   Return order
-                </Button>
+                </Button> */}
               </ButtonGroup>
             </Col>
             <Col></Col>
@@ -194,6 +203,9 @@ class Warehouse extends React.Component {
                 <Route path={`${path}/dayoders`} exact component={DayOrders} />
                 <Route path={`${path}/procurement`} component={Procurement} />
                 <Route path={`${path}/po`} component={Po} />
+                <Route path={`${path}/receiving`} component={Receiving} />
+                <Route path={`${path}/sorting`} component={Sorting} />
+                <Route path={`${path}/qa`} component={QAPage} />
                 <Redirect to={`${path}/dayoders`} />
               </Switch>
           </Row>

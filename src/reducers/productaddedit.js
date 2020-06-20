@@ -1,4 +1,4 @@
-import { PRODUCT_VIEW, CLEAR_PRODUCT_DATA,UPDATE_PRODUCT_IMAGES, UOM_LIST_VIEW, ZONE_LIST_VIEW, BRAND_LIST_VIEW, DELETE_PRODUCT_IMAGES, SET_PRODUCT_IMAGES, PRODUCT_EDIT, PRODUCT_ADD, TAG_LIST_VIEW, PRODUCT_SUBCATEGORY_L2_LIST, PRODUCT_SUBCATEGORY_L1_LIST, PRODUCT_CATEGORY_LIST } from "../constants/actionTypes";
+import { PRODUCT_VIEW, CLEAR_PR,CLEAR_PRODUCT_DATA,UPDATE_PRODUCT_IMAGES, UOM_LIST_VIEW, ZONE_LIST_VIEW, BRAND_LIST_VIEW, DELETE_PRODUCT_IMAGES, SET_PRODUCT_IMAGES, PRODUCT_EDIT, PRODUCT_ADD, TAG_LIST_VIEW, PRODUCT_SUBCATEGORY_L2_LIST, PRODUCT_SUBCATEGORY_L1_LIST, PRODUCT_CATEGORY_LIST } from "../constants/actionTypes";
 
 export default (
   state = {
@@ -83,6 +83,11 @@ export default (
         return {
           ...state,
           isProductUpdated:false
+        };
+        case CLEAR_PR:
+        return {
+          ...state,
+          productdetail:false
         };
         case PRODUCT_EDIT:
         case PRODUCT_ADD:

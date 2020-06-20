@@ -25,6 +25,7 @@ import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import { store } from "../store";
 import Search from "../components/Search";
+
 const mapStateToProps = (state) => ({
   ...state.dayorders,
   zoneItem: state.warehouse.zoneItem,
@@ -47,7 +48,7 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
-var today;
+var today= Moment(new Date()).format("YYYY-MM-DD");
 class DayOrders extends React.Component {
   constructor() {
     super();
@@ -59,6 +60,7 @@ class DayOrders extends React.Component {
       search: "",
       orderid: false,
       isprocur: false,
+      today:Moment(new Date()),
       orderid_refresh: false,
     };
   }
@@ -215,7 +217,8 @@ class DayOrders extends React.Component {
               <DateRangePicker
                 opens="right"
                 singleDatePicker
-                maxDate={today}
+                maxDate={this.state.today}
+                endDate='+0d'
                 drops="down"
                 onApply={this.startSelect}
               >
@@ -235,7 +238,8 @@ class DayOrders extends React.Component {
               <DateRangePicker
                 opens="right"
                 singleDatePicker
-                maxDate={today}
+                maxDate={this.state.today}
+                endDate='+0d'
                 drops="down"
                 onApply={this.endSelect}
               >

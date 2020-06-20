@@ -18,9 +18,10 @@ import {
   PRODUCT_ADD,
   PRODUCT_EDIT,
   CLEAR_PRODUCT_DATA,
+  CLEAR_PR
 } from "../constants/actionTypes";
 import { PRODUCT_ADD_EDIT } from "../utils/constant";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm,reset } from "redux-form";
 import renderInputField from "../components/renderInputField";
 import { required, minLength2 } from "../utils/Validation";
 import Select from "react-dropdown-select";
@@ -42,38 +43,34 @@ const InputSearchDropDown = ({
   valueField,
 }) => {
   return (
-    <div className="border-none" style={{ marginBottom: "10px" }}>
-      <Row className="mr-0">
-        <Col lg="10" className="pd-0 border-none">
-          <label className="mr-0">
-            {label} <span className="must">*</span>
-          </label>
-        </Col>
-        <Col
-          className="pd-0"
-          style={{
+    <div className="border-none" style={{ marginBottom: "10px",display:"flex",flexDirection:"row" }}>
+          <div className="mr-0 width-150">
+            <label className="mr-0 width-150">
+              {label} <span className="must">*</span>
+            </label>
+          </div>
+          <div className="mr-0" style={{
             border: "1px solid #000",
-            height: "30px",
+            height: "auto",
+            width:"210px",
             marginLeft: "-6px",
             marginRight: "12px",
-          }}
-        >
-          <Select
-            options={options}
-            labelField={labelField}
-            searchable={searchable}
-            searchBy={searchBy}
-            values={[...values]}
-            noDataLabel={noDataLabel}
-            valueField={valueField}
-            dropdownHeight={"300px"}
-            disabled={disabled}
-            onChange={(value) => {
-              onSelection(value);
-            }}
-          />
-        </Col>
-      </Row>
+          }}>
+            <Select
+              options={options}
+              labelField={labelField}
+              searchable={searchable}
+              searchBy={searchBy}
+              values={[...values]}
+              noDataLabel={noDataLabel}
+              valueField={valueField}
+              dropdownHeight={"300px"}
+              disabled={disabled}
+              onChange={(value) => {
+                onSelection(value);
+              }}
+            />
+          </div>
     </div>
   );
 };
@@ -148,9 +145,10 @@ const mapDispatchToProps = (dispatch) => ({
       type: TAG_LIST_VIEW,
       payload: AxiosRequest.Catelog.getTagList(data),
     }),
-  onUpdateMenuImages: (data,imgtype) =>
+  onUpdateMenuImages: (data, imgtype) =>
     dispatch({
-      type: UPDATE_PRODUCT_IMAGES,imgtype,
+      type: UPDATE_PRODUCT_IMAGES,
+      imgtype,
       payload: AxiosRequest.Catelog.fileUpload(data),
     }),
   onSetImages: (image) =>
@@ -176,17 +174,18 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: CLEAR_PRODUCT_DATA,
     }),
+    onFromClear: () => dispatch(reset(PRODUCT_ADD_EDIT)),
+    onClearPr: () =>
+    dispatch({
+      type: CLEAR_PR,
+    }),
 });
 var isEdit = false;
 var kitchenSignatureImg = [1];
 class ProductAddEdit extends React.Component {
   constructor() {
     super();
-    var ptname = window.location.pathname;
-    isEdit = false;
-    if (ptname.includes("/product_edit")) {
-      isEdit = true;
-    }
+    
 
     this.state = {
       category: [],
@@ -212,15 +211,20 @@ class ProductAddEdit extends React.Component {
   UNSAFE_componentWillMount() {
     var productIds = this.props.match.params.product_id;
     this.props.onGetCategory({ zone_id: 1 });
-    if (isEdit) {
-      this.props.onGetProduct({ product_id: productIds });
-    }else{
-      
-    }
-    
+    this.props.onDeleteMenuImages();
     this.props.onGetUOM({});
     this.props.onGetBrand({});
     this.props.onGetTag({});
+    var ptname = window.location.pathname;
+    isEdit = false;
+    if (ptname.includes("/product_edit")) {
+      isEdit = true;
+    }
+    if (isEdit) {
+      this.props.onClearPr();
+      this.props.onGetProduct({ product_id: productIds });
+    } else {
+    }
     this.submit = this.submit.bind(this);
     this.selectedUOM = this.selectedUOM.bind(this);
     this.selectedBrand = this.selectedBrand.bind(this);
@@ -337,11 +341,13 @@ class ProductAddEdit extends React.Component {
       this.props.history.goBack();
     }
 
-    if(!this.state.isEdit && this.state.is_loading){
-      this.setState({ is_loading: false});
+    if (!this.state.isEdit && this.state.is_loading) {
+      this.setState({ is_loading: false });
       if (this.props.cat) {
-        var addcat = [{ catid: this.props.cat.catid, name: this.props.cat.name }];
-        this.setState({ category: addcat});
+        var addcat = [
+          { catid: this.props.cat.catid, name: this.props.cat.name },
+        ];
+        this.setState({ category: addcat });
       }
 
       if (this.props.l1cat) {
@@ -364,9 +370,9 @@ class ProductAddEdit extends React.Component {
     // if (this.state.category.length>0) {
     //   data.catid = this.state.category[0].catid;
     // }
-if(data.KSI0){
-  delete data.KSI0;
-}
+    if (data.KSI0) {
+      delete data.KSI0;
+    }
 
     if (this.state.sub1Cat.length > 0) {
       data.scl1_id = this.state.sub1Cat[0].scl1_id;
@@ -400,6 +406,8 @@ if(data.KSI0){
 
     if (this.props.Signature.length > 0) {
       data.image = this.props.Signature[0].img_url;
+    }else{
+      data.image="";
     }
     if (this.state.isEdit) {
       var productDe = this.props.productdetail;
@@ -454,7 +462,7 @@ if(data.KSI0){
 
   handleonRemove = (imgid, imgType, index) => {
     const { removeimages } = this.state;
-    this.props.onDeleteMenuImages(imgType, index);
+    this.props.onDeleteMenuImages();
     if (imgid) {
       removeimages.push(imgid);
       this.setState({
@@ -467,7 +475,7 @@ if(data.KSI0){
     var data = new FormData();
     data.append("file", newImageFile[0]);
     data.append("type", 4);
-    this.props.onUpdateMenuImages(data,4);
+    this.props.onUpdateMenuImages(data, 4);
   };
 
   render() {
@@ -824,18 +832,6 @@ if(data.KSI0){
               pid={this.props.match.params.product_id}
               update={this.toggleVendorEditPopup}
             />
-            {/* <div className="mr-t-20 txt-align-center">
-              <Button onClick={this.updateVendor} size="sm">
-                Done
-              </Button>{" "}
-              <Button
-                onClick={this.togglePaymentPopup}
-                size="sm"
-                className="color-black border-color-black mr-l-10"
-              >
-                Cancel
-              </Button>
-            </div> */}
           </ModalBody>
         </Modal>
       </div>
