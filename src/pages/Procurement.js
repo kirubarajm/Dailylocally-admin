@@ -23,11 +23,13 @@ import {
   MOVE_TO_PO_WAITING,
   ON_CLEAR_PO_WAITING,
   WARE_HOUSE_SELECTED_TAB,
+  ZONE_ITEM_REFRESH,
 } from "../constants/actionTypes";
 
 const mapStateToProps = (state) => ({
   ...state.procurement,
-  zoneItem: state.warehouse.zoneItem,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh:state.common.zoneRefresh
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -71,6 +73,7 @@ class Procurement extends React.Component {
     this.togglePoPopUp = this.togglePoPopUp.bind(this);
     this.confirmTopo = this.confirmTopo.bind(this);
     this.onReset = this.onReset.bind(this);
+    this.gotoVendorAssign = this.gotoVendorAssign.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
     this.onGetProcumentList = this.onGetProcumentList.bind(this);
     this.onGetProcumentList();
@@ -81,6 +84,11 @@ class Procurement extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
+    if(this.props.zoneRefresh){
+      store.dispatch({ type: ZONE_ITEM_REFRESH});
+      this.setState({ isLoading: false });
+    }
+
     this.onGetProcumentList();
 
     if (this.props.movetopo) {
@@ -96,8 +104,8 @@ class Procurement extends React.Component {
       var data = {
         zone_id: this.props.zoneItem.id
       };
-      if (this.state.search) data.search = this.state.search;
-      if (this.state.pr_createdate) data.starting_date = this.state.pr_createdate;
+      if (this.state.search) data.item_search = this.state.search;
+      if (this.state.pr_createdate) data.date = this.state.pr_createdate;
       this.props.onGetProcurement(data);
     }
   };
@@ -179,12 +187,13 @@ class Procurement extends React.Component {
   };
 
   onSearch = () => {
-    var data = {
-      zone_id: this.props.zoneItem.id
-    };
-    if (this.state.pr_createdate) data.starting_date = this.state.pr_createdate;
-    if (this.state.search) data.search = this.state.search;
-    this.props.onGetProcurement(data);
+    // var data = {
+    //   zone_id: this.props.zoneItem.id
+    // };
+    // if (this.state.pr_createdate) data.starting_date = this.state.pr_createdate;
+    // if (this.state.search) data.search = this.state.search;
+    // this.props.onGetProcurement(data);
+    this.setState({ isLoading: false });
   };
 
   onReset = () => {
@@ -197,6 +206,10 @@ class Procurement extends React.Component {
 
   onSuccessRefresh = () => {
     this.setState({ itemid_refresh: false });
+  };
+
+  gotoVendorAssign= () => {
+    this.props.history.push('/vendor-assign');
   };
 
   render() {
@@ -273,6 +286,9 @@ class Procurement extends React.Component {
                 </div>
               </Col>
               <Col className="txt-align-right">
+              <Button size="sm" onClick={this.gotoVendorAssign} className="mr-r-10">
+                  Vendor assign
+                </Button>
                 <Button size="sm" onClick={this.movetopo}>
                   + Purchase order
                 </Button>
@@ -282,7 +298,7 @@ class Procurement extends React.Component {
               <Table>
                 <thead>
                   <tr>
-                    <th>View</th>
+                    {/* <th>View</th> */}
                     <th>Select</th>
                     <th>Date/Time</th>
                     <th>Item name</th>
@@ -296,14 +312,14 @@ class Procurement extends React.Component {
                 <tbody>
                   {procurmentlist.map((item, i) => (
                     <tr key={i}>
-                      <td>
+                      {/* <td>
                         {
                           <FaEye
                             className="txt-color-theme txt-cursor pd-2"
                             size="20"
                           />
                         }
-                      </td>
+                      </td> */}
                       <td>
                         <label className="container-check">
                           <input

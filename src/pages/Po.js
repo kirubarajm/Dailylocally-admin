@@ -2,16 +2,18 @@ import React from "react";
 import { connect } from "react-redux";
 import { Row, Col, Table, Button, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
 import { FaEye, FaRegFilePdf, FaTrashAlt } from "react-icons/fa";
-import { PO_LIST } from "../constants/actionTypes";
+import { PO_LIST, ZONE_ITEM_REFRESH } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
+import { store } from "../store";
 
 const mapStateToProps = (state) => ({
   ...state.po,
-  zoneItem: state.warehouse.zoneItem,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh:state.common.zoneRefresh
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -61,6 +63,10 @@ class Po extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
+    if(this.props.zoneRefresh){
+      store.dispatch({ type: ZONE_ITEM_REFRESH});
+      this.setState({ isLoading: false });
+    }
     this.onGetPoList();
   }
   componentDidCatch() {}
@@ -68,9 +74,18 @@ class Po extends React.Component {
   onGetPoList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      this.props.onGetPoList({
+      var data = {
         zone_id: this.props.zoneItem.id,
-      });
+      };
+      if (this.state.po_createdate) data.date = this.state.po_createdate;
+      if (this.state.supplier_name) data.vid = this.state.supplier_name;
+      if (this.state.due_date) data.due_date = this.state.due_date;
+      if (this.state.pono) data.poid = this.state.pono;
+      if (this.state.postatusItem&&this.state.postatusItem.id!==-1) 
+      data.po_status = this.state.postatusItem.id;
+      if (this.state.recevingItem&&this.state.recevingItem.id!==-1) 
+      data.pop_status = this.state.recevingItem.id;
+      this.props.onGetPoList(data);
     }
   };
   onSearchPOno = (e) => {
@@ -112,18 +127,19 @@ class Po extends React.Component {
   
 
   onSearch = () => {
-    var data = {
-      zone_id: this.props.zoneItem.id,
-    };
-    if (this.state.po_createdate) data.date = this.state.po_createdate;
-    if (this.state.supplier_name) data.vid = this.state.supplier_name;
-    if (this.state.due_date) data.due_date = this.state.due_date;
-    if (this.state.pono) data.poid = this.state.pono;
-    if (this.state.postatusItem&&this.state.postatusItem.id!==-1) 
-    data.po_status = this.state.postatusItem.id;
-    if (this.state.recevingItem&&this.state.recevingItem.id!==-1) 
-    data.pop_status = this.state.recevingItem.id;
-    this.props.onGetPoList(data);
+    // var data = {
+    //   zone_id: this.props.zoneItem.id,
+    // };
+    // if (this.state.po_createdate) data.date = this.state.po_createdate;
+    // if (this.state.supplier_name) data.vid = this.state.supplier_name;
+    // if (this.state.due_date) data.due_date = this.state.due_date;
+    // if (this.state.pono) data.poid = this.state.pono;
+    // if (this.state.postatusItem&&this.state.postatusItem.id!==-1) 
+    // data.po_status = this.state.postatusItem.id;
+    // if (this.state.recevingItem&&this.state.recevingItem.id!==-1) 
+    // data.pop_status = this.state.recevingItem.id;
+    // this.props.onGetPoList(data);
+    this.setState({ isLoading: false });
   };
 
   onReset = () => {
@@ -196,7 +212,7 @@ class Po extends React.Component {
               </Col>
 
               <Col lg="3" className="pd-0">
-                <div
+                <div hidden={true}
                   style={{
                     display: "flex",
                     flexDirection: "row",
@@ -254,7 +270,7 @@ class Po extends React.Component {
                   <DateRangePicker
                     opens="right"
                     singleDatePicker
-                    maxDate={this.state.today}
+                    minDate={this.state.today}
                     drops="down"
                     onApply={this.dueDate}
                   >
@@ -330,7 +346,6 @@ class Po extends React.Component {
                       <th>Supplier Name</th>
                       <th>Supplier Code</th>
                       <th>Date Created</th>
-                      <th>PO Line</th>
                       <th>Total Quantity</th>
                       <th>Open Quantity </th>
                       <th>Received Quantity </th>
@@ -371,7 +386,6 @@ class Po extends React.Component {
                             "DD-MMM-YYYY/hh:mm a"
                           )}
                         </td>
-                        <td>{item.open_quqntity}</td>
                         <td>{item.total_quantity}</td>
                         <td>{item.open_quqntity}</td>
                         <td>{item.received_quantity}</td>

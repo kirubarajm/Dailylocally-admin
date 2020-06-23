@@ -10,7 +10,7 @@ import {
   ModalHeader,
 } from "reactstrap";
 import Select from "react-dropdown-select";
-import { RECEIVING_LIST, RECEIVING_UPDATE, RECEIVING_CLEAR } from "../constants/actionTypes";
+import { RECEIVING_LIST, RECEIVING_UPDATE, RECEIVING_CLEAR, ZONE_ITEM_REFRESH } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { Field, reduxForm,reset } from "redux-form";
@@ -20,6 +20,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import SearchItem from "../components/SearchItem";
+import { store } from "../store";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -114,7 +115,8 @@ const InputField = ({
 
 const mapStateToProps = (state) => ({
   ...state.receiving,
-  zoneItem: state.warehouse.zoneItem,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh:state.common.zoneRefresh
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -174,20 +176,34 @@ class Receiving extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    this.onReceivingList();
+    
     if(this.props.receving_update){
       this.props.onClear();
       this.onReceivingModal();
+      this.setState({ isLoading: false });
     }
+
+    if(this.props.zoneRefresh){
+      store.dispatch({ type: ZONE_ITEM_REFRESH});
+      this.setState({ isLoading: false });
+    }
+
+    this.onReceivingList();
   }
   componentDidCatch() {}
 
   onReceivingList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      this.props.onGetReceivingList({
+      var data = {
         zone_id: this.props.zoneItem.id,
-      });
+      };
+      if (this.state.po_createdate) data.date = this.state.po_createdate;
+      if (this.state.supplier_name) data.vid = this.state.supplier_name;
+      if (this.state.item_name) data.vpid = this.state.item_name;
+      if (this.state.pono) data.poid = this.state.pono;
+  
+      this.props.onGetReceivingList(data);
     }
   };
   onActionClick = (item) => (ev) => {
@@ -238,15 +254,7 @@ class Receiving extends React.Component {
 
 
   onSearch = () => {
-    var data = {
-      zone_id: this.props.zoneItem.id,
-    };
-    if (this.state.po_createdate) data.date = this.state.po_createdate;
-    if (this.state.supplier_name) data.vid = this.state.supplier_name;
-    if (this.state.item_name) data.vpid = this.state.item_name;
-    if (this.state.pono) data.poid = this.state.pono;
-
-    this.props.onGetReceivingList(data);
+    this.setState({ isLoading: false });
   };
 
   onReset = () => {
@@ -390,6 +398,7 @@ class Receiving extends React.Component {
                         <td>
                           <Button
                             className="btn-close"
+                            disabled={item.received_quantity}
                             onClick={this.onActionClick(item)}
                           >
                             Action

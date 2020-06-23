@@ -15,6 +15,7 @@ import {
   SORTING_SAVING_ITEM,
   SORTING_SUBMIT_ITEM,
   SORTING_CLEAR,
+  ZONE_ITEM_REFRESH,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
@@ -22,10 +23,12 @@ import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import Search from "../components/Search";
 import DateRangePicker from "react-bootstrap-daterangepicker";
+import { store } from "../store";
 
 const mapStateToProps = (state) => ({
   ...state.sorting,
-  zoneItem: state.warehouse.zoneItem,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh:state.common.zoneRefresh
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -98,6 +101,11 @@ class Sorting extends React.Component {
       this.setState({ isLoading: false });
     }
 
+    if(this.props.zoneRefresh){
+      store.dispatch({ type: ZONE_ITEM_REFRESH});
+      this.setState({ isLoading: false });
+    }
+
     this.onSortingList();
   }
   componentDidCatch() {}
@@ -119,9 +127,12 @@ class Sorting extends React.Component {
   onSortingList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      this.props.onGetSortingList({
+      var data = {
         zone_id: this.props.zoneItem.id,
-      });
+      };
+      if (this.state.orderdate) data.date = this.state.orderdate;
+      if (this.state.orderid) data.doid = this.state.orderid;
+      this.props.onGetSortingList(data);
     }
   };
   onSortingModal = () => {
@@ -189,13 +200,7 @@ class Sorting extends React.Component {
     this.setState({ search_refresh: false });
   };
   onSearch = () => {
-    var data = {
-      zone_id: this.props.zoneItem.id,
-    };
-    if (this.state.orderdate) data.date = this.state.orderdate;
-    if (this.state.orderid) data.doid = this.state.orderid;
-
-    this.props.onGetSortingList(data);
+    this.setState({ isLoading: false });
   };
 
   onReset = () => {

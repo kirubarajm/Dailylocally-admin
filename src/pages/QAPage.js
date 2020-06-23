@@ -14,11 +14,13 @@ import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import Search from "../components/Search";
 import DateRangePicker from "react-bootstrap-daterangepicker";
-import { QA_LIST, QA_QUALITY_LIST, UPDATE_QA_LIST,ORDERS_QA_SUBMIT, ORDERS_QA_CLEAR } from "../constants/actionTypes";
+import { QA_LIST, QA_QUALITY_LIST, UPDATE_QA_LIST,ORDERS_QA_SUBMIT, ORDERS_QA_CLEAR, ZONE_ITEM_REFRESH } from "../constants/actionTypes";
+import { store } from "../store";
 
 const mapStateToProps = (state) => ({
   ...state.qapage,
-  zoneItem: state.warehouse.zoneItem,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh:state.common.zoneRefresh
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -100,6 +102,12 @@ class QAPage extends React.Component {
       this.setState({ isLoading: false });
       this.onQAModal();
     }
+
+    if(this.props.zoneRefresh){
+      store.dispatch({ type: ZONE_ITEM_REFRESH});
+      this.setState({ isLoading: false });
+    }
+
     this.onQAList();
   }
   componentDidCatch() {}
@@ -112,9 +120,13 @@ class QAPage extends React.Component {
   onQAList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      this.props.onGetQAList({
+      var data = {
         zoneid: this.props.zoneItem.id,
-      });
+      };
+      if (this.state.orderdate) data.date = this.state.orderdate;
+      if (this.state.orderid) data.doid = this.state.orderid;
+  
+      this.props.onGetQAList(data);
     }
   };
   onQAModal = () => {
@@ -230,13 +242,7 @@ class QAPage extends React.Component {
     this.setState({ search_refresh: false });
   };
   onSearch = () => {
-    var data = {
-      zoneid: this.props.zoneItem.id,
-    };
-    if (this.state.orderdate) data.date = this.state.orderdate;
-    if (this.state.orderid) data.doid = this.state.orderid;
-
-    this.props.onGetQAList(data);
+    this.setState({ isLoading: false });
   };
 
   onReset = () => {

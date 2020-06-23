@@ -18,7 +18,11 @@ import {
   UPDATE_VENDOR_LIST,
   CREATE_PO,
   CLEAR_PO,
-  WARE_HOUSE_SELECTED_TAB
+  WARE_HOUSE_SELECTED_TAB,
+  PO_EDIT_COUNT_UPDATE,
+  EDIT_QUANTITY_PO_LIST,
+  EDIT_QUANTITY_BUTTON_ENABLE,
+  CLEAR_VENDOR,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
@@ -65,6 +69,69 @@ const InputField = ({
   );
 };
 
+function EditQuantity(props) {
+  var Items = props.item;
+  var isEdit = Items.isEdit === undefined ? false : Items.isEdit;
+  var editQuantity = Items.editquantity;
+  if (!isEdit) {
+    editQuantity = Items.requested_quantity || Items.actual_quantity;
+    return (
+      <div
+        style={{ display: "flex", alignItems: "center", flexDirection: "row" }}
+      >
+        <div className="mr-r-10">{editQuantity}</div>
+        <Button className="btn-close" onClick={props.action}>
+          Edit
+        </Button>
+      </div>
+      // <Row className="mr-t-10">
+      //   <Col style={{ display: "flex", alignItems: "center" }}>
+      //     {editQuantity}
+      //   </Col>
+      //   <Col className="pd-0">
+      //     <Button className="btn-close" onClick={props.action}>
+      //       Edit
+      //     </Button>
+      //   </Col>
+      // </Row>
+    );
+  } else if (isEdit) {
+    return (
+      <div
+        style={{ display: "flex", alignItems: "center", flexDirection: "row" }}
+      >
+        <div className="mr-r-10">
+          <input
+            type="number"
+            value={editQuantity}
+            style={{ width: "40px", height: "30px" }}
+            onChange={(e) => props.onChangeQuantity(props.index, e)}
+          />
+        </div>
+        <Button className="btn-close" onClick={props.action}>
+        Done
+        </Button>
+      </div>
+      // <Row className="mr-t-10 font-weight-bold">
+      //   {/* <Col lg='8'>Live Quantity</Col> disabled={!props.quantity}*/}
+      //   <Col style={{ display: "flex", alignItems: "center" }}>
+      //     <input
+      //       type="number"
+      //       value={editQuantity}
+      //       style={{ width: "40px", height: "30px" }}
+      //       onChange={(e) => props.onChangeQuantity(props.index, e)}
+      //     />
+      //   </Col>
+      //   <Col className="pd-0">
+      //     <Button className="btn-close" onClick={props.action}>
+      //       Done
+      //     </Button>
+      //   </Col>
+      // </Row>
+    );
+  }
+}
+
 const mapStateToProps = (state) => ({ ...state.vendorassign });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -78,19 +145,32 @@ const mapDispatchToProps = (dispatch) => ({
       type: GET_VENDOR_LIST,
       payload: AxiosRequest.Warehouse.getVendorList(data),
     }),
-    onCreatePo: (data) =>
+  onCreatePo: (data) =>
     dispatch({
       type: CREATE_PO,
       payload: AxiosRequest.Warehouse.createPoConfirm(data),
     }),
-    onClear: () =>
+  onEditPOQuantity: (data) =>
     dispatch({
-      type: CLEAR_PO
+      type: PO_EDIT_COUNT_UPDATE,
+      payload: AxiosRequest.Warehouse.updateEditQuantity(data),
+    }),
+  editListOfPOQuantity: (index, quantity) =>
+    dispatch({ type: EDIT_QUANTITY_PO_LIST, index, quantity }),
+  onEditQuantityEnable: (index, isEdit) =>
+    dispatch({ type: EDIT_QUANTITY_BUTTON_ENABLE, index, isEdit }),
+  onClear: () =>
+    dispatch({
+      type: CLEAR_PO,
+    }),
+  onClearVendor: () =>
+    dispatch({
+      type: CLEAR_VENDOR,
     }),
   onUpdateVendorList: (data) =>
     dispatch({
       type: UPDATE_VENDOR_LIST,
-      data,
+      payload: AxiosRequest.Warehouse.updateVendorAssign(data),
     }),
   onFromClear: () => dispatch(reset(VENDOR_ASSIGN)),
 });
@@ -147,6 +227,8 @@ class VendorAssign extends React.Component {
       suplier: [],
       isconfirm: false,
       sPoList: [],
+      selected_vpid: [],
+      today: Moment(new Date()),
     };
   }
 
@@ -162,6 +244,8 @@ class VendorAssign extends React.Component {
     this.createPo = this.createPo.bind(this);
     this.savePo = this.savePo.bind(this);
     this.confirmToAddVendor = this.confirmToAddVendor.bind(this);
+    this.onAction = this.onAction.bind(this);
+    this.VendorEdit = this.VendorEdit.bind(this);
     this.onGetPoWaitngList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -170,12 +254,27 @@ class VendorAssign extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    this.onGetPoWaitngList();
-    if(this.props.poCreated){
+    if (this.props.poCreated) {
       this.props.onClear();
-      this.props.history.push('/warehouse/po');
+      this.props.history.push("/warehouse/po");
       store.dispatch({ type: WARE_HOUSE_SELECTED_TAB, tab_type: 2 });
     }
+
+    if (this.props.poEdittQuantity) {
+      if (!this.props.poEditQuantityStatus) {
+        this.props.onEditQuantityEnable(this.state.editIndex, false);
+      } else {
+        this.props.onEditQuantityEnable(this.state.editIndex, false);
+        this.setState({ isLoading: false });
+      }
+    }
+
+    if (this.props.vendor_assign_updated) {
+      this.props.onClearVendor();
+      this.setState({ isLoading: false });
+    }
+
+    this.onGetPoWaitngList();
   }
   componentDidCatch() {}
   onGetPoWaitngList = () => {
@@ -202,10 +301,32 @@ class VendorAssign extends React.Component {
   };
   confirmToAddVendor = () => {};
   savePo = () => {};
+
+  VendorEdit = (item) => {
+    var selected_vpid=[];
+    selected_vpid.push(item.vpid);
+    var arvalue={};
+    arvalue[item.tempid] = true;
+
+    this.setState({
+      selected_proid: arvalue,
+      selected_vpid: selected_vpid,
+    });
+
+    this.props.onGetVendorList({
+      zone_id: 1,
+      products: [item.vpid],
+    });
+    
+    this.setState({ startdate: today, suplier: [] });
+    this.props.onFromClear();
+    this.toggleAddVendorPopUp();
+  };
+
   createPo = () => {
     var item = {
       zone_id: 1,
-      polist: this.state.sPoList,
+      templist: this.state.sPoList,
     };
     this.props.onCreatePo(item);
   };
@@ -214,16 +335,10 @@ class VendorAssign extends React.Component {
     var sPoList = [];
     //var isPoSelected = true;
     for (var i = 0; i < poList.length; i++) {
-      if (poList[i].vendor_code) {
-        var item = {
-          prid: poList[i].prid,
-          pid: poList[i].pid,
-          vid: poList[i].vendor_code,
-          qty: poList[i].quantity,
-        };
-        sPoList.push(item);
+      if (poList[i].vid) {
+        sPoList.push(poList[i].tempid);
       } else {
-       // isPoSelected = false;
+        // isPoSelected = false;
       }
     }
     if (sPoList.length !== 0) {
@@ -240,16 +355,16 @@ class VendorAssign extends React.Component {
   };
 
   onAddVendor = () => {
-    var checkItem = this.state.selected_proid; //JSON.parse(JSON.stringify(this.state.selected_proid));
+    //var checkItem = this.state.selected_proid; //JSON.parse(JSON.stringify(this.state.selected_proid));
     //delete checkItem["selectall"];
-    var Values = Object.keys(checkItem);
-    console.log("Values-->", Values.length);
-    if (Values.length > 0) {
-      var indexof = Values.indexOf("selectall");
-      if (indexof !== -1) Values.splice(indexof, 1);
+    var vpid = this.state.selected_vpid;
+    var filtervpid = vpid
+      .map((value) => value)
+      .filter((value, index, _req) => _req.indexOf(value) === index);
+    if (filtervpid.length > 0) {
       this.props.onGetVendorList({
         zone_id: 1,
-        products: Values,
+        products: filtervpid,
       });
       this.setState({ startdate: today, suplier: [] });
       this.props.onFromClear();
@@ -264,6 +379,7 @@ class VendorAssign extends React.Component {
     }
   };
   startSelect = (event, picker) => {
+    event.preventDefault();
     var startdate = picker.startDate.format("YYYY-MM-DD");
     this.setState({ startdate: startdate });
   };
@@ -271,11 +387,16 @@ class VendorAssign extends React.Component {
     console.log(values);
     var checkItem = this.state.selected_proid;
     var Values = Object.keys(checkItem);
+    var indexof = Values.indexOf("selectall");
+    if (indexof !== -1) {
+      Values.splice(indexof, 1);
+    }
     var data = {
+      zone_id: 1,
       buyer_comment: values.buyer_comment,
-      exp_date: this.state.startdate,
-      suplier: this.state.suplier[0],
-      pridList: Values,
+      due_date: this.state.startdate,
+      vid: this.state.suplier[0].vid,
+      tempid: Values,
     };
     this.props.onUpdateVendorList(data);
     this.toggleAddVendorPopUp();
@@ -283,28 +404,58 @@ class VendorAssign extends React.Component {
       selected_proid: [],
     });
   };
+  onAction(item, index) {
+    if (item.isEdit) {
+      var liveq = this.state.lastliveQuantity;
+      this.setState({
+        lastliveQuantity: liveq
+          ? liveq
+          : item.requested_quantity || item.actual_quantity,
+      });
+      var tem = [item.tempid];
+      this.props.onEditPOQuantity({
+        zone_id: 1,
+        tempid: tem,
+        requested_quantity: item.editquantity || 0,
+      });
+    } else {
+      this.setState({
+        lastliveQuantity: item.requested_quantity || item.actual_quantity,
+        editIndex: index,
+      });
+      this.props.onEditQuantityEnable(index, !item.isEdit);
+    }
+  }
 
-  handleChange(e) {
+  onChangeQuantity = (index, e) => {
+    this.props.editListOfPOQuantity(index, e.target.value);
+  };
+
+  handleChange(e, sitem) {
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
     var arvalue = this.state.selected_proid || [];
+    var selected_vpid = this.state.selected_vpid || [];
     const pocreatelist = this.props.pocreatelist || [];
     if (name === "selectall") {
       if (value) {
         arvalue[name] = value;
         pocreatelist.map((item, i) => {
-          arvalue[item.prid] = value;
+          arvalue[item.tempid] = value;
+          selected_vpid.push(item.vpid);
         });
       } else {
         arvalue = {};
+        selected_vpid = [];
       }
     } else {
       if (value) {
         arvalue[name] = value;
         var allCheck = true;
+        selected_vpid.push(sitem.vpid);
         pocreatelist.map((item, i) => {
-          if (!arvalue[item.prid]) {
+          if (!arvalue[item.tempid]) {
             allCheck = false;
           }
         });
@@ -314,11 +465,16 @@ class VendorAssign extends React.Component {
           delete arvalue["selectall"];
         }
         delete arvalue[name];
+        if (selected_vpid.length > 0) {
+          var indexof = selected_vpid.indexOf(sitem.vpid);
+          if (indexof !== -1) selected_vpid.splice(indexof, 1);
+        }
       }
     }
 
     this.setState({
       selected_proid: arvalue,
+      selected_vpid: selected_vpid,
     });
   }
   render() {
@@ -336,7 +492,7 @@ class VendorAssign extends React.Component {
                         type="checkbox"
                         name="selectall"
                         checked={this.state.selected_proid["selectall"]}
-                        onChange={(e) => this.handleChange(e)}
+                        onChange={(e) => this.handleChange(e, "All")}
                       />
                       <span className="checkmark"></span>
                     </label>
@@ -382,9 +538,9 @@ class VendorAssign extends React.Component {
                           <label className="container-check">
                             <input
                               type="checkbox"
-                              name={"" + item.prid}
-                              checked={this.state.selected_proid[item.prid]}
-                              onChange={(e) => this.handleChange(e)}
+                              name={"" + item.tempid}
+                              checked={this.state.selected_proid[item.tempid]}
+                              onChange={(e) => this.handleChange(e, item)}
                             />
                             <span className="checkmark"></span>{" "}
                           </label>
@@ -393,6 +549,7 @@ class VendorAssign extends React.Component {
                           <FaRegEdit
                             className="txt-color-theme txt-cursor pd-2"
                             size="20"
+                            onClick={()=>this.VendorEdit(item)}
                           />
                         </td>
                         <td>
@@ -404,18 +561,27 @@ class VendorAssign extends React.Component {
                         <td>{item.catagory_name}</td>
                         <td>{item.subcatL1name}</td>
                         <td>{item.subcatL2name || "-"}</td>
-                        <td>{item.pid}</td>
+                        <td>{item.vpid}</td>
                         <td>{item.Productname}</td>
                         <td>{item.productdetails || "-"}</td>
                         <td>{item.vendor_name || "-"}</td>
-                        <td>{item.vendor_code || "-"}</td>
+                        <td>{item.vid || "-"}</td>
                         <td>{item.uom_name}</td>
-                        <td>{item.quantity}</td>
+                        <td className="makeit-process-action">
+                          <EditQuantity
+                            action={() => this.onAction(item, i)}
+                            index={i}
+                            item={item}
+                            onChangeQuantity={this.onChangeQuantity}
+                          />
+                        </td>
                         <td>{item.rate || "-"}</td>
                         <td>
-                          {Moment(item.exp_date).format(
-                            "DD-MMM-YYYY/hh:mm a"
-                          ) || "-"}
+                          {item.exp_date
+                            ? Moment(item.exp_date).format(
+                                "DD-MMM-YYYY/hh:mm a"
+                              )
+                            : "-"}
                         </td>
                         <td>{item.other_charges || "-"}</td>
                         <td>{item.amount || "-"}</td>
@@ -429,7 +595,7 @@ class VendorAssign extends React.Component {
           </div>
         </div>
         <div className="txt-align-right width-84 mr-b-10">
-          <Button size="sm"  onClick={()=>this.props.history.goBack()}>
+          <Button size="sm" onClick={() => this.props.history.goBack()}>
             Back
           </Button>
           <Button size="sm" className="mr-l-10" onClick={this.submitPo}>
@@ -475,7 +641,7 @@ class VendorAssign extends React.Component {
                   <DateRangePicker
                     opens="right"
                     singleDatePicker
-                    maxDate={today}
+                    minDate={this.state.today}
                     drops="down"
                     onApply={this.startSelect}
                   >
@@ -526,7 +692,9 @@ class VendorAssign extends React.Component {
             Are you sure you want to create the PO ?
           </ModalBody>
           <ModalFooter>
-            <Button size="sm" onClick={this.toggleConfirmPopUp}>No</Button>
+            <Button size="sm" onClick={this.toggleConfirmPopUp}>
+              No
+            </Button>
             <Button size="sm" onClick={this.createPo}>
               Yes
             </Button>

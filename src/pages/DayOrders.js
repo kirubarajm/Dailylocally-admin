@@ -19,6 +19,7 @@ import {
   MOVE_TO_PROCUREMENT,
   ON_CLEAR_PROCUREMENT,
   WARE_HOUSE_SELECTED_TAB,
+  ZONE_ITEM_REFRESH,
 } from "../constants/actionTypes";
 import Moment from "moment";
 import AxiosRequest from "../AxiosRequest";
@@ -32,7 +33,8 @@ import Search from "../components/Search";
 
 const mapStateToProps = (state) => ({
   ...state.dayorders,
-  zoneItem: state.warehouse.zoneItem,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -65,7 +67,9 @@ class DayOrders extends React.Component {
       isprocur: false,
       today: Moment(new Date()),
       orderid_refresh: false,
+      isViewModal: false,
       isOpenOrderStatus: false,
+      view_item: false,
       select_order_status: {
         id: -1,
         status: "All",
@@ -82,23 +86,34 @@ class DayOrders extends React.Component {
     this.toggleProcuremPopUp = this.toggleProcuremPopUp.bind(this);
     this.confirmToprocurment = this.confirmToprocurment.bind(this);
     this.onReset = this.onReset.bind(this);
+    this.onView = this.onView.bind(this);
+    this.toggleOrderView = this.toggleOrderView.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
     this.clickOrderStatus = this.clickOrderStatus.bind(this);
     this.toggleOrderStatus = this.toggleOrderStatus.bind(this);
     this.onGetOrders = this.onGetOrders.bind(this);
     this.onGetOrders();
   }
-  toggleOrderStatus= () => {
+  toggleOrderStatus = () => {
     this.setState({
       isOpenOrderStatus: !this.state.isOpenOrderStatus,
     });
-  }
+  };
   onGetOrders = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      this.props.onGetDayorders({
+      var data = {
         zoneid: this.props.zoneItem.id,
-      });
+      };
+      if (this.state.startdate) data.starting_date = this.state.startdate;
+      if (this.state.enddate) data.end_date = this.state.enddate;
+      if (this.state.orderid) data.doid = this.state.orderid;
+      if (
+        this.state.select_order_status &&
+        this.state.select_order_status.id !== -1
+      )
+        data.dayorderstatus = this.state.select_order_status.id;
+      this.props.onGetDayorders(data);
     }
   };
   UNSAFE_componentWillUpdate() {}
@@ -107,13 +122,17 @@ class DayOrders extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    this.onGetOrders();
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
+      this.setState({ isLoading: false });
+    }
 
     if (this.props.movetoprocurement) {
       this.props.onClear();
       this.props.history.push("/warehouse/procurement");
       store.dispatch({ type: WARE_HOUSE_SELECTED_TAB, tab_type: 1 });
     }
+    this.onGetOrders();
   }
   componentDidCatch() {}
   handleChange(e) {
@@ -167,8 +186,17 @@ class DayOrders extends React.Component {
       isprocur: !this.state.isprocur,
     });
   };
+  toggleOrderView = () => {
+    this.setState({
+      isViewModal: !this.state.isViewModal,
+    });
+  };
   clickOrderStatus = (Item) => {
     this.setState({ select_order_status: Item });
+  };
+  onView = (Item) => {
+    this.setState({ view_item: Item });
+    this.toggleOrderView();
   };
 
   confirmToprocurment = () => {
@@ -200,15 +228,17 @@ class DayOrders extends React.Component {
   };
 
   onSearch = () => {
-    var data = {
-      zoneid: this.props.zoneItem.id
-    };
-    if(this.state.startdate)data.starting_date = this.state.startdate;
-    if(this.state.enddate)data.end_date = this.state.enddate;
-    if (this.state.orderid) data.doid = this.state.orderid;
-    if (this.state.select_order_status && this.state.select_order_status.id !== -1)
-      data.dayorderstatus = this.state.select_order_status.id;
-    this.props.onGetDayorders(data);
+    // var data = {
+    //   zoneid: this.props.zoneItem.id
+    // };
+    // if(this.state.startdate)data.starting_date = this.state.startdate;
+    // if(this.state.enddate)data.end_date = this.state.enddate;
+    // if (this.state.orderid) data.doid = this.state.orderid;
+    // if (this.state.select_order_status && this.state.select_order_status.id !== -1)
+    //   data.dayorderstatus = this.state.select_order_status.id;
+    // this.props.onGetDayorders(data);
+    this.setState({ isLoading: false });
+    //this.onGetOrders();
   };
 
   onReset = () => {
@@ -220,10 +250,10 @@ class DayOrders extends React.Component {
       select_order_status: {
         id: -1,
         status: "All",
-      }
+      },
     });
     this.props.onGetDayorders({
-      zoneid: this.props.zoneItem.id
+      zoneid: this.props.zoneItem.id,
     });
   };
 
@@ -279,7 +309,7 @@ class DayOrders extends React.Component {
               <span className="mr-l-10">
                 {this.state.enddate
                   ? Moment(this.state.enddate).format("DD/MM/YYYY")
-                  : ""}{"DD/MM/YYYY"}
+                  : "DD/MM/YYYY"}
               </span>
             </div>
             <Row className="pd-10 mr-r-10 mr-b-10 font-size-14">
@@ -378,6 +408,7 @@ class DayOrders extends React.Component {
                           <FaEye
                             className="txt-color-theme txt-cursor pd-2"
                             size="20"
+                            onClick={() => this.onView(item)}
                           />
                         }
                       </td>
@@ -429,6 +460,42 @@ class DayOrders extends React.Component {
               YES
             </Button>
           </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isViewModal}
+          toggle={this.toggleOrderView}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalHeader
+            toggle={this.toggleOrderView}
+            className="pd-10 border-none"
+          >
+            Day Order Id # {this.state.view_item.id}
+          </ModalHeader>
+          <ModalBody className="pd-10">
+            <Table>
+              <thead>
+                <tr>
+                  <th>Pid</th>
+                  <th>Product Name</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.state.view_item?this.state.view_item.products.map((item, i) => (
+                  <tr key={i}>
+                    <td>{item.vpid}</td>
+                    <td>{item.productname}</td>
+                    <td>{item.price}</td>
+                    <td>{item.quantity}</td>
+                  </tr>
+                )):""}
+              </tbody>
+            </Table>
+          </ModalBody>
         </Modal>
       </div>
     );

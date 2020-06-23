@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Switch, Route, Redirect } from "react-router-dom";
+import { store } from "../store";
 import {
   ButtonDropdown,
   DropdownToggle,
@@ -14,6 +15,7 @@ import {
 import {
   WARE_HOUSE_ZONE_SELECTED,
   WARE_HOUSE_SELECTED_TAB,
+  ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import DayOrders from "./DayOrders";
 import Procurement from "./Procurement";
@@ -25,6 +27,8 @@ import QAPage from "./QAPage";
 const mapStateToProps = (state) => ({
   ...state.warehouse,
   zone_list: state.common.zone_list,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh:state.common.zoneRefresh
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -80,7 +84,7 @@ class Warehouse extends React.Component {
   }
   componentDidCatch() {}
   clickArea = (item) => {
-    this.props.OnZoneItemSelect(item);
+    store.dispatch({ type: ZONE_SELECT_ITEM,zoneItem:item});
     this.setState({ areaItem: item });
   };
   onWarehouseTabClick = (tab) => {
@@ -111,7 +115,7 @@ class Warehouse extends React.Component {
     return (
       <div>
         <div className="pd-12">
-          <Row>
+          <Row className="width-84">
             <Col>
               <ButtonGroup size="sm">
                   <Button
