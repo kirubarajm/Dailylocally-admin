@@ -17,6 +17,9 @@ import vendorassign from './reducers/vendorassign'
 import receiving from './reducers/receiving'
 import sorting from './reducers/sorting'
 import qapage from './reducers/qapage'
+import stockkeeping from './reducers/stockkeeping'
+import stockkeepingadd from './reducers/stockkeepingadd'
+
 export default combineReducers({
   router: routerReducer,
   form: formReducer,
@@ -35,5 +38,7 @@ export default combineReducers({
   vendorassign,
   receiving,
   sorting,
-  qapage
+  qapage,
+  stockkeeping,
+  stockkeepingadd
 });

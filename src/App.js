@@ -16,6 +16,8 @@ import Warehouse from "./pages/Warehouse";
 import { ZONE_LIST_VIEW } from "./constants/actionTypes";
 import AxiosRequest from "./AxiosRequest";
 import VendorAssign from "./pages/VendorAssign";
+import StockKeeping from "./pages/StockKeeping";
+import StockKeepingAdd from "./pages/StockKeepingAdd";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -121,6 +123,19 @@ class App extends React.Component {
             path="/vendor-assign"
             layout={MainLayout}
             component={VendorAssign}
+          />
+          <LayoutRoute
+            exact
+            path="/stock-keeping"
+            layout={MainLayout}
+            component={StockKeeping}
+          />
+
+          <LayoutRoute
+            exact
+            path="/stock-keeping-add"
+            layout={MainLayout}
+            component={StockKeepingAdd}
           />
 
           <Redirect to="/login" />

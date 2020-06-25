@@ -92,11 +92,17 @@ const Warehouse = {
   submitQA:(data) => requests.post("/quality/qualitycheck", data),
 }
 
+const StockKeeping= {
+  getStockKeepingList:(data) => requests.post("/dayorderlist", data),
+  getProductList:(data) => requests.post("/dayorderlist", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
   Catelog,
   Warehouse,
+  StockKeeping,
   setToken: (_token) => {
     token = _token;
   },

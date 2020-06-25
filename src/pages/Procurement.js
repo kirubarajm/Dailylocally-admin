@@ -104,7 +104,7 @@ class Procurement extends React.Component {
       var data = {
         zone_id: this.props.zoneItem.id
       };
-      if (this.state.search) data.item_search = this.state.search;
+      if (this.state.itemcode) data.vpid = this.state.itemcode;
       if (this.state.pr_createdate) data.date = this.state.pr_createdate;
       this.props.onGetProcurement(data);
     }

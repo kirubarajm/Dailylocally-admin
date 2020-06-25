@@ -1,12 +1,11 @@
 import { RECEIVING_LIST, RECEIVING_UPDATE,RECEIVING_CLEAR } from "../constants/actionTypes";
-
+//{ id: 2, name: "UnReceiving" },
 export default (
   state = {
     recevingList: [],
     receving_update:false,
     receivingAction: [
-      { id: 1, name: "Receiving" },
-      { id: 2, name: "UnReceiving" },
+      { id: 1, name: "Receiving" }
     ],
   },
   action

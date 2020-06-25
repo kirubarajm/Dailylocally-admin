@@ -25,26 +25,6 @@ export default (
         id: 6,
         status: "Ready to Dispatch",
       },
-      {
-        id: 7,
-        status: "Moveit Assign",
-      },
-      {
-        id: 8,
-        status: "Moveit Pickup",
-      },
-      {
-        id: 9,
-        status: "Moveit Delivered",
-      },
-      {
-        id: 10,
-        status: "Completed",
-      },
-      {
-        id: 11,
-        status: "Cancel",
-      },
     ],
   },
   action
