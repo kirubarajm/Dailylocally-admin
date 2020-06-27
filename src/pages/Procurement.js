@@ -73,7 +73,6 @@ class Procurement extends React.Component {
     this.togglePoPopUp = this.togglePoPopUp.bind(this);
     this.confirmTopo = this.confirmTopo.bind(this);
     this.onReset = this.onReset.bind(this);
-    this.gotoVendorAssign = this.gotoVendorAssign.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
     this.onGetProcumentList = this.onGetProcumentList.bind(this);
     this.onGetProcumentList();
@@ -208,9 +207,7 @@ class Procurement extends React.Component {
     this.setState({ itemid_refresh: false });
   };
 
-  gotoVendorAssign= () => {
-    this.props.history.push('/vendor-assign');
-  };
+  
 
   render() {
     const procurmentlist = this.props.procurmentlist || [];
@@ -286,9 +283,6 @@ class Procurement extends React.Component {
                 </div>
               </Col>
               <Col className="txt-align-right">
-              <Button size="sm" onClick={this.gotoVendorAssign} className="mr-r-10">
-                  Vendor assign
-                </Button>
                 <Button size="sm" onClick={this.movetopo}>
                   + Purchase order
                 </Button>
@@ -334,7 +328,7 @@ class Procurement extends React.Component {
                       <td>
                         {Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}
                       </td>
-                      <td>{item.Productname}</td>
+                      <td>{item.productname}</td>
                       <td>{item.vpid}</td>
                       <td>{item.unit_name}</td>
                       <td>{item.boh}</td>

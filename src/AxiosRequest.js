@@ -77,6 +77,10 @@ const Warehouse = {
   procurementwaitinglist:(data) => requests.post("/procurement/list", data),
   createPo:(data) => requests.post("/procurement/movetopurchase", data),
   getPoList:(data) => requests.post("/po/getpolist", data),
+  getPoView:(data) => requests.post("/po/view", data),
+  getPoDelete:(data) => requests.post("/po/delete", data),
+  VendorItemDelete:(data) => requests.post("/po/deletepotemp", data),
+  getPoClose:(data) => requests.post("/po/close", data),
   getPrWaitingList:(data) => requests.post("/po/waitingpolist", data),
   getVendorList:(data) => requests.post("/po/productwisevendorlist", data),
   updateEditQuantity:(data) => requests.post("/po/updatepotempquantity", data),
@@ -84,6 +88,8 @@ const Warehouse = {
   createPoConfirm:(data) => requests.post("/po/createpo", data),
   getReceivingList:(data) => requests.post("/po/getporeceivelist", data),
   updateReceiving:(data) => requests.post("/po/updateporeceive", data),
+  updateUNReceiving:(data) => requests.post("/po/updatepounreceive", data),
+  movetoSorting:(data) => requests.post("/po/popsoring", data),
   getSortingList:(data) => requests.post("/sorting/getsortinglist", data),
   getQaList:(data) => requests.post("/quality/dayorderlist", data),
   saveSorting:(data) => requests.post("/sorting/savesorting", data),
@@ -93,8 +99,12 @@ const Warehouse = {
 }
 
 const StockKeeping= {
-  getStockKeepingList:(data) => requests.post("/dayorderlist", data),
-  getProductList:(data) => requests.post("/dayorderlist", data),
+  getStockKeepingList:(data) => requests.post("/stockkeeping/list", data),
+  getProductList:(data) => requests.post("/stockkeeping/openlist", data),
+  deleteStockKeeping:(data) => requests.post("/stockkeeping/delete", data),
+  viewStockKeeping:(data) => requests.post("/stockkeeping/view", data),
+  addStockKeeping:(data) => requests.post("/stockkeeping/add", data),
+  editStockKeeping:(data) => requests.post("/stockkeeping/edit", data),
 }
 
 export default {

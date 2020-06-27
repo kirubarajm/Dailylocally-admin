@@ -252,8 +252,8 @@ class Catalog extends React.Component {
       liveModal: false,
       L2subcattoggleliveModal: false,
       productoggleliveModal: false,
-      warningModal:false,
-      warningmessage:""
+      warningModal: false,
+      warningmessage: "",
     });
     this.productClick = this.productClick.bind(this);
 
@@ -300,7 +300,6 @@ class Catalog extends React.Component {
       this.L1subcattoggleLive();
       if (this.state.selected_cat_sub1 !== -1)
         this.clickSubCat1Item(this.props.updatedItem);
-      
     }
 
     if (this.props.isL2subcategorylive) {
@@ -390,32 +389,55 @@ class Catalog extends React.Component {
       this.props.OncategoryLiveItem(item, i);
       this.toggleLive();
     } else if (type === 2) {
-      if(item.active_status===0&&this.props.selected_cat.active_status===0){
-        this.setState({warningmessage:"Please Category live after try to live the L1 Category"})
+      if (
+        item.active_status === 0 &&
+        this.props.selected_cat.active_status === 0
+      ) {
+        this.setState({
+          warningmessage:
+            "Please Category live after try to live the L1 Category",
+        });
         this.warningtoggleLive();
-      }else{
+      } else {
         this.props.OnL1SubcategoryLiveItem(item, i);
         this.L1subcattoggleLive();
       }
-      
     } else if (type === 3) {
-      if(item.active_status===0&&this.props.selected_cat_sub1.active_status===0){
-        this.setState({warningmessage:"Please L1 Category live after try to live the L2 Category"})
+      if (
+        item.active_status === 0 &&
+        this.props.selected_cat_sub1.active_status === 0
+      ) {
+        this.setState({
+          warningmessage:
+            "Please L1 Category live after try to live the L2 Category",
+        });
         this.warningtoggleLive();
-      }else{
+      } else {
         this.props.OnL2SubcategoryLiveItem(item, i);
         this.L2subcattoggleLive();
       }
     } else if (type === 4) {
-      if(item.live_status==="0"&&this.props.selected_cat_sub2.active_status===0){
-        this.setState({warningmessage:"Please L2 Category live after try to live the Product"})
+      if (
+        item.live_status === "0" &&
+        this.props.selected_cat_sub2.active_status === 0
+      ) {
+        this.setState({
+          warningmessage:
+            "Please L2 Category live after try to live the Product",
+        });
         this.warningtoggleLive();
-      }else if(item.live_status==="0"&&this.props.selected_cat_sub1.active_status===0){
-        this.setState({warningmessage:"Please L1 Category live after try to live the L2 Category"})
+      } else if (
+        item.live_status === "0" &&
+        this.props.selected_cat_sub1.active_status === 0
+      ) {
+        this.setState({
+          warningmessage:
+            "Please L1 Category live after try to live the L2 Category",
+        });
         this.warningtoggleLive();
-      }else{
-      this.props.OnProductLiveItem(item, i);
-      this.producttoggleLive();
+      } else {
+        this.props.OnProductLiveItem(item, i);
+        this.producttoggleLive();
       }
     }
   };
@@ -491,7 +513,7 @@ class Catalog extends React.Component {
     // else this.getProduct(item.scl1_id, 0, this.state.areaItem.area_id);
   };
 
-  clickSubCat2Item = (item) =>{
+  clickSubCat2Item = (item) => {
     if (liveClicked) {
       liveClicked = false;
       return;
@@ -774,7 +796,7 @@ class Catalog extends React.Component {
                           ? "cat-item-active"
                           : " cat-item"
                       }
-                      onClick={()=>this.clickSubCat1Item(item)}
+                      onClick={() => this.clickSubCat1Item(item)}
                     >
                       <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
@@ -847,7 +869,7 @@ class Catalog extends React.Component {
                           ? "cat-item-active"
                           : " cat-item"
                       }
-                      onClick={()=>this.clickSubCat2Item(item)}
+                      onClick={() => this.clickSubCat2Item(item)}
                     >
                       <Col lg="7">{item.name}</Col>
                       <Col
@@ -992,10 +1014,12 @@ class Catalog extends React.Component {
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
               {this.props.iscategoryitem.active_status === 0
-                ? "you have to live these '" +
+                ? "Are you sure you want to live the '" +
                   this.props.iscategoryitem.name +
                   "' category"
-                : "Are you sure you want to unlive Category"}{" "}
+                : "Are you sure you want to unlive the '" +
+                  this.props.iscategoryitem.name +
+                  "' category"}{" "}
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onClick={this.MovetoLive}>
@@ -1016,10 +1040,12 @@ class Catalog extends React.Component {
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
               {this.props.isL1subcategoryitem.active_status === 0
-                ? "you have to live these '" +
+                ? "Are you sure you want to live the '" +
                   this.props.isL1subcategoryitem.name +
                   "' L1 sub category"
-                : "Are you sure you want to unlive  L1 sub Category"}{" "}
+                : "Are you sure you want to unlive the '" +
+                  this.props.isL1subcategoryitem.name +
+                  "' L1 sub category"}{" "}
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onClick={this.L1subcatMovetoLive}>
@@ -1040,10 +1066,12 @@ class Catalog extends React.Component {
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
               {this.props.isL2subcategoryitem.active_status === 0
-                ? "you have to live these '" +
+                ? "Are you sure you want to live the '" +
                   this.props.isL2subcategoryitem.name +
                   "' L2 sub category"
-                : "Are you sure you want to unlive  L2 sub Category"}{" "}
+                : "Are you sure you want to unlive the '" +
+                  this.props.isL2subcategoryitem.name +
+                  "' L2 sub category"}{" "}
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onClick={this.L2subcatMovetoLive}>
@@ -1064,10 +1092,12 @@ class Catalog extends React.Component {
             <ModalHeader>Conformation </ModalHeader>
             <ModalBody>
               {this.props.isProductitem.live_status === "0"
-                ? "you have to live these '" +
+                ? "Are you sure you want to live the '" +
                   this.props.isProductitem.Productname +
                   "' product"
-                : "Are you sure you want to unlive  product"}{" "}
+                : "Are you sure you want to unlive the '" +
+                  this.props.isProductitem.Productname +
+                  "' product"}{" "}
             </ModalBody>
             <ModalFooter>
               <Button color="primary" onClick={this.productMovetoLive}>
@@ -1126,23 +1156,20 @@ class Catalog extends React.Component {
           </ModalBody>
         </Modal>
 
-
         <Modal
-            isOpen={this.state.warningModal}
-            toggle={this.warningtoggleLive}
-            className="add_live_modal"
-            backdrop={"static"}
-          >
-            <ModalHeader>Warning </ModalHeader>
-            <ModalBody>
-              {this.state.warningmessage}
-            </ModalBody>
-            <ModalFooter>
-              <Button color="secondary" onClick={this.warningtoggleLive}>
-                OK
-              </Button>
-            </ModalFooter>
-          </Modal>
+          isOpen={this.state.warningModal}
+          toggle={this.warningtoggleLive}
+          className="add_live_modal"
+          backdrop={"static"}
+        >
+          <ModalHeader>Warning </ModalHeader>
+          <ModalBody>{this.state.warningmessage}</ModalBody>
+          <ModalFooter>
+            <Button color="secondary" onClick={this.warningtoggleLive}>
+              OK
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }

@@ -1,8 +1,28 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Row, Col, Table, Button, ButtonDropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
+import {
+  Row,
+  Col,
+  Table,
+  Button,
+  ButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "reactstrap";
 import { FaEye, FaRegFilePdf, FaTrashAlt } from "react-icons/fa";
-import { PO_LIST, ZONE_ITEM_REFRESH } from "../constants/actionTypes";
+import {
+  PO_LIST,
+  ZONE_ITEM_REFRESH,
+  PO_VIEW,
+  PO_DELETE,
+  PO_CLOSE,
+  PO_CLEAR,
+} from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import DateRangePicker from "react-bootstrap-daterangepicker";
@@ -13,7 +33,7 @@ import { store } from "../store";
 const mapStateToProps = (state) => ({
   ...state.po,
   zoneItem: state.common.zoneItem,
-  zoneRefresh:state.common.zoneRefresh
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -21,6 +41,26 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: PO_LIST,
       payload: AxiosRequest.Warehouse.getPoList(data),
+    }),
+
+  onGetViewPO: (data) =>
+    dispatch({
+      type: PO_VIEW,
+      payload: AxiosRequest.Warehouse.getPoView(data),
+    }),
+  onGetDeletePO: (data) =>
+    dispatch({
+      type: PO_DELETE,
+      payload: AxiosRequest.Warehouse.getPoDelete(data),
+    }),
+  onGetClosePO: (data) =>
+    dispatch({
+      type: PO_CLOSE,
+      payload: AxiosRequest.Warehouse.getPoClose(data),
+    }),
+  onPoClear: () =>
+    dispatch({
+      type: PO_CLEAR,
     }),
 });
 
@@ -35,10 +75,15 @@ class Po extends React.Component {
       po_createdate: false,
       due_date: false,
       today: Moment(new Date()),
-      isOpenRecevingDropDown:false,
-      isOpenpoDropDown:false,
-      recevingItem:{ id: -1, name: "All" },
-      postatusItem:{ id: -1, name: "All" }
+      isOpenRecevingDropDown: false,
+      isOpenpoDropDown: false,
+      isViewModal: false,
+      view_item: false,
+      isConfrimModal: false,
+      select_item: false,
+      isDelete: false,
+      recevingItem: { id: -1, name: "All" },
+      postatusItem: { id: -1, name: "All" },
     };
   }
 
@@ -46,15 +91,21 @@ class Po extends React.Component {
     this.onGetPoList = this.onGetPoList.bind(this);
     this.pocreateDate = this.pocreateDate.bind(this);
     this.dueDate = this.dueDate.bind(this);
+    this.toggleConfirmPopup = this.toggleConfirmPopup.bind(this);
     this.onSearchPOno = this.onSearchPOno.bind(this);
     this.onSearchSupplier = this.onSearchSupplier.bind(this);
     this.onSearch = this.onSearch.bind(this);
+    this.gotoVendorAssign = this.gotoVendorAssign.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
     this.toggleRecevingDropDown = this.toggleRecevingDropDown.bind(this);
     this.togglePoDropDown = this.togglePoDropDown.bind(this);
     this.clickReceving = this.clickReceving.bind(this);
     this.clickPostatus = this.clickPostatus.bind(this);
     this.onReset = this.onReset.bind(this);
+    this.toggleOrderView = this.toggleOrderView.bind(this);
+    this.onView = this.onView.bind(this);
+    this.onDelete = this.onDelete.bind(this);
+    this.onClose = this.onClose.bind(this);
     this.onGetPoList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -63,8 +114,13 @@ class Po extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    if(this.props.zoneRefresh){
-      store.dispatch({ type: ZONE_ITEM_REFRESH});
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
+      this.setState({ isLoading: false });
+    }
+
+    if (this.props.deleteStatus || this.props.closeStatus) {
+      this.props.onPoClear();
       this.setState({ isLoading: false });
     }
     this.onGetPoList();
@@ -81,10 +137,10 @@ class Po extends React.Component {
       if (this.state.supplier_name) data.vid = this.state.supplier_name;
       if (this.state.due_date) data.due_date = this.state.due_date;
       if (this.state.pono) data.poid = this.state.pono;
-      if (this.state.postatusItem&&this.state.postatusItem.id!==-1) 
-      data.po_status = this.state.postatusItem.id;
-      if (this.state.recevingItem&&this.state.recevingItem.id!==-1) 
-      data.pop_status = this.state.recevingItem.id;
+      if (this.state.postatusItem && this.state.postatusItem.id !== -1)
+        data.po_status = this.state.postatusItem.id;
+      if (this.state.recevingItem && this.state.recevingItem.id !== -1)
+        data.pop_status = this.state.recevingItem.id;
       this.props.onGetPoList(data);
     }
   };
@@ -117,6 +173,36 @@ class Po extends React.Component {
       isOpenpoDropDown: !this.state.isOpenpoDropDown,
     });
   };
+  toggleOrderView = () => {
+    this.setState({
+      isViewModal: !this.state.isViewModal,
+    });
+  };
+
+  toggleConfirmPopup = () => {
+    this.setState({
+      isConfrimModal: !this.state.isConfrimModal,
+    });
+  };
+
+  onClose = (Item) => {
+    this.setState({ select_item: Item, isDelete: false });
+    this.toggleConfirmPopup();
+  };
+
+  onDelete = (Item) => {
+    this.setState({ select_item: Item, isDelete: true });
+    this.toggleConfirmPopup();
+  };
+
+  onView = (Item) => {
+    this.setState({ view_item: Item });
+    this.props.onGetViewPO({
+      zone_id: this.props.zoneItem.id,
+      poid: Item.poid,
+    });
+    this.toggleOrderView();
+  };
 
   clickReceving = (item) => {
     this.setState({ recevingItem: item });
@@ -124,7 +210,6 @@ class Po extends React.Component {
   clickPostatus = (item) => {
     this.setState({ postatusItem: item });
   };
-  
 
   onSearch = () => {
     // var data = {
@@ -134,23 +219,37 @@ class Po extends React.Component {
     // if (this.state.supplier_name) data.vid = this.state.supplier_name;
     // if (this.state.due_date) data.due_date = this.state.due_date;
     // if (this.state.pono) data.poid = this.state.pono;
-    // if (this.state.postatusItem&&this.state.postatusItem.id!==-1) 
+    // if (this.state.postatusItem&&this.state.postatusItem.id!==-1)
     // data.po_status = this.state.postatusItem.id;
-    // if (this.state.recevingItem&&this.state.recevingItem.id!==-1) 
+    // if (this.state.recevingItem&&this.state.recevingItem.id!==-1)
     // data.pop_status = this.state.recevingItem.id;
     // this.props.onGetPoList(data);
     this.setState({ isLoading: false });
   };
+  gotoVendorAssign = () => {
+    this.props.history.push("/vendor-assign");
+  };
 
+  confirmTo = () => {
+    var dData = {};
+    dData.zone_id = this.props.zoneItem.id;
+    dData.poid = this.state.select_item.poid;
+    if (this.state.isDelete) {
+      this.props.onGetDeletePO(dData);
+    } else {
+      this.props.onGetClosePO(dData);
+    }
+    this.toggleConfirmPopup();
+  };
   onReset = () => {
     this.setState({
       po_createdate: false,
       due_date: false,
       pono: "",
-      supplier_name:"",
+      supplier_name: "",
       search_refresh: true,
-      recevingItem:{ id: -1, name: "All" },
-      postatusItem:{ id: -1, name: "All" }
+      recevingItem: { id: -1, name: "All" },
+      postatusItem: { id: -1, name: "All" },
     });
     var data = {
       zone_id: this.props.zoneItem.id,
@@ -212,7 +311,8 @@ class Po extends React.Component {
               </Col>
 
               <Col lg="3" className="pd-0">
-                <div hidden={true}
+                <div
+                  hidden={true}
                   style={{
                     display: "flex",
                     flexDirection: "row",
@@ -221,26 +321,27 @@ class Po extends React.Component {
                 >
                   <div className="mr-r-10 width-120">Receiving Status: </div>
                   <ButtonDropdown
-                  className="max-height-30"
-                  isOpen={this.state.isOpenRecevingDropDown}
-                  toggle={this.toggleRecevingDropDown}
-                  size="sm"
-                >
-                  <DropdownToggle caret>
-                    {this.state.recevingItem
-                    ? this.state.recevingItem.name: ""}
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {this.props.receving.map((item, index) => (
-                      <DropdownItem
-                        onClick={() => this.clickReceving(item)}
-                        key={index}
-                      >
-                        {item.name}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </ButtonDropdown>
+                    className="max-height-30"
+                    isOpen={this.state.isOpenRecevingDropDown}
+                    toggle={this.toggleRecevingDropDown}
+                    size="sm"
+                  >
+                    <DropdownToggle caret>
+                      {this.state.recevingItem
+                        ? this.state.recevingItem.name
+                        : ""}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.props.receving.map((item, index) => (
+                        <DropdownItem
+                          onClick={() => this.clickReceving(item)}
+                          key={index}
+                        >
+                          {item.name}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </ButtonDropdown>
                 </div>
               </Col>
             </Row>
@@ -297,26 +398,27 @@ class Po extends React.Component {
                 >
                   <div className="mr-r-10 width-120">Po Status: </div>
                   <ButtonDropdown
-                  className="max-height-30"
-                  isOpen={this.state.isOpenpoDropDown}
-                  toggle={this.togglePoDropDown}
-                  size="sm"
-                >
-                  <DropdownToggle caret>
-                    {this.state.postatusItem
-                    ? this.state.postatusItem.name: ""}
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {this.props.postatus.map((item, index) => (
-                      <DropdownItem
-                        onClick={() => this.clickPostatus(item)}
-                        key={index}
-                      >
-                        {item.name}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </ButtonDropdown>
+                    className="max-height-30"
+                    isOpen={this.state.isOpenpoDropDown}
+                    toggle={this.togglePoDropDown}
+                    size="sm"
+                  >
+                    <DropdownToggle caret>
+                      {this.state.postatusItem
+                        ? this.state.postatusItem.name
+                        : ""}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.props.postatus.map((item, index) => (
+                        <DropdownItem
+                          onClick={() => this.clickPostatus(item)}
+                          key={index}
+                        >
+                          {item.name}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </ButtonDropdown>
                 </div>
               </Col>
             </Row>
@@ -332,6 +434,13 @@ class Po extends React.Component {
               </Col>
             </Row>
           </div>
+          <Row className="width-84 mr-b-10 mr-l-10">
+            <Col className="txt-align-right pd-0">
+              <Button size="sm" onClick={this.gotoVendorAssign}>
+                Vendor assign
+              </Button>
+            </Col>
+          </Row>
           <div className="pd-6">
             <div className="search-horizantal-scroll">
               <div className="search-vscroll">
@@ -367,16 +476,34 @@ class Po extends React.Component {
                           <FaEye
                             className="txt-color-theme txt-cursor pd-2"
                             size="20"
+                            onClick={() => this.onView(item)}
                           />
                         </td>
                         <td>
-                          <FaTrashAlt
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
-                          />
+                          <Button
+                            size="sm"
+                            color="link"
+                            onClick={() => this.onDelete(item)}
+                            disabled={item.po_status !== 0}
+                          >
+                            <FaTrashAlt
+                              className={
+                                item.po_status !== 0
+                                  ? "color-disable"
+                                  : "color-red"
+                              }
+                              size="16"
+                            />
+                          </Button>
                         </td>
                         <td>
-                          <Button className="btn-close">Close</Button>
+                          <Button
+                            className="btn-close"
+                            disabled={item.po_status !== 0}
+                            onClick={() => this.onClose(item)}
+                          >
+                            Close
+                          </Button>
                         </td>
                         <td>{item.poid}</td>
                         <td>{item.name}</td>
@@ -391,11 +518,15 @@ class Po extends React.Component {
                         <td>{item.received_quantity}</td>
                         <td>{item.cost}</td>
                         <td>
-                          {Moment(item.due_date).format(
-                            "DD-MMM-YYYY/hh:mm a"
-                          )}
+                          {Moment(item.due_date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
-                        <td>{item.po_status===0?"Open":"Close"}</td>
+                        <td>
+                          {item.po_status === 0
+                            ? "Open"
+                            : item.po_status === 1
+                            ? "Close"
+                            : "Delete"}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -404,6 +535,94 @@ class Po extends React.Component {
             </div>
           </div>
         </div>
+
+        <Modal
+          isOpen={this.state.isViewModal}
+          toggle={this.toggleOrderView}
+          className={this.props.className}
+          className="max-width-1000"
+          backdrop={true}
+        >
+          <ModalHeader
+            toggle={this.toggleOrderView}
+            className="pd-10 border-none"
+          >
+            PO Id # {this.props.poview ? this.props.poview.poid : ""}
+          </ModalHeader>
+          <ModalBody className="pd-10">
+            <div>
+              {this.props.poview ? (
+                <div className="font-size-12 mr-b-10">
+                  <div>Supplier ID : {this.props.poview.vid}</div>
+                  <div>Supplier Name : {this.props.poview.vendor_name}</div>
+                  <div>
+                    PO Status :{" "}
+                    {this.props.poview.po_status === 0 ? "Open" : "Close"}
+                  </div>
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Pid</th>
+                  <th>Product Name</th>
+                  <th>Requested Quantity</th>
+                  <th>Aditional Quantity</th>
+                  <th>Received Quantity</th>
+                  <th>Receving Status</th>
+                  <th>Delivery Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {this.props.poview
+                  ? this.props.poview.products.map((item, i) => (
+                      <tr key={i}>
+                        <td>{item.vpid}</td>
+                        <td>{item.product_name}</td>
+                        <td>{item.requested_quantity}</td>
+                        <td>{item.aditional_quantity}</td>
+                        <td>{item.received_quantity}</td>
+                        <td>
+                          {item.pop_status === 0 ? "UnReceived" : "Received"}
+                        </td>
+                        <td>{item.delivery_note || "-"}</td>
+                      </tr>
+                    ))
+                  : ""}
+              </tbody>
+            </Table>
+          </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isConfrimModal}
+          toggle={this.togglePoPopUp}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalHeader
+            toggle={this.toggleConfirmPopup}
+            className="pd-10 border-none"
+          >
+            Confirm
+          </ModalHeader>
+          <ModalBody className="pd-10">
+            {this.state.isDelete
+              ? "Are you sure you want to delete the po?"
+              : "Are you sure you want to close the po?"}
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleConfirmPopup}>
+              NO
+            </Button>
+            <Button size="sm" onClick={this.confirmTo}>
+              YES
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }

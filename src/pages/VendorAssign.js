@@ -10,6 +10,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  ButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
 import { FaRegEdit, FaTrashAlt } from "react-icons/fa";
 import {
@@ -23,6 +27,9 @@ import {
   EDIT_QUANTITY_PO_LIST,
   EDIT_QUANTITY_BUTTON_ENABLE,
   CLEAR_VENDOR,
+  DELETE_VENDOR_ITEM,
+  ZONE_ITEM_REFRESH,
+  ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
@@ -109,7 +116,7 @@ function EditQuantity(props) {
           />
         </div>
         <Button className="btn-close" onClick={props.action}>
-        Done
+          Done
         </Button>
       </div>
       // <Row className="mr-t-10 font-weight-bold">
@@ -132,7 +139,12 @@ function EditQuantity(props) {
   }
 }
 
-const mapStateToProps = (state) => ({ ...state.vendorassign });
+const mapStateToProps = (state) => ({
+  ...state.vendorassign,
+  zone_list: state.common.zone_list,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh: state.common.zoneRefresh,
+});
 
 const mapDispatchToProps = (dispatch) => ({
   onGetPrWatingList: (data) =>
@@ -171,6 +183,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: UPDATE_VENDOR_LIST,
       payload: AxiosRequest.Warehouse.updateVendorAssign(data),
+    }),
+  onGetDeleteItem: (data) =>
+    dispatch({
+      type: DELETE_VENDOR_ITEM,
+      payload: AxiosRequest.Warehouse.VendorItemDelete(data),
     }),
   onFromClear: () => dispatch(reset(VENDOR_ASSIGN)),
 });
@@ -227,7 +244,9 @@ class VendorAssign extends React.Component {
       suplier: [],
       isconfirm: false,
       sPoList: [],
+      select_item:false,
       selected_vpid: [],
+      isOpenAreaDropDown:false,
       today: Moment(new Date()),
     };
   }
@@ -237,7 +256,7 @@ class VendorAssign extends React.Component {
     this.onGetPoWaitngList = this.onGetPoWaitngList.bind(this);
     this.onAddVendor = this.onAddVendor.bind(this);
     this.toggleAddVendorPopUp = this.toggleAddVendorPopUp.bind(this);
-    this.toggleConfirmPopUp = this.toggleConfirmPopUp.bind(this);
+    this.toggleDConfirmPopup = this.toggleDConfirmPopup.bind(this);
     this.selectedSuplier = this.selectedSuplier.bind(this);
     this.startSelect = this.startSelect.bind(this);
     this.submitPo = this.submitPo.bind(this);
@@ -246,6 +265,11 @@ class VendorAssign extends React.Component {
     this.confirmToAddVendor = this.confirmToAddVendor.bind(this);
     this.onAction = this.onAction.bind(this);
     this.VendorEdit = this.VendorEdit.bind(this);
+    this.toggleConfirmPopUp = this.toggleConfirmPopUp.bind(this);
+    this.onDelete = this.onDelete.bind(this);
+    this.clickArea = this.clickArea.bind(this);
+    this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);
+
     this.onGetPoWaitngList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -254,6 +278,16 @@ class VendorAssign extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
+
+    if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
+
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
+      this.setState({ isLoading: false });
+    }
+
     if (this.props.poCreated) {
       this.props.onClear();
       this.props.history.push("/warehouse/po");
@@ -271,6 +305,11 @@ class VendorAssign extends React.Component {
 
     if (this.props.vendor_assign_updated) {
       this.props.onClearVendor();
+      this.setState({ isLoading: false });
+    }
+
+    if (this.props.poItemDelete) {
+      this.props.onClear();
       this.setState({ isLoading: false });
     }
 
@@ -302,10 +341,28 @@ class VendorAssign extends React.Component {
   confirmToAddVendor = () => {};
   savePo = () => {};
 
+  onDelete = (item) => {
+    this.setState({ select_item: item });
+    this.toggleDConfirmPopup();
+  };
+  toggleDConfirmPopup = () => {
+    this.setState({
+      isConfrimModal: !this.state.isConfrimModal,
+    });
+  };
+
+  confirmTo = () => {
+    var dData = {};
+    dData.zone_id = this.props.zoneItem.id || 1;
+    dData.temppoid = this.state.select_item.tempid;
+    this.props.onGetDeleteItem(dData);
+    this.toggleDConfirmPopup();
+  };
+
   VendorEdit = (item) => {
-    var selected_vpid=[];
+    var selected_vpid = [];
     selected_vpid.push(item.vpid);
-    var arvalue={};
+    var arvalue = {};
     arvalue[item.tempid] = true;
 
     this.setState({
@@ -317,7 +374,7 @@ class VendorAssign extends React.Component {
       zone_id: 1,
       products: [item.vpid],
     });
-    
+
     this.setState({ startdate: today, suplier: [] });
     this.props.onFromClear();
     this.toggleAddVendorPopUp();
@@ -430,7 +487,9 @@ class VendorAssign extends React.Component {
   onChangeQuantity = (index, e) => {
     this.props.editListOfPOQuantity(index, e.target.value);
   };
-
+  clickArea = (item) => {
+    store.dispatch({ type: ZONE_SELECT_ITEM, zoneItem: item });
+  };
   handleChange(e, sitem) {
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
@@ -477,15 +536,22 @@ class VendorAssign extends React.Component {
       selected_vpid: selected_vpid,
     });
   }
+
+  toggleAreaDropDown = () => {
+    this.setState((prevState) => ({
+      isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
+    }));
+  };
   render() {
     const pocreatelist = this.props.pocreatelist || [];
     return (
       <div className="width-full">
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="pd-6">
-            <Row>
-              <Col lg="1">
-                <div className="pd-6">
+            <Row className="width-84 mr-0 pd-b-10">
+              <Col className="pd-0 mr-l-10">
+              <div style={{ display: "flex", flexDirection: "row" }}>
+                <div >
                   <div>
                     <label className="container-check">
                       <input
@@ -499,12 +565,41 @@ class VendorAssign extends React.Component {
                   </div>
                   <div className="font-size-12 mr-l-20">{" Select All "}</div>
                 </div>
-              </Col>
-              <Col>
-                <Button size="sm" onClick={this.onAddVendor}>
+                <Button size="sm" onClick={this.onAddVendor} className="mr-l-20">
                   + Add Vendor Details
                 </Button>
+                </div>
               </Col>
+              <Col className="pd-0">
+              <div  className="float-right" style={{ display: "flex", flexDirection: "row" }}>
+                <span className="mr-r-20">Area</span>
+                <ButtonDropdown
+                  className="max-height-30 mr-r-10"
+                  isOpen={this.state.isOpenAreaDropDown}
+                  toggle={this.toggleAreaDropDown}
+                  size="sm"
+                >
+                  <DropdownToggle caret>
+                    {this.props.zoneItem.Zonename || ""}
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {this.props.zone_list.map((item, index) => (
+                      <DropdownItem
+                        onClick={() => this.clickArea(item)}
+                        key={index}
+                      >
+                        {item.Zonename}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </ButtonDropdown>
+
+                <Button size="sm" onClick={() => this.props.history.goBack()}>
+                Back
+              </Button>
+              </div>
+              
+            </Col>
             </Row>
             <div className="search-horizantal-scroll">
               <div className="search-v-scroll">
@@ -546,23 +641,30 @@ class VendorAssign extends React.Component {
                           </label>
                         </td>
                         <td>
+                        <Button
+                            size="sm"
+                            color="link"
+                            className="pd-0"
+                            onClick={() => this.VendorEdit(item)}
+                            disabled={!item.vid}
+                          >
                           <FaRegEdit
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
-                            onClick={()=>this.VendorEdit(item)}
-                          />
+                            className={item.vid?"txt-color-theme":"color-disable"}
+                            size="18"
+                          /></Button>
                         </td>
                         <td>
                           <FaTrashAlt
                             className="txt-color-theme txt-cursor pd-2"
                             size="20"
+                            onClick={() => this.onDelete(item)}
                           />
                         </td>
                         <td>{item.catagory_name}</td>
                         <td>{item.subcatL1name}</td>
                         <td>{item.subcatL2name || "-"}</td>
                         <td>{item.vpid}</td>
-                        <td>{item.Productname}</td>
+                        <td>{item.productname}</td>
                         <td>{item.productdetails || "-"}</td>
                         <td>{item.vendor_name || "-"}</td>
                         <td>{item.vid || "-"}</td>
@@ -595,9 +697,6 @@ class VendorAssign extends React.Component {
           </div>
         </div>
         <div className="txt-align-right width-84 mr-b-10">
-          <Button size="sm" onClick={() => this.props.history.goBack()}>
-            Back
-          </Button>
           <Button size="sm" className="mr-l-10" onClick={this.submitPo}>
             Submit
           </Button>
@@ -697,6 +796,31 @@ class VendorAssign extends React.Component {
             </Button>
             <Button size="sm" onClick={this.createPo}>
               Yes
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isConfrimModal}
+          toggle={this.toggleDConfirmPopup}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalHeader
+            toggle={this.toggleDConfirmPopup}
+            className="pd-10 border-none"
+          >
+            Confirm
+          </ModalHeader>
+          <ModalBody className="pd-10">
+            Are you sure you want to delete the Item?
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleDConfirmPopup}>
+              NO
+            </Button>
+            <Button size="sm" onClick={this.confirmTo}>
+              YES
             </Button>
           </ModalFooter>
         </Modal>

@@ -8,12 +8,20 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
+  ModalFooter,
 } from "reactstrap";
 import Select from "react-dropdown-select";
-import { RECEIVING_LIST, RECEIVING_UPDATE, RECEIVING_CLEAR, ZONE_ITEM_REFRESH } from "../constants/actionTypes";
+import {
+  RECEIVING_LIST,
+  RECEIVING_UPDATE,
+  RECEIVING_CLEAR,
+  ZONE_ITEM_REFRESH,
+  UNRECEIVING_UPDATE,
+  MOVE_TO_SORTING,
+} from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
-import { Field, reduxForm,reset } from "redux-form";
+import { Field, reduxForm, reset } from "redux-form";
 import { required, minLength2 } from "../utils/Validation";
 import { RECEIVING_FORM } from "../utils/constant";
 import DateRangePicker from "react-bootstrap-daterangepicker";
@@ -116,7 +124,7 @@ const InputField = ({
 const mapStateToProps = (state) => ({
   ...state.receiving,
   zoneItem: state.common.zoneItem,
-  zoneRefresh:state.common.zoneRefresh
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -130,11 +138,21 @@ const mapDispatchToProps = (dispatch) => ({
       type: RECEIVING_UPDATE,
       payload: AxiosRequest.Warehouse.updateReceiving(data),
     }),
-    onClear: () =>
+  onUpdateUnRecevie: (data) =>
     dispatch({
-      type: RECEIVING_CLEAR
+      type: UNRECEIVING_UPDATE,
+      payload: AxiosRequest.Warehouse.updateUNReceiving(data),
     }),
-    onFromClear: () => dispatch(reset(RECEIVING_FORM)),
+  onItemMovetoSorting: (data) =>
+    dispatch({
+      type: MOVE_TO_SORTING,
+      payload: AxiosRequest.Warehouse.movetoSorting(data),
+    }),
+  onClear: () =>
+    dispatch({
+      type: RECEIVING_CLEAR,
+    }),
+  onFromClear: () => dispatch(reset(RECEIVING_FORM)),
 });
 
 class Receiving extends React.Component {
@@ -149,8 +167,9 @@ class Receiving extends React.Component {
       search_refresh: false,
       pono: false,
       supplier_name: false,
-      item_name:false,
+      item_name: false,
       po_createdate: false,
+      isConfrimModal: false,
       today: Moment(new Date()),
     };
   }
@@ -160,6 +179,7 @@ class Receiving extends React.Component {
     this.onReceivingModal = this.onReceivingModal.bind(this);
     this.selectedReceiving = this.selectedReceiving.bind(this);
     this.onActionClick = this.onActionClick.bind(this);
+    this.onSortingClick = this.onSortingClick.bind(this);
     this.submit = this.submit.bind(this);
     this.pocreateDate = this.pocreateDate.bind(this);
     this.onSearchPOno = this.onSearchPOno.bind(this);
@@ -168,6 +188,7 @@ class Receiving extends React.Component {
     this.onSearch = this.onSearch.bind(this);
     this.onReset = this.onReset.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
+    this.toggleConfirmPopup = this.toggleConfirmPopup.bind(this);
     this.onReceivingList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -176,15 +197,21 @@ class Receiving extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    
-    if(this.props.receving_update){
+    if (this.props.receving_update) {
       this.props.onClear();
       this.onReceivingModal();
       this.setState({ isLoading: false });
     }
 
-    if(this.props.zoneRefresh){
-      store.dispatch({ type: ZONE_ITEM_REFRESH});
+    if (this.props.sorting_update) {
+      this.props.onClear();
+      this.setState({ isLoading: false });
+    }
+
+    
+
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
     }
 
@@ -202,14 +229,31 @@ class Receiving extends React.Component {
       if (this.state.supplier_name) data.vid = this.state.supplier_name;
       if (this.state.item_name) data.vpid = this.state.item_name;
       if (this.state.pono) data.poid = this.state.pono;
-  
+
       this.props.onGetReceivingList(data);
     }
   };
+  toggleConfirmPopup = () => {
+    this.setState({
+      isConfrimModal: !this.state.isConfrimModal,
+    });
+  };
+  confirmTo = () => {
+    var dData = {};
+    dData.zone_id = this.props.zoneItem.id;
+    dData.popid = this.state.selectedItem.popid;
+    this.props.onItemMovetoSorting(dData);
+    this.toggleConfirmPopup();
+  };
+
   onActionClick = (item) => (ev) => {
     this.props.onFromClear();
-    this.setState({ selectedItem: item });
+    this.setState({ selectedItem: item, receivingSelection: [] });
     this.onReceivingModal();
+  };
+  onSortingClick = (item) => (ev) => {
+    this.setState({ selectedItem: item });
+    this.toggleConfirmPopup();
   };
   selectedReceiving = (item) => {
     this.setState({ receivingSelection: item });
@@ -234,24 +278,31 @@ class Receiving extends React.Component {
     }));
   };
   submit = (data) => {
-    var data1={
-      zone_id:this.props.zoneItem.id,
-      popid:this.state.selectedItem.popid,
-      vpid:this.state.selectedItem.vpid,
-      quantity:data.item_quantity,
-      delivery_note:data.delivery_note,
+    var data1 = {
+      zone_id: this.props.zoneItem.id,
+      popid: this.state.selectedItem.popid,
+    };
+    if (
+      this.state.receivingSelection.length > 0 &&
+      this.state.receivingSelection[0].id === 1
+    ) {
+      data1.action_id = this.state.receivingSelection[0].id;
+      data1.vpid = this.state.selectedItem.vpid;
+      data1.quantity = data.item_quantity;
+      data1.delivery_note = data.delivery_note;
+      this.props.onUpdateList(data1);
+    } else if (
+      this.state.receivingSelection.length > 0 &&
+      this.state.receivingSelection[0].id === 2
+    ) {
+      this.props.onUpdateUnRecevie(data1);
     }
-    if(this.state.receivingSelection.length>0){
-      data1.action_id=this.state.receivingSelection[0].id
-    }
-    this.props.onUpdateList(data1);
   };
 
   pocreateDate = (event, picker) => {
     var po_createdate = picker.startDate.format("YYYY-MM-DD");
     this.setState({ po_createdate: po_createdate });
   };
-
 
   onSearch = () => {
     this.setState({ isLoading: false });
@@ -261,8 +312,8 @@ class Receiving extends React.Component {
     this.setState({
       po_createdate: false,
       pono: "",
-      supplier_name:"",
-      item_name:"",
+      supplier_name: "",
+      item_name: "",
       search_refresh: true,
     });
     var data = {
@@ -322,7 +373,6 @@ class Receiving extends React.Component {
                     : "DD/MM/YYYY"}
                 </div>
               </Col>
-              
             </Row>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
               <Col lg="4" className="pd-0">
@@ -342,7 +392,7 @@ class Receiving extends React.Component {
               <Col lg="4" className="pd-0">
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div className="mr-r-10 flex-row-vertical-center width-120">
-                  Item/Item Code :{" "}
+                    Item/Item Code :{" "}
                   </div>
                   <SearchItem
                     onSearch={this.onSearchItem}
@@ -380,6 +430,7 @@ class Receiving extends React.Component {
                       <th>PO quantity</th>
                       <th>received quantity</th>
                       <th>Receive/Unreceive</th>
+                      <th>Sorting Action</th>
                       <th>PO No - Supplier name</th>
                       <th>PO Status</th>
                     </tr>
@@ -389,7 +440,7 @@ class Receiving extends React.Component {
                       <tr key={i}>
                         <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
                         <td>{item.vpid}</td>
-                        <td>{item.Productname}</td>
+                        <td>{item.productname}</td>
                         <td>{item.short_desc}</td>
                         <td>{item.uom}</td>
                         <td>{item.boh}</td>
@@ -398,10 +449,18 @@ class Receiving extends React.Component {
                         <td>
                           <Button
                             className="btn-close"
-                            disabled={item.received_quantity}
                             onClick={this.onActionClick(item)}
                           >
                             Action
+                          </Button>
+                        </td>
+                        <td>
+                          <Button
+                            className="btn-close"
+                            disabled={!item.received_quantity}
+                            onClick={this.onSortingClick(item)}
+                          >
+                            Sorting
                           </Button>
                         </td>
                         <td>
@@ -421,8 +480,7 @@ class Receiving extends React.Component {
           toggle={this.onReceivingModal}
           backdrop={"static"}
         >
-          <ModalHeader toggle={this.onReceivingModal}>
-          </ModalHeader>
+          <ModalHeader toggle={this.onReceivingModal}></ModalHeader>
           <ModalBody>
             <div className="fieldset">
               <div className="legend">Receiving/Unreceiving</div>
@@ -430,14 +488,20 @@ class Receiving extends React.Component {
                 <form onSubmit={this.props.handleSubmit(this.submit)}>
                   <Row className="pd-0">
                     <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">Item name</div>
+                      <div className="border-none pd-0">Item name</div>
                     </Col>
-                    <Col lg="7">{this.state.selectedItem.Productname}</Col>
+                    <Col lg="7" className="mr-l-10">
+                      {this.state.selectedItem.productname}
+                    </Col>
                   </Row>
                   <Field
                     name="ac_id"
                     component={InputSearchDropDown}
-                    options={this.props.receivingAction}
+                    options={
+                      this.state.selectedItem.pop_status === 1
+                        ? this.props.unreceivingAction
+                        : this.props.receivingAction
+                    }
                     labelField="name"
                     searchable={true}
                     clearable={true}
@@ -448,39 +512,59 @@ class Receiving extends React.Component {
                     onSelection={this.selectedReceiving}
                     label="Select Action"
                   />
-                  <Row className="pd-0">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">
-                         Quantity 
-                        <span className="must">*</span>
-                      </div>
-                    </Col>
-                    <Col lg="7">
-                      <Field
-                        name="item_quantity"
-                        autoComplete="off"
-                        type="number"
-                        component={InputField}
-                        validate={[required, minLength2]}
-                        required={true}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="pd-0">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">Delivery Note</div>
-                    </Col>
-                    <Col lg="7">
-                      <Field
-                        name="delivery_note"
-                        autoComplete="off"
-                        type="text"
-                        component={InputField}
-                        validate={[required, minLength2]}
-                        required={true}
-                      />
-                    </Col>
-                  </Row>
+                  {this.state.receivingSelection.length > 0 &&
+                  this.state.receivingSelection[0].id === 1 ? (
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <Row
+                        className="pd-0"
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          marginLeft: "3px",
+                        }}
+                      >
+                        <Col lg="5" className="color-grey pd-0 border-none">
+                          <div className="border-none">
+                            Quantity<span className="must">*</span>
+                          </div>
+                        </Col>
+                        <Col lg="7" className="border-none">
+                          <Field
+                            name="item_quantity"
+                            autoComplete="off"
+                            type="number"
+                            component={InputField}
+                            validate={[required, minLength2]}
+                            required={true}
+                          />
+                        </Col>
+                      </Row>
+                      <Row
+                        className="pd-0"
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          marginLeft: "3px",
+                        }}
+                      >
+                        <Col lg="5" className="color-grey pd-0 border-none">
+                          <div className="border-none">Delivery Note</div>
+                        </Col>
+                        <Col lg="7" className="border-none">
+                          <Field
+                            name="delivery_note"
+                            autoComplete="off"
+                            type="text"
+                            component={InputField}
+                            validate={[required, minLength2]}
+                            required={true}
+                          />
+                        </Col>
+                      </Row>
+                    </div>
+                  ) : (
+                    ""
+                  )}
                   <Row className="pd-10">
                     <Col className="txt-align-right">
                       <Button color="secondary">Submit</Button>
@@ -490,6 +574,31 @@ class Receiving extends React.Component {
               </div>
             </div>
           </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isConfrimModal}
+          toggle={this.togglePoPopUp}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalHeader
+            toggle={this.toggleConfirmPopup}
+            className="pd-10 border-none"
+          >
+            Confirm
+          </ModalHeader>
+          <ModalBody className="pd-10">
+            Are you sure you want to move to sorting
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleConfirmPopup}>
+              NO
+            </Button>
+            <Button size="sm" onClick={this.confirmTo}>
+              YES
+            </Button>
+          </ModalFooter>
         </Modal>
       </div>
     );

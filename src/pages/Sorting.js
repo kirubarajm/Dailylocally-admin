@@ -28,7 +28,7 @@ import { store } from "../store";
 const mapStateToProps = (state) => ({
   ...state.sorting,
   zoneItem: state.common.zoneItem,
-  zoneRefresh:state.common.zoneRefresh
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -61,8 +61,8 @@ class Sorting extends React.Component {
       search_refresh: false,
       sortingModal: false,
       selected_dopid: false,
-      orderdate:false,
-      orderid:"",
+      orderdate: false,
+      orderid: "",
       selectedItem: { products: [] },
       today: Moment(new Date()),
     };
@@ -101,8 +101,8 @@ class Sorting extends React.Component {
       this.setState({ isLoading: false });
     }
 
-    if(this.props.zoneRefresh){
-      store.dispatch({ type: ZONE_ITEM_REFRESH});
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
     }
 
@@ -110,11 +110,11 @@ class Sorting extends React.Component {
   }
   componentDidCatch() {}
   onActionClick = (item) => (ev) => {
-    if(item.products.length>0){
-      var arvalue={};
-      for(var i=0;i<item.products.length;i++){
-        if(item.products[i].sorting_status===2)
-        arvalue[item.products[i].dopid] = true;
+    if (item.products.length > 0) {
+      var arvalue = {};
+      for (var i = 0; i < item.products.length; i++) {
+        if (item.products[i].sorting_status === 2)
+          arvalue[item.products[i].dopid] = true;
       }
       this.setState({
         selected_dopid: arvalue,
@@ -160,8 +160,8 @@ class Sorting extends React.Component {
   onSortingSubmit = () => {
     var checkItem = this.state.selected_dopid;
     var Values = Object.keys(checkItem);
-    var products= this.state.selectedItem.products || [];
-    if (Values.length > 0 &&Values.length===products.length) {
+    var products = this.state.selectedItem.products || [];
+    if (Values.length > 0 && Values.length === products.length) {
       var data = {
         dopid_list: Values,
       };
@@ -206,7 +206,7 @@ class Sorting extends React.Component {
   onReset = () => {
     this.setState({
       orderdate: false,
-      orderid:"",
+      orderid: "",
       search_refresh: true,
     });
     var data = {
@@ -230,7 +230,7 @@ class Sorting extends React.Component {
               <Col lg="4" className="pd-0">
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div className="mr-r-10 flex-row-vertical-center width-100">
-                  Order ID :{" "}
+                    Order ID :{" "}
                   </div>
                   <Search
                     onSearch={this.onSearchOrderId}
@@ -240,7 +240,7 @@ class Sorting extends React.Component {
                   />
                 </div>
               </Col>
-                <Col lg="4" className="pd-0">
+              <Col lg="4" className="pd-0">
                 <div
                   style={{
                     display: "flex",
@@ -268,7 +268,6 @@ class Sorting extends React.Component {
                     : "DD/MM/YYYY"}
                 </div>
               </Col>
-              
             </Row>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
               <Col lg="10"></Col>
@@ -280,7 +279,7 @@ class Sorting extends React.Component {
                   Search
                 </Button>
               </Col>
-            </Row> 
+            </Row>
           </div>
           <div className="pd-6">
             <div className="search-horizantal-scroll width-full">
@@ -301,8 +300,9 @@ class Sorting extends React.Component {
                         </td>
                         <td>{item.doid}</td>
                         <td>
-                          <Button size="sm" onClick={this.onActionClick(item)}>
-                            Ready for Dispatch
+                          <Button size="sm" onClick={this.onActionClick(item)}
+                          disabled={item.action===1}>
+                            Move To QA
                           </Button>
                         </td>
                       </tr>
@@ -328,7 +328,7 @@ class Sorting extends React.Component {
             <hr />
             <div hidden={!this.state.selectedItem}>
               {this.state.selectedItem.products.map((item, i) => (
-                <div style={{ display: "flex", flexDirection: "row" }}>
+                <div style={{ display: "flex", flexDirection: "row" }} key={i}>
                   <div className="width-150 pd-4">
                     <label className="container-check">
                       <input

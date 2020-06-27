@@ -8,12 +8,14 @@ import {
   EDIT_QUANTITY_PO_LIST,
   PO_EDIT_COUNT_UPDATE,
   CLEAR_VENDOR,
+  DELETE_VENDOR_ITEM,
 } from "../constants/actionTypes";
 
 export default (
   state = {
     pocreatelist: [],
     poCreated: false,
+    poItemDelete:false,
     vendor_list: [],
     vendor_assign_updated:false,
     poEdittQuantity: false,
@@ -41,6 +43,7 @@ export default (
       return {
         ...state,
         poCreated: false,
+        poItemDelete:false,
       };
       case CLEAR_VENDOR:
       return {
@@ -51,20 +54,6 @@ export default (
       return {
         ...state,
         vendor_assign_updated:action.payload.status || false,
-        // pocreatelist: state.pocreatelist.map((item) => {
-        //   if (action.data.pridList.includes("" + item.prid)) {
-        //     return Object.assign({}, item, {
-        //       buyer_comment: action.data.buyer_comment,
-        //       exp_date: action.data.exp_date,
-        //       vendor_name: action.data.suplier.name,
-        //       vendor_code: action.data.suplier.vid,
-        //       other_charges: action.data.suplier.other_charges,
-        //       rate: action.data.suplier.base_price,
-        //       amount: action.data.suplier.base_price * item.quantity,
-        //     });
-        //   }
-        //   return item;
-        // }),
       };
     case PO_EDIT_COUNT_UPDATE:
       return {
@@ -72,6 +61,12 @@ export default (
         poEdittQuantity: action.payload.success,
         poEditQuantityStatus: action.payload.status,
       };
+      case DELETE_VENDOR_ITEM:
+      return {
+        ...state,
+        poItemDelete: action.payload.status,
+      };
+      
 
     case EDIT_QUANTITY_PO_LIST:
       return {

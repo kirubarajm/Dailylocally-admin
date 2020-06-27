@@ -346,7 +346,7 @@ class QAPage extends React.Component {
                         <td>{item.doid}</td>
                         <td>
                           <Button size="sm" onClick={this.onActionClick(item ,i)}>
-                            Approve
+                            Ready to Dispatch
                           </Button>
                         </td>
                       </tr>

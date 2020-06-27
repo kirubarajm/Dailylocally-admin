@@ -544,6 +544,14 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   color: #706f6f !important;
 }
 
+.color-disable {
+  color: #b4b3b4 !important;
+}
+
+.color-red {
+  color: #fc0707 !important;
+}
+
 .color-green {
   color: #089b03 !important;
 }
@@ -1716,6 +1724,10 @@ hr.style-moveit:after {
 
 .max-width-1000 {
   max-width: 1000px !important;
+}
+
+.max-width-600 {
+  max-width: 600px !important;
 }
 
 .cat-title {
