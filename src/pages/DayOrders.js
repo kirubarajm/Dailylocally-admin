@@ -413,8 +413,8 @@ class DayOrders extends React.Component {
                     <th>Select</th>
                     <th>Date/Time</th>
                     <th>Customer ID</th>
-                    <th>Day Order ID</th>
-                    <th>Order item No</th>
+                    <th>Order NO</th>
+                    <th>Order item count</th>
                     <th>Order quantity</th>
                     <th>order status</th>
                   </tr>

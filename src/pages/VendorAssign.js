@@ -80,6 +80,7 @@ function EditQuantity(props) {
   var Items = props.item;
   var isEdit = Items.isEdit === undefined ? false : Items.isEdit;
   var editQuantity = Items.editquantity;
+  console.log("editQuantity-->",editQuantity);
   if (!isEdit) {
     editQuantity = Items.requested_quantity || Items.actual_quantity;
     return (
@@ -485,7 +486,14 @@ class VendorAssign extends React.Component {
   }
 
   onChangeQuantity = (index, e) => {
-    this.props.editListOfPOQuantity(index, e.target.value);
+    var str=e.target.value || "0";
+    if(str.length>1){
+      var nStr = str.startsWith("0", 0);
+      if(nStr) {
+        str = str.substr(1);
+      }
+    }
+    this.props.editListOfPOQuantity(index, str);
   };
   clickArea = (item) => {
     store.dispatch({ type: ZONE_SELECT_ITEM, zoneItem: item });
@@ -566,7 +574,7 @@ class VendorAssign extends React.Component {
                   <div className="font-size-12 mr-l-20">{" Select All "}</div>
                 </div>
                 <Button size="sm" onClick={this.onAddVendor} className="mr-l-20">
-                  + Add Vendor Details
+                  + Add Supplier
                 </Button>
                 </div>
               </Col>
@@ -607,13 +615,13 @@ class VendorAssign extends React.Component {
                   <thead>
                     <tr>
                       <th>Select</th>
-                      <th>Vendor details Edit</th>
+                      <th>Supplier details Edit</th>
                       <th>Delete</th>
                       <th>Category</th>
                       <th>L1 Sub category</th>
                       <th>L2 Sub category</th>
-                      <th>Item Code</th>
-                      <th>Item Name</th>
+                      <th>Product Code</th>
+                      <th>Product Name</th>
                       <th>Description</th>
                       <th>Supplier Name</th>
                       <th>Supplier code</th>

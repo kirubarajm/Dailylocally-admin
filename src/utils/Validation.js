@@ -15,6 +15,10 @@ export const is_url= str =>{
   }
 
 export const required = value => (value ? undefined : 'Please Enter the value')
+export const requiredTrim = (value) =>{
+    var val=value?value.trim():"";
+    return val? undefined : 'Please Enter the value';
+}
 export const maxLength = max => value =>
     value && value.length > max ? `Must be ${max} characters or less` : undefined
 

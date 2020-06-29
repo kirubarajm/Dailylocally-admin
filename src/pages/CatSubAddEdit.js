@@ -19,7 +19,7 @@ import {
 } from "../constants/actionTypes";
 import { CAT_SUB_ADD_EDIT } from "../utils/constant";
 import { Field, reduxForm } from "redux-form";
-import { required, minLength2 } from "../utils/Validation";
+import { required, minLength2, requiredTrim } from "../utils/Validation";
 import Select from "react-dropdown-select";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
 // import { Button} from 'react-bootstrap';
@@ -393,7 +393,7 @@ class CatSubAddEdit extends React.Component {
                       autoComplete="off"
                       type="text"
                       component={InputField}
-                      validate={this.state.isCat ? [required, minLength2] : []}
+                      validate={this.state.isCat ? [required, minLength2,requiredTrim] : []}
                       required={true}
                     />
                   </Col>
@@ -465,7 +465,7 @@ class CatSubAddEdit extends React.Component {
                       type="text"
                       component={InputField}
                       validate={
-                        this.state.isSubCat1 ? [required, minLength2] : []
+                        this.state.isSubCat1 ? [required, minLength2,requiredTrim] : []
                       }
                       required={true}
                     />
@@ -555,7 +555,7 @@ class CatSubAddEdit extends React.Component {
                       type="text"
                       component={InputField}
                       validate={
-                        this.state.isSubCat2 ? [required, minLength2] : []
+                        this.state.isSubCat2 ? [required, minLength2,requiredTrim] : []
                       }
                       required={true}
                     />

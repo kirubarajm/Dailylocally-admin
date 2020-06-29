@@ -201,6 +201,7 @@ class Procurement extends React.Component {
       search: "",
       itemid_refresh: true,
     });
+    this.setState({ isLoading: false });
   };
 
   onSuccessRefresh = () => {
@@ -241,7 +242,7 @@ class Procurement extends React.Component {
               </Col>
               <Col lg="4" className="pd-0">
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div className="mr-r-10 flex-row-vertical-center">Item/Item Code : </div>
+                  <div className="mr-r-10 flex-row-vertical-center">Product Name/Code : </div>
                   <Search
                     onSearch={this.onSearchInput}
                     type="text"
@@ -295,8 +296,8 @@ class Procurement extends React.Component {
                     {/* <th>View</th> */}
                     <th>Select</th>
                     <th>Date/Time</th>
-                    <th>Item name</th>
-                    <th>Item code</th>
+                    <th>Product name</th>
+                    <th>Product code</th>
                     <th>UOM</th>
                     <th>BOH</th>
                     <th>required quantity</th>

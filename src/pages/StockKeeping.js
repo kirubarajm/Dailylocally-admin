@@ -562,8 +562,8 @@ class StockKeeping extends React.Component {
                       <th>Delete</th>
                       <th>Date</th>
                       <th>Stock type</th>
-                      <th>Item Code</th>
-                      <th>Item Name</th>
+                      <th>Product Code</th>
+                      <th>Product Name</th>
                       <th>Category</th>
                       <th>L1 Category</th>
                       <th>Actual qty</th>

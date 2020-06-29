@@ -292,8 +292,8 @@ class StockKeepingAdd extends React.Component {
                     <th>Category</th>
                     <th>L1 Category</th>
                     <th>L2 Category</th>
-                    <th>Item Code</th>
-                    <th>Item Name</th>
+                    <th>Product Code</th>
+                    <th>Product Name</th>
                     <th>UOM</th>
                     <th>BOH</th>
                     <th>In sorting</th>

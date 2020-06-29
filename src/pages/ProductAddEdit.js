@@ -18,12 +18,12 @@ import {
   PRODUCT_ADD,
   PRODUCT_EDIT,
   CLEAR_PRODUCT_DATA,
-  CLEAR_PR
+  CLEAR_PR,
 } from "../constants/actionTypes";
 import { PRODUCT_ADD_EDIT } from "../utils/constant";
-import { Field, reduxForm,reset } from "redux-form";
+import { Field, reduxForm, reset } from "redux-form";
 import renderInputField from "../components/renderInputField";
-import { required, minLength2 } from "../utils/Validation";
+import { required, minLength2, requiredTrim } from "../utils/Validation";
 import Select from "react-dropdown-select";
 import { history } from "../store";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
@@ -43,34 +43,40 @@ const InputSearchDropDown = ({
   valueField,
 }) => {
   return (
-    <div className="border-none" style={{ marginBottom: "10px",display:"flex",flexDirection:"row" }}>
-          <div className="mr-0 width-150">
-            <label className="mr-0 width-150">
-              {label} <span className="must">*</span>
-            </label>
-          </div>
-          <div className="mr-0" style={{
-            border: "1px solid #000",
-            height: "auto",
-            width:"210px",
-            marginLeft: "-6px",
-            marginRight: "12px",
-          }}>
-            <Select
-              options={options}
-              labelField={labelField}
-              searchable={searchable}
-              searchBy={searchBy}
-              values={[...values]}
-              noDataLabel={noDataLabel}
-              valueField={valueField}
-              dropdownHeight={"300px"}
-              disabled={disabled}
-              onChange={(value) => {
-                onSelection(value);
-              }}
-            />
-          </div>
+    <div
+      className="border-none"
+      style={{ marginBottom: "10px", display: "flex", flexDirection: "row" }}
+    >
+      <div className="mr-0 width-150">
+        <label className="mr-0 width-150">
+          {label} <span className="must">*</span>
+        </label>
+      </div>
+      <div
+        className="mr-0"
+        style={{
+          border: "1px solid #000",
+          height: "auto",
+          width: "210px",
+          marginLeft: "-6px",
+          marginRight: "12px",
+        }}
+      >
+        <Select
+          options={options}
+          labelField={labelField}
+          searchable={searchable}
+          searchBy={searchBy}
+          values={[...values]}
+          noDataLabel={noDataLabel}
+          valueField={valueField}
+          dropdownHeight={"300px"}
+          disabled={disabled}
+          onChange={(value) => {
+            onSelection(value);
+          }}
+        />
+      </div>
     </div>
   );
 };
@@ -102,6 +108,7 @@ const mapStateToProps = (state) => ({
   cat: state.catalog.selected_cat,
   l1cat: state.catalog.selected_cat_sub1,
   l2cat: state.catalog.selected_cat_sub2,
+  zoneItem: state.catalog.zoneItem,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -174,8 +181,8 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: CLEAR_PRODUCT_DATA,
     }),
-    onFromClear: () => dispatch(reset(PRODUCT_ADD_EDIT)),
-    onClearPr: () =>
+  onFromClear: () => dispatch(reset(PRODUCT_ADD_EDIT)),
+  onClearPr: () =>
     dispatch({
       type: CLEAR_PR,
     }),
@@ -185,7 +192,6 @@ var kitchenSignatureImg = [1];
 class ProductAddEdit extends React.Component {
   constructor() {
     super();
-    
 
     this.state = {
       category: [],
@@ -204,13 +210,18 @@ class ProductAddEdit extends React.Component {
       selected_cat_sub2: -1,
       is_loading: true,
       vendorEdit: false,
+      image_uploaded:true,
       selectedVendor: {},
     };
   }
 
   UNSAFE_componentWillMount() {
     var productIds = this.props.match.params.product_id;
-    this.props.onGetCategory({ zone_id: 1 });
+    if (!this.props.zoneItem.id) {
+      this.props.history.goBack();
+      return;
+    }
+    this.props.onGetCategory({ zone_id: this.props.zoneItem.id });
     this.props.onDeleteMenuImages();
     this.props.onGetUOM({});
     this.props.onGetBrand({});
@@ -261,7 +272,7 @@ class ProductAddEdit extends React.Component {
         packetsize: productDe.packetsize || 0,
         short_desc: productDe.short_desc,
         productdetails: productDe.productdetails,
-        hsn_code: productDe.hsn_code || 0,
+        hsn_code: "" + productDe.hsn_code || "0",
         tag: productDe.tag,
         targetedbaseprice: productDe.targetedbaseprice || 0,
         mrp: productDe.mrp,
@@ -272,7 +283,7 @@ class ProductAddEdit extends React.Component {
 
       if (productDe && productDe.catid) {
         var cat = [{ catid: productDe.catid, name: productDe.category_name }];
-        this.setState({ category: cat, is_loading: false });
+        this.setState({ category: cat });
       }
 
       if (productDe && productDe.scl1_id) {
@@ -370,6 +381,11 @@ class ProductAddEdit extends React.Component {
     // if (this.state.category.length>0) {
     //   data.catid = this.state.category[0].catid;
     // }
+    if (this.props.Signature.length === 0) {
+      this.setState({image_uploaded:false});
+      return;
+    }
+    this.setState({image_uploaded:true});
     if (data.KSI0) {
       delete data.KSI0;
     }
@@ -406,8 +422,8 @@ class ProductAddEdit extends React.Component {
 
     if (this.props.Signature.length > 0) {
       data.image = this.props.Signature[0].img_url;
-    }else{
-      data.image="";
+    } else {
+      data.image = "";
     }
     if (this.state.isEdit) {
       var productDe = this.props.productdetail;
@@ -418,12 +434,18 @@ class ProductAddEdit extends React.Component {
   selectedCat = (item) => {
     // this.setState({ selected_cat: item[0] });
     this.setState({ category: item });
-    this.props.onGetSubCat1({ catid: item[0].catid, zone_id: 1 });
+    this.props.onGetSubCat1({
+      catid: item[0].catid,
+      zone_id: this.props.zoneItem.id,
+    });
   };
   selectedSub1Cat = (item) => {
     //this.setState({ selected_cat_sub1: item[0] });
     this.setState({ sub1Cat: item });
-    this.props.onGetSubCat2({ scl1_id: item[0].scl1_id, zone_id: 1 });
+    this.props.onGetSubCat2({
+      scl1_id: item[0].scl1_id,
+      zone_id: this.props.zoneItem.id,
+    });
   };
   selectedSub2Cat = (item) => {
     // this.setState({ selected_cat_sub2: item[0] });
@@ -536,7 +558,7 @@ class ProductAddEdit extends React.Component {
                       type="text"
                       component={renderInputField}
                       label="Product Name"
-                      validate={[required, minLength2]}
+                      validate={[required, minLength2, requiredTrim]}
                       required={true}
                     />
                     <Field
@@ -608,7 +630,7 @@ class ProductAddEdit extends React.Component {
                       type="text"
                       component={renderInputField}
                       label="Product Details"
-                      validate={[required]}
+                      validate={[required, requiredTrim]}
                       required={true}
                     />
                     {/* <Field
@@ -631,7 +653,7 @@ class ProductAddEdit extends React.Component {
                       type="text"
                       component={renderInputField}
                       label="HSN Code"
-                      validate={[required]}
+                      validate={[required, requiredTrim]}
                       required={true}
                     />
 
@@ -701,24 +723,34 @@ class ProductAddEdit extends React.Component {
                   </Col>
 
                   <Col lg="4">
-                    {kitchenSignatureImg.map((item, i) => (
-                      <div key={i} className="border-none">
-                        <Field
-                          name={"KSI" + i}
-                          index={i}
-                          component={DropzoneFieldMultiple}
-                          type="file"
-                          imgPrefillDetail={
-                            this.props.Signature.length
-                              ? this.props.Signature[i]
-                              : ""
-                          }
-                          label="Photogropy"
-                          handleonRemove={this.handleonRemove}
-                          handleOnDrop={() => this.handleKitchenSignatureimages}
-                        />
+                    <div className="flex-row border-none">
+                      <div className="width-150">
+                        Photograph <span className="must">*</span>
                       </div>
-                    ))}
+                      {kitchenSignatureImg.map((item, i) => (
+                        <div key={i} className="border-none">
+                          <Field
+                            name={"KSI" + i}
+                            index={i}
+                            component={DropzoneFieldMultiple}
+                            type="file"
+                            imgPrefillDetail={
+                              this.props.Signature.length
+                                ? this.props.Signature[i]
+                                : ""
+                            }
+                            label="Photogropy"
+                            handleonRemove={this.handleonRemove}
+                            handleOnDrop={() =>
+                              this.handleKitchenSignatureimages
+                            }
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="product_error border-none pd-0" hidden={this.state.image_uploaded}>
+                      <span>Please upload the photograph</span>
+                    </div>
                     <Field
                       name="mrp"
                       autoComplete="off"
@@ -824,7 +856,7 @@ class ProductAddEdit extends React.Component {
           backdrop={true}
         >
           <ModalHeader toggle={this.toggleVendorEditPopup}>
-            Vendor Detail
+          Supplier Detail
           </ModalHeader>
           <ModalBody>
             <VendorEdit

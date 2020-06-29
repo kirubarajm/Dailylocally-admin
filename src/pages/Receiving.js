@@ -392,7 +392,7 @@ class Receiving extends React.Component {
               <Col lg="4" className="pd-0">
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div className="mr-r-10 flex-row-vertical-center width-120">
-                    Item/Item Code :{" "}
+                  Product Name/Code :{" "}
                   </div>
                   <SearchItem
                     onSearch={this.onSearchItem}
@@ -422,8 +422,8 @@ class Receiving extends React.Component {
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Item Code</th>
-                      <th>Item Name</th>
+                      <th>Product Code</th>
+                      <th>Product Name</th>
                       <th>Description</th>
                       <th>UOM</th>
                       <th>BOH</th>
@@ -488,7 +488,7 @@ class Receiving extends React.Component {
                 <form onSubmit={this.props.handleSubmit(this.submit)}>
                   <Row className="pd-0">
                     <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none pd-0">Item name</div>
+                      <div className="border-none pd-0">Product name</div>
                     </Col>
                     <Col lg="7" className="mr-l-10">
                       {this.state.selectedItem.productname}
