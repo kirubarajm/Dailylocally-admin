@@ -32,6 +32,7 @@ import { Field, reduxForm, reset } from "redux-form";
 import { required, minLength2 } from "../utils/Validation";
 import { STOCK_ADD_FORM } from "../utils/constant";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
+import StockAddFrom from "./StockAddFrom";
 
 const InputField = ({
   input,
@@ -189,7 +190,7 @@ class StockKeepingAdd extends React.Component {
 
     if (this.props.isStackupdated) {
       this.props.onClear();
-      this.onValidationModal();
+      //this.onValidationModal();
     }
 
     this.onStockProductList();
@@ -216,15 +217,16 @@ class StockKeepingAdd extends React.Component {
 
   submit = (data) => {
     var data1 = {
-      zone_id: this.props.zoneItem.id
+      zone_id: this.props.zoneItem.id,
     };
-    data1.stockid=this.state.selectedItem.stockid;
-    data1.vpid=this.state.selectedItem.vpid;
-    data1.actual_quantity=data.actual;
-    data1.missing_quantity=data.missing;
-    data1.wastage=data.wastage;
-    data1.type=this.state.stocktype[0].id;
-    data1.wastage_image=this.props.Signature.length === 0? "": this.props.Signature[0].img_url;
+    data1.stockid = this.state.selectedItem.stockid;
+    data1.vpid = this.state.selectedItem.vpid;
+    data1.actual_quantity = data.actual;
+    data1.missing_quantity = data.missing;
+    data1.wastage = data.wastage;
+    data1.type = this.state.stocktype[0].id;
+    data1.wastage_image =
+      this.props.Signature.length === 0 ? "" : this.props.Signature[0].img_url;
     this.props.onUpdateStockList(data1);
   };
   handleonRemove = (imgid, imgType, index) => {
@@ -277,7 +279,7 @@ class StockKeepingAdd extends React.Component {
                 </ButtonDropdown>
 
                 <Button size="sm" onClick={() => this.props.history.goBack()}>
-                  Back
+                  Close
                 </Button>
               </div>
             </Col>
@@ -334,122 +336,11 @@ class StockKeepingAdd extends React.Component {
           className="max-width-600"
         >
           <ModalBody>
-            <div className="fieldset">
-              <div className="legend">Variance validation</div>
-              <div className="mr-r-20 mr-l-20">
-                <form onSubmit={this.props.handleSubmit(this.submit)}>
-                  <Row className="pd-0 mr-l-10 mr-r-10">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">
-                        Stock keeping type <span className="must">*</span>
-                      </div>
-                    </Col>
-                    <Col lg="7" className="mr-l-10">
-                      <Field
-                        name="stock_id"
-                        component={InputSearchDropDown}
-                        options={this.props.stock_list}
-                        labelField="name"
-                        searchable={true}
-                        clearable={true}
-                        searchBy="name"
-                        valueField="id"
-                        noDataLabel="No matches found"
-                        values={this.state.stocktype}
-                        onSelection={this.selectedType}
-                        label="Stock keeping type"
-                      />
-                    </Col>
-                  </Row>
-
-                  <Row className="pd-0">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">
-                        Actual qty <span className="must">*</span>
-                      </div>
-                    </Col>
-                    <Col lg="7">
-                      <Field
-                        name="actual"
-                        autoComplete="off"
-                        type="number"
-                        component={InputField}
-                        validate={[required]}
-                        required={true}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="pd-0">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">Wastage qty</div>
-                    </Col>
-                    <Col lg="7">
-                      <Field
-                        name="wastage"
-                        autoComplete="off"
-                        type="number"
-                        component={InputField}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="pd-0">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">Missing qty</div>
-                    </Col>
-                    <Col lg="7">
-                      <Field
-                        name="missing"
-                        autoComplete="off"
-                        type="number"
-                        component={InputField}
-                      />
-                    </Col>
-                  </Row>
-                  <Row className="pd-0 mr-l-10 mr-r-10">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none">Wastage Image</div>
-                    </Col>
-                    <Col lg="7">
-                      {kitchenSignatureImg.map((item, i) => (
-                        <div key={i} className="border-none">
-                          <Field
-                            name={"wst" + i}
-                            index={i}
-                            component={DropzoneFieldMultiple}
-                            type="file"
-                            imgPrefillDetail={
-                              this.props.Signature.length
-                                ? this.props.Signature[i]
-                                : ""
-                            }
-                            label="Photogropy"
-                            handleonRemove={this.handleonRemove}
-                            handleOnDrop={() => this.handleWastageimages}
-                          />
-                        </div>
-                      ))}
-                    </Col>
-                  </Row>
-
-                  <Row className="pd-10">
-                    <Col className="txt-align-center">
-                      <Button size="sm">
-                        Submit
-                      </Button>
-                    </Col>
-                    <Col className="txt-align-center">
-                      <Button
-                        size="sm"
-                        className="border-grey color-grey"
-                        onClick={this.onValidationModal}
-                      >
-                        Cancel
-                      </Button>
-                    </Col>
-                  </Row>
-                </form>
-              </div>
-            </div>
+            <StockAddFrom
+              onValidationModal={this.onValidationModal}
+              selectedItem={this.state.selectedItem}
+              isEdit={false}
+            />
           </ModalBody>
         </Modal>
       </div>

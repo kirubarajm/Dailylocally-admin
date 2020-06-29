@@ -320,7 +320,7 @@ class VendorAssign extends React.Component {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
       this.props.onGetPrWatingList({
-        zone_id: 1,
+        zone_id: this.props.zoneItem.id,
       });
     }
   };
@@ -371,7 +371,7 @@ class VendorAssign extends React.Component {
     });
 
     this.props.onGetVendorList({
-      zone_id: 1,
+      zone_id: this.props.zoneItem.id,
       products: [item.vpid],
     });
 
@@ -382,7 +382,7 @@ class VendorAssign extends React.Component {
 
   createPo = () => {
     var item = {
-      zone_id: 1,
+      zone_id: this.props.zoneItem.id,
       templist: this.state.sPoList,
     };
     this.props.onCreatePo(item);
@@ -420,7 +420,7 @@ class VendorAssign extends React.Component {
       .filter((value, index, _req) => _req.indexOf(value) === index);
     if (filtervpid.length > 0) {
       this.props.onGetVendorList({
-        zone_id: 1,
+        zone_id: this.props.zoneItem.id,
         products: filtervpid,
       });
       this.setState({ startdate: today, suplier: [] });
@@ -449,7 +449,7 @@ class VendorAssign extends React.Component {
       Values.splice(indexof, 1);
     }
     var data = {
-      zone_id: 1,
+      zone_id: this.props.zoneItem.id,
       buyer_comment: values.buyer_comment,
       due_date: this.state.startdate,
       vid: this.state.suplier[0].vid,
@@ -471,7 +471,7 @@ class VendorAssign extends React.Component {
       });
       var tem = [item.tempid];
       this.props.onEditPOQuantity({
-        zone_id: 1,
+        zone_id: this.props.zoneItem.id,
         tempid: tem,
         requested_quantity: item.editquantity || 0,
       });

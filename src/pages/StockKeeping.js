@@ -25,13 +25,14 @@ import {
   ZONE_SELECT_ITEM,
   STOCK_KEEPING_DELETE,
   STOCK_KEEPING_VIEW,
-  STOCK_KEEPING_EDIT
+  STOCK_KEEPING_EDIT,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import SearchItem from "../components/SearchItem";
 import { store } from "../store";
+import StockAddFrom from "./StockAddFrom";
 
 function CardRowCol(props) {
   var lable = props.lable ? props.lable : "";
@@ -211,6 +212,7 @@ class StockKeeping extends React.Component {
     this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);
     this.clickArea = this.clickArea.bind(this);
     this.onDelete = this.onDelete.bind(this);
+    this.onEdit = this.onEdit.bind(this);
     this.onReceivingModal = this.onReceivingModal.bind(this);
     this.selectedReceiving = this.selectedReceiving.bind(this);
     this.onActionClick = this.onActionClick.bind(this);
@@ -220,6 +222,8 @@ class StockKeeping extends React.Component {
     this.toggleConfirmPopup = this.toggleConfirmPopup.bind(this);
     this.toggleOrderView = this.toggleOrderView.bind(this);
     this.onView = this.onView.bind(this);
+    this.onUpdate = this.onUpdate.bind(this);
+    this.onValidationModal = this.onValidationModal.bind(this);
     this.props.onGetCategory({ zone_id: this.props.zoneItem.id || 1 });
     this.onStockKeepingList();
   }
@@ -228,6 +232,12 @@ class StockKeeping extends React.Component {
   componentWillUnmount() {}
 
   componentDidMount() {}
+  onValidationModal = () => {
+    this.setState((prevState) => ({
+      validateModal: !prevState.validateModal,
+    }));
+  };
+
   componentDidUpdate(nextProps, nextState) {
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
@@ -238,7 +248,7 @@ class StockKeeping extends React.Component {
       this.setState({ isLoading: false });
     }
 
-    if(this.props.stock_keeping_delete){
+    if (this.props.stock_keeping_delete) {
       this.props.onClear();
       this.setState({ isLoading: false });
     }
@@ -340,6 +350,15 @@ class StockKeeping extends React.Component {
     this.setState({ select_item: Item });
     this.toggleConfirmPopup();
   };
+
+  onEdit = (Item) => {
+    this.setState({ select_edit_item: Item });
+    this.onValidationModal();
+  };
+
+  onUpdate = () => {
+    this.setState({ isLoading: false });
+  }
 
   toggleConfirmPopup = () => {
     this.setState({
@@ -535,7 +554,7 @@ class StockKeeping extends React.Component {
             </Row>
             <div className="search-horizantal-scroll mr-t-10">
               <div className="search-vscroll">
-                <Table style={{ width: "1500px" }}>
+                <Table style={{ width: "2000px" }}>
                   <thead>
                     <tr>
                       <th>View</th>
@@ -547,8 +566,12 @@ class StockKeeping extends React.Component {
                       <th>Item Name</th>
                       <th>Category</th>
                       <th>L1 Category</th>
+                      <th>Actual qty</th>
+                      <th>Actual Value</th>
+                      <th>Wastage qty</th>
+                      <th>Wastage Value</th>
                       <th>Missing qty</th>
-                      <th>Loss Value</th>
+                      <th>Missing Value</th>
                       <th>BOH qty</th>
                       <th>BOH value</th>
                       <th>In sorting</th>
@@ -570,6 +593,7 @@ class StockKeeping extends React.Component {
                           <FaRegEdit
                             className="txt-color-theme txt-cursor pd-2"
                             size="20"
+                            onClick={() => this.onEdit(item)}
                           />
                         </td>
                         <td>
@@ -590,11 +614,15 @@ class StockKeeping extends React.Component {
                           </Button>
                         </td>
                         <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
-                        <td>{item.type===0?"Daily":"Weekly Audit"}</td>
+                        <td>{item.type === 0 ? "Daily" : "Weekly Audit"}</td>
                         <td>{item.vpid}</td>
                         <td>{item.product_name}</td>
                         <td>{item.category_name}</td>
                         <td>{item.subcategoryl1_name}</td>
+                        <td>{item.actual_quantity}</td>
+                        <td>{item.actual_quantity * item.price}</td>
+                        <td>{item.wastage}</td>
+                        <td>{item.wastage * item.price}</td>
                         <td>{item.missing_quantity}</td>
                         <td>{item.missing_quantity * item.price}</td>
                         <td>{item.boh}</td>
@@ -645,27 +673,115 @@ class StockKeeping extends React.Component {
           <ModalHeader
             toggle={this.toggleOrderView}
             className="pd-10 border-none"
-          >
-          </ModalHeader>
+          ></ModalHeader>
           <ModalBody className="pd-10">
-            <CardRowCol lable={"Category Name"} value={this.props.stock_keeping_view.category_name}/>
-            <CardRowCol lable={"L1Category Name"} value={this.props.stock_keeping_view.subcategoryl1_name}/>
-            <CardRowCol lable={"L2Category Name"} value={this.props.stock_keeping_view.subcategoryl2_name}/>
-            <CardRowCol lable={"Product Name"} value={this.props.stock_keeping_view.product_name}/>
-            <CardRowCol lable={"Stockkeeping classification"} value={this.props.stock_keeping_view.type===0?"Daily":"Weekly Audit"}/>
-            <CardRowCol lable={"Price"} value={this.props.stock_keeping_view.price}/>
-            <CardRowCol lable={"Missing Quantity"} value={this.props.stock_keeping_view.missing_quantity}/>
-            <CardRowCol lable={"Missing Value"} value={this.props.stock_keeping_view.missing_quantity * this.props.stock_keeping_view.price}/>
-            <CardRowCol lable={"BOH"} value={this.props.stock_keeping_view.boh}/>
-            <CardRowCol lable={"BOH Value"} value={this.props.stock_keeping_view.boh * this.props.stock_keeping_view.price}/>
-            <CardRowCol lable={"Actual Quantity"} value={this.props.stock_keeping_view.actual_quantity}/>
-            <CardRowCol lable={"Actual Value"} value={this.props.stock_keeping_view.actual_quantity * this.props.stock_keeping_view.price}/>
-            <CardRowCol lable={"Sorting Quantity"} value={this.props.stock_keeping_view.in_sorting}/>
-            <CardRowCol lable={"Sorting Value"} value={this.props.stock_keeping_view.in_sorting  * this.props.stock_keeping_view.price}/>
-            <CardRowCol lable={"Wastage Quantity"} value={this.props.stock_keeping_view.wastage}/>
-            <CardRowCol lable={"Wastage Value"} value={this.props.stock_keeping_view.wastage * this.props.stock_keeping_view.price}/>
-            <CardRowCol lable={"Comment"} value={this.props.stock_keeping_view.commend}/>
-            <CardRowColImage lable={"Wastage Image"} value={this.props.stock_keeping_view.wastage_image}/>
+            <CardRowCol
+              lable={"Category Name"}
+              value={this.props.stock_keeping_view.category_name}
+            />
+            <CardRowCol
+              lable={"L1Category Name"}
+              value={this.props.stock_keeping_view.subcategoryl1_name}
+            />
+            <CardRowCol
+              lable={"L2Category Name"}
+              value={this.props.stock_keeping_view.subcategoryl2_name}
+            />
+            <CardRowCol
+              lable={"Product Name"}
+              value={this.props.stock_keeping_view.product_name}
+            />
+            <CardRowCol
+              lable={"Stockkeeping classification"}
+              value={
+                this.props.stock_keeping_view.type === 0
+                  ? "Daily"
+                  : "Weekly Audit"
+              }
+            />
+            <CardRowCol
+              lable={"Price"}
+              value={this.props.stock_keeping_view.price}
+            />
+            <CardRowCol
+              lable={"Missing Quantity"}
+              value={this.props.stock_keeping_view.missing_quantity}
+            />
+            <CardRowCol
+              lable={"Missing Value"}
+              value={
+                this.props.stock_keeping_view.missing_quantity *
+                this.props.stock_keeping_view.price
+              }
+            />
+            <CardRowCol
+              lable={"BOH"}
+              value={this.props.stock_keeping_view.boh}
+            />
+            <CardRowCol
+              lable={"BOH Value"}
+              value={
+                this.props.stock_keeping_view.boh *
+                this.props.stock_keeping_view.price
+              }
+            />
+            <CardRowCol
+              lable={"Actual Quantity"}
+              value={this.props.stock_keeping_view.actual_quantity}
+            />
+            <CardRowCol
+              lable={"Actual Value"}
+              value={
+                this.props.stock_keeping_view.actual_quantity *
+                this.props.stock_keeping_view.price
+              }
+            />
+            <CardRowCol
+              lable={"Sorting Quantity"}
+              value={this.props.stock_keeping_view.in_sorting}
+            />
+            <CardRowCol
+              lable={"Sorting Value"}
+              value={
+                this.props.stock_keeping_view.in_sorting *
+                this.props.stock_keeping_view.price
+              }
+            />
+            <CardRowCol
+              lable={"Wastage Quantity"}
+              value={this.props.stock_keeping_view.wastage}
+            />
+            <CardRowCol
+              lable={"Wastage Value"}
+              value={
+                this.props.stock_keeping_view.wastage *
+                this.props.stock_keeping_view.price
+              }
+            />
+            <CardRowCol
+              lable={"Comment"}
+              value={this.props.stock_keeping_view.commend}
+            />
+            <CardRowColImage
+              lable={"Proof Image"}
+              value={this.props.stock_keeping_view.wastage_image}
+            />
+          </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.validateModal}
+          toggle={this.onValidationModal}
+          backdrop={"static"}
+          className="max-width-600"
+        >
+          <ModalBody>
+            <StockAddFrom
+              onValidationModal={this.onValidationModal}
+              selectedItem={this.state.select_edit_item}
+              isEdit={true}
+              onUpdate={this.onUpdate}
+            />
           </ModalBody>
         </Modal>
       </div>
