@@ -9,6 +9,10 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  ButtonDropdown,
 } from "reactstrap";
 import {
   SORTING_LIST,
@@ -16,14 +20,47 @@ import {
   SORTING_SUBMIT_ITEM,
   SORTING_CLEAR,
   ZONE_ITEM_REFRESH,
+  SORTING_SUBMIT_REPORT,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { notify } from "react-notify-toast";
-import { notification_color } from "../utils/constant";
+import { notification_color, RECEIVING_FORM } from "../utils/constant";
 import Search from "../components/Search";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import { store } from "../store";
+import { Field, reduxForm } from "redux-form";
+import { required } from "../utils/Validation";
+const InputField = ({
+  input,
+  label,
+  type,
+  meta: { touched, error, warning },
+  ...custom
+  //
+}) => {
+  return (
+    <div className="border-none">
+      <div>
+        <input {...input} placeholder={label} type={type} autoComplete="off" />
+        <span
+          style={{
+            flex: "0",
+            WebkitFlex: "0",
+            width: "100px",
+            height: "10px",
+            fontSize: "12px",
+            color: "red",
+          }}
+        >
+          {touched &&
+            ((error && <span>{error}</span>) ||
+              (warning && <span>{warning}</span>))}
+        </span>
+      </div>
+    </div>
+  );
+};
 
 const mapStateToProps = (state) => ({
   ...state.sorting,
@@ -47,6 +84,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: SORTING_SUBMIT_ITEM,
       payload: AxiosRequest.Warehouse.submitSorting(data),
     }),
+    onReportSubmit: (data) =>
+    dispatch({
+      type: SORTING_SUBMIT_REPORT,
+      payload: AxiosRequest.Warehouse.submitSortingReport(data),
+    }),
   onClear: () =>
     dispatch({
       type: SORTING_CLEAR,
@@ -60,6 +102,12 @@ class Sorting extends React.Component {
       isLoading: false,
       search_refresh: false,
       sortingModal: false,
+      
+      isOpenReportDropDown: false,
+      reportingItem: false,
+      reportingSortingItem: false,
+      reportingModal: false,
+
       selected_dopid: false,
       orderdate: false,
       orderid: "",
@@ -74,6 +122,12 @@ class Sorting extends React.Component {
     this.onSortingModal = this.onSortingModal.bind(this);
     this.onSortingSave = this.onSortingSave.bind(this);
     this.onSortingSubmit = this.onSortingSubmit.bind(this);
+
+    this.onReportingModal = this.onReportingModal.bind(this);
+    this.reportSubmit = this.reportSubmit.bind(this);
+    this.reportClick = this.reportClick.bind(this);
+    this.toggleReportDropDown = this.toggleReportDropDown.bind(this);
+    this.clickReportingItem = this.clickReportingItem.bind(this);
 
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
     this.orderDate = this.orderDate.bind(this);
@@ -93,6 +147,11 @@ class Sorting extends React.Component {
       this.props.onClear();
       this.onSortingModal();
       this.setState({ isLoading: false });
+    }
+
+    if(this.props.isReportSubmiting){
+      this.props.onClear();
+      this.onReportingModal();
     }
 
     if (this.props.isSubmiting) {
@@ -124,6 +183,15 @@ class Sorting extends React.Component {
     this.setState({ selectedItem: item });
     this.onSortingModal();
   };
+
+  clickReportingItem = (item) => (ev) => {
+    this.setState({ reportingItem: item });
+  };
+  reportClick = (item) => (ev) => {
+    this.setState({ reportingSortingItem: item });
+    this.onReportingModal();
+  };
+
   onSortingList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
@@ -135,11 +203,24 @@ class Sorting extends React.Component {
       this.props.onGetSortingList(data);
     }
   };
+
+  onReportingModal = () => {
+    this.setState((prevState) => ({
+      reportingModal: !prevState.reportingModal,
+    }));
+  };
   onSortingModal = () => {
     this.setState((prevState) => ({
       sortingModal: !prevState.sortingModal,
     }));
   };
+
+  toggleReportDropDown = () => {
+    this.setState((prevState) => ({
+      isOpenReportDropDown: !prevState.isOpenReportDropDown,
+    }));
+  };
+
   onSortingSave = () => {
     var checkItem = this.state.selected_dopid;
     var Values = Object.keys(checkItem);
@@ -156,6 +237,27 @@ class Sorting extends React.Component {
         notification_color
       );
     }
+  };
+  reportSubmit = (values) => {
+    if (!this.state.reportingItem) {
+      notify.show(
+        "Please select report type after try this",
+        "custom",
+        2000,
+        notification_color
+      );
+      return;
+    }
+    var data = {
+      from_type: 1,
+      zone_id: this.props.zoneItem.id,
+      dopid: this.state.reportingSortingItem.dopid,
+      vpid: this.state.reportingSortingItem.vpid,
+      report_quantity: values.item_quantity,
+      report_type: this.state.reportingItem.id,
+    };
+    console.log("data-->", data);
+    this.props.onReportSubmit(data);
   };
   onSortingSubmit = () => {
     var checkItem = this.state.selected_dopid;
@@ -300,8 +402,11 @@ class Sorting extends React.Component {
                         </td>
                         <td>{item.doid}</td>
                         <td>
-                          <Button size="sm" onClick={this.onActionClick(item)}
-                          disabled={item.action===1}>
+                          <Button
+                            size="sm"
+                            onClick={this.onActionClick(item)}
+                            disabled={item.action === 1}
+                          >
                             Move To QA
                           </Button>
                         </td>
@@ -324,6 +429,7 @@ class Sorting extends React.Component {
               <div className="width-150 pd-4">Quality</div>
               <div className="width-150 pd-4">Order details</div>
               <div className="width-150 pd-4">Available</div>
+              <div className="width-150 pd-4">{}</div>
             </div>
             <hr />
             <div hidden={!this.state.selectedItem}>
@@ -344,6 +450,11 @@ class Sorting extends React.Component {
                     {item.product_name} - {item.quantity}
                   </div>
                   <div className="width-150 pd-4">{item.received_quantity}</div>
+                  <div className="width-150 pd-4">
+                    <Button size="sm" onClick={this.reportClick(item)}>
+                      Report
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -357,8 +468,101 @@ class Sorting extends React.Component {
             </Button>
           </ModalFooter>
         </Modal>
+
+        <Modal
+          isOpen={this.state.reportingModal}
+          toggle={this.onReportingModal}
+          backdrop={"static"}
+        >
+          <ModalHeader toggle={this.onReportingModal}></ModalHeader>
+          <ModalBody>
+            <div className="fieldset">
+              <div className="legend">Return back to standby</div>
+              <div className="font-size-12 mr-l-10 color-grey">
+                What do you want to report ?
+              </div>
+              <ButtonDropdown
+                className="max-height-30 mr-l-10 mr-t-10"
+                isOpen={this.state.isOpenReportDropDown}
+                toggle={this.toggleReportDropDown}
+                size="sm"
+              >
+                <DropdownToggle caret>
+                  {this.state.reportingItem
+                    ? this.state.reportingItem.report
+                    : "Please Select"}
+                </DropdownToggle>
+                <DropdownMenu>
+                  {this.props.report_sorting.map((item, index) => (
+                    <DropdownItem
+                      onClick={this.clickReportingItem(item)}
+                      key={index}
+                    >
+                      {item.report}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </ButtonDropdown>
+              <Row className="mr-t-10 mr-l-10 mr-b-10">
+                <Col lg="3" className="color-grey pd-0 border-none">
+                  <div className="border-none font-size-12">Product Name</div>
+                </Col>
+                <Col lg="1" className="pd-0">
+                  :
+                </Col>
+                <Col lg="7" className="border-none pd-0">
+                  {this.state.reportingSortingItem
+                    ? this.state.reportingSortingItem.product_name
+                    : ""}
+                </Col>
+              </Row>
+              <Row className="mr-t-10 mr-l-10 mr-b-10">
+                <Col lg="3" className="color-grey pd-0 border-none">
+                  <div className="border-none font-size-12">Quantity shown</div>
+                </Col>
+                <Col lg="1" className="pd-0">
+                  :
+                </Col>
+                <Col lg="7" className="border-none pd-0">
+                  {this.state.reportingSortingItem
+                    ? this.state.reportingSortingItem.quantity
+                    : ""}
+                </Col>
+              </Row>
+              <form onSubmit={this.props.handleSubmit(this.reportSubmit)}>
+                <Row className="mr-t-10 mr-b-10">
+                  <Col lg="3" className="color-grey pd-0 border-none">
+                    <div className="border-none font-size-12">
+                      Quantity to report<span className="must">*</span>
+                    </div>
+                  </Col>
+                  <Col lg="1" className="pd-0"></Col>
+                  <Col lg="7" className="border-none pd-0">
+                    <Field
+                      name="item_quantity"
+                      autoComplete="off"
+                      type="number"
+                      component={InputField}
+                      validate={[required]}
+                      required={true}
+                    />
+                  </Col>
+                </Row>
+                <div className="float-right">
+                  <Button size="sm" type="submit" className="width-120">
+                    Submit
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </ModalBody>
+        </Modal>
       </div>
     );
   }
 }
+
+Sorting = reduxForm({
+  form: RECEIVING_FORM, // a unique identifier for this form
+})(Sorting);
 export default connect(mapStateToProps, mapDispatchToProps)(Sorting);

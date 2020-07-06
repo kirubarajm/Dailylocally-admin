@@ -7,6 +7,7 @@ export const PRODUCT_ADD_EDIT="product_add_edit"
 export const VENDOR_EDIT="vendor_edit"
 export const VENDOR_ASSIGN="vendor_assign"
 export const CAT_SUB_ADD_EDIT="cat_sub_add_edit"
+export const ORDER_VIEW_FORM="order_view_from"
 export const RECEIVING_FORM="receiving_form"
 export const STOCK_ADD_FORM="stock_add_form"
 export const LoginType={1:"/",2:"/",3:"/makeit-vorders",4:"/",5:"/",6:"/"};

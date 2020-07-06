@@ -18,6 +18,8 @@ import AxiosRequest from "./AxiosRequest";
 import VendorAssign from "./pages/VendorAssign";
 import StockKeeping from "./pages/StockKeeping";
 import StockKeepingAdd from "./pages/StockKeepingAdd";
+import Crm from "./pages/Crm";
+import OrderView from "./pages/OrderView";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -113,7 +115,7 @@ class App extends React.Component {
           />
           <LayoutRoute
             exact
-            path="/warehouse/qa"
+            path="/warehouse/qc"
             layout={MainLayout}
             component={Warehouse}
           />
@@ -136,6 +138,14 @@ class App extends React.Component {
             path="/stock-keeping-add"
             layout={MainLayout}
             component={StockKeepingAdd}
+          />
+          <LayoutRoute exact path="/crm" layout={MainLayout} component={Crm} />
+
+          <LayoutRoute
+            exact
+            path="/orderview/:id"
+            layout={MainLayout}
+            component={OrderView}
           />
 
           <Redirect to="/login" />

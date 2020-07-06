@@ -330,6 +330,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 .list-text {
   text-align: left !important;
 }
+.pd-tb-0 {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
 
 .pd-0 {
   padding: 0px !important;
@@ -353,6 +357,9 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 
 .pd-10 {
   padding: 10px !important;
+}
+.pd-15 {
+  padding: 15px !important;
 }
 
 .pd-12 {
@@ -406,6 +413,9 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 .mr-10 {
   margin: 10px !important;
 }
+.mr-lr-10 {
+  margin: 0px 10px !important;
+}
 
 .mr-r-5 {
   margin-right: 5px !important;
@@ -457,6 +467,12 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 
 .mr-b-10 {
   margin-bottom: 10px !important;
+}
+.mr-b-20 {
+  margin-bottom: 20px !important;
+}
+.mr-b-50 {
+  margin-bottom: 50px !important;
 }
 
 .mr-t-20 {
@@ -575,6 +591,9 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 .bg-color-green {
   background: #089b03 !important;
 }
+.bg-color-white {
+  background: #ffffff !important;
+}
 
 .bg-color-red {
   background: #fc0404 !important;
@@ -618,6 +637,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 
 .border-grey {
   border: 1px solid rgb(156, 156, 156) !important;
+}
+
+.border-block {
+  border: 1px solid rgb(14, 13, 13) !important;
 }
 
 .btn-custom-primary {
@@ -806,8 +829,17 @@ a, a:focus, a:hover, a:visited {
     overflow: auto;
 }
 
+.order-horizantal-scroll {
+  width: 100%;
+  overflow: auto;
+}
+
 .width-84 {
   width: 84% !important;
+}
+
+.width-85 {
+  width: 85% !important;
 }
 
 .card-body-with-scroll {
@@ -1722,13 +1754,22 @@ hr.style-moveit:after {
   width: 200px !important;
 }
 
+.width-250 {
+  width: 250px !important;
+}
+
 .max-width-1000 {
   max-width: 1000px !important;
+}
+
+.max-width-800 {
+  max-width: 800px !important;
 }
 
 .max-width-600 {
   max-width: 600px !important;
 }
+
 
 .cat-title {
   font-weight: bold;
@@ -1810,6 +1851,13 @@ hr.style-moveit:after {
   height: 20px !important;
   font-size: 12px !important;
   padding: 0px !important;
+}
+
+.btn-custom {
+  width: auto !important;
+  height: 28px !important;
+  font-size: 12px !important;
+  padding: 5px !important;
 }
 
 .fieldset {

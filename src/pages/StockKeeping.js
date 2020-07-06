@@ -72,7 +72,7 @@ function CardRowColImage(props) {
             hidden={!props.value}
             src={props.value}
             className="product_detail_image"
-            alt="Wastage Image"
+            alt="WastageImage"
           ></img>
         </Col>
       </Row>

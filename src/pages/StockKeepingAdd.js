@@ -15,7 +15,6 @@ import {
   Button,
   Modal,
   ModalBody,
-  ModalHeader,
   ButtonDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -27,78 +26,9 @@ import {
   STOCK_UPDATE_CLEAR,
   STOCK_UPDATE_PRODUCT_STOCK,
 } from "../constants/actionTypes";
-import Select from "react-dropdown-select";
-import { Field, reduxForm, reset } from "redux-form";
-import { required, minLength2 } from "../utils/Validation";
-import { STOCK_ADD_FORM } from "../utils/constant";
-import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
 import StockAddFrom from "./StockAddFrom";
 
-const InputField = ({
-  input,
-  label,
-  type,
-  meta: { touched, error, warning },
-  ...custom
-  //
-}) => {
-  return (
-    <div className="border-none">
-      <div>
-        <input {...input} placeholder={label} type={type} autoComplete="off" />
-        <span
-          style={{
-            flex: "0",
-            WebkitFlex: "0",
-            width: "100px",
-            height: "10px",
-            fontSize: "12px",
-            color: "red",
-          }}
-        >
-          {touched &&
-            ((error && <span>{error}</span>) ||
-              (warning && <span>{warning}</span>))}
-        </span>
-      </div>
-    </div>
-  );
-};
 
-const InputSearchDropDown = ({
-  onSelection,
-  options,
-  label,
-  labelField,
-  searchable,
-  searchBy,
-  values,
-  disabled,
-  clearable,
-  noDataLabel,
-  valueField,
-}) => {
-  return (
-    <div className="pd-0 border-none">
-      <div className="pd-0 border-grey mr-r-50">
-        <Select
-          options={options}
-          labelField={labelField}
-          searchable={searchable}
-          searchBy={searchBy}
-          values={[...values]}
-          noDataLabel={noDataLabel}
-          valueField={valueField}
-          dropdownHeight={"300px"}
-          disabled={disabled}
-          onChange={(value) => {
-            onSelection(value);
-          }}
-        />
-      </div>
-    </div>
-  );
-};
 
 const mapStateToProps = (state) => ({
   ...state.stockkeepingadd,
@@ -137,10 +67,8 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: STOCK_UPDATE_CLEAR,
     }),
-  onFromClear: () => dispatch(reset(STOCK_ADD_FORM)),
 });
 
-var kitchenSignatureImg = [1];
 class StockKeepingAdd extends React.Component {
   constructor() {
     super();
@@ -347,8 +275,6 @@ class StockKeepingAdd extends React.Component {
     );
   }
 }
-StockKeepingAdd = reduxForm({
-  form: STOCK_ADD_FORM, // a unique identifier for this form
-})(StockKeepingAdd);
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(StockKeepingAdd);

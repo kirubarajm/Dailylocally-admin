@@ -263,7 +263,7 @@ class Po extends React.Component {
   render() {
     const poList = this.props.poList || [];
     return (
-      <div className="width-full">
+      <div className="width-full" style={{position:"fixed"}}>
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset width-84">
             <div className="legend">Purchase Order - Search</div>
@@ -539,7 +539,6 @@ class Po extends React.Component {
         <Modal
           isOpen={this.state.isViewModal}
           toggle={this.toggleOrderView}
-          className={this.props.className}
           className="max-width-1000"
           backdrop={true}
         >

@@ -22,7 +22,7 @@ import {
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { Field, reduxForm, reset } from "redux-form";
-import { required, minLength2 } from "../utils/Validation";
+import { required } from "../utils/Validation";
 import { RECEIVING_FORM } from "../utils/constant";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import Search from "../components/Search";
@@ -208,8 +208,6 @@ class Receiving extends React.Component {
       this.setState({ isLoading: false });
     }
 
-    
-
     if (this.props.zoneRefresh) {
       store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
@@ -282,14 +280,13 @@ class Receiving extends React.Component {
       zone_id: this.props.zoneItem.id,
       popid: this.state.selectedItem.popid,
     };
+      data1.vpid = this.state.selectedItem.vpid;
+      data1.quantity = data.item_quantity;
+      data1.delivery_note = data.delivery_note ||"";
     if (
       this.state.receivingSelection.length > 0 &&
       this.state.receivingSelection[0].id === 1
     ) {
-      data1.action_id = this.state.receivingSelection[0].id;
-      data1.vpid = this.state.selectedItem.vpid;
-      data1.quantity = data.item_quantity;
-      data1.delivery_note = data.delivery_note;
       this.props.onUpdateList(data1);
     } else if (
       this.state.receivingSelection.length > 0 &&
@@ -329,7 +326,7 @@ class Receiving extends React.Component {
     return (
       <div className="width-full">
         <div style={{ height: "85vh" }} className="pd-6">
-          <div className="fieldset width-84">
+          <div className="fieldset">
             <div className="legend">PO search Criteri</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
               <Col lg="4" className="pd-0">
@@ -392,7 +389,7 @@ class Receiving extends React.Component {
               <Col lg="4" className="pd-0">
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div className="mr-r-10 flex-row-vertical-center width-120">
-                  Product Name/Code :{" "}
+                    Product Name/Code :{" "}
                   </div>
                   <SearchItem
                     onSearch={this.onSearchItem}
@@ -416,23 +413,23 @@ class Receiving extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <div className="search-horizantal-scroll">
+          {/* className="search-horizantal-scroll" style={{ width: "1400px" }}*/}
+            <div >
               <div className="search-vscroll">
-                <Table style={{ width: "1500px" }}>
+                <Table >
                   <thead>
                     <tr>
                       <th>Date</th>
                       <th>Product Code</th>
                       <th>Product Name</th>
-                      <th>Description</th>
+                      <th>PO No - Supplier name</th>
                       <th>UOM</th>
                       <th>BOH</th>
                       <th>PO quantity</th>
                       <th>received quantity</th>
                       <th>Receive/Unreceive</th>
-                      <th>Sorting Action</th>
-                      <th>PO No - Supplier name</th>
-                      <th>PO Status</th>
+                      <th>Standby count</th>
+                      
                     </tr>
                   </thead>
                   <tbody>
@@ -441,32 +438,35 @@ class Receiving extends React.Component {
                         <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
                         <td>{item.vpid}</td>
                         <td>{item.productname}</td>
-                        <td>{item.short_desc}</td>
+                        <td>
+                          PO#{item.poid} - {item.name}
+                        </td>
                         <td>{item.uom}</td>
                         <td>{item.boh}</td>
-                        <td>{item.open_quqntity}</td>
+                        <td>{item.total_quantity}</td>
                         <td>{item.received_quantity}</td>
                         <td>
                           <Button
-                            className="btn-close"
+                            className="btn-custom"
                             onClick={this.onActionClick(item)}
                           >
                             Action
                           </Button>
                         </td>
                         <td>
+                          <div className="flex-row">
+                          <div hidden={item.stand_by === 0}>{item.stand_by}</div>
                           <Button
-                            className="btn-close"
-                            disabled={!item.received_quantity}
+                            size="sm"
+                            className="btn-custom mr-l-10"
+                            disabled={item.stand_by === 0}
                             onClick={this.onSortingClick(item)}
                           >
-                            Sorting
+                            Push to Sort
                           </Button>
+                          </div>
                         </td>
-                        <td>
-                          PO#{item.poid} - {item.name}
-                        </td>
-                        <td>{item.po_status}</td>
+                        
                       </tr>
                     ))}
                   </tbody>
@@ -512,8 +512,7 @@ class Receiving extends React.Component {
                     onSelection={this.selectedReceiving}
                     label="Select Action"
                   />
-                  {this.state.receivingSelection.length > 0 &&
-                  this.state.receivingSelection[0].id === 1 ? (
+                  
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <Row
                         className="pd-0"
@@ -534,7 +533,7 @@ class Receiving extends React.Component {
                             autoComplete="off"
                             type="number"
                             component={InputField}
-                            validate={[required, minLength2]}
+                            validate={[required]}
                             required={true}
                           />
                         </Col>
@@ -556,15 +555,10 @@ class Receiving extends React.Component {
                             autoComplete="off"
                             type="text"
                             component={InputField}
-                            validate={[required, minLength2]}
-                            required={true}
                           />
                         </Col>
                       </Row>
                     </div>
-                  ) : (
-                    ""
-                  )}
                   <Row className="pd-10">
                     <Col className="txt-align-right">
                       <Button color="secondary">Submit</Button>

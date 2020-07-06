@@ -1,8 +1,8 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
-const BASE_URL_LIVE = "http://68.183.87.233:8000/";
-//const BASE_URL_LIVE = 'http://localhost:4000/';
+//const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
 let token =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjkwOTQ5MzkzNDciLCJpYXQiOjE1NjYyMTEyNDZ9.jOg5m2fkw6U6dGyhKpNWn594N34deElh5kqKemXe_x8"; //window.localStorage.getItem('jwt');
@@ -94,6 +94,7 @@ const Warehouse = {
   getQaList:(data) => requests.post("/quality/dayorderlist", data),
   saveSorting:(data) => requests.post("/sorting/savesorting", data),
   submitSorting:(data) => requests.post("/sorting/movetoqa", data),
+  submitSortingReport:(data) => requests.post("/sorting/missingquantityreport", data),
   getQaQualityList:(data) => requests.post("/quality/type", data),
   submitQA:(data) => requests.post("/quality/qualitycheck", data),
 }
@@ -107,12 +108,17 @@ const StockKeeping= {
   editStockKeeping:(data) => requests.post("/stockkeeping/edit", data),
 }
 
+const OrderTrack= {
+  getOrderDetail:(data) => requests.post("/stockkeeping/list", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
   Catelog,
   Warehouse,
   StockKeeping,
+  OrderTrack,
   setToken: (_token) => {
     token = _token;
   },

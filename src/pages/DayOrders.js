@@ -13,7 +13,7 @@ import {
   DropdownMenu,
   DropdownToggle,
   ButtonDropdown,
-  Tooltip
+  Tooltip,
 } from "reactstrap";
 import {
   DAT_ORDER_LIST,
@@ -71,7 +71,7 @@ class DayOrders extends React.Component {
       isViewModal: false,
       isOpenOrderStatus: false,
       view_item: false,
-      tooltipOpen:false,
+      tooltipOpen: false,
       select_order_status: {
         id: -1,
         status: "All",
@@ -82,7 +82,7 @@ class DayOrders extends React.Component {
     this.setState({
       tooltipOpen: !this.state.tooltipOpen,
     });
-  }
+  };
   UNSAFE_componentWillMount() {
     this.startSelect = this.startSelect.bind(this);
     this.endSelect = this.endSelect.bind(this);
@@ -299,14 +299,14 @@ class DayOrders extends React.Component {
               </span>
               <span className="mr-l-50 mr-r-20">To Date/Time: </span>
               <Button
-                  className="mr-r-10"
-                  hidden={this.state.startdate}
-                  style={{ width: "30px", height: "30px", padding: "0px" }}
-                >
-                  <span href="#" id="DisabledAutoHideExample"><i className="far fa-calendar-alt"></i>
+                className="mr-r-10"
+                hidden={this.state.startdate}
+                style={{ width: "30px", height: "30px", padding: "0px" }}
+              >
+                <span href="#" id="DisabledAutoHideExample">
+                  <i className="far fa-calendar-alt"></i>
                 </span>
-
-                </Button>
+              </Button>
               <DateRangePicker
                 opens="right"
                 singleDatePicker
@@ -316,13 +316,12 @@ class DayOrders extends React.Component {
                 onApply={this.endSelect}
               >
                 <Button
-                hidden={!this.state.startdate}
+                  hidden={!this.state.startdate}
                   className="mr-r-10"
                   disabled={!this.state.startdate}
                   style={{ width: "30px", height: "30px", padding: "0px" }}
                 >
                   <i className="far fa-calendar-alt"></i>
-
                 </Button>
               </DateRangePicker>
               <span className="mr-l-10">
@@ -504,22 +503,30 @@ class DayOrders extends React.Component {
                 </tr>
               </thead>
               <tbody>
-                {this.state.view_item?this.state.view_item.products.map((item, i) => (
-                  <tr key={i}>
-                    <td>{item.vpid}</td>
-                    <td>{item.productname}</td>
-                    <td>{item.price}</td>
-                    <td>{item.quantity}</td>
-                  </tr>
-                )):""}
+                {this.state.view_item
+                  ? this.state.view_item.products.map((item, i) => (
+                      <tr key={i}>
+                        <td>{item.vpid}</td>
+                        <td>{item.productname}</td>
+                        <td>{item.price}</td>
+                        <td>{item.quantity}</td>
+                      </tr>
+                    ))
+                  : ""}
               </tbody>
             </Table>
           </ModalBody>
         </Modal>
 
-        <Tooltip placement="right" isOpen={this.state.tooltipOpen} autohide={false} target="DisabledAutoHideExample" toggle={this.toggle}>
-        Please select from date
-      </Tooltip>
+        <Tooltip
+          placement="right"
+          isOpen={this.state.tooltipOpen}
+          autohide={false}
+          target="DisabledAutoHideExample"
+          toggle={this.toggle}
+        >
+          Please select from date
+        </Tooltip>
       </div>
     );
   }

@@ -19,6 +19,8 @@ import sorting from './reducers/sorting'
 import qapage from './reducers/qapage'
 import stockkeeping from './reducers/stockkeeping'
 import stockkeepingadd from './reducers/stockkeepingadd'
+import crm from './reducers/crm'
+import orderview from './reducers/orderview'
 
 export default combineReducers({
   router: routerReducer,
@@ -40,5 +42,7 @@ export default combineReducers({
   sorting,
   qapage,
   stockkeeping,
-  stockkeepingadd
+  stockkeepingadd,
+  orderview,
+  crm
 });

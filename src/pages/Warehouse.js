@@ -101,7 +101,7 @@ class Warehouse extends React.Component {
     }else if(tab===4){
       this.props.history.push('/warehouse/sorting')
     }else if(tab===5){
-      this.props.history.push('/warehouse/qa')
+      this.props.history.push('/warehouse/qc')
     }
   };
   toggleAreaDropDown = () => {
@@ -163,7 +163,7 @@ class Warehouse extends React.Component {
                   onClick={() => this.onWarehouseTabClick(5)}
                   active={this.props.warehouse_tab_type === 5}
                 >
-                  QA
+                  QC
                 </Button>
                 {/* <Button
                   color="primary"
@@ -209,7 +209,7 @@ class Warehouse extends React.Component {
                 <Route path={`${path}/po`} component={Po} />
                 <Route path={`${path}/receiving`} component={Receiving} />
                 <Route path={`${path}/sorting`} component={Sorting} />
-                <Route path={`${path}/qa`} component={QAPage} />
+                <Route path={`${path}/qc`} component={QAPage} />
                 <Redirect to={`${path}/dayoders`} />
               </Switch>
           </Row>

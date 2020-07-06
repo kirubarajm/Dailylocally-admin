@@ -13,7 +13,6 @@ import {
 import Moment from "moment";
 import AxiosRequest from "../AxiosRequest";
 import DateRangePicker from "react-bootstrap-daterangepicker";
-import { FaEye } from "react-icons/fa";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import { store } from "../store";
@@ -299,7 +298,8 @@ class Procurement extends React.Component {
                     <th>Product name</th>
                     <th>Product code</th>
                     <th>UOM</th>
-                    <th>BOH</th>
+                    <th>BOH remaining</th>
+                    <th>BOH mapped</th>
                     <th>required quantity</th>
                     <th>Procurement quantity</th>
                   </tr>
@@ -331,9 +331,10 @@ class Procurement extends React.Component {
                       </td>
                       <td>{item.productname}</td>
                       <td>{item.vpid}</td>
-                      <td>{item.unit_name}</td>
-                      <td>{item.boh}</td>
-                      <td>{item.quantity}</td>
+                      <td>{item.uom_name}</td>
+                      <td>{item.boh_remaining}</td>
+                      <td>{item.boh_mapped}</td>
+                      <td>{item.required_quantity}</td>
                       <td>{item.procurement_quantity}</td>
                     </tr>
                   ))}

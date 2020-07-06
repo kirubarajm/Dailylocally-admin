@@ -7,29 +7,18 @@ import {
   DELETE_WASTAGE_IMAGES,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
-import { store } from "../store";
 import {
   Row,
   Col,
-  Table,
   Button,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ButtonDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
 } from "reactstrap";
 import {
-  ZONE_SELECT_ITEM,
-  ZONE_ITEM_REFRESH,
   STOCK_UPDATE_CLEAR,
   STOCK_UPDATE_PRODUCT_STOCK,
 } from "../constants/actionTypes";
 import Select from "react-dropdown-select";
 import { Field, reduxForm, reset } from "redux-form";
-import { required, minLength2 } from "../utils/Validation";
+import { required } from "../utils/Validation";
 import { STOCK_ADD_FORM } from "../utils/constant";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
 
