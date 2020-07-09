@@ -20,8 +20,11 @@ export default (
     ],
     postatus: [
       { id: -1, name: "All" },
-      { id: 0, name: "Open" },
-      { id: 1, name: "Close" },
+      { id: 0, name: "Request" },
+      { id: 1, name: "Received" },
+      { id: 2, name: "Un Received" },
+      { id: 3, name: "Close" },
+      { id: 4, name: "Delete" },
     ],
   },
   action

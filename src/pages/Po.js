@@ -29,6 +29,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import { store } from "../store";
+import { getPoStatus } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.po,
@@ -147,10 +148,19 @@ class Po extends React.Component {
   onSearchPOno = (e) => {
     const value = e.target.value || "";
     this.setState({ pono: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
   };
   onSearchSupplier = (e) => {
     const value = e.target.value || "";
     this.setState({ supplier_name: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
+    
   };
 
   pocreateDate = (event, picker) => {
@@ -437,7 +447,7 @@ class Po extends React.Component {
           <Row className="width-84 mr-b-10 mr-l-10">
             <Col className="txt-align-right pd-0">
               <Button size="sm" onClick={this.gotoVendorAssign}>
-                Vendor assign
+              Supplier Assign
               </Button>
             </Col>
           </Row>
@@ -520,12 +530,7 @@ class Po extends React.Component {
                         <td>
                           {Moment(item.due_date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
-                        <td>
-                          {item.po_status === 0
-                            ? "Open"
-                            : item.po_status === 1
-                            ? "Close"
-                            : "Delete"}
+                        <td>{getPoStatus(item.po_status)}
                         </td>
                       </tr>
                     ))}
@@ -580,12 +585,11 @@ class Po extends React.Component {
                   ? this.props.poview.products.map((item, i) => (
                       <tr key={i}>
                         <td>{item.vpid}</td>
-                        <td>{item.product_name}</td>
+                        <td>{item.productname}</td>
                         <td>{item.requested_quantity}</td>
                         <td>{item.aditional_quantity}</td>
                         <td>{item.received_quantity}</td>
-                        <td>
-                          {item.pop_status === 0 ? "UnReceived" : "Received"}
+                        <td>{getPoStatus(item.pop_status)}
                         </td>
                         <td>{item.delivery_note || "-"}</td>
                       </tr>

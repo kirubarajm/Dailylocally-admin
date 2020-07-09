@@ -52,20 +52,16 @@ class Search extends Component {
   }
 
   handleInputChange = (e) => {
-    // if (e.keyCode === 13 && e.shiftKey === false) {
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    //   console.log("--->",e.target.value)
-    //   if(this.props.onSearch) this.props.onSearch(e);
-    // }
+    if (e.keyCode === 13 && e.shiftKey === false) {
+      e.preventDefault();
+      e.stopPropagation();
+      if(this.props.onSearch) this.props.onSearch(e);
+    }
   };
   handleUp = (e) => {
     const value = e.target.value || "";
-    //console.log("--->",value)
     this.setState({ query: value });
-    //if (value === "") {
-      if(this.props.onSearch) this.props.onSearch(e);
-    //}
+    if(this.props.onSearch) this.props.onSearch(e);
   };
   onClose = (e) => {
     if(this.props.onClose) this.props.onClose(e);

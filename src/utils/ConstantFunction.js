@@ -2,19 +2,27 @@ import {
   MasterOrderStatus,
   MasterOrderStatusV,
   LoginType,
+  MasterPOStatus,
 } from "../utils/constant";
 
 export const getOrderStatus = (orderstatus) => {
   orderstatus = orderstatus || 0;
-  orderstatus = orderstatus > 7 ? 0 : orderstatus;
+  orderstatus = orderstatus > 13 ? 0 : orderstatus;
   var morder = MasterOrderStatus[orderstatus];
+  return morder;
+};
+
+export const getPoStatus = (postatus) => {
+  postatus = postatus || 0;
+  postatus = postatus > 5 ? 0 : postatus;
+  var morder = MasterPOStatus[postatus];
   return morder;
 };
 
 
 export const getdeliveryOrderStatus = (orderstatus) => {
   orderstatus = orderstatus || 0;
-  orderstatus = orderstatus > 7 ? 0 : orderstatus;
+  orderstatus = orderstatus > 13 ? 0 : orderstatus;
   var morder = MasterOrderStatus[orderstatus];
   return morder;
 };

@@ -65,7 +65,7 @@ class SearchInput extends Component {
       e.preventDefault();
       e.stopPropagation();
       //console.log("--->",e.target.value)
-      this.props.onSearch(e);
+      if(this.props.onSearch) this.props.onSearch(e);
     }
   };
   handleUp = (e) => {
@@ -73,7 +73,7 @@ class SearchInput extends Component {
     //console.log("--->",value)
     this.setState({ query: value });
     if (value === "") {
-      this.props.onSearch(e);
+      if(this.props.onSearch) this.props.onSearch(e);
     }
   };
   onClose = (e) => {

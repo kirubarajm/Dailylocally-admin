@@ -232,6 +232,10 @@ class DayOrders extends React.Component {
   onSearchInput = (e) => {
     const value = e.target.value || "";
     this.setState({ orderid: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
   };
 
   onSearch = () => {
@@ -332,7 +336,7 @@ class DayOrders extends React.Component {
             </div>
             <Row className="pd-10 mr-r-10 mr-b-10 font-size-14">
               <Col lg="1">
-                <div>Order No : </div>{" "}
+                <div>Day Order ID : </div>{" "}
               </Col>
               <Col lg="2" className="pd-0">
                 <Search
@@ -411,8 +415,9 @@ class DayOrders extends React.Component {
                     <th>View</th>
                     <th>Select</th>
                     <th>Date/Time</th>
+                    <th>Delivery/Time</th>
                     <th>Customer ID</th>
-                    <th>Order NO</th>
+                    <th>Day Order ID</th>
                     <th>Order item count</th>
                     <th>Order quantity</th>
                     <th>order status</th>
@@ -442,6 +447,7 @@ class DayOrders extends React.Component {
                           <span className="checkmark"></span>{" "}
                         </label>
                       </td>
+                      <td>{Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}</td>
                       <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
                       <td>{item.userid}</td>
                       <td>{item.id}</td>

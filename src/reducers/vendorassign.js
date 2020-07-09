@@ -73,8 +73,9 @@ export default (
         ...state,
         pocreatelist: state.pocreatelist.map((item, index) => {
           if (index === action.index) {
-            return Object.assign({},item,item.editquantity = action.quantity);
-          }else return item;
+            return Object.assign({}, item, (item.editquantity = action.quantity));;
+          } 
+          return item;
         }),
       };
     case EDIT_QUANTITY_BUTTON_ENABLE:
@@ -84,7 +85,7 @@ export default (
         poEditQuantityStatus: false,
         pocreatelist: state.pocreatelist.map((item, index) => {
           if (index === action.index) {
-            item.editquantity = (item.requested_quantity || item.actual_quantity);
+            item.editquantity = item.requested_quantity===null?item.actual_quantity:item.requested_quantity;
             return Object.assign({}, item, (item.isEdit = action.isEdit || false));
           }else return item;
         }),

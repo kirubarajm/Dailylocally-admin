@@ -320,6 +320,10 @@ class Sorting extends React.Component {
   onSearchOrderId = (e) => {
     const value = e.target.value || "";
     this.setState({ orderid: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
   };
   render() {
     const sortingList = this.props.sortingList || [];
@@ -405,9 +409,8 @@ class Sorting extends React.Component {
                           <Button
                             size="sm"
                             onClick={this.onActionClick(item)}
-                            disabled={item.action === 1}
                           >
-                            Move To QA
+                            Move To QC
                           </Button>
                         </td>
                       </tr>
@@ -426,7 +429,7 @@ class Sorting extends React.Component {
           <ModalHeader toggle={this.onSortingModal}></ModalHeader>
           <ModalBody>
             <div style={{ display: "flex", flexDirection: "row" }}>
-              <div className="width-150 pd-4">Quality</div>
+              <div className="width-100 pd-4">Quality</div>
               <div className="width-150 pd-4">Order details</div>
               <div className="width-150 pd-4">Available</div>
               <div className="width-150 pd-4">{}</div>
@@ -435,7 +438,7 @@ class Sorting extends React.Component {
             <div hidden={!this.state.selectedItem}>
               {this.state.selectedItem.products.map((item, i) => (
                 <div style={{ display: "flex", flexDirection: "row" }} key={i}>
-                  <div className="width-150 pd-4">
+                  <div className="width-100 pd-4">
                     <label className="container-check">
                       <input
                         type="checkbox"
@@ -446,12 +449,12 @@ class Sorting extends React.Component {
                       <span className="checkmark"></span>{" "}
                     </label>
                   </div>
-                  <div className="width-150 pd-4">
+                  <div className="width-200 pd-4">
                     {item.product_name} - {item.quantity}
                   </div>
                   <div className="width-150 pd-4">{item.received_quantity}</div>
                   <div className="width-150 pd-4">
-                    <Button size="sm" onClick={this.reportClick(item)}>
+                    <Button size="sm" onClick={this.reportClick(item)} disabled={item.received_quantity===0}>
                       Report
                     </Button>
                   </div>

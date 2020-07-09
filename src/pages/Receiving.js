@@ -260,15 +260,27 @@ class Receiving extends React.Component {
   onSearchPOno = (e) => {
     const value = e.target.value || "";
     this.setState({ pono: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
   };
   onSearchSupplier = (e) => {
     const value = e.target.value || "";
     this.setState({ supplier_name: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
   };
 
   onSearchItem = (e) => {
     const value = e.target.value || "";
     this.setState({ item_name: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
   };
   onReceivingModal = () => {
     this.setState((prevState) => ({
@@ -448,6 +460,7 @@ class Receiving extends React.Component {
                         <td>
                           <Button
                             className="btn-custom"
+                            disabled={item.received_quantity !== 0}
                             onClick={this.onActionClick(item)}
                           >
                             Action

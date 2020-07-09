@@ -182,15 +182,13 @@ class Procurement extends React.Component {
   onSearchInput = (e) => {
     const value = e.target.value || "";
     this.setState({ itemcode: value });
+    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
   };
 
   onSearch = () => {
-    // var data = {
-    //   zone_id: this.props.zoneItem.id
-    // };
-    // if (this.state.pr_createdate) data.starting_date = this.state.pr_createdate;
-    // if (this.state.search) data.search = this.state.search;
-    // this.props.onGetProcurement(data);
     this.setState({ isLoading: false });
   };
 
@@ -198,6 +196,7 @@ class Procurement extends React.Component {
     this.setState({
       pr_createdate: false,
       search: "",
+      itemcode:"",
       itemid_refresh: true,
     });
     this.setState({ isLoading: false });

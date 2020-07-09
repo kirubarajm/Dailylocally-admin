@@ -79,10 +79,10 @@ const InputField = ({
 function EditQuantity(props) {
   var Items = props.item;
   var isEdit = Items.isEdit === undefined ? false : Items.isEdit;
-  var editQuantity = Items.editquantity;
+  var editQuantity = Items.editquantity===null?Items.requested_quantity===null?Items.actual_quantity:Items.requested_quantity:Items.editquantity;
   console.log("editQuantity-->",editQuantity);
   if (!isEdit) {
-    editQuantity = Items.requested_quantity || Items.actual_quantity;
+    editQuantity = Items.requested_quantity===null?Items.actual_quantity:Items.requested_quantity;
     return (
       <div
         style={{ display: "flex", alignItems: "center", flexDirection: "row" }}
@@ -460,6 +460,7 @@ class VendorAssign extends React.Component {
     this.toggleAddVendorPopUp();
     this.setState({
       selected_proid: [],
+      selected_vpid:[],
     });
   };
   onAction(item, index) {
@@ -672,8 +673,8 @@ class VendorAssign extends React.Component {
                         <td>{item.subcatL1name}</td>
                         <td>{item.subcatL2name || "-"}</td>
                         <td>{item.vpid}</td>
-                        <td>{item.productname}</td>
-                        <td>{item.productdetails || "-"}</td>
+                        <td>{item.Productname}</td>
+                        <td>{item.product_productdetails || "-"}</td>
                         <td>{item.vendor_name || "-"}</td>
                         <td>{item.vid || "-"}</td>
                         <td>{item.uom_name}</td>
@@ -687,8 +688,8 @@ class VendorAssign extends React.Component {
                         </td>
                         <td>{item.rate || "-"}</td>
                         <td>
-                          {item.exp_date
-                            ? Moment(item.exp_date).format(
+                          {item.due_date
+                            ? Moment(item.due_date).format(
                                 "DD-MMM-YYYY/hh:mm a"
                               )
                             : "-"}
@@ -719,7 +720,7 @@ class VendorAssign extends React.Component {
             toggle={this.toggleAddVendorPopUp}
             className="pd-10 border-none"
           >
-            Add-Vendor
+            Add-Supplier
           </ModalHeader>
           <ModalBody className="pd-10">
             <form

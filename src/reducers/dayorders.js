@@ -25,6 +25,18 @@ export default (
         id: 6,
         status: "Ready to Dispatch",
       },
+      {
+        id: 10,
+        status: "Completed",
+      },
+      {
+        id: 11,
+        status: "Cancel",
+      },
+      {
+        id: 12,
+        status: "Return",
+      },
     ],
   },
   action

@@ -811,7 +811,7 @@ a, a:focus, a:hover, a:visited {
 }
 
 .search-vscroll {
-  margin-bottom: 10px !important;
+  margin-bottom: 40px !important;
   overflow: auto !important;
   background: #ffffff !important;
   height: 55vh !important;

@@ -542,14 +542,14 @@ class QAPage extends React.Component {
                        marginLeft: "10px",
                     }}
                   >
-                    <div className="width-150 pd-4">
+                    <div className="width-200 pd-4">
                       {item.productname} - {item.quantity}
                     </div>
-                    <div className="width-150 pd-4">{item.quantity}</div>
+                    <div className="width-150 pd-4">{item.received_quantity}</div>
                   </div>
 
                   <div className="width-150 pd-4">
-                    <Button size="sm" onClick={this.reportClick(item)}>
+                    <Button size="sm" onClick={this.reportClick(item)} disabled={item.received_quantity===0}>
                       Report
                     </Button>
                   </div>
