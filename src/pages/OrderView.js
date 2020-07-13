@@ -9,6 +9,9 @@ import {
   POST_RE_ORDER,
   DELETE_PROOF_IMAGES,
   UPDATE_PROOF_IMAGES,
+  ORDER_RETURN_REASON,
+  POST_RETURN_ORDER,
+  POST_MESSAGE_TO_CUSTOMER,
 } from "../constants/actionTypes";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import AxiosRequest from "../AxiosRequest";
@@ -56,7 +59,7 @@ const InputField = ({
         cols={custom.cols}
         rows={custom.rows}
       />
-      <span className="font-size-12 must">
+      <span className="font-size-12 must mr-t-10">
         {touched &&
           ((error && <span>{error}</span>) ||
             (warning && <span>{warning}</span>))}
@@ -94,6 +97,21 @@ const mapDispatchToProps = (dispatch) => ({
       type: POST_RE_ORDER,
       payload: AxiosRequest.CRM.postReOrder(data),
     }),
+  onGetReturnReason: () =>
+    dispatch({
+      type: ORDER_RETURN_REASON,
+      payload: AxiosRequest.CRM.getReturnReason(),
+    }),
+  onPostReturnOrder: (data) =>
+    dispatch({
+      type: POST_RETURN_ORDER,
+      payload: AxiosRequest.CRM.postReturnOrder(data),
+    }),
+  onPostMessageToCustomer: (data) =>
+    dispatch({
+      type: POST_MESSAGE_TO_CUSTOMER,
+      payload: AxiosRequest.CRM.postMessageToCustomer(data),
+    }),
   onDeleteImages: () =>
     dispatch({
       type: DELETE_PROOF_IMAGES,
@@ -128,6 +146,9 @@ function CardRowCol(props) {
   return <div />;
 }
 
+var defualtReturnReason = { rid: -1, reason: "Select reason" };
+var defualtReordeReason = { rrid: -1, reason: "Select reason" };
+var defualtCancelReason = { crid: -1, reason: "Enter Cancellation reason" };
 class OrderView extends React.Component {
   constructor() {
     super();
@@ -142,12 +163,15 @@ class OrderView extends React.Component {
       isCollapseDriverDetail: false,
       isOpenActionDropDown: false,
       actionItem: { id: -1, name: "Action" },
-      cancelItem: { crid: -1, reason: "Enter Cancellation reason" },
-      reorderItem: { rrid: -1, reason: "Select reason" },
+      cancelItem: defualtCancelReason,
+      reorderItem: defualtReordeReason,
+      returnorderItem: defualtReturnReason,
       isCancelModal: false,
       isCancelReasonModal: false,
       selected_product: [],
-      isReorderModal: true,
+      isReorderModal: false,
+      isReturnorderModal: false,
+      isReturnorderReasonModal: false,
     };
   }
 
@@ -177,6 +201,22 @@ class OrderView extends React.Component {
     if (this.props.isCanceled) {
       this.props.onClear();
       this.getOrderDetail();
+    }
+
+    if (this.props.isReordered) {
+      this.props.onClear();
+      this.toggleReorder();
+      this.getOrderDetail();
+    }
+
+    if (this.props.isReturnordered) {
+      this.props.onClear();
+      this.toggleReturnorder();
+      this.getOrderDetail();
+    }
+    if (this.props.isMessageSented) {
+      this.props.onClear();
+      this.toggleMessage();
     }
   }
 
@@ -214,15 +254,33 @@ class OrderView extends React.Component {
   };
   clickAction = (item) => {
     if (item.id === 1) {
+      this.setState({ cancelItem: defualtCancelReason });
       this.props.onGetCancelReason();
       this.toggleCancel();
     } else if (item.id === 2) {
-      this.setState({reorderItem: { rrid: -1, reason: "Select reason" }})
+      this.setState({ reorderItem: defualtReordeReason });
       this.props.onGetReorderReason();
       this.toggleReorder();
+    } else if (item.id === 3) {
+      this.setState({ returnorderItem: defualtReturnReason });
+      this.props.onGetReturnReason();
+      this.toggleReturnorder();
+    } else if (item.id === 6) {
+      this.toggleMessage();
     }
   };
 
+  toggleMessage = () => {
+    this.setState({
+      isCustMessageModal: !this.state.isCustMessageModal,
+    });
+  };
+
+  toggleReturnorder = () => {
+    this.setState({
+      isReturnorderModal: !this.state.isReturnorderModal,
+    });
+  };
   toggleReorder = () => {
     this.setState({
       isReorderModal: !this.state.isReorderModal,
@@ -233,15 +291,41 @@ class OrderView extends React.Component {
       isReorderReasonModal: !this.state.isReorderReasonModal,
     });
   };
+  toggleReturnReason = () => {
+    this.setState({
+      isReturnorderReasonModal: !this.state.isReturnorderReasonModal,
+    });
+  };
   clickReorderReason = (item) => {
     this.setState({
       reorderItem: item,
     });
-    this.props.initialize({ reason: item.reason });
   };
 
-  reorderConfirm = (value) => {
-    console.log(value);
+  clickReturnorderReason = (item) => {
+    this.setState({
+      returnorderItem: item,
+    });
+  };
+  retrunorderConfirm = () => {
+    if (this.state.returnorderItem.rid === -1) {
+      notify.show(
+        "Please select the return order reason",
+        "custom",
+        3000,
+        notification_color
+      );
+    } else {
+      const orderview = this.props.orderview;
+      var data = {
+        doid: orderview.id,
+        return_reason: this.state.returnorderItem.rid,
+        done_by: 1,
+      };
+      this.props.onPostReturnOrder(data);
+    }
+  };
+  reorderConfirm = () => {
     var checkItem = this.state.selected_product;
     var Values = Object.keys(checkItem);
     var pindex = Values.indexOf("selectall");
@@ -255,7 +339,7 @@ class OrderView extends React.Component {
         3000,
         notification_color
       );
-    }else if (this.state.reorderItem.rrid === -1) {
+    } else if (this.state.reorderItem.rrid === -1) {
       notify.show(
         "Please select the reorder reason",
         "custom",
@@ -272,12 +356,14 @@ class OrderView extends React.Component {
         zoneid: orderview.zoneid,
         reorder_reason: this.state.reorderItem.reason,
         done_by: 1,
-        date:this.state.reorderdate
+        date: Moment("" + this.state.reorderdate, "DD-MM-YYYY").format(
+          "YYYY-MM-DD"
+        ),
       };
-      if(this.props.ProofImage.length>0){
-        data.Img1=this.props.ProofImage[0].img_url;
+      if (this.props.ProofImage.length > 0) {
+        data.Img1 = this.props.ProofImage[0].img_url;
       }
-      console.log("data-->",data);
+      console.log("data-->", data);
       this.props.onPostReOrder(data);
     }
   };
@@ -297,6 +383,11 @@ class OrderView extends React.Component {
       cancelItem: item,
     });
     this.props.initialize({ reason: item.reason });
+  };
+  messageConfirm = (value) => {
+    const orderview = this.props.orderview;
+    var data = { message: value.message, phoneno: orderview.phoneno };
+    this.props.onPostMessageToCustomer(data);
   };
   cancelConfirm = (value) => {
     console.log(value);
@@ -788,7 +879,7 @@ class OrderView extends React.Component {
             <Row className="mr-l-10 mr-b-10">
               <Col className="flex-row">
                 <div className="width-250 font-size-14">
-                   Reorder Reason
+                  Reorder Reason
                   <span className="must width-25">*</span>
                 </div>
                 <div className="mr-l-10">
@@ -818,7 +909,7 @@ class OrderView extends React.Component {
             <Row className="mr-l-10 mr-b-10">
               <Col className="flex-row">
                 <div className="mr-r-10 width-250 font-size-14">
-                  Attach proof of reason 
+                  Attach proof of reason
                 </div>
                 <div>
                   <form className="width-250">
@@ -940,14 +1031,86 @@ class OrderView extends React.Component {
                 </Button>
               </Col>
             </Row>
-            {/* <Row className="mr-l-10 mr-t-10 mr-r-10">
+          </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isReturnorderModal}
+          toggle={this.toggleReturnorder}
+          backdrop={true}
+          className="max-width-800"
+        >
+          <ModalBody className="pd-10">
+            <Row className="mr-l-10 mr-b-10">
+              <Col className="flex-row">
+                <div className="width-250 font-size-14">
+                  Return order Reason
+                  <span className="must width-25">*</span>
+                </div>
+                <div className="mr-l-10">
+                  <ButtonDropdown
+                    className="max-height-30"
+                    isOpen={this.state.isReturnorderReasonModal}
+                    toggle={this.toggleReturnReason}
+                    size="sm"
+                  >
+                    <DropdownToggle caret>
+                      {this.state.returnorderItem.reason || ""}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.props.returnReasonList.map((item, index) => (
+                        <DropdownItem
+                          onClick={() => this.clickReturnorderReason(item)}
+                          key={index}
+                        >
+                          {item.reason}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </ButtonDropdown>
+                </div>
+              </Col>
+            </Row>
+            <Row className="mr-b-10 mr-r-10">
+              <Col lg="8"></Col>
+              <Col className="pd-0 mr-r-10 txt-align-right">
+                <Button
+                  size="sm"
+                  type="submit"
+                  onClick={this.retrunorderConfirm}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  size="sm"
+                  className="mr-l-10"
+                  onClick={this.toggleReturnorder}
+                >
+                  Close
+                </Button>
+              </Col>
+            </Row>
+          </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isCustMessageModal}
+          toggle={this.toggleMessage}
+          backdrop={true}
+          className="max-width-600"
+        >
+          <ModalBody className="pd-10">
+            <Row className="mr-l-10 mr-t-10 mr-r-10">
+              <Col>Message</Col>
+            </Row>
+            <Row className="mr-l-10 mr-t-10 mr-r-10">
               <Col className="pd-0">
                 <form
-                  onSubmit={this.props.handleSubmit(this.reorderConfirm)}
+                  onSubmit={this.props.handleSubmit(this.messageConfirm)}
                   className="product_form"
                 >
                   <Field
-                    name="reason"
+                    name="message"
                     type="text"
                     component={InputField}
                     validate={[required, minLength5, maxLength160]}
@@ -955,20 +1118,19 @@ class OrderView extends React.Component {
                     rows="3"
                   />
                   <Row className="mr-b-10">
-                    <Col className="pd-0 mr-r-10">
-                      <Button size="sm" type="submit">
+                    <Col lg="6"></Col>
+                    <Col className="pd-0 flex-row" lg="6">
+                      <Button size="sm" type="submit" className="mr-r-10">
                         Confirm
                       </Button>
-                    </Col>
-                    <Col className="pd-0">
-                      <Button size="sm" onClick={this.toggleReorder}>
+                      <Button size="sm" onClick={this.toggleMessage}>
                         Close
                       </Button>
                     </Col>
                   </Row>
                 </form>
               </Col>
-            </Row> */}
+            </Row>
           </ModalBody>
         </Modal>
       </div>

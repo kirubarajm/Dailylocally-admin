@@ -121,6 +121,8 @@ const CRM= {
   getRefundReason:() => requests.get("/crm/refund/reasonlist"),
   postOrderCancel:(data) => requests.post("/crm/productcancel",data),
   postReOrder:(data) => requests.post("/crm/reorder",data),
+  postReturnOrder:(data) => requests.post("/crm/bookreturn",data),
+  postMessageToCustomer:(data) => requests.post("/crm/usersms",data),
 }
 
 export default {

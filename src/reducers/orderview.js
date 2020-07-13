@@ -6,6 +6,10 @@ import {
   ORDER_REORDER_REASON,
   DELETE_PROOF_IMAGES,
   UPDATE_PROOF_IMAGES,
+  POST_RE_ORDER,
+  ORDER_RETURN_REASON,
+  POST_RETURN_ORDER,
+  POST_MESSAGE_TO_CUSTOMER,
 } from "../constants/actionTypes";
 
 export default (
@@ -17,14 +21,17 @@ export default (
       { id: 3, name: "Book Return" },
       { id: 4, name: "Refund" },
       { id: 5, name: "Reassign" },
-      { id: 6, name: "Send notification to driver" },
-      { id: 7, name: "Send notification to customer" },
-      { id: 8, name: "Raise Ticket" },
+      { id: 6, name: "Send Message to customer" },
+      { id: 7, name: "Raise Ticket" },
     ],
     cancelList: [],
     reorderList: [],
+    returnReasonList:[],
     ProofImage: [],
     isCanceled: false,
+    isReordered:false,
+    isReturnordered:false,
+    isMessageSented:false
   },
   action
 ) => {
@@ -44,11 +51,31 @@ export default (
         ...state,
         reorderList: action.payload.result || [],
       };
+      case ORDER_RETURN_REASON:
+      return {
+        ...state,
+        returnReasonList: action.payload.result || [],
+      };
     case POST_ORDER_CANCEL:
       return {
         ...state,
         isCanceled: action.payload.status || false,
       };
+      case POST_RE_ORDER:
+      return {
+        ...state,
+        isReordered: action.payload.status || false,
+      };
+      case POST_RETURN_ORDER:
+      return {
+        ...state,
+        isReturnordered: action.payload.status || false,
+      };
+      case POST_MESSAGE_TO_CUSTOMER:
+        return {
+          ...state,
+          isMessageSented: action.payload.status || false,
+        };
     case UPDATE_PROOF_IMAGES:
       var imagePath = {
         img_url: action.payload.result.Location,
@@ -67,7 +94,12 @@ export default (
       return {
         ...state,
         isCanceled: false,
+        isReordered:false,
+        isReturnordered:false,
+        isMessageSented:false,
+        ProofImage:[]
       };
+      
     default:
       return state;
   }
