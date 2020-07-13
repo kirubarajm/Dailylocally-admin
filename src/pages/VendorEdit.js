@@ -129,13 +129,13 @@ class VendorEdit extends React.Component {
             fname="base_price"
             required={true}
           />
-          <CardRowColVendorEdit
+          {/* <CardRowColVendorEdit
             lable="Cost Price (Calculated field)"
             value={this.state.selectedVendor.cost_price || "-"}
             fname="cost_price"
             required={false}
             disabled={true}
-          />
+          /> */}
           <CardRowColVendorEdit
             lable="Other charges (%)"
             value={this.state.selectedVendor.other_charges || "-"}

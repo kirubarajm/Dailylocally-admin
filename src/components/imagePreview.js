@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 
 const ImagePreview = ({ imagefile,onRemove }) =>
   imagefile.map(({ name, preview, size,img_id,index,img_type}) => (
-    <div key={index} className="render-preview">
+    <div key={index} className="render-preview flex-column">
       <div className="image-container">
         <img src={preview} alt={name} />
       </div>

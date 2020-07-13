@@ -114,7 +114,7 @@ class QAPage extends React.Component {
       orderdate: false,
       orderid: "",
       selectedItem: { products: [] },
-
+      checklist:[],
       isOpenReportDropDown: false,
       reportingItem: false,
       reportingSortingItem: false,
@@ -185,6 +185,7 @@ class QAPage extends React.Component {
     item.checklist = [];
     this.props.onUpdateQAList(index, item);
     this.setState({ selectedItem: item, selectedIndex: index });
+    this.onSetCheckList(item);
     this.onQAModal();
   };
   onQAList = () => {
@@ -242,61 +243,29 @@ class QAPage extends React.Component {
   };
 
   clickDropDown(e, qItem, Item, i) {
-    var isSelectedItem = this.state.selectedItem;
-    if (isSelectedItem.checklist) {
-      console.log("sel-->", e.target.selectedIndex);
-      var checklist = isSelectedItem.checklist;
-      if (e.target.selectedIndex === 1) {
-        var isalready = false;
-        checklist.map((ck, i) => {
-          if (Item.vpid === ck.vpid) {
-            isalready = true;
-            var qaidArray = ck.qaid || [];
-            qaidArray.push(qItem.qaid);
-            ck.qaid = qaidArray;
-          }
-        });
-        if (!isalready) {
-          var newproduct = {};
-          newproduct.vpid = Item.vpid;
-          newproduct.qaid = [];
-          newproduct.qaid.push(qItem.qaid);
-          checklist.push(newproduct);
-        }
-      } else {
-        checklist.map((ck, i) => {
-          if (Item.vpid === ck.vpid) {
-            var qaidArray = ck.qaid || [];
-            var qindex = qaidArray.indexOf(qItem.qaid);
-            if (qindex !== -1) {
-              qaidArray.splice(qindex, 1);
-              ck.qaid = qaidArray;
-            }
+    var checklist = this.state.checklist;
+    checklist.map((ck, i) => {
+      if (Item.vpid === ck.vpid) {
+        var qaidArray = ck.qclist || [];
+        qaidArray.map((qcl, i) => {
+          if (qcl.qcid === qItem.qcid) {
+            qcl.qcvalue=e.target.selectedIndex === 1?1:0;
           }
         });
       }
-      isSelectedItem.checklist = checklist;
-    } else {
-      var checklistnew = [];
-      var data = {};
-      data.vpid = Item.vpid;
-      data.qaid = [];
-      data.qaid.push(qItem.qaid);
-      checklistnew.push(data);
-      isSelectedItem.checklist = checklistnew;
-    }
+    });
     this.props.onUpdateQAList(
       this.state.selectedIndex,
       this.state.selectedItem
     );
-    this.setState({ selectedItem: isSelectedItem });
+    this.setState({ checklist: checklist });
   }
 
   onQaRevoke = () => {
     var data = {};
     data.type = 2;
     data.doid = this.state.selectedItem.doid;
-    data.checklist = this.state.selectedItem.checklist;
+    data.checklist = this.state.checklist;
     this.props.onSubmitQAOrders(data);
   };
 
@@ -304,7 +273,7 @@ class QAPage extends React.Component {
     var data = {};
     data.type = 1;
     data.doid = this.state.selectedItem.doid;
-    data.checklist = this.state.selectedItem.checklist;
+    data.checklist = this.state.checklist;
     this.props.onSubmitQAOrders(data);
   };
   orderDate = (event, picker) => {
@@ -373,6 +342,26 @@ class QAPage extends React.Component {
     };
     console.log("data-->", data);
     this.props.onReportSubmit(data);
+  };
+
+  onSetCheckList = (item) => {
+    var checklist = [];
+    item.products.map((item, index) => {
+      var data = {};
+      var qclist=[]
+      data.vpid=item.vpid;
+      this.props.qualitytype.map((qitem, i) => {
+        if(qitem.active_status===1){
+          var qcidv={};
+          qcidv.qcid=qitem.qcid;
+          qcidv.qcvalue=0;
+          qclist.push(qcidv);
+        }
+      })
+      data.qclist=qclist;
+      checklist.push(data);
+    });
+    this.setState({ checklist: checklist });
   };
 
   render() {
@@ -460,7 +449,7 @@ class QAPage extends React.Component {
                             size="sm"
                             onClick={this.onActionClick(item, i)}
                           >
-                            Ready to Dispatch
+                            Approve
                           </Button>
                         </td>
                       </tr>
@@ -539,17 +528,23 @@ class QAPage extends React.Component {
                     style={{
                       display: "flex",
                       flexDirection: "row",
-                       marginLeft: "10px",
+                      marginLeft: "10px",
                     }}
                   >
                     <div className="width-200 pd-4">
                       {item.productname} - {item.quantity}
                     </div>
-                    <div className="width-150 pd-4">{item.received_quantity}</div>
+                    <div className="width-150 pd-4">
+                      {item.received_quantity}
+                    </div>
                   </div>
 
                   <div className="width-150 pd-4">
-                    <Button size="sm" onClick={this.reportClick(item)} disabled={item.received_quantity===0}>
+                    <Button
+                      size="sm"
+                      onClick={this.reportClick(item)}
+                      disabled={item.received_quantity === 0}
+                    >
                       Report
                     </Button>
                   </div>

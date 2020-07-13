@@ -51,6 +51,7 @@ const Catelog = {
   getSearchView: (data) => requests.post("/search/catalogdata", data),
   getProductDetail: (data) => requests.post("/view/product", data),
   getUOMList: (data) => requests.post("/uomlist", data),
+  getVendorList: (data) => requests.post("/vendorlist", data),
   getZoneList: (data) => requests.post("/zonelist", data),
   getBrandList: (data) => requests.post("/brandlist", data),
   getTagList: (data) => requests.post("/taglist", data),
@@ -58,6 +59,7 @@ const Catelog = {
   onAddProduct:(data) => requests.post("/add/product", data),
   onEditProduct:(data) => requests.post("/edit/product", data),
   onEditVendor:(data) => requests.post("/edit/vendorproductmapping", data),
+  onAddVendor:(data) => requests.post("/add/vendorproductmapping", data),
   categoryLiveUnlive:(data) => requests.put("/live/category", data),
   L1subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl1", data),
    onEditCat:(data) => requests.post("/edit/category", data),
@@ -108,8 +110,17 @@ const StockKeeping= {
   editStockKeeping:(data) => requests.post("/stockkeeping/edit", data),
 }
 
-const OrderTrack= {
-  getOrderDetail:(data) => requests.post("/stockkeeping/list", data),
+const CRM= {
+  getOrderList:(data) => requests.post("/crm/dayorderlist", data),
+  getOrderDetail:(data) => requests.post("/crm/dayorderview", data),
+  getRaiseTicketReason:(data) => requests.post("/zendesk/issues", data),
+  getRaiseTicketTag:(data) => requests.post("/zendesk/issuesdetails", data),
+  getCancelReason:() => requests.get("/crm/cancel/reasonlist"),
+  getReorderReason:() => requests.get("/crm/reorder/reasonlist"),
+  getReturnReason:() => requests.get("/crm/bookreturn/reasonlist"),
+  getRefundReason:() => requests.get("/crm/refund/reasonlist"),
+  postOrderCancel:(data) => requests.post("/crm/productcancel",data),
+  postReOrder:(data) => requests.post("/crm/reorder",data),
 }
 
 export default {
@@ -118,7 +129,7 @@ export default {
   Catelog,
   Warehouse,
   StockKeeping,
-  OrderTrack,
+  CRM,
   setToken: (_token) => {
     token = _token;
   },

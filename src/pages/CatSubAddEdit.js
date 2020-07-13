@@ -16,6 +16,9 @@ import {
   DELETE_CAT_IMAGES,
   SET_CAT_IMAGES,
   UPDATE_CAT_IMAGES,
+  DELETE_CAT_THUMB_IMAGES,
+  UPDATE_CAT_THUMB_IMAGES,
+  SET_CAT_THUMB_IMAGES,
 } from "../constants/actionTypes";
 import { CAT_SUB_ADD_EDIT } from "../utils/constant";
 import { Field, reduxForm } from "redux-form";
@@ -108,7 +111,7 @@ const InputField = ({
 const mapStateToProps = (state) => ({
   ...state.catsubaddedit,
   category_list: state.catalog.category_list,
-  zoneItem:state.catalog.zoneItem
+  zoneItem: state.catalog.zoneItem,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -153,14 +156,29 @@ const mapDispatchToProps = (dispatch) => ({
       imgtype,
       payload: AxiosRequest.Catelog.fileUpload(data),
     }),
+  onUpdateCATTHUMImages: (data, imgtype) =>
+    dispatch({
+      type: UPDATE_CAT_THUMB_IMAGES,
+      imgtype,
+      payload: AxiosRequest.Catelog.fileUpload(data),
+    }),
   onSetImages: (image) =>
     dispatch({
       type: SET_CAT_IMAGES,
       image,
     }),
-    onDeleteImages: () =>
+  onSetThumbImages: (image) =>
+    dispatch({
+      type: SET_CAT_THUMB_IMAGES,
+      image,
+    }),
+  onDeleteImages: () =>
     dispatch({
       type: DELETE_CAT_IMAGES,
+    }),
+  onDeleteThumbImages: () =>
+    dispatch({
+      type: DELETE_CAT_THUMB_IMAGES,
     }),
   onClear: () =>
     dispatch({
@@ -169,6 +187,7 @@ const mapDispatchToProps = (dispatch) => ({
 });
 var isEdit = false;
 var kitchenSignatureImg = [1];
+var CatImg = [1, 1];
 class CatSubAddEdit extends React.Component {
   constructor() {
     super();
@@ -189,6 +208,7 @@ class CatSubAddEdit extends React.Component {
 
   UNSAFE_componentWillMount() {
     this.props.onDeleteImages();
+    this.props.onDeleteThumbImages();
     this.selectedCat = this.selectedCat.bind(this);
     this.selectedSub1Cat = this.selectedSub1Cat.bind(this);
     //this.selectedSub2Cat = this.selectedSub2Cat.bind(this);
@@ -204,6 +224,8 @@ class CatSubAddEdit extends React.Component {
       this.props.initialize(data);
       if (this.props.edit_cat_item.image)
         this.props.onSetImages(this.props.edit_cat_item.image);
+      if (this.props.edit_cat_item.thumbimage)
+        this.props.onSetThumbImages(this.props.edit_cat_item.thumbimage);
     }
 
     if (this.props.isSubCat1) {
@@ -248,8 +270,6 @@ class CatSubAddEdit extends React.Component {
       if (this.props.isEdit) {
         var datal2 = { l2scname: this.props.edit_cat_sub2_item.name };
         this.props.initialize(datal2);
-        if (this.props.edit_cat_sub2_item.image)
-          this.props.onSetImages(this.props.edit_cat_sub2_item.image);
       }
     }
   }
@@ -266,16 +286,19 @@ class CatSubAddEdit extends React.Component {
   }
   componentDidCatch() {}
   submit = (data) => {
-    if(this.props.Signature.length===0){
-      notify.show(
-        "Please upload the photo. after try again",
-        "custom",
-        3000,
-        notification_color
-      );
-      return;
-    }
     if (this.props.isCat && this.props.isEdit) {
+      if (
+        this.props.ThumbPath.length === 0 ||
+        this.props.Signature.length === 0
+      ) {
+        notify.show(
+          "Please upload the photo. after try again",
+          "custom",
+          3000,
+          notification_color
+        );
+        return;
+      }
       var editCat = {
         name: data.categoryname,
         catid: this.props.edit_cat_item.catid,
@@ -283,18 +306,47 @@ class CatSubAddEdit extends React.Component {
           this.props.Signature.length === 0
             ? ""
             : this.props.Signature[0].img_url,
+        thumbimage:
+          this.props.ThumbPath.length === 0
+            ? ""
+            : this.props.ThumbPath[0].img_url,
       };
       this.props.OnEditCategory(editCat);
     } else if (this.props.isCat && !this.props.isEdit) {
+      if (
+        this.props.ThumbPath.length === 0 ||
+        this.props.Signature.length === 0
+      ) {
+        notify.show(
+          "Please upload the photo. after try again",
+          "custom",
+          3000,
+          notification_color
+        );
+        return;
+      }
       var addCat = {
         name: data.categoryname,
         image:
           this.props.Signature.length === 0
             ? ""
             : this.props.Signature[0].img_url,
+        thumbimage:
+          this.props.ThumbPath.length === 0
+            ? ""
+            : this.props.ThumbPath[0].img_url,
       };
       this.props.OnAddCategory(addCat);
     } else if (this.props.isSubCat1 && this.props.isEdit) {
+      if (this.props.Signature.length === 0) {
+        notify.show(
+          "Please upload the photo. after try again",
+          "custom",
+          3000,
+          notification_color
+        );
+        return;
+      }
       var editL1Cat = {
         catid: this.state.category[0].catid,
         scl1_id: this.props.edit_cat_sub1_item.scl1_id,
@@ -306,6 +358,15 @@ class CatSubAddEdit extends React.Component {
       };
       this.props.OnEditL1Category(editL1Cat);
     } else if (this.props.isSubCat1 && !this.props.isEdit) {
+      if (this.props.Signature.length === 0) {
+        notify.show(
+          "Please upload the photo. after try again",
+          "custom",
+          3000,
+          notification_color
+        );
+        return;
+      }
       var addL1Cat = {
         catid: this.state.category[0].catid,
         name: data.l1scname,
@@ -320,27 +381,22 @@ class CatSubAddEdit extends React.Component {
         scl1_id: this.state.sub1Cat[0].scl1_id,
         scl2_id: this.props.edit_cat_sub2_item.scl2_id,
         name: data.l2scname,
-        image:
-          this.props.Signature.length === 0
-            ? ""
-            : this.props.Signature[0].img_url,
       };
       this.props.OnEditL2Category(editL2Cat);
     } else if (this.props.isSubCat2 && !this.props.isEdit) {
       var addL2Cat = {
         scl1_id: this.state.sub1Cat[0].scl1_id,
         name: data.l2scname,
-        image:
-          this.props.Signature.length === 0
-            ? ""
-            : this.props.Signature[0].img_url,
       };
       this.props.OnAddL2Category(addL2Cat);
     }
   };
   selectedCat(item) {
     this.setState({ category: item, sub1Cat: [] });
-    this.props.onGetSubCat1({ catid: item[0].catid, zone_id: this.props.zoneItem.id });
+    this.props.onGetSubCat1({
+      catid: item[0].catid,
+      zone_id: this.props.zoneItem.id,
+    });
   }
   selectedSub1Cat(item) {
     this.setState({ sub1Cat: item });
@@ -350,8 +406,8 @@ class CatSubAddEdit extends React.Component {
     this.setState({ sub2Cat: item });
   };
 
-  handleonRemove = (imgid, imgType, index) => {
-    this.props.onDeleteImages(imgType, index);
+  handleonRemove = (index) => {
+    index == 0 ? this.props.onDeleteImages() : this.props.onDeleteThumbImages();
   };
 
   handleCATimages = (newImageFile) => {
@@ -364,16 +420,23 @@ class CatSubAddEdit extends React.Component {
     this.props.onUpdateCATImages(data, type);
   };
 
+  handleCATThumbimages = (newImageFile) => {
+    var data = new FormData();
+    data.append("file", newImageFile[0]);
+    var type = 1;
+    this.props.onUpdateCATTHUMImages(data, type);
+  };
+
   render() {
     return (
       <div>
         <div
           style={{
             height: this.state.isCat
-              ? "55vh"
+              ? "85vh"
               : this.state.isSubCat1
               ? "60vh"
-              : "65vh",
+              : "40vh",
           }}
           className="pd-6"
         >
@@ -385,7 +448,9 @@ class CatSubAddEdit extends React.Component {
               <form onSubmit={this.props.handleSubmit(this.submit)}>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    <div className="border-none">Category Name <span className="must width-25">*</span></div>
+                    <div className="border-none">
+                      Category Name <span className="must width-25">*</span>
+                    </div>
                   </Col>
                   <Col lg="7">
                     <Field
@@ -393,17 +458,25 @@ class CatSubAddEdit extends React.Component {
                       autoComplete="off"
                       type="text"
                       component={InputField}
-                      validate={this.state.isCat ? [required, minLength2,requiredTrim] : []}
+                      validate={
+                        this.state.isCat
+                          ? [required, minLength2, requiredTrim]
+                          : []
+                      }
                       required={true}
                     />
                   </Col>
                 </Row>
-                <Row className="pd-0 mr-l-10 mr-r-10">
-                  <Col lg="5" className="color-grey pd-0">
-                    <div className="border-none">Category Photo <span className="must width-25">*</span></div> 
-                  </Col>
-                  <Col lg="7">
-                    {kitchenSignatureImg.map((item, i) => (
+
+                {CatImg.map((item, i) => (
+                  <Row className="pd-0 mr-l-10 mr-r-10">
+                    <Col lg="5" className="color-grey pd-0">
+                      <div className="border-none">
+                        {i === 0 ? "Header Photo" : "Thumb Photo"}{" "}
+                        <span className="must width-25">*</span>
+                      </div>
+                    </Col>
+                    <Col lg="7">
                       <div key={i} className="border-none">
                         <Field
                           name={"CAT" + i}
@@ -411,18 +484,27 @@ class CatSubAddEdit extends React.Component {
                           component={DropzoneFieldMultiple}
                           type="file"
                           imgPrefillDetail={
-                            this.props.Signature.length
-                              ? this.props.Signature[i]
+                            i == 0
+                              ? this.props.Signature.length
+                                ? this.props.Signature[0]
+                                : ""
+                              : this.props.ThumbPath.length
+                              ? this.props.ThumbPath[0]
                               : ""
                           }
                           label="Photogropy"
-                          handleonRemove={this.handleonRemove}
-                          handleOnDrop={() => this.handleCATimages}
+                          handleonRemove={() => this.handleonRemove(i)}
+                          handleOnDrop={
+                            i == 0
+                              ? () => this.handleCATimages
+                              : () => this.handleCATThumbimages
+                          }
                         />
                       </div>
-                    ))}
-                  </Col>
-                </Row>
+                    </Col>
+                  </Row>
+                ))}
+
                 <Row className="mr-b-10">
                   <Col lg="8"></Col>
                   <Col className="txt-align-right">
@@ -456,7 +538,9 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    <div className="border-none">L1 SC Name <span className="must width-25">*</span></div>
+                    <div className="border-none">
+                      L1 SC Name <span className="must width-25">*</span>
+                    </div>
                   </Col>
                   <Col lg="7">
                     <Field
@@ -465,7 +549,9 @@ class CatSubAddEdit extends React.Component {
                       type="text"
                       component={InputField}
                       validate={
-                        this.state.isSubCat1 ? [required, minLength2,requiredTrim] : []
+                        this.state.isSubCat1
+                          ? [required, minLength2, requiredTrim]
+                          : []
                       }
                       required={true}
                     />
@@ -473,7 +559,9 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    <div className="border-none">L1 SC Photo <span className="must width-25">*</span></div>
+                    <div className="border-none">
+                      L1 SC Photo <span className="must width-25">*</span>
+                    </div>
                   </Col>
                   <Col lg="7">
                     {kitchenSignatureImg.map((item, i) => (
@@ -546,7 +634,9 @@ class CatSubAddEdit extends React.Component {
                 </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10">
                   <Col lg="5" className="color-grey pd-0">
-                    <div className="border-none">L2 SC Name <span className="must width-25">*</span></div>
+                    <div className="border-none">
+                      L2 SC Name <span className="must width-25">*</span>
+                    </div>
                   </Col>
                   <Col lg="7">
                     <Field
@@ -555,37 +645,15 @@ class CatSubAddEdit extends React.Component {
                       type="text"
                       component={InputField}
                       validate={
-                        this.state.isSubCat2 ? [required, minLength2,requiredTrim] : []
+                        this.state.isSubCat2
+                          ? [required, minLength2, requiredTrim]
+                          : []
                       }
                       required={true}
                     />
                   </Col>
                 </Row>
-                <Row className="pd-0 mr-l-10 mr-r-10">
-                  <Col lg="5" className="color-grey pd-0">
-                    <div className="border-none">L2 SC Photo <span className="must width-25">*</span></div>
-                  </Col>
-                  <Col lg="7">
-                    {kitchenSignatureImg.map((item, i) => (
-                      <div key={i} className="border-none">
-                        <Field
-                          name={"L2SC" + i}
-                          index={i}
-                          component={DropzoneFieldMultiple}
-                          type="file"
-                          imgPrefillDetail={
-                            this.props.Signature.length
-                              ? this.props.Signature[i]
-                              : ""
-                          }
-                          label="Photogropy"
-                          handleonRemove={this.handleonRemove}
-                          handleOnDrop={() => this.handleCATimages}
-                        />
-                      </div>
-                    ))}
-                  </Col>
-                </Row>
+
                 <Row className="mr-b-10">
                   <Col lg="8"></Col>
                   <Col className="txt-align-right">

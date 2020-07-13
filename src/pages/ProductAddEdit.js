@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import { Row, Col, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
+import { notify } from "react-notify-toast";
+import { notification_color } from "../utils/constant";
 import {
   PRODUCT_VIEW,
   UOM_LIST_VIEW,
@@ -19,6 +21,7 @@ import {
   PRODUCT_EDIT,
   CLEAR_PRODUCT_DATA,
   CLEAR_PR,
+  VENDOR_LIST_VIEW,
 } from "../constants/actionTypes";
 import { PRODUCT_ADD_EDIT } from "../utils/constant";
 import { Field, reduxForm, reset } from "redux-form";
@@ -28,6 +31,8 @@ import Select from "react-dropdown-select";
 import { history } from "../store";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
 import VendorEdit from "./VendorEdit";
+import DateRangePicker from "react-bootstrap-daterangepicker";
+import VendorAdd from "./VendorAdd";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -70,7 +75,7 @@ const InputSearchDropDown = ({
           values={[...values]}
           noDataLabel={noDataLabel}
           valueField={valueField}
-          dropdownHeight={"300px"}
+          dropdownHeight={"200px"}
           disabled={disabled}
           onChange={(value) => {
             onSelection(value);
@@ -137,6 +142,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: UOM_LIST_VIEW,
       payload: AxiosRequest.Catelog.getUOMList(data),
     }),
+  onGetVendorList: (data) =>
+    dispatch({
+      type: VENDOR_LIST_VIEW,
+      payload: AxiosRequest.Catelog.getVendorList(data),
+    }),
   onGetZone: (data) =>
     dispatch({
       type: ZONE_LIST_VIEW,
@@ -198,6 +208,7 @@ class ProductAddEdit extends React.Component {
       sub1Cat: [],
       sub2Cat: [],
       vendor: [],
+      addVendorItem: [],
       uom: [],
       brand: [],
       zone: [],
@@ -210,13 +221,28 @@ class ProductAddEdit extends React.Component {
       selected_cat_sub2: -1,
       is_loading: true,
       vendorEdit: false,
-      image_uploaded:true,
+      image_uploaded: true,
       selectedVendor: {},
+      today: Moment(new Date()),
+      expiry_date: false,
     };
   }
 
   UNSAFE_componentWillMount() {
     var productIds = this.props.match.params.product_id;
+    var ptname = window.location.pathname;
+    isEdit = false;
+    if (ptname.includes("/product_edit")) {
+      isEdit = true;
+      this.setState({ isEdit: true });
+    } else {
+      this.setState({ isEdit: false });
+    }
+    if (isEdit) {
+      this.props.onClearPr();
+      this.props.onGetProduct({ product_id: productIds });
+    } else {
+    }
     if (!this.props.zoneItem.id) {
       this.props.history.goBack();
       return;
@@ -225,20 +251,13 @@ class ProductAddEdit extends React.Component {
     this.props.onDeleteMenuImages();
     this.props.onGetUOM({});
     this.props.onGetBrand({});
+    this.props.onGetVendorList({});
     this.props.onGetTag({});
-    var ptname = window.location.pathname;
-    isEdit = false;
-    if (ptname.includes("/product_edit")) {
-      isEdit = true;
-    }
-    if (isEdit) {
-      this.props.onClearPr();
-      this.props.onGetProduct({ product_id: productIds });
-    } else {
-    }
+
     this.submit = this.submit.bind(this);
     this.selectedUOM = this.selectedUOM.bind(this);
     this.selectedBrand = this.selectedBrand.bind(this);
+    this.selectedVendorList = this.selectedVendorList.bind(this);
     this.selectedZone = this.selectedZone.bind(this);
     this.selectedPer = this.selectedPer.bind(this);
     this.selectedPrType = this.selectedPrType.bind(this);
@@ -248,14 +267,20 @@ class ProductAddEdit extends React.Component {
     this.selectedSub2Cat = this.selectedSub2Cat.bind(this);
     this.selectedTag = this.selectedTag.bind(this);
     this.toggleVendorEditPopup = this.toggleVendorEditPopup.bind(this);
+    this.toggleVendorAddPopup = this.toggleVendorAddPopup.bind(this);
+    this.onAddVendSu = this.onAddVendSu.bind(this);
+    this.onEditVendSu = this.onEditVendSu.bind(this);
     this.onEditVendor = this.onEditVendor.bind(this);
+    this.dateSelect = this.dateSelect.bind(this);
     this.handleKitchenSignatureimages = this.handleKitchenSignatureimages.bind(
       this
     );
   }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    this.props.onClearPr();
+  }
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
@@ -382,10 +407,13 @@ class ProductAddEdit extends React.Component {
     //   data.catid = this.state.category[0].catid;
     // }
     if (this.props.Signature.length === 0) {
-      this.setState({image_uploaded:false});
+      this.setState({ image_uploaded: false });
       return;
     }
-    this.setState({image_uploaded:true});
+
+    
+
+    this.setState({ image_uploaded: true });
     if (data.KSI0) {
       delete data.KSI0;
     }
@@ -429,7 +457,38 @@ class ProductAddEdit extends React.Component {
       var productDe = this.props.productdetail;
       data.pid = productDe.pid;
       this.props.onEditProductDetails(data);
-    } else this.props.onAddProductDetails(data);
+    } else {
+      var vendor_details = [];
+      var venItem = {};
+      if (this.state.addVendorItem.length > 0) {
+        venItem.vid = this.state.addVendorItem[0].vid;
+      }else {
+        notify.show(
+          "Please select the vendor after try this",
+          "custom",
+          3000,
+          notification_color
+        );
+        return;
+      }
+      if (this.state.expiry_date) {
+        venItem.expiry_date = this.state.expiry_date;
+      } else {
+        notify.show(
+          "Please select the expiry date after try this",
+          "custom",
+          3000,
+          notification_color
+        );
+        return;
+      }
+      venItem.price_agreement_approval = 1;
+      venItem.base_price = data.base_price;
+      venItem.other_charges = data.other_charges;
+      vendor_details.push(venItem);
+      data.vendor_details = vendor_details;
+      this.props.onAddProductDetails(data);
+    }
   };
   selectedCat = (item) => {
     // this.setState({ selected_cat: item[0] });
@@ -447,6 +506,10 @@ class ProductAddEdit extends React.Component {
       zone_id: this.props.zoneItem.id,
     });
   };
+  dateSelect = (event, picker) => {
+    var expdate = picker.startDate.format("YYYY-MM-DD");
+    this.setState({ expiry_date: expdate });
+  };
   selectedSub2Cat = (item) => {
     // this.setState({ selected_cat_sub2: item[0] });
     this.setState({ sub2Cat: item });
@@ -456,6 +519,9 @@ class ProductAddEdit extends React.Component {
   };
   selectedBrand = (item) => {
     this.setState({ brand: item });
+  };
+  selectedVendorList = (item) => {
+    this.setState({ addVendorItem: item });
   };
   selectedZone = (item) => {
     this.setState({ zone: item });
@@ -474,6 +540,31 @@ class ProductAddEdit extends React.Component {
       vendorEdit: !this.state.vendorEdit,
     });
   };
+  toggleVendorAddPopup = () => {
+    this.setState({
+      vendoradd: !this.state.vendoradd,
+    });
+  };
+
+  onAddVendSu = () => {
+    this.setState({is_loading:true})
+    if (this.state.isEdit) {
+      var productIds = this.props.match.params.product_id;
+      this.props.onClearPr();
+      this.props.onGetProduct({ product_id: productIds });
+    }
+    this.toggleVendorAddPopup();
+  }
+
+  onEditVendSu = () => {
+    this.setState({is_loading:true})
+    if (this.state.isEdit) {
+      var productIds = this.props.match.params.product_id;
+      this.props.onClearPr();
+      this.props.onGetProduct({ product_id: productIds });
+    }
+    this.toggleVendorEditPopup();
+  }
 
   onEditVendor = (Item) => {
     this.setState({
@@ -505,7 +596,7 @@ class ProductAddEdit extends React.Component {
       <div>
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset">
-            <div className="legend">Product Add</div>
+            <div className="legend">Add Product</div>
             <div>
               <form onSubmit={this.props.handleSubmit(this.submit)}>
                 <Row className="pd-0 mr-l-10 mr-r-10">
@@ -748,7 +839,10 @@ class ProductAddEdit extends React.Component {
                         </div>
                       ))}
                     </div>
-                    <div className="product_error border-none pd-0" hidden={this.state.image_uploaded}>
+                    <div
+                      className="product_error border-none pd-0"
+                      hidden={this.state.image_uploaded}
+                    >
                       <span>Please upload the photograph</span>
                     </div>
                     <Field
@@ -794,6 +888,83 @@ class ProductAddEdit extends React.Component {
                     </Button>
                   </Col>
                 </Row>
+                <div style={{ width: "550px" }} hidden={this.state.isEdit}>
+                  <div className="fieldset">
+                    <div className="legend" style={{ width: "100px" }}>
+                      Add Vendor
+                    </div>
+                    <div>
+                      <Field
+                        name="vendor"
+                        component={InputSearchDropDown}
+                        options={this.props.VendorList}
+                        labelField="name"
+                        searchable={true}
+                        clearable={true}
+                        searchBy="name"
+                        valueField="vid"
+                        noDataLabel="No matches found"
+                        values={this.state.addVendorItem}
+                        onSelection={this.selectedVendorList}
+                        label="Vendor"
+                      />
+                      <div className="border-none mr-b-10">
+                        <label className="width-150 mr-0">
+                          Exp Date
+                          <span className="must">*</span>
+                        </label>
+                        <DateRangePicker
+                          opens="right"
+                          singleDatePicker
+                          minDate={this.state.today}
+                          drops="up"
+                          onApply={this.dateSelect}
+                        >
+                          <Button
+                            className="mr-r-10"
+                            style={{
+                              width: "30px",
+                              height: "30px",
+                              padding: "0px",
+                            }}
+                          >
+                            <i className="far fa-calendar-alt"></i>
+                          </Button>
+                          {this.state.expiry_date}
+                        </DateRangePicker>
+                      </div>
+
+                      <Field
+                        name="base_price"
+                        autoComplete="off"
+                        type="number"
+                        component={renderInputField}
+                        label="Base price"
+                        validate={this.state.isEdit ? [] : [required]}
+                        required={true}
+                      />
+
+                      {/* <Field
+                        name="cost_price"
+                        autoComplete="off"
+                        type="number"
+                        component={renderInputField}
+                        label="Cost Price"
+                        validate={this.state.isEdit?[]:[required]}
+                        required={true}
+                      /> */}
+                      <Field
+                        name="other_charges"
+                        autoComplete="off"
+                        type="number"
+                        component={renderInputField}
+                        label="Other charges(%)"
+                        validate={this.state.isEdit ? [] : [required]}
+                        required={true}
+                      />
+                    </div>
+                  </div>
+                </div>
               </form>
             </div>
           </div>
@@ -803,7 +974,14 @@ class ProductAddEdit extends React.Component {
               <div className="legend">
                 Cost Comparison (PO/ PA- Active/PA - Expired)
               </div>
-              <div>
+              <div className="flex-column">
+                <Row className="mr-l-10 mr-r-10 mr-b-10">
+                  <Col className="float-right ">
+                    <Button size="sm" onClick={this.toggleVendorAddPopup}>
+                      Add Vendor
+                    </Button>
+                  </Col>
+                </Row>
                 <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10">
                   {this.state.vendor.map((item, i) => (
                     <Col lg="4" className="pd-0">
@@ -856,13 +1034,31 @@ class ProductAddEdit extends React.Component {
           backdrop={true}
         >
           <ModalHeader toggle={this.toggleVendorEditPopup}>
-          Supplier Detail
+            Edit Vendor Detail
           </ModalHeader>
           <ModalBody>
             <VendorEdit
               vendor={this.state.selectedVendor}
               pid={this.props.match.params.product_id}
-              update={this.toggleVendorEditPopup}
+              update={this.onEditVendSu}
+            />
+          </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.vendoradd}
+          toggle={this.toggleVendorAddPopup}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalHeader toggle={this.toggleVendorAddPopup}>
+            ADD Vendor Detail
+          </ModalHeader>
+          <ModalBody>
+            <VendorAdd
+              VendorList={this.props.VendorList}
+              pid={this.props.match.params.product_id}
+              update={this.onAddVendSu}
             />
           </ModalBody>
         </Modal>

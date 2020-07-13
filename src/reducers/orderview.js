@@ -1,16 +1,16 @@
-import { TRACK_ORDER_VIEW } from "../constants/actionTypes";
+import {
+  TRACK_ORDER_VIEW,
+  ORDER_CANCEL_REASON,
+  POST_ORDER_CANCEL,
+  ORDER_ACTION_CLEAR,
+  ORDER_REORDER_REASON,
+  DELETE_PROOF_IMAGES,
+  UPDATE_PROOF_IMAGES,
+} from "../constants/actionTypes";
 
 export default (
   state = {
-    orderview: {
-      items: [
-        { pid:1,product_name: "Raise", price: 25, quantity: 2 },
-        {  pid:2,product_name: "Apple", price: 25, quantity: 2 },
-        {  pid:3,product_name: "Gee", price: 350, quantity: 1 },
-        {  pid:4,product_name: "Bread", price: 40, quantity: 1 },
-        {  pid:5,product_name: "Egg", price: 5, quantity: 10 },
-      ],
-    },
+    orderview: {},
     actionList: [
       { id: 1, name: "Cancel" },
       { id: 2, name: "Reorder" },
@@ -21,24 +21,52 @@ export default (
       { id: 7, name: "Send notification to customer" },
       { id: 8, name: "Raise Ticket" },
     ],
-    cancelList: [
-      { id: 1, name: "Enter Cancellation reason" },
-      { id: 2, name: "Red zone" },
-      { id: 3, name: "Truck breakdown" },
-      { id: 4, name: "Customer given incorrect address" },
-      { id: 5, name: "Customer doesnt want delivery due to bad quality" },
-      { id: 6, name: "Customer not reachable" },
-      { id: 7, name: "Post delivery timing (9PM)" },
-    ]
+    cancelList: [],
+    reorderList: [],
+    ProofImage: [],
+    isCanceled: false,
   },
   action
 ) => {
-  
   switch (action.type) {
     case TRACK_ORDER_VIEW:
       return {
         ...state,
-        orderview: action.payload.result || [],
+        orderview: action.payload.result[0] || [],
+      };
+    case ORDER_CANCEL_REASON:
+      return {
+        ...state,
+        cancelList: action.payload.result || [],
+      };
+    case ORDER_REORDER_REASON:
+      return {
+        ...state,
+        reorderList: action.payload.result || [],
+      };
+    case POST_ORDER_CANCEL:
+      return {
+        ...state,
+        isCanceled: action.payload.status || false,
+      };
+    case UPDATE_PROOF_IMAGES:
+      var imagePath = {
+        img_url: action.payload.result.Location,
+        type: action.imgtype,
+      };
+      return {
+        ...state,
+        ProofImage: [...state.ProofImage, imagePath],
+      };
+    case DELETE_PROOF_IMAGES:
+      return {
+        ...state,
+        ProofImage: [],
+      };
+    case ORDER_ACTION_CLEAR:
+      return {
+        ...state,
+        isCanceled: false,
       };
     default:
       return state;

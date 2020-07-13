@@ -10,6 +10,9 @@ import {
   UPDATE_CAT_IMAGES,
   SET_CAT_IMAGES,
   DELETE_CAT_IMAGES,
+  UPDATE_CAT_THUMB_IMAGES,
+  DELETE_CAT_THUMB_IMAGES,
+  SET_CAT_THUMB_IMAGES,
 } from "../constants/actionTypes";
 
 export default (
@@ -18,6 +21,7 @@ export default (
     subcat_L1: [],
     subcat_L2: [],
     Signature:[],
+    ThumbPath:[],
     isCatUpdate: false,
   },
   action
@@ -62,6 +66,15 @@ export default (
           ...state,
           Signature: [...state.Signature, imagePath]
         };
+        case UPDATE_CAT_THUMB_IMAGES:
+        var imageThumbPath = {
+          img_url: action.payload.result.Location,
+          type: action.imgtype
+        };
+        return {
+          ...state,
+          ThumbPath: [...state.ThumbPath, imageThumbPath]
+        };
         case SET_CAT_IMAGES:
         var imagePath2 = {
           img_url: action.image,
@@ -71,11 +84,25 @@ export default (
           ...state,
           Signature: [...state.Signature, imagePath2]
         };
+        case SET_CAT_THUMB_IMAGES:
+        var imagethuPath2 = {
+          img_url: action.image,
+          type: 0
+        };
+        return {
+          ...state,
+          ThumbPath: [...state.ThumbPath, imagethuPath2]
+        };
         case DELETE_CAT_IMAGES:
         return {
           ...state,
           Signature: []
         };
+        case DELETE_CAT_THUMB_IMAGES:
+          return {
+            ...state,
+            ThumbPath: []
+          };
     default:
       return state;
   }
