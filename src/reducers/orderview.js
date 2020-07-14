@@ -10,6 +10,9 @@ import {
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
   POST_MESSAGE_TO_CUSTOMER,
+  ORDER_ZENDESK_ISSUES,
+  POST_ZENDESK_TICKET,
+  TRACK_ORDER_LOGS,
 } from "../constants/actionTypes";
 
 export default (
@@ -26,12 +29,15 @@ export default (
     ],
     cancelList: [],
     reorderList: [],
-    returnReasonList:[],
+    returnReasonList: [],
+    zendeskissuesList: [],
+    OrderLogs: [],
     ProofImage: [],
     isCanceled: false,
-    isReordered:false,
-    isReturnordered:false,
-    isMessageSented:false
+    isReordered: false,
+    isReturnordered: false,
+    isMessageSented: false,
+    isTicketCreated: false,
   },
   action
 ) => {
@@ -41,6 +47,12 @@ export default (
         ...state,
         orderview: action.payload.result[0] || [],
       };
+    case TRACK_ORDER_LOGS:
+      return {
+        ...state,
+        OrderLogs: action.payload.result || [],
+      };
+
     case ORDER_CANCEL_REASON:
       return {
         ...state,
@@ -51,31 +63,42 @@ export default (
         ...state,
         reorderList: action.payload.result || [],
       };
-      case ORDER_RETURN_REASON:
+    case ORDER_RETURN_REASON:
       return {
         ...state,
         returnReasonList: action.payload.result || [],
+      };
+    case ORDER_ZENDESK_ISSUES:
+      return {
+        ...state,
+        zendeskissuesList: action.payload.result || [],
       };
     case POST_ORDER_CANCEL:
       return {
         ...state,
         isCanceled: action.payload.status || false,
       };
-      case POST_RE_ORDER:
+    case POST_RE_ORDER:
       return {
         ...state,
         isReordered: action.payload.status || false,
       };
-      case POST_RETURN_ORDER:
+    case POST_RETURN_ORDER:
       return {
         ...state,
         isReturnordered: action.payload.status || false,
       };
-      case POST_MESSAGE_TO_CUSTOMER:
-        return {
-          ...state,
-          isMessageSented: action.payload.status || false,
-        };
+    case POST_MESSAGE_TO_CUSTOMER:
+      return {
+        ...state,
+        isMessageSented: action.payload.status || false,
+      };
+    case POST_ZENDESK_TICKET:
+      return {
+        ...state,
+        isTicketCreated: action.payload.status || false,
+      };
+
     case UPDATE_PROOF_IMAGES:
       var imagePath = {
         img_url: action.payload.result.Location,
@@ -94,12 +117,13 @@ export default (
       return {
         ...state,
         isCanceled: false,
-        isReordered:false,
-        isReturnordered:false,
-        isMessageSented:false,
-        ProofImage:[]
+        isReordered: false,
+        isReturnordered: false,
+        isMessageSented: false,
+        isTicketCreated: false,
+        ProofImage: [],
       };
-      
+
     default:
       return state;
   }

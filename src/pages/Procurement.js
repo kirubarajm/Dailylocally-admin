@@ -182,7 +182,7 @@ class Procurement extends React.Component {
   onSearchInput = (e) => {
     const value = e.target.value || "";
     this.setState({ itemcode: value });
-    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }

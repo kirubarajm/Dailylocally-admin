@@ -20,6 +20,8 @@ import StockKeeping from "./pages/StockKeeping";
 import StockKeepingAdd from "./pages/StockKeepingAdd";
 import Crm from "./pages/Crm";
 import OrderView from "./pages/OrderView";
+import UserList from "./pages/UserList";
+import TransactionList from "./pages/TransactionList";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -140,6 +142,10 @@ class App extends React.Component {
             component={StockKeepingAdd}
           />
           <LayoutRoute exact path="/crm" layout={MainLayout} component={Crm} />
+          <LayoutRoute exact path="/user" layout={MainLayout} component={UserList} />
+          <LayoutRoute exact path="/crm/:userid" layout={MainLayout} component={Crm} />
+          <LayoutRoute exact path="/logistics" layout={MainLayout} component={Crm} />
+          <LayoutRoute exact path="/transaction/:userid" layout={MainLayout} component={TransactionList} />
 
           <LayoutRoute
             exact

@@ -148,7 +148,7 @@ class Po extends React.Component {
   onSearchPOno = (e) => {
     const value = e.target.value || "";
     this.setState({ pono: value });
-    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
@@ -156,7 +156,7 @@ class Po extends React.Component {
   onSearchSupplier = (e) => {
     const value = e.target.value || "";
     this.setState({ supplier_name: value });
-    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }

@@ -21,6 +21,9 @@ import stockkeeping from './reducers/stockkeeping'
 import stockkeepingadd from './reducers/stockkeepingadd'
 import crm from './reducers/crm'
 import orderview from './reducers/orderview'
+import commententer from './reducers/commententer'
+import userlist from './reducers/userlist'
+import transaction from './reducers/transaction'
 
 export default combineReducers({
   router: routerReducer,
@@ -44,5 +47,8 @@ export default combineReducers({
   stockkeeping,
   stockkeepingadd,
   orderview,
-  crm
+  commententer,
+  crm,
+  transaction,
+  userlist
 });

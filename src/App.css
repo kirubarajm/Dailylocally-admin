@@ -413,6 +413,9 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 .mr-10 {
   margin: 10px !important;
 }
+.mr-lr-5 {
+  margin: 0px 5px !important;
+}
 .mr-lr-10 {
   margin: 0px 10px !important;
 }
@@ -813,6 +816,13 @@ a, a:focus, a:hover, a:visited {
 .search-vscroll {
   margin-bottom: 40px !important;
   overflow: auto !important;
+  background: #ffffff !important;
+  height: 45vh !important;
+}
+
+.scroll-crm {
+  overflow-y: auto;
+  overflow-x: hidden;
   background: #ffffff !important;
   height: 55vh !important;
 }
@@ -1393,6 +1403,10 @@ form>div>div>* {
   height: 62px;
 }
 
+.height-100 {
+  height: 100px !important;
+}
+
 .add_live_modal .modal-content {
   margin-top: 100px !important;
 }
@@ -1752,6 +1766,10 @@ hr.style-moveit:after {
 
 .width-200 {
   width: 200px !important;
+}
+
+.width-210 {
+  width: 210px !important;
 }
 
 .width-250 {

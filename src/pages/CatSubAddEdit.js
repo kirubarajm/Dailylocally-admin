@@ -407,7 +407,7 @@ class CatSubAddEdit extends React.Component {
   };
 
   handleonRemove = (index) => {
-    index == 0 ? this.props.onDeleteImages() : this.props.onDeleteThumbImages();
+    index === 0 ? this.props.onDeleteImages() : this.props.onDeleteThumbImages();
   };
 
   handleCATimages = (newImageFile) => {
@@ -484,7 +484,7 @@ class CatSubAddEdit extends React.Component {
                           component={DropzoneFieldMultiple}
                           type="file"
                           imgPrefillDetail={
-                            i == 0
+                            i === 0
                               ? this.props.Signature.length
                                 ? this.props.Signature[0]
                                 : ""
@@ -495,7 +495,7 @@ class CatSubAddEdit extends React.Component {
                           label="Photogropy"
                           handleonRemove={() => this.handleonRemove(i)}
                           handleOnDrop={
-                            i == 0
+                            i === 0
                               ? () => this.handleCATimages
                               : () => this.handleCATThumbimages
                           }

@@ -10,6 +10,7 @@ export const CAT_SUB_ADD_EDIT="cat_sub_add_edit"
 export const ORDER_VIEW_FORM="order_view_from"
 export const RECEIVING_FORM="receiving_form"
 export const STOCK_ADD_FORM="stock_add_form"
+export const COMMENT_ENTER_FORM="comment_form"
 export const LoginType={1:"/",2:"/",3:"/makeit-vorders",4:"/",5:"/",6:"/"};
 export const MasterOrderStatusV={0:"Post",1:"Accept",2:"Preparing",3:"Prepared",5:"Pickedup",6:"Delivered",7:"Cancel"};
 export const MasterPOStatus={0:"Request",1:"Received",2:"Un Received",3:"Close",4:"Deleted"};

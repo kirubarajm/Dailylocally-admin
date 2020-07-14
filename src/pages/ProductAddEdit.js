@@ -53,7 +53,7 @@ const InputSearchDropDown = ({
       style={{ marginBottom: "10px", display: "flex", flexDirection: "row" }}
     >
       <div className="mr-0 width-150">
-        <label className="mr-0 width-150">
+        <label className="mr-0 width-150 font-size-14">
           {label} <span className="must">*</span>
         </label>
       </div>
@@ -296,7 +296,6 @@ class ProductAddEdit extends React.Component {
         weight: productDe.weight,
         packetsize: productDe.packetsize || 0,
         short_desc: productDe.short_desc,
-        productdetails: productDe.productdetails,
         hsn_code: "" + productDe.hsn_code || "0",
         tag: productDe.tag,
         targetedbaseprice: productDe.targetedbaseprice || 0,
@@ -714,8 +713,10 @@ class ProductAddEdit extends React.Component {
                       type="text"
                       component={renderInputField}
                       label="Short Description"
+                      validate={[required, requiredTrim]}
+                      required={true}
                     />
-                    <Field
+                    {/* <Field
                       name="productdetails"
                       autoComplete="off"
                       type="text"
@@ -723,7 +724,7 @@ class ProductAddEdit extends React.Component {
                       label="Product Details"
                       validate={[required, requiredTrim]}
                       required={true}
-                    />
+                    /> */}
                     {/* <Field
                       name="zone"
                       component={InputSearchDropDown}
@@ -815,7 +816,7 @@ class ProductAddEdit extends React.Component {
 
                   <Col lg="4">
                     <div className="flex-row border-none">
-                      <div className="width-150">
+                      <div className="width-150 font-size-14">
                         Photograph <span className="must">*</span>
                       </div>
                       {kitchenSignatureImg.map((item, i) => (
@@ -890,10 +891,10 @@ class ProductAddEdit extends React.Component {
                 </Row>
                 <div style={{ width: "550px" }} hidden={this.state.isEdit}>
                   <div className="fieldset">
-                    <div className="legend" style={{ width: "100px" }}>
+                    <div className="legend border-none" style={{ width: "100px" }}>
                       Add Vendor
                     </div>
-                    <div>
+                    <div className="border-none">
                       <Field
                         name="vendor"
                         component={InputSearchDropDown}
@@ -908,11 +909,12 @@ class ProductAddEdit extends React.Component {
                         onSelection={this.selectedVendorList}
                         label="Vendor"
                       />
-                      <div className="border-none mr-b-10">
-                        <label className="width-150 mr-0">
+                      <div className="border-none mr-b-10 flex-row">
+                        <label className="width-150 mr-0 font-size-14">
                           Exp Date
                           <span className="must">*</span>
                         </label>
+                        <div className="border-grey width-210">
                         <DateRangePicker
                           opens="right"
                           singleDatePicker
@@ -932,6 +934,7 @@ class ProductAddEdit extends React.Component {
                           </Button>
                           {this.state.expiry_date}
                         </DateRangePicker>
+                        </div>
                       </div>
 
                       <Field

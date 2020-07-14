@@ -50,7 +50,7 @@ const InputField = ({
 }) => {
   return (
     <div>
-      <label className="pd-0" style={{ minWidth: "180px" }}>
+      <label className="pd-0 font-weight-normal" style={{ minWidth: "180px" }}>
         {label}{" "}
         <span className="must" hidden={!custom.required}>
           *
@@ -362,7 +362,7 @@ class VendorAssign extends React.Component {
 
   VendorEdit = (item) => {
     var selected_vpid = [];
-    selected_vpid.push(item.vpid);
+    selected_vpid.push(item.pid);
     var arvalue = {};
     arvalue[item.tempid] = true;
 
@@ -373,7 +373,7 @@ class VendorAssign extends React.Component {
 
     this.props.onGetVendorList({
       zone_id: this.props.zoneItem.id,
-      products: [item.vpid],
+      products: [item.pid],
     });
 
     this.setState({ startdate: today, suplier: [] });
@@ -413,9 +413,16 @@ class VendorAssign extends React.Component {
   };
 
   onAddVendor = () => {
-    //var checkItem = this.state.selected_proid; //JSON.parse(JSON.stringify(this.state.selected_proid));
+    var checkItem = this.state.selected_proid;
+    var Values = Object.keys(checkItem); //JSON.parse(JSON.stringify(this.state.selected_proid));
     //delete checkItem["selectall"];
-    var vpid = this.state.selected_vpid;
+    var vpid = [];
+    const pocreatelist = this.props.pocreatelist || [];
+    pocreatelist.map((item, i) => {
+      if(Values.indexOf(""+item.tempid)!==-1){
+        vpid.push(item.pid);
+      }
+    });
     var filtervpid = vpid
       .map((value) => value)
       .filter((value, index, _req) => _req.indexOf(value) === index);
@@ -511,7 +518,7 @@ class VendorAssign extends React.Component {
         arvalue[name] = value;
         pocreatelist.map((item, i) => {
           arvalue[item.tempid] = value;
-          selected_vpid.push(item.vpid);
+          selected_vpid.push(item.pid);
         });
       } else {
         arvalue = {};
@@ -521,7 +528,7 @@ class VendorAssign extends React.Component {
       if (value) {
         arvalue[name] = value;
         var allCheck = true;
-        selected_vpid.push(sitem.vpid);
+        selected_vpid.push(sitem.pid);
         pocreatelist.map((item, i) => {
           if (!arvalue[item.tempid]) {
             allCheck = false;
@@ -534,7 +541,7 @@ class VendorAssign extends React.Component {
         }
         delete arvalue[name];
         if (selected_vpid.length > 0) {
-          var indexof = selected_vpid.indexOf(sitem.vpid);
+          var indexof = selected_vpid.indexOf(sitem.pid);
           if (indexof !== -1) selected_vpid.splice(indexof, 1);
         }
       }
@@ -581,7 +588,7 @@ class VendorAssign extends React.Component {
               </Col>
               <Col className="pd-0">
               <div  className="float-right" style={{ display: "flex", flexDirection: "row" }}>
-                <span className="mr-r-20">Area</span>
+                <span className="mr-r-20">Zone</span>
                 <ButtonDropdown
                   className="max-height-30 mr-r-10"
                   isOpen={this.state.isOpenAreaDropDown}

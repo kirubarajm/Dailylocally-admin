@@ -6,6 +6,7 @@ const searchInputField = ({
   placeholder,
   type,
   onkeydown,
+  disabled,
   onkeyup,
   onClose,
 }) => {
@@ -19,6 +20,7 @@ const searchInputField = ({
         onWheel={(event) => {
           event.stopPropagation();
         }}
+        disabled={disabled}
         onKeyDown={onkeydown}
         onKeyUp={onkeyup}
       />
@@ -75,6 +77,7 @@ class Searchnew extends Component {
   render() {
     const placeholder = this.props.placeholder || " Search...";
     const type = this.props.type || "text";
+    const disabled = this.props.disabled || false;
     return (
       <div className="cr-search-form width-200">
         <form>
@@ -83,6 +86,7 @@ class Searchnew extends Component {
             type={type}
             component={searchInputField}
             placeholder={placeholder}
+            disabled={disabled}
             onkeydown={this.handleInputChange}
             onkeyup={this.handleUp}
             onClose={this.onClose}

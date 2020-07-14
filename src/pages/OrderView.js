@@ -12,6 +12,9 @@ import {
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
   POST_MESSAGE_TO_CUSTOMER,
+  ORDER_ZENDESK_ISSUES,
+  POST_ZENDESK_TICKET,
+  TRACK_ORDER_LOGS,
 } from "../constants/actionTypes";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import AxiosRequest from "../AxiosRequest";
@@ -30,7 +33,7 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  Table,
+  ModalFooter,
 } from "reactstrap";
 import Moment from "moment";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
@@ -40,6 +43,47 @@ import { required, minLength5, maxLength160 } from "../utils/Validation";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
+import Select from "react-dropdown-select";
+import CommentEditBox from "./CommentEditBox";
+
+const InputSearchDropDown = ({
+  onSelection,
+  options,
+  label,
+  labelField,
+  searchable,
+  searchBy,
+  values,
+  disabled,
+  clearable,
+  noDataLabel,
+  valueField,
+}) => {
+  return (
+    <div>
+      <label>
+        {label} <span className="must">*</span>
+      </label>
+      <div>
+        <Select
+          multi
+          options={options}
+          labelField={labelField}
+          searchable={searchable}
+          searchBy={searchBy}
+          values={[...values]}
+          noDataLabel={noDataLabel}
+          valueField={valueField}
+          dropdownHeight={"300px"}
+          disabled={disabled}
+          onChange={(value) => {
+            onSelection(value);
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 const InputField = ({
   input,
@@ -76,6 +120,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_ORDER_VIEW,
       payload: AxiosRequest.CRM.getOrderDetail(data),
     }),
+  onGetOrdersLogs: (data) =>
+    dispatch({
+      type: TRACK_ORDER_LOGS,
+      payload: AxiosRequest.CRM.getOrderLogs(data),
+    }),
   onGetCancelReason: () =>
     dispatch({
       type: ORDER_CANCEL_REASON,
@@ -86,7 +135,6 @@ const mapDispatchToProps = (dispatch) => ({
       type: POST_ORDER_CANCEL,
       payload: AxiosRequest.CRM.postOrderCancel(data),
     }),
-
   onGetReorderReason: () =>
     dispatch({
       type: ORDER_REORDER_REASON,
@@ -107,10 +155,20 @@ const mapDispatchToProps = (dispatch) => ({
       type: POST_RETURN_ORDER,
       payload: AxiosRequest.CRM.postReturnOrder(data),
     }),
+  onPostZendeskTicket: (data) =>
+    dispatch({
+      type: POST_ZENDESK_TICKET,
+      payload: AxiosRequest.CRM.postZendeskCreation(data),
+    }),
   onPostMessageToCustomer: (data) =>
     dispatch({
       type: POST_MESSAGE_TO_CUSTOMER,
       payload: AxiosRequest.CRM.postMessageToCustomer(data),
+    }),
+  onGetZendeskIssuse: (data) =>
+    dispatch({
+      type: ORDER_ZENDESK_ISSUES,
+      payload: AxiosRequest.CRM.getRaiseTicketIssues(data),
     }),
   onDeleteImages: () =>
     dispatch({
@@ -131,14 +189,22 @@ const mapDispatchToProps = (dispatch) => ({
 function CardRowCol(props) {
   var lable = props.lable ? props.lable : "";
   var color = props.color ? props.color : "Black";
+  var hidden = props.hidden || false;
   if (props.lable !== null) {
     return (
-      <Row className="list-text cart-item font-size-14">
+      <Row className="list-text cart-item font-size-14" hidden={hidden}>
         <Col lg="4" className="color-grey">
           {lable}
         </Col>
         <Col lg="1">:</Col>
-        <Col style={{ color: color }}>{props.value || "-"}</Col>
+        {/* className="text-decoration-underline txt-cursor" */}
+        {props.isHyper ? (
+          <Col style={{ color: color }} onClick={props.onClick}>
+            {props.value || "-"}
+          </Col>
+        ) : (
+          <Col style={{ color: color }}>{props.value || "-"}</Col>
+        )}
       </Row>
     );
   }
@@ -166,6 +232,7 @@ class OrderView extends React.Component {
       cancelItem: defualtCancelReason,
       reorderItem: defualtReordeReason,
       returnorderItem: defualtReturnReason,
+      zendeskReasonItem: [],
       isCancelModal: false,
       isCancelReasonModal: false,
       selected_product: [],
@@ -200,6 +267,7 @@ class OrderView extends React.Component {
   componentDidUpdate(nextProps, nextState) {
     if (this.props.isCanceled) {
       this.props.onClear();
+      this.toggleCancel();
       this.getOrderDetail();
     }
 
@@ -218,10 +286,17 @@ class OrderView extends React.Component {
       this.props.onClear();
       this.toggleMessage();
     }
+
+    if (this.props.isTicketCreated) {
+      this.props.onClear();
+      this.toggleZendeskModal();
+      this.getOrderDetail();
+    }
   }
 
   getOrderDetail() {
     this.props.onGetOrdersDetail({ id: this.props.match.params.id });
+    this.props.onGetOrdersLogs({ doid: this.props.match.params.id });
   }
   componentDidCatch() {}
   onCollapseOrderDetail = () => {
@@ -266,13 +341,22 @@ class OrderView extends React.Component {
       this.props.onGetReturnReason();
       this.toggleReturnorder();
     } else if (item.id === 6) {
+      this.props.initialize({ message: "" });
       this.toggleMessage();
+    } else if (item.id === 7) {
+      this.props.onGetZendeskIssuse({ type: 2 });
+      this.toggleZendeskModal();
     }
   };
 
   toggleMessage = () => {
     this.setState({
       isCustMessageModal: !this.state.isCustMessageModal,
+    });
+  };
+  toggleZendeskModal = () => {
+    this.setState({
+      isZendeskModal: !this.state.isZendeskModal,
     });
   };
 
@@ -296,6 +380,13 @@ class OrderView extends React.Component {
       isReturnorderReasonModal: !this.state.isReturnorderReasonModal,
     });
   };
+
+  toggleZendeskReason = () => {
+    this.setState({
+      isZendeskReasonModal: !this.state.isZendeskReasonModal,
+    });
+  };
+
   clickReorderReason = (item) => {
     this.setState({
       reorderItem: item,
@@ -306,6 +397,33 @@ class OrderView extends React.Component {
     this.setState({
       returnorderItem: item,
     });
+  };
+
+  clickZendeskReason = (item) => {
+    this.setState({
+      zendeskReasonItem: item,
+    });
+  };
+  tiketCreateConfirm = () => {
+    if (this.state.zendeskReasonItem.length === 0) {
+      notify.show(
+        "Please select the issues",
+        "custom",
+        3000,
+        notification_color
+      );
+    } else {
+      const orderview = this.props.orderview;
+      var data = {
+        userid: orderview.userid,
+        doid: orderview.id,
+        issues: this.state.zendeskReasonItem,
+        done_by: 1,
+      };
+      console.log("data-->", data);
+      this.toggleZendeskModal();
+      //this.props.onPostZendeskTicket(data);
+    }
   };
   retrunorderConfirm = () => {
     if (this.state.returnorderItem.rid === -1) {
@@ -418,6 +536,15 @@ class OrderView extends React.Component {
     }
   };
 
+  onView = (Item) => {
+    this.props.history.push("/orderview/" + Item);
+    window.location.reload();
+  };
+
+  OnCommentUpdate= () => {
+    this.props.onGetOrdersLogs({ doid: this.props.match.params.id });
+  }
+
   ImageDownload = (img) => {
     if (document.getElementById(img)) document.getElementById(img).click();
   };
@@ -504,6 +631,7 @@ class OrderView extends React.Component {
                     <DropdownItem
                       onClick={() => this.clickAction(item)}
                       key={index}
+                      disabled={propdata.dayorderstatus === 11 && item.id === 1}
                     >
                       {item.name}
                     </DropdownItem>
@@ -542,6 +670,28 @@ class OrderView extends React.Component {
 
             <Col>
               <CardRowCol lable="Order Id" value={"#" + propdata.id} />
+              <CardRowCol
+                lable="Reorder placed"
+                value={"#" + propdata.reorder_placed_id}
+                hidden={propdata.reorder_placed_id ? false : true}
+                color="red"
+                isHyper={true}
+                onClick={() => this.onView(propdata.reorder_placed_id)}
+              />
+              <CardRowCol
+                lable="This is a reorder for "
+                value={"#" + propdata.reorder_id}
+                hidden={propdata.reorder_id ? false : true}
+                color="red"
+                isHyper={true}
+                onClick={() => this.onView(propdata.reorder_id)}
+              />
+              <CardRowCol
+                lable="Reorder Reason"
+                value={propdata.reorder_reason}
+                hidden={propdata.reorder_id ? false : true}
+                color="red"
+              />
               <CardRowCol
                 lable="Order date/ time"
                 value={this.dateConvert(propdata.created_at)}
@@ -727,6 +877,7 @@ class OrderView extends React.Component {
             </Col>
           </Row>
         </Collapse>
+        
         <Card className="pd-tb-0 mr-t-10">
           <CardBody
             onClick={this.onCollapseLogDetail}
@@ -744,6 +895,54 @@ class OrderView extends React.Component {
             </div>
           </CardBody>
         </Card>
+        <Collapse
+          isOpen={this.state.isCollapseLogDetail}
+          style={{ padding: "0px" }}
+        >
+          <Row className="mr-lr-10 pd-8 border-block">
+            <Col>
+              {this.props.OrderLogs.map((item, i) => (
+                <div className="width-full">
+                  <Row
+                    className="font-size-12 font-weight-bold pd-8"
+                    style={{ background: "#dddddd" }}
+                  >
+                    <Col lg="11">
+                      {item.Dashboard_type} - via {item.done_type}
+                    </Col>
+                    <Col lg="1" className="txt-align-right">
+                      {item.isCollapse ? (
+                        <FaChevronUp size={14} hidden={true} />
+                      ) : (
+                        <FaChevronDown size={14} hidden={true} />
+                      )}
+                    </Col>
+                  </Row>
+                  <Row className="mr-lr-5 pd-8 font-size-12">
+                    <Col className="flex-row pd-8">
+                      <div className="mr-r-10">
+                        Date/ Time stamp - {this.dateConvert(item.created_at)}
+                      </div>
+                      <div className="mr-r-10">
+                        Created By -{item.name}-{item.usertype}
+                      </div>
+                      <div className="mr-r-10">{item.comments}</div>
+                    </Col>
+                  </Row>
+                </div>
+              ))}
+            </Col>
+          </Row>
+        </Collapse>
+
+
+        <Row className="mr-lr-10 mr-b-20 mr-t-20">
+          <Col className="border-block pd-5">
+            <CommentEditBox dayorderdata={propdata} update={this.OnCommentUpdate}/>{" "}
+          </Col>
+        </Row>
+
+        
         <Modal
           isOpen={this.state.isCancelModal}
           toggle={this.toggleCancel}
@@ -868,7 +1067,6 @@ class OrderView extends React.Component {
             </Row>
           </ModalBody>
         </Modal>
-
         <Modal
           isOpen={this.state.isReorderModal}
           toggle={this.toggleReorder}
@@ -1033,7 +1231,6 @@ class OrderView extends React.Component {
             </Row>
           </ModalBody>
         </Modal>
-
         <Modal
           isOpen={this.state.isReturnorderModal}
           toggle={this.toggleReturnorder}
@@ -1092,7 +1289,6 @@ class OrderView extends React.Component {
             </Row>
           </ModalBody>
         </Modal>
-
         <Modal
           isOpen={this.state.isCustMessageModal}
           toggle={this.toggleMessage}
@@ -1132,6 +1328,48 @@ class OrderView extends React.Component {
               </Col>
             </Row>
           </ModalBody>
+        </Modal>
+        <Modal
+          isOpen={this.state.isZendeskModal}
+          toggle={this.toggleZendeskModal}
+          backdrop={true}
+        >
+          <ModalHeader>Raise Ticket</ModalHeader>
+          <ModalBody>
+            <InputSearchDropDown
+              labelField="issues"
+              searchable={true}
+              clearable={true}
+              searchBy="issues"
+              valueField="id"
+              values={[]}
+              noDataLabel="No matches found"
+              options={this.props.zendeskissuesList}
+              onSelection={this.clickZendeskReason}
+              label="Select Issues"
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Row className="mr-b-10 mr-r-10">
+              <Col lg="8"></Col>
+              <Col className="pd-0 mr-r-10 txt-align-right">
+                <Button
+                  size="sm"
+                  type="submit"
+                  onClick={this.tiketCreateConfirm}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  size="sm"
+                  className="mr-l-10"
+                  onClick={this.toggleZendeskModal}
+                >
+                  Close
+                </Button>
+              </Col>
+            </Row>
+          </ModalFooter>
         </Modal>
       </div>
     );

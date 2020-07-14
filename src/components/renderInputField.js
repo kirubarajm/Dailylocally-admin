@@ -13,7 +13,7 @@ const renderInputField = ({
   //pattern="\d*" maxlength="4"
   return (
     <div hidden={custom.fieldhidden} className="border-none">
-      <label hidden={!label} className="width-150 mr-0">
+      <label hidden={!label} className="width-150 mr-0 font-size-14">
         {label}{" "}
         <span className="must" hidden={!custom.required}>
           *

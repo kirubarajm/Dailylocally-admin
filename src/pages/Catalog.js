@@ -654,7 +654,7 @@ class Catalog extends React.Component {
             </Col>
             <Col>
               <div className="float-right">
-                <spna className="mr-r-20">Area</spna>
+                <spna className="mr-r-20">Zone</spna>
                 <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenAreaDropDown}

@@ -255,6 +255,7 @@ class Sorting extends React.Component {
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,
       report_type: this.state.reportingItem.id,
+      done_by:1
     };
     console.log("data-->", data);
     this.props.onReportSubmit(data);
@@ -266,6 +267,7 @@ class Sorting extends React.Component {
     if (Values.length > 0 && Values.length === products.length) {
       var data = {
         dopid_list: Values,
+        done_by:1
       };
       this.props.onSubmit(data);
     } else {
@@ -320,7 +322,7 @@ class Sorting extends React.Component {
   onSearchOrderId = (e) => {
     const value = e.target.value || "";
     this.setState({ orderid: value });
-    if (e.keyCode === 13 && e.shiftKey === false || value==="") {
+    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }

@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
+import PaginationComponent from "react-reactstrap-pagination";
 import {
   Row,
   Col,
@@ -23,6 +24,9 @@ import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
   TRACK_ORDER_LIST,
+  TRACK_ORDER_LIST_FILTER,
+  TRACK_SELECT_SOLT,
+  TRACK_SELECT_STATUS,
 } from "../constants/actionTypes";
 import { getOrderStatus } from "../utils/ConstantFunction";
 
@@ -39,7 +43,29 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_ORDER_LIST,
       payload: AxiosRequest.CRM.getOrderList(data),
     }),
+  onSetDayordersFilters: (data) =>
+    dispatch({
+      type: TRACK_ORDER_LIST_FILTER,
+      data,
+    }),
+  onSelectSlot: (selectedSlot) =>
+    dispatch({
+      type: TRACK_SELECT_SOLT,
+      selectedSlot,
+    }),
+  onSelectStatus: (selectedStatus) =>
+    dispatch({
+      type: TRACK_SELECT_STATUS,
+      selectedStatus,
+    }),
 });
+
+const defultPage = 1;
+const pagelimit = 20;
+const defult_slot = {
+  id: -1,
+  status: "All",
+};
 
 class Crm extends React.Component {
   constructor() {
@@ -50,22 +76,23 @@ class Crm extends React.Component {
       enddate: false,
       isOpenOrderStatus: false,
       isOpenSlot: false,
-      select_order_status: {
-        id: -1,
-        status: "All",
-      },
-      select_slot: {
-        id: -1,
-        status: "All",
-      },
+      select_order_status: defult_slot,
+      select_slot: defult_slot,
       order_no: false,
       user_search: false,
       orderid_refresh: false,
       isLoading: false,
+      userid: 0,
+      user_via_order: false,
     };
   }
 
   UNSAFE_componentWillMount() {
+    var userid = this.props.match.params.userid || false;
+    if (userid) this.setState({ user_via_order: true, userid: userid });
+    if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
     this.dateSelectOr = this.dateSelectOr.bind(this);
     this.toggleOrderStatus = this.toggleOrderStatus.bind(this);
     this.toggleSlot = this.toggleSlot.bind(this);
@@ -82,6 +109,13 @@ class Crm extends React.Component {
   componentWillUnmount() {}
 
   componentDidMount() {}
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.match.params.userid !== this.props.match.params.userid) {
+      var userid = this.props.match.params.userid || false;
+      if (userid) this.setState({ user_via_order: true, userid: userid });
+      this.onReset();
+    }
+  }
   componentDidUpdate(nextProps, nextState) {
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
@@ -144,6 +178,7 @@ class Crm extends React.Component {
     this.setState({ orderid_refresh: false });
   };
   onSearch = () => {
+    this.props.onSetDayordersFilters(false);
     this.setState({ isLoading: false });
   };
 
@@ -151,13 +186,15 @@ class Crm extends React.Component {
     this.setState({
       startdate: "",
       enddate: "",
-      orderid: "",
+      order_no: "",
+      user_search: "",
       orderid_refresh: true,
-      select_order_status: {
-        id: -1,
-        status: "All",
-      },
+      select_order_status: defult_slot,
+      select_slot: defult_slot,
     });
+    this.props.onSelectStatus(defult_slot);
+    this.props.onSelectSlot(defult_slot);
+    this.props.onSetDayordersFilters(false);
     this.props.onGetDayorders({
       zoneid: this.props.zoneItem.id,
     });
@@ -166,27 +203,51 @@ class Crm extends React.Component {
   onGetOrders = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      var data = {
-        zoneid: this.props.zoneItem.id,
-      };
-      if (this.state.startdate) data.starting_date = this.state.startdate;
-      if (this.state.enddate) data.end_date = this.state.enddate;
-      if (this.state.order_no) data.doid = this.state.order_no;
-      if (this.state.user_search) data.usersearch = this.state.user_search;
-      if (
-        this.state.select_order_status &&
-        this.state.select_order_status.id !== -1
-      )
-        data.dayorderstatus = this.state.select_order_status.id;
-      if (this.state.select_slot && this.state.select_slot.id !== -1)
-        data.slot = this.state.select_slot.id;
+      var data = { zoneid: this.props.zoneItem.id };
+      if (this.props.datafilter) {
+        data = this.props.datafilter;
+        this.setState({
+          startdate: data.starting_date,
+          enddate: data.end_date,
+          order_no: data.id,
+          user_search: data.search,
+          select_order_status: this.props.orderSelectedStatus,
+          select_slot: this.props.orderSelectedSolt,
+        });
+      } else {
+        data.page = defultPage;
+        if (this.state.startdate) data.starting_date = this.state.startdate;
+        if (this.state.enddate) data.end_date = this.state.enddate;
+        if (this.state.order_no) data.id = this.state.order_no;
+        if (this.state.user_search) data.search = this.state.user_search;
+        if (
+          this.state.select_order_status &&
+          this.state.select_order_status.id !== -1
+        )
+          data.dayorderstatus = this.state.select_order_status.id;
+        if (this.state.select_slot && this.state.select_slot.id !== -1)
+          data.slot = this.state.select_slot.id;
+      }
 
+      this.props.onSelectStatus(this.state.select_order_status);
+      this.props.onSelectSlot(this.state.select_slot);
       this.props.onGetDayorders(data);
+      this.props.onSetDayordersFilters(data);
     }
   };
 
   onView = (Item) => {
     this.props.history.push("/orderview/" + Item.id);
+  };
+
+  handleSelected = (selectedPage) => {
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.props.datafilter) {
+      data = this.props.datafilter;
+    }
+    data.page = selectedPage;
+    this.props.onGetDayorders(data);
+    this.props.onSetDayordersFilters(data);
   };
 
   render() {
@@ -198,7 +259,7 @@ class Crm extends React.Component {
             <Col></Col>
             <Col>
               <div className="float-right mr-r-20">
-                <span className="mr-r-20">Area</span>
+                <span className="mr-r-20">Zone</span>
                 <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenAreaDropDown}
@@ -232,6 +293,7 @@ class Crm extends React.Component {
                 <Search
                   onSearch={this.onSearchOrderno}
                   type="number"
+                  value={this.state.order_no}
                   onRefreshUpdate={this.onSuccessRefresh}
                   isRefresh={this.state.orderid_refresh}
                 />
@@ -294,6 +356,8 @@ class Crm extends React.Component {
                 <Searchnew
                   onSearch={this.onSearchUser}
                   type="text"
+                  disabled={this.state.user_via_order}
+                  value={this.state.user_search}
                   onRefreshUpdate={this.onSuccessRefresh}
                   isRefresh={this.state.orderid_refresh}
                 />
@@ -323,7 +387,7 @@ class Crm extends React.Component {
               </div>
             </div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
-              <Col lg="10"></Col>
+              <Col lg="8"></Col>
               <Col className="txt-align-right">
                 <Button size="sm" className="mr-r-10" onClick={this.onReset}>
                   Reset
@@ -331,16 +395,24 @@ class Crm extends React.Component {
                 <Button size="sm" onClick={this.onSearch}>
                   Search
                 </Button>
+                <Button
+                  size="sm"
+                  onClick={() => this.props.history.goBack()}
+                  hidden={!this.state.user_via_order}
+                  className="mr-l-10"
+                >
+                  Back
+                </Button>
               </Col>
             </Row>
           </div>
           <div className="pd-6">
-            <div className="search-vscroll">
+            <div className="scroll-crm">
               <div className="order-horizantal-scroll">
                 <Table style={{ width: "1500px" }}>
                   <thead>
                     <tr>
-                      <th>Action</th>
+                      <th>No</th>
                       <th>View</th>
                       <th>Order no</th>
                       <th>User Name</th>
@@ -359,12 +431,13 @@ class Crm extends React.Component {
                     {dayorderlist.map((item, i) => (
                       <tr key={i}>
                         <td>
-                          {
+                          {/* {
                             <FaPlus
                               className="txt-color-theme txt-cursor pd-2"
                               size="20"
                             />
-                          }
+                          } */}
+                          {i + 1}
                         </td>
                         <td>
                           {
@@ -376,7 +449,7 @@ class Crm extends React.Component {
                           }
                         </td>
                         <td>{item.id}</td>
-                        <td>{item.userid}</td>
+                        <td>{item.name}</td>
                         <td>{item.userid}</td>
                         <td>
                           {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
@@ -397,6 +470,15 @@ class Crm extends React.Component {
                   </tbody>
                 </Table>
               </div>
+            </div>
+            <div className="float-right">
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.props.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>

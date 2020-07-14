@@ -418,7 +418,7 @@ class StockKeeping extends React.Component {
             <Col></Col>
             <Col>
               <div className="float-right">
-                <span className="mr-r-20">Area</span>
+                <span className="mr-r-20">Zone</span>
                 <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenAreaDropDown}

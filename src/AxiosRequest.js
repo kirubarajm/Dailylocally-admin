@@ -113,7 +113,8 @@ const StockKeeping= {
 const CRM= {
   getOrderList:(data) => requests.post("/crm/dayorderlist", data),
   getOrderDetail:(data) => requests.post("/crm/dayorderview", data),
-  getRaiseTicketReason:(data) => requests.post("/zendesk/issues", data),
+  getOrderLogs:(data) => requests.post("/dayorderlog", data),
+  getRaiseTicketIssues:(data) => requests.post("/zendesk/issues", data),
   getRaiseTicketTag:(data) => requests.post("/zendesk/issuesdetails", data),
   getCancelReason:() => requests.get("/crm/cancel/reasonlist"),
   getReorderReason:() => requests.get("/crm/reorder/reasonlist"),
@@ -123,6 +124,9 @@ const CRM= {
   postReOrder:(data) => requests.post("/crm/reorder",data),
   postReturnOrder:(data) => requests.post("/crm/bookreturn",data),
   postMessageToCustomer:(data) => requests.post("/crm/usersms",data),
+  postZendeskCreation:(data) => requests.post("/zendesk/ticketcreate",data),
+  postComment:(data) => requests.post("/ordercomments",data),
+  getUserList:(data) => requests.post("/crm/userlist", data),
 }
 
 export default {
