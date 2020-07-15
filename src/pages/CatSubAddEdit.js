@@ -577,7 +577,7 @@ class CatSubAddEdit extends React.Component {
                               : ""
                           }
                           label="Photogropy"
-                          handleonRemove={this.handleonRemove}
+                          handleonRemove={() => this.handleonRemove(i)}
                           handleOnDrop={() => this.handleCATimages}
                         />
                       </div>

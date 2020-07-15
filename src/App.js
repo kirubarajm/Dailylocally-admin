@@ -22,6 +22,9 @@ import Crm from "./pages/Crm";
 import OrderView from "./pages/OrderView";
 import UserList from "./pages/UserList";
 import TransactionList from "./pages/TransactionList";
+import LogisticsOrders from "./pages/LogisticsOrders";
+import DunzoOrders from "./pages/DunzoOrders";
+import TripOrders from "./pages/TripOrders";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -144,7 +147,9 @@ class App extends React.Component {
           <LayoutRoute exact path="/crm" layout={MainLayout} component={Crm} />
           <LayoutRoute exact path="/user" layout={MainLayout} component={UserList} />
           <LayoutRoute exact path="/crm/:userid" layout={MainLayout} component={Crm} />
-          <LayoutRoute exact path="/logistics" layout={MainLayout} component={Crm} />
+          <LayoutRoute exact path="/logistics" layout={MainLayout} component={LogisticsOrders} />
+          <LayoutRoute exact path="/dunzo_orders" layout={MainLayout} component={DunzoOrders} />
+          <LayoutRoute exact path="/trip_orders" layout={MainLayout} component={TripOrders} />
           <LayoutRoute exact path="/transaction/:userid" layout={MainLayout} component={TransactionList} />
 
           <LayoutRoute

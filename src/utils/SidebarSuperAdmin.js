@@ -8,5 +8,7 @@ export const SidebarSuperAdmin=[
     { to: '/crm', name: 'CRM', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
     { to: '/user', name: 'User', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
     { to: '/logistics', name: 'Logistics', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
+    { to: '/dunzo_orders', name: 'Dunzo Orders', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
+    { to: '/trip_orders', name: 'Trip Orders', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
 ];
 export const navBarSuperAdminItems=[];

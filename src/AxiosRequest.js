@@ -129,6 +129,12 @@ const CRM= {
   getUserList:(data) => requests.post("/crm/userlist", data),
 }
 
+const Logistics= {
+  getTripOrders:(data) => requests.post("/logistics/trip/templist", data),
+  getOrdersList:(data) => requests.post("/logistics/readytodispatchlist", data),
+  getDriverList:(data) => requests.post("/logistics/moveit/listwithtrip", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
@@ -136,6 +142,7 @@ export default {
   Warehouse,
   StockKeeping,
   CRM,
+  Logistics,
   setToken: (_token) => {
     token = _token;
   },

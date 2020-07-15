@@ -51,7 +51,6 @@ class SearchInput extends Component {
     this.handleUp = this.handleUp.bind(this);
   }
   componentDidMount() {
-    console.log("this.props.value-->", this.props.value);
     if (this.props.value) {
       this.setState({ query: this.props.value });
       var initData = { search: this.props.value };
@@ -64,7 +63,6 @@ class SearchInput extends Component {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
       e.stopPropagation();
-      //console.log("--->",e.target.value)
       if(this.props.onSearch) this.props.onSearch(e);
     }
   };

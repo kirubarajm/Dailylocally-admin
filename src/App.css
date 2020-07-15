@@ -827,6 +827,26 @@ a, a:focus, a:hover, a:visited {
   height: 55vh !important;
 }
 
+.scroll-trip-assign {
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #ffffff !important;
+  min-height: 25vh !important;
+  max-height: 25vh !important;
+}
+.scroll-logistics {
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #ffffff !important;
+  max-height: 35vh !important;
+}
+
+.scroll-horizantal-logistics {
+  width: 100%;
+  overflow: auto;
+  max-height: 45vh !important;
+}
+
 .search-v-scroll {
   margin-bottom: 10px !important;
   overflow: auto !important;
@@ -1750,6 +1770,9 @@ hr.style-moveit:after {
 
 .width-50 {
   width: 50px !important;
+}
+.width-75 {
+  width: 75px !important;
 }
 
 .width-100 {

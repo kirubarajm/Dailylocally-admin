@@ -24,6 +24,9 @@ import orderview from './reducers/orderview'
 import commententer from './reducers/commententer'
 import userlist from './reducers/userlist'
 import transaction from './reducers/transaction'
+import logistics from './reducers/logistics'
+import dunzoorders from './reducers/dunzoorders'
+import triporders from './reducers/triporders'
 
 export default combineReducers({
   router: routerReducer,
@@ -50,5 +53,8 @@ export default combineReducers({
   commententer,
   crm,
   transaction,
-  userlist
+  logistics,
+  userlist,
+  dunzoorders,
+  triporders
 });
