@@ -1,16 +1,12 @@
 import {
-  TRACK_ORDER_LIST,
-  TRACK_ORDER_LIST_FILTER,
-  TRACK_SELECT_SOLT,
-  TRACK_SELECT_STATUS,
+  DUNZO_ORDER_LIST,
+  DUNZO_ORDER_FILTER,
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
   ORDER_ACTION_CLEAR,
+  DUNZO_ORDER_PICKED_UP,
+  DUNZO_ORDER_DELIVERED,
 } from "../constants/actionTypes";
-const defult_slot = {
-  id: -1,
-  status: "All",
-};
 export default (
   state = {
     dayorderlist: [],
@@ -19,80 +15,40 @@ export default (
     selectedPage: 0,
     datafilter: false,
     isReturnordered:false,
-    orderSelectedStatus: defult_slot,
-    orderSelectedSolt: defult_slot,
+    isOrderUpdated:false,
     returnReasonList:[],
-    orderSlot: [
-      { id: -1, status: "All" },
-      { id: 1, status: "11 PM to 7 PM" },
-      { id: 2, status: "7 PM to 11 PM" },
-    ],
     actionList: [
       { id: 1, name: "Picked-up" },
       { id: 2, name: "Delivered" },
-    ],
-    orderStatus: [
-      {
-        id: -1,
-        status: "All",
-      },
-      {
-        id: 0,
-        status: "Open",
-      },
-      {
-        id: 1,
-        status: "SCM",
-      },
-      {
-        id: 6,
-        status: "Ready to Dispatch",
-      },
-      {
-        id: 10,
-        status: "Completed",
-      },
-      {
-        id: 11,
-        status: "Cancel",
-      },
-      {
-        id: 12,
-        status: "Return",
-      },
     ],
   },
   action
 ) => {
   switch (action.type) {
-    case TRACK_ORDER_LIST:
+    case DUNZO_ORDER_LIST:
       return {
         ...state,
         dayorderlist: action.payload.result || [],
         pagelimit: action.payload.pagelimit || 20,
-        totalcount: action.payload.totalcount || 40,
+        totalcount: action.payload.totalcount || 10,
       };
-    case TRACK_ORDER_LIST_FILTER:
+    case DUNZO_ORDER_FILTER:
       return {
         ...state,
         datafilter: action.data || false,
         selectedPage: action.data ? action.data.page : 1,
-      };
-    case TRACK_SELECT_STATUS:
-      return {
-        ...state,
-        orderSelectedStatus: action.selectedStatus || false,
-      };
-    case TRACK_SELECT_SOLT:
-      return {
-        ...state,
-        orderSelectedSolt: action.selectedSlot || false,
       };
       case ORDER_RETURN_REASON:
       return {
         ...state,
         returnReasonList: action.payload.result || [],
       };
+      case DUNZO_ORDER_PICKED_UP:
+      case DUNZO_ORDER_DELIVERED:
+        return {
+          ...state,
+          isOrderUpdated: action.payload.status || false,
+        };
       case POST_RETURN_ORDER:
       return {
         ...state,
@@ -102,6 +58,7 @@ export default (
       return {
         ...state,
         isReturnordered: false,
+        isOrderUpdated:false
       };
     default:
       return state;

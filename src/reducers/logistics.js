@@ -5,6 +5,12 @@ import {
   TRACK_SELECT_STATUS,
   ZONE_TRIP_ORDER_LIST,
   TRIP_DRIVER_LIST,
+  QA_CHECK_LIST,
+  POST_QA_CHECK_LIST,
+  LOGISTICS_CLEAR,
+  POST_DUNZO_ASSIGN,
+  POST_TRIP_ASSIGN,
+  TRACK_SELECT_TRIP,
 } from "../constants/actionTypes";
 const defult_slot = {
   id: -1,
@@ -19,38 +25,35 @@ export default (
     datafilter: false,
     orderSelectedStatus: defult_slot,
     orderSelectedSolt: defult_slot,
-    driverlist:[],
-    triporderlist:[],
+    driverlist: [],
+    triporderlist: [],
+    qualityUpdate: false,
+    orderStatusUpdate:false,
     orderSlot: [
       { id: -1, status: "All" },
       { id: 1, status: "11 PM to 7 PM" },
       { id: 2, status: "7 PM to 11 PM" },
     ],
-    qualitytype: [
-      { qaid: 1, name: "Invoice/Checklist" },
-      { qaid: 2, name: "Stickers" },
-      { qaid: 3, name: "President letter" },
-      { qaid: 4, name: "Footprint package" },
-    ],
+    qualitytype: [],
     orderStatus: [
       {
         id: -1,
         status: "All",
       },
       {
-        id: 0,
-        status: "Open",
-      },
-      {
-        id: 1,
-        status: "SCM",
-      },
-      {
         id: 6,
         status: "Ready to Dispatch",
       },
       {
-        id: 10,
+        id: 7,
+        status: "Moveit Assign",
+      },
+      {
+        id: 8,
+        status: "Moveit Pickup",
+      },
+      {
+        id: 9,
         status: "Completed",
       },
       {
@@ -71,18 +74,40 @@ export default (
         ...state,
         dayorderlist: action.payload.result || [],
         pagelimit: action.payload.pagelimit || 20,
-        totalcount: action.payload.totalcount || 40,
+        totalcount: action.payload.totalcount || 10,
       };
-      case ZONE_TRIP_ORDER_LIST:
+    case ZONE_TRIP_ORDER_LIST:
       return {
         ...state,
         triporderlist: action.payload.result || [],
       };
-      case TRIP_DRIVER_LIST:
+    case TRIP_DRIVER_LIST:
       return {
         ...state,
         driverlist: action.payload.result || [],
       };
+    case QA_CHECK_LIST:
+      return {
+        ...state,
+        qualitytype: action.payload.result || [],
+      };
+    case POST_QA_CHECK_LIST:
+      return {
+        ...state,
+        qualityUpdate: action.payload.status || false,
+      };
+      case POST_DUNZO_ASSIGN:
+      return {
+        ...state,
+        orderStatusUpdate: action.payload.status || false,
+      };
+
+      case POST_TRIP_ASSIGN:
+      return {
+        ...state,
+        orderStatusUpdate: action.payload.status || false,
+      };
+      
     case TRACK_ORDER_LIST_FILTER:
       return {
         ...state,
@@ -94,10 +119,21 @@ export default (
         ...state,
         orderSelectedStatus: action.selectedStatus || false,
       };
+      case TRACK_SELECT_TRIP:
+      return {
+        ...state,
+        orderSelectedTrip: action.selectedStatus || false,
+      };
     case TRACK_SELECT_SOLT:
       return {
         ...state,
-        orderSelectedSolt: action.selectedSlot || false,
+        selectedTrip: action.selectedTrip || false,
+      };
+    case LOGISTICS_CLEAR:
+      return {
+        ...state,
+        qualityUpdate: false,
+        orderStatusUpdate:false
       };
     default:
       return state;

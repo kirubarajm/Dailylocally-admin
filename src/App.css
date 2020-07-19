@@ -30,20 +30,38 @@ html, body, main {
   top: 50%;
   right: 50%;
 }
-
 input[type='radio']:after {
+  width: 10px;
+  height: 10px;
+  border-radius: 15px;
+  top: -3px;
+  position: relative;
+  content: '';
+  display: inline-block;
+  visibility: visible;
+  padding: 5px;
+  background-color: #fff;
+  border: 1px solid #9900ff !important;
+}
+
+input[type='radio']:checked:after {
+  background-color: #9900ff;
+  border: 1px solid #9900ff !important;
+}
+
+/* input[type='radio']:after {
   width: 15px;
   height: 15px;
   border-radius: 15px;
   top: -2px;
   left: -1px;
   position: relative;
-  background-color: #d1d3d1;
+  background-color: #fff;
   content: '';
   display: inline-block;
   visibility: visible;
   padding: 5px;
-  border: 2px solid #314911;
+  border: 2px solid #9900ff;
 }
 
 input[type='radio']:checked:after {
@@ -53,12 +71,12 @@ input[type='radio']:checked:after {
   top: -2px;
   left: -1px;
   position: relative;
-  background-color: #314911;
+  background-color: #9900ff;
   content: '';
   display: inline-block;
   visibility: visible;
-  border: 1px solid #314911;
-}
+  border: 1px solid #9900ff;
+} */
 
 input[type=number] {
   -moz-appearance: textfield;
@@ -434,6 +452,9 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 
 .mr-l-20 {
   margin-left: 20px !important;
+}
+.mr-l-40 {
+  margin-left: 40px !important;
 }
 
 .mr-r-50 {
@@ -820,6 +841,14 @@ a, a:focus, a:hover, a:visited {
   height: 45vh !important;
 }
 
+.scroll-logdetail {
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: #ffffff !important;
+  min-height: 25vh !important;
+  max-height: 45vh !important;
+}
+
 .scroll-crm {
   overflow-y: auto;
   overflow-x: hidden;
@@ -831,8 +860,8 @@ a, a:focus, a:hover, a:visited {
   overflow-y: auto;
   overflow-x: hidden;
   background: #ffffff !important;
-  min-height: 25vh !important;
-  max-height: 25vh !important;
+  min-height: 45vh !important;
+  max-height: 45vh !important;
 }
 .scroll-logistics {
   overflow-y: auto;
@@ -844,7 +873,15 @@ a, a:focus, a:hover, a:visited {
 .scroll-horizantal-logistics {
   width: 100%;
   overflow: auto;
-  max-height: 45vh !important;
+  max-height: 40vh !important;
+  min-height: 40vh !important;
+}
+
+.scroll-horizantal-dunzo {
+  width: 100%;
+  overflow: auto;
+  max-height: 52vh !important;
+  min-height: 52vh !important;
 }
 
 .search-v-scroll {
@@ -1809,6 +1846,10 @@ hr.style-moveit:after {
 
 .max-width-600 {
   max-width: 600px !important;
+}
+
+.max-width-400 {
+  max-width: 400px !important;
 }
 
 

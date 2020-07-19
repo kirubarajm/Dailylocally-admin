@@ -15,6 +15,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Card,
+  CardImg,
 } from "reactstrap";
 import { FaDownload } from "react-icons/fa";
 import Moment from "moment";
@@ -27,13 +29,15 @@ import Search from "../components/Search";
 import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
-  TRACK_ORDER_LIST,
-  TRACK_ORDER_LIST_FILTER,
+  TRIP_ORDER_LIST,
+  TRIP_ORDER_SEARCH,
+  TRIP_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
   ORDER_ACTION_CLEAR,
+  TRIP_ORDER_UNASSIGN,
 } from "../constants/actionTypes";
 import SearchItem from "../components/SearchItem";
 
@@ -45,14 +49,24 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onGetDayorders: (data) =>
+  onGetTripList: (data) =>
     dispatch({
-      type: TRACK_ORDER_LIST,
-      payload: AxiosRequest.CRM.getOrderList(data),
+      type: TRIP_ORDER_LIST,
+      payload: AxiosRequest.Logistics.getTripList(data),
     }),
-  onSetDayordersFilters: (data) =>
+  onGetTripSearchList: (data) =>
     dispatch({
-      type: TRACK_ORDER_LIST_FILTER,
+      type: TRIP_ORDER_SEARCH,
+      payload: AxiosRequest.Logistics.getTripSearchList(data),
+    }),
+  onPostOrderUnAssign: (data) =>
+    dispatch({
+      type: TRIP_ORDER_UNASSIGN,
+      payload: AxiosRequest.Logistics.postTripUnAssign(data),
+    }),
+  onSetTripFilters: (data) =>
+    dispatch({
+      type: TRIP_ORDER_LIST_FILTER,
       data,
     }),
   onSelectSlot: (selectedSlot) =>
@@ -93,8 +107,8 @@ class TripOrders extends React.Component {
     super();
     this.state = {
       today: Moment(new Date()),
-      startdate: "2020-07-01",
-      enddate: "2020-07-16",
+      startdate: false,
+      enddate: false,
       selected_dayorderid: false,
       isOpenOrderStatus: false,
       isOpenSlot: false,
@@ -104,12 +118,15 @@ class TripOrders extends React.Component {
       user_search: false,
       orderid_refresh: false,
       isLoading: false,
+      isLoadingSearch: false,
       userid: 0,
       user_via_order: false,
       check_item: { products: [] },
 
       isDunzoModal: false,
+      isImageModal: false,
       returnItem: false,
+      imageItem: false,
       isOpenActionDropDown: false,
       actionItem: [{ id: -1 }],
       isReturnorderModal: false,
@@ -129,6 +146,7 @@ class TripOrders extends React.Component {
     this.onSearch = this.onSearch.bind(this);
     this.toggleAction = this.toggleAction.bind(this);
     this.clickAction = this.clickAction.bind(this);
+
     this.onGetOrders();
   }
   UNSAFE_componentWillUpdate() {}
@@ -152,6 +170,10 @@ class TripOrders extends React.Component {
       this.toggleReturnorder();
       this.setState({ isLoading: false });
     }
+    if (this.props.isOrderUpdated) {
+      this.props.onClear();
+      this.setState({ isLoading: false, selected_dayorderid: false });
+    }
 
     this.onGetOrders();
   }
@@ -167,10 +189,21 @@ class TripOrders extends React.Component {
     }));
   };
 
+  toggleImagePopUp = () => {
+    this.setState((prevState) => ({
+      isImageModal: !prevState.isImageModal,
+    }));
+  };
+
   toggleReturnorder = () => {
     this.setState({
       isReturnorderModal: !this.state.isReturnorderModal,
     });
+  };
+
+  selectPickupImage = (item) => {
+    this.setState({ imageItem: item });
+    this.toggleImagePopUp();
   };
 
   selectBookReturn = (item) => {
@@ -180,7 +213,22 @@ class TripOrders extends React.Component {
   };
 
   movetoDunzo = () => {
+    var checkItem = this.state.selected_dayorderid;
+    var Values = Object.keys(checkItem);
+    var indexof = Values.indexOf("selectall");
+    if (indexof !== -1) {
+      Values.splice(indexof, 1);
+    }
+    var data = {
+      zoneid: this.props.zoneItem.id,
+      doid: Values,
+      done_by: 1,
+    };
     this.toggleDunzoPopUp();
+    if (this.state.actionItem.id === 1) {
+      console.log("data-->", data);
+      this.props.onPostOrderUnAssign(data);
+    }
   };
 
   clickArea = (item) => {
@@ -208,7 +256,7 @@ class TripOrders extends React.Component {
     this.setState({ orderid_refresh: false });
   };
   onSearch = () => {
-    this.props.onSetDayordersFilters(false);
+    this.props.onSetTripFilters(false);
     this.setState({ isLoading: false });
   };
 
@@ -224,13 +272,19 @@ class TripOrders extends React.Component {
     });
     this.props.onSelectStatus(defult_slot);
     this.props.onSelectSlot(defult_slot);
-    this.props.onSetDayordersFilters(false);
-    this.props.onGetDayorders({
+    this.props.onSetTripFilters(false);
+    this.props.onGetTripList({
       zoneid: this.props.zoneItem.id,
+      page :defultPage
     });
   };
 
   onGetOrders = () => {
+    if (this.props.zoneItem && !this.state.isLoadingSearch) {
+      var datasearch = { zoneid: this.props.zoneItem.id };
+      this.setState({ isLoadingSearch: true });
+      this.props.onGetTripSearchList(datasearch);
+    }
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = { zoneid: this.props.zoneItem.id };
@@ -246,10 +300,10 @@ class TripOrders extends React.Component {
         });
       } else {
         data.page = defultPage;
-        if (this.state.startdate) data.starting_date = this.state.startdate;
-        if (this.state.enddate) data.end_date = this.state.enddate;
-        if (this.state.order_no) data.id = this.state.order_no;
-        if (this.state.user_search) data.search = this.state.user_search;
+        if (this.state.startdate) data.from_date = this.state.startdate;
+        if (this.state.enddate) data.to_date = this.state.enddate;
+        if (this.state.order_no) data.tripid = this.state.order_no;
+        if (this.state.user_search) data.moveit_id = this.state.user_search;
         if (
           this.state.select_order_status &&
           this.state.select_order_status.id !== -1
@@ -261,8 +315,8 @@ class TripOrders extends React.Component {
 
       this.props.onSelectStatus(this.state.select_order_status);
       this.props.onSelectSlot(this.state.select_slot);
-      this.props.onGetDayorders(data);
-      this.props.onSetDayordersFilters(data);
+      this.props.onGetTripList(data);
+      this.props.onSetTripFilters(data);
     }
   };
 
@@ -271,8 +325,8 @@ class TripOrders extends React.Component {
   };
 
   onCheckOrder = (item) => {
-    if (item.dayorderstatus > 5 && item.dayorderstatus < 10) return true;
-    else return true;
+    if (item.dayorderstatus > 6 && item.dayorderstatus < 11) return true;
+    else return false;
   };
 
   handleSelected = (selectedPage) => {
@@ -281,8 +335,8 @@ class TripOrders extends React.Component {
       data = this.props.datafilter;
     }
     data.page = selectedPage;
-    this.props.onGetDayorders(data);
-    this.props.onSetDayordersFilters(data);
+    this.props.onGetTripList(data);
+    this.props.onSetTripFilters(data);
   };
 
   handleChange(e) {
@@ -295,7 +349,8 @@ class TripOrders extends React.Component {
       if (value) {
         arvalue[name] = value;
         dayorderlist.map((item, i) => {
-          if (item.dayorderstatus === 6) arvalue[item.id] = value;
+          if (item.dayorderstatus === 7 || item.dayorderstatus === 8)
+            arvalue[item.id] = value;
         });
       } else {
         arvalue = {};
@@ -305,8 +360,10 @@ class TripOrders extends React.Component {
         arvalue[name] = value;
         var allCheck = true;
         dayorderlist.map((item, i) => {
-          if (!arvalue[item.id]) {
-            allCheck = false;
+          if (item.dayorderstatus === 7 || item.dayorderstatus === 8) {
+            if (!arvalue[item.id]) {
+              allCheck = false;
+            }
           }
         });
         if (allCheck) arvalue["selectall"] = value;
@@ -329,8 +386,19 @@ class TripOrders extends React.Component {
   };
 
   clickAction = (item) => {
-    this.setState({ actionItem: item });
-    this.toggleDunzoPopUp();
+    var checkItem = this.state.selected_dayorderid;
+    var Values = Object.keys(checkItem);
+    if (Values.length === 0) {
+      notify.show(
+        "Please select the order after try this",
+        "custom",
+        2000,
+        notification_color
+      );
+    } else {
+      this.setState({ actionItem: item });
+      this.toggleDunzoPopUp();
+    }
   };
 
   toggleReturnReason = () => {
@@ -361,6 +429,16 @@ class TripOrders extends React.Component {
       };
       this.props.onPostReturnOrder(data);
     }
+  };
+
+  dateConvert(date) {
+    var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm a");
+    if (datestr !== "Invalid date") return datestr;
+    else return " - ";
+  }
+
+  ImageDownload = (img) => {
+    document.getElementById(img).click();
   };
 
   render() {
@@ -405,7 +483,7 @@ class TripOrders extends React.Component {
               <div className="width-200 mr-l-10">
                 <Search
                   onSearch={this.onSearchOrderno}
-                  type="number"
+                  type="text"
                   value={this.state.order_no}
                   onRefreshUpdate={this.onSuccessRefresh}
                   isRefresh={this.state.orderid_refresh}
@@ -443,7 +521,7 @@ class TripOrders extends React.Component {
               <div className="width-200 mr-l-10">
                 <SearchItem
                   onSearch={this.onSearchOrderno}
-                  type="text"
+                  type="number"
                   value={this.state.order_no}
                   onRefreshUpdate={this.onSuccessRefresh}
                   isRefresh={this.state.orderid_refresh}
@@ -529,7 +607,10 @@ class TripOrders extends React.Component {
                             <input
                               type="checkbox"
                               name={"" + item.id}
-                              disabled={item.dayorderstatus !== 6}
+                              disabled={
+                                item.dayorderstatus !== 7 &&
+                                item.dayorderstatus !== 8
+                              }
                               checked={this.state.selected_dayorderid[item.id]}
                               onChange={(e) => this.handleChange(e)}
                             />
@@ -540,22 +621,20 @@ class TripOrders extends React.Component {
                         <td>{item.id}</td>
                         <td>{item.dayorderstatus_msg}</td>
                         <td>{item.trip_id}</td>
-                        <td>{item.driver_name}</td>
+                        <td>{item.name}</td>
                         <td>{item.assigned_by}</td>
+                        <td>{this.dateConvert(item.assigned_datetime)}</td>
+                        <td>{this.dateConvert(item.moveit_pickup_time)}</td>
+                        <td>{this.dateConvert(item.deliver_date)}</td>
                         <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>
-                          <FaDownload
-                            size="20"
-                            className="txt-cursor txt-color-theme"
-                          />
+                          <Button
+                            size="sm"
+                            color="link"
+                            disabled={!item.checklist_img1}
+                            onClick={() => this.selectPickupImage(item)}
+                          >
+                            <FaDownload size="20"/>{" "}
+                          </Button>
                         </td>
                         <td>
                           {this.onCheckOrder(item) ? (
@@ -577,10 +656,10 @@ class TripOrders extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right mr-t-20">
+            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
               <PaginationComponent
                 totalItems={this.props.totalcount}
-                pageSize={pagelimit}
+                pageSize={this.props.pagelimit}
                 onSelect={this.handleSelected}
                 activePage={this.props.selectedPage}
                 size="sm"
@@ -605,11 +684,11 @@ class TripOrders extends React.Component {
             Are you sure you want to unassign the orders?
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.toggleDunzoPopUp}>
-              NO
-            </Button>
             <Button size="sm" onClick={this.movetoDunzo}>
               YES
+            </Button>
+            <Button size="sm" onClick={this.toggleDunzoPopUp}>
+              NO
             </Button>
           </ModalFooter>
         </Modal>
@@ -676,6 +755,92 @@ class TripOrders extends React.Component {
               </Col>
             </Row>
           </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isImageModal}
+          toggle={this.toggleImagePopUp}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalBody className="pd-10">
+            <div className="fieldset">
+              <div className="legend">
+                Pickedup Image - Order No - #{this.state.imageItem.id}
+              </div>
+              {this.state.imageItem ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    padding: "5px",
+                  }}
+                >
+                  {this.state.imageItem.checklist_img1 ? (
+                    <a
+                      id="img1"
+                      href={this.state.imageItem.checklist_img1}
+                      download
+                      hidden
+                      target="_blank"
+                    ></a>
+                  ) : (
+                    ""
+                  )}
+                  {this.state.imageItem.checklist_img2 ? (
+                    <a
+                      id="img2"
+                      href={this.state.imageItem.checklist_img2}
+                      download
+                      hidden
+                      target="_blank"
+                    ></a>
+                  ) : (
+                    ""
+                  )}
+                  <Card hidden={!this.state.imageItem.checklist_img1}>
+                    <CardImg
+                      top
+                      style={{ width: "200px", height: "200px" }}
+                      src={this.state.imageItem.checklist_img1}
+                      alt="PickedUp Image1"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => this.ImageDownload("img1")}
+                    >
+                      View
+                    </Button>
+                  </Card>
+                  <Card
+                    className="mr-l-20"
+                    hidden={!this.state.imageItem.checklist_img2}
+                  >
+                    <CardImg
+                      top
+                      style={{ width: "200px", height: "200px" }}
+                      src={this.state.imageItem.checklist_img2}
+                      alt="PickedUp Image2"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => this.ImageDownload("img2")}
+                    >
+                      View
+                    </Button>
+                  </Card>
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleImagePopUp}>
+              Close
+            </Button>
+          </ModalFooter>
         </Modal>
       </div>
     );

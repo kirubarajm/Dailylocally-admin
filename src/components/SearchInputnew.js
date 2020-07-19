@@ -62,7 +62,8 @@ class SearchInputnew extends Component {
 }
 
  SearchInputnew = reduxForm({
-   form: SEARCH_INPUT // a unique identifier for this form
+   form: SEARCH_INPUT,
+   enableReinitialize: true, // a unique identifier for this form
  })(SearchInputnew)
 
 export default SearchInputnew

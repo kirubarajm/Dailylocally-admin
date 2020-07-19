@@ -35,8 +35,16 @@ import {
   TRACK_SELECT_STATUS,
   ZONE_TRIP_ORDER_LIST,
   TRIP_DRIVER_LIST,
+  QA_CHECK_LIST,
+  POST_QA_CHECK_LIST,
+  LOGISTICS_CLEAR,
+  POST_DUNZO_ASSIGN,
+  POST_TRIP_ASSIGN,
+  TRACK_SELECT_TRIP
 } from "../constants/actionTypes";
-import { getOrderStatus } from "../utils/ConstantFunction";
+import SearchInput from "../components/SearchInput";
+import SearchItem from "../components/SearchItem";
+import SearchTrip from "../components/SearchTrip";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -98,7 +106,7 @@ const mapDispatchToProps = (dispatch) => ({
   onGetDayorders: (data) =>
     dispatch({
       type: TRACK_ORDER_LIST,
-      payload: AxiosRequest.CRM.getOrderList(data),
+      payload: AxiosRequest.Logistics.getOrdersList(data),
     }),
   onGetTripOrders: (data) =>
     dispatch({
@@ -109,6 +117,26 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: TRIP_DRIVER_LIST,
       payload: AxiosRequest.Logistics.getDriverList(data),
+    }),
+  onGetQACheckList: (data) =>
+    dispatch({
+      type: QA_CHECK_LIST,
+      payload: AxiosRequest.Logistics.getQACheckList(data),
+    }),
+  onPostQACheckList: (data) =>
+    dispatch({
+      type: POST_QA_CHECK_LIST,
+      payload: AxiosRequest.Logistics.postQACheckList(data),
+    }),
+  onPostDunzoAssign: (data) =>
+    dispatch({
+      type: POST_DUNZO_ASSIGN,
+      payload: AxiosRequest.Logistics.postDunzoAssign(data),
+    }),
+  onPostTripAssign: (data) =>
+    dispatch({
+      type: POST_TRIP_ASSIGN,
+      payload: AxiosRequest.Logistics.postTripAssign(data),
     }),
   onSetDayordersFilters: (data) =>
     dispatch({
@@ -125,6 +153,15 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_SELECT_STATUS,
       selectedStatus,
     }),
+    onSelectTrip: (selectedTrip) =>
+    dispatch({
+      type: TRACK_SELECT_TRIP,
+      selectedTrip,
+    }),
+  onClear: () =>
+    dispatch({
+      type: LOGISTICS_CLEAR,
+    }),
 });
 
 const defultPage = 1;
@@ -134,6 +171,7 @@ const defult_slot = {
   status: "All",
 };
 
+var logi;
 class LogisticsOrders extends React.Component {
   constructor() {
     super();
@@ -152,16 +190,20 @@ class LogisticsOrders extends React.Component {
       isLoading: false,
       userid: 0,
       user_via_order: false,
-      check_item: { products: [] },
+      check_item: { products: []},
+      view_item:{qachecklist: 0},
       isDunzoModal: false,
       dunzoItem: false,
+      isTripEnable:true,
+      trip_search:false,
       select_driver: [],
+      qa_checklist: [],
+      checkBoxVal:0
     };
   }
 
   UNSAFE_componentWillMount() {
-    var userid = this.props.match.params.userid || false;
-    if (userid) this.setState({ user_via_order: true, userid: userid });
+    logi=this;
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
     }
@@ -180,13 +222,10 @@ class LogisticsOrders extends React.Component {
   UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
-  componentDidMount() {}
+  componentDidMount() {
+    
+  }
   componentWillReceiveProps(nextProps) {
-    if (nextProps.match.params.userid !== this.props.match.params.userid) {
-      var userid = this.props.match.params.userid || false;
-      if (userid) this.setState({ user_via_order: true, userid: userid });
-      this.onReset();
-    }
   }
   componentDidUpdate(nextProps, nextState) {
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
@@ -196,6 +235,20 @@ class LogisticsOrders extends React.Component {
     if (this.props.zoneRefresh) {
       store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
+    }
+
+    if (this.props.qualityUpdate) {
+      this.props.onClear();
+      this.setState({ isLoading: false, qa_checklist: [] });
+    }
+
+    if (this.props.orderStatusUpdate) {
+      this.props.onClear();
+      this.setState({
+        isLoading: false,
+        isTripAssignModal: false,
+        selected_dayorderid: false,
+      });
     }
 
     this.onGetOrders();
@@ -224,16 +277,56 @@ class LogisticsOrders extends React.Component {
   };
 
   movetoDunzo = () => {
+    var doid = [];
+    doid.push(this.state.dunzoItem.id);
+    var data = {
+      zoneid: this.props.zoneItem.id,
+      doid: doid,
+    };
     this.toggleDunzoPopUp();
+    this.props.onPostDunzoAssign(data);
   };
 
   createToTrip = () => {
-    this.toggleTripAssignPopUp();
+    if (this.state.select_driver.length === 0) {
+      notify.show(
+        "Please select the driver after try this",
+        "custom",
+        2000,
+        notification_color
+      );
+    } else {
+      var checkItem = this.state.selected_dayorderid;
+      var Values = Object.keys(checkItem);
+      var indexof = Values.indexOf("selectall");
+      if (indexof !== -1) {
+        Values.splice(indexof, 1);
+      }
+      var data = {
+        zoneid: this.props.zoneItem.id,
+        doid: Values,
+        done_by: 1,
+        moveit_id: this.state.select_driver[0].userid,
+        trip_id: this.state.select_driver[0].tripid,
+      };
+      this.props.onPostTripAssign(data);
+    }
   };
 
   gotoTrip = () => {
-    this.props.onGetDriverList({ zone_id: this.props.zoneItem.id });
-    this.toggleTripAssignPopUp();
+    var checkItem = this.state.selected_dayorderid;
+    var Values = Object.keys(checkItem);
+    if (Values.length === 0) {
+      notify.show(
+        "Please select the order after try this",
+        "custom",
+        2000,
+        notification_color
+      );
+    } else {
+      this.props.onGetDriverList({ zoneid: this.props.zoneItem.id });
+      this.toggleTripAssignPopUp();
+    }
   };
 
   clickArea = (item) => {
@@ -276,6 +369,16 @@ class LogisticsOrders extends React.Component {
     this.setState({ user_search: value });
   };
 
+  onSearchDriver = (e) => {
+    const value = e.target.value || "";
+    this.setState({ moveit_search: value });
+  };
+
+  onSearchTrip = (e) => {
+    const value = e.target.value || "";
+    this.setState({ trip_search: value });
+  };
+
   onSuccessRefresh = () => {
     this.setState({ orderid_refresh: false });
   };
@@ -315,18 +418,24 @@ class LogisticsOrders extends React.Component {
           user_search: data.search,
           select_order_status: this.props.orderSelectedStatus,
           select_slot: this.props.orderSelectedSolt,
+          checkVal:this.props.selectedTrip,
+          moveit_search: data.moveit_search,
+          trip_search: data.trip_search,
         });
       } else {
         data.page = defultPage;
-        if (this.state.startdate) data.starting_date = this.state.startdate;
-        if (this.state.enddate) data.end_date = this.state.enddate;
-        if (this.state.order_no) data.id = this.state.order_no;
-        if (this.state.user_search) data.search = this.state.user_search;
+        if (this.state.startdate) data.from_date = this.state.startdate;
+        if (this.state.enddate) data.to_date = this.state.enddate;
+        if (this.state.order_no) data.doid = this.state.order_no;
+        if (this.state.user_search) data.user_search = this.state.user_search;
+        if (this.state.moveit_search)
+          data.moveit_search = this.state.moveit_search;
+        if (this.state.trip_search) data.trip_search = this.state.trip_search;
         if (
           this.state.select_order_status &&
           this.state.select_order_status.id !== -1
         )
-          data.dayorderstatus = this.state.select_order_status.id;
+          data.order_status = this.state.select_order_status.id;
         if (this.state.select_slot && this.state.select_slot.id !== -1)
           data.slot = this.state.select_slot.id;
       }
@@ -348,13 +457,19 @@ class LogisticsOrders extends React.Component {
   };
 
   onCheckTrip = (item) => {
-    if (item.dayorderstatus > 5 && item.dayorderstatus < 11) return true;
+    if (item.dayorderstatus === 6) return true;
     else return false;
   };
 
   onFillCheckList = (item) => {
     this.setState({ check_item: item });
+    this.props.onGetQACheckList();
     this.onCheckListModal();
+  };
+
+  onFillView = (item) => {
+    this.setState({ view_item: item });
+    this.onViewCheckListModal();
   };
 
   handleSelected = (selectedPage) => {
@@ -411,18 +526,70 @@ class LogisticsOrders extends React.Component {
     }));
   };
 
-  onCheckListSubmit = () => {
-    this.onCheckListModal();
+  onViewCheckListModal = () => {
+    this.setState((prevState) => ({
+      viewchecklistModal: !prevState.viewchecklistModal,
+    }));
   };
 
-  clickDropDown(e, qItem, i) {}
+  onCheckListSubmit = () => {
+    this.onCheckListModal();
+    var data = {
+      zoneid: this.props.zoneItem.id,
+      doid: this.state.check_item.id,
+      qa_checklist: this.state.qa_checklist,
+    };
+    console.log("data-->", data);
+    this.props.onPostQACheckList(data);
+  };
+
+  onCheckMoveit= () => {
+    //document.radioForm.onclick = function () {
+      var radVal = document.radioForm.moveit_type.value;
+      var checkVal=parseInt(radVal);
+      logi.setState({trip_search:"",isTripEnable:checkVal===1?false:true,checkBoxVal:checkVal});
+      this.props.onSelectTrip(checkVal);
+    //};
+  }
+
+  clickDropDown(e, qItem, i) {
+    var checkList = this.state.qa_checklist || [];
+    if (checkList.length === 0) {
+      var qualitytype = this.props.qualitytype;
+      for (var i = 0; i < qualitytype.length; i++) {
+        var data = {};
+        data.qaid = qualitytype[i].qaid;
+        if (qualitytype[i].qaid === qItem.qaid) {
+          data.qavalue = e.target.selectedIndex === 1 ? 1 : 0;
+        } else {
+          data.qavalue = 0;
+        }
+        checkList.push(data);
+      }
+    } else {
+      for (var i = 0; i < checkList.length; i++) {
+        var qdata = checkList[i];
+        if (qdata.qaid === qItem.qaid) {
+          qdata.qavalue = e.target.selectedIndex === 1 ? 1 : 0;
+        }
+        checkList[i] = qdata;
+      }
+    }
+    this.setState({ qa_checklist: checkList });
+  }
 
   selectedDriver = (item) => {
+    var checkItem = this.state.selected_dayorderid;
+    var Values = Object.keys(checkItem);
+    var indexof = Values.indexOf("selectall");
+    if (indexof !== -1) {
+      Values.splice(indexof, 1);
+    }
     this.setState({ select_driver: item });
     this.props.onGetTripOrders({
-      doid: [18],
-      moveit_id: item.userid,
-      zone_id: this.props.zoneItem.id,
+      doid: Values,
+      moveit_id: item[0].userid,
+      zoneid: this.props.zoneItem.id,
     });
   };
 
@@ -562,6 +729,63 @@ class LogisticsOrders extends React.Component {
                 </ButtonDropdown>
               </div>
             </div>
+
+            <div className="replies_field_container mr-b-10 font-size-14">
+              <div className="width-200 mr-l-20 align_self_center">
+                Delivery name/Phone :
+              </div>
+              <div className="width-200 mr-l-10">
+                <SearchItem
+                  onSearch={this.onSearchDriver}
+                  type="text"
+                  value={this.state.moveit_search}
+                  onRefreshUpdate={this.onSuccessRefresh}
+                  isRefresh={this.state.orderid_refresh}
+                />
+              </div>
+              <div className="width-100 mr-l-20 align_self_center">
+                Trip/Dunzo :
+              </div>
+              <div className="width-200 mr-l-20 align_self_center" onClick={this.onCheckMoveit}>
+                <form id="radioForm" name="radioForm" className="mr-t-10">
+                  <input
+                    type="radio"
+                    name="moveit_type"
+                    value="0"
+                    checked={this.state.checkBoxVal===0}
+                    className="mr-r-5"
+                  />{" "}
+                  <label className="mr-r-10">All</label>
+                  <input
+                    type="radio"
+                    name="moveit_type"
+                    value="1"
+                    checked={this.state.checkBoxVal===1}
+                    className="mr-r-5"
+                  />{" "}
+                  <label className="mr-r-10">Trip</label>
+                  <input
+                    type="radio"
+                    name="moveit_type"
+                    value="2"
+                    checked={this.state.checkBoxVal===2}
+                    className="mr-r-5"
+                  />{" "}
+                  <label className="mr-r-10">Dunzo</label>
+                </form>
+              </div>
+              <div className="width-200 mr-l-10">
+                <div hidden={this.state.isTripEnable}>
+                <SearchTrip
+                  onSearch={this.onSearchTrip}
+                  type="number"
+                  value={this.state.trip_search}
+                  onRefreshUpdate={this.onSuccessRefresh}
+                  isRefresh={this.state.orderid_refresh}
+                />
+                </div>
+              </div>
+            </div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
               <Col lg="8"></Col>
               <Col className="txt-align-right">
@@ -649,15 +873,15 @@ class LogisticsOrders extends React.Component {
                         <td>
                           {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
-                        <td>{item.city}</td>
+                        <td>{item.area}</td>
                         <td>{item.cus_pincode}</td>
-                        <td>{item.order_quantity}</td>
+                        <td>{item.total_quantity}</td>
                         <td>{item.eta}</td>
-                        <td>{item.slot_id}</td>
-                        <td>{item.slot_status}</td>
+                        <td>{item.slot}</td>
+                        <td>{item.dayorderstatus_msg}</td>
                         <td>
                           {this.onCheckOrder(item) ? (
-                            item.check_list !== null ? (
+                            item.qachecklist === "0" ? (
                               <Button
                                 size="sm"
                                 onClick={() => this.onFillCheckList(item)}
@@ -665,9 +889,19 @@ class LogisticsOrders extends React.Component {
                                 Fill Checklist
                               </Button>
                             ) : (
-                              <div className="text-decoration-underline txt-cursor">
+                              //onFillView
+                              <Button
+                                size="sm"
+                                color="link"
+                                className="text-decoration-underline txt-color-theme"
+                                onClick={() => this.onFillView(item)}
+                              >
+                                {" "}
                                 View
-                              </div>
+                              </Button>
+                              // <div className="text-decoration-underline txt-cursor">
+                              //   View
+                              // </div>
                             )
                           ) : (
                             <Button size="sm" disabled="true">
@@ -680,6 +914,7 @@ class LogisticsOrders extends React.Component {
                             item.trip_id === null ? (
                               <Button
                                 size="sm"
+                                disabled={item.moveit_type === 2}
                                 onClick={() => this.selectDunzo(item)}
                               >
                                 Assign to Dunzo
@@ -699,10 +934,10 @@ class LogisticsOrders extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right mr-t-20">
+            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
               <PaginationComponent
                 totalItems={this.props.totalcount}
-                pageSize={pagelimit}
+                pageSize={this.props.pagelimit}
                 onSelect={this.handleSelected}
                 activePage={this.props.selectedPage}
                 size="sm"
@@ -718,71 +953,81 @@ class LogisticsOrders extends React.Component {
         >
           <ModalHeader toggle={this.onCheckListModal}></ModalHeader>
           <ModalBody>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <div style={{ width: "500px" }}></div>
+            <div className="fieldset">
+              <div className="legend">QA Checklist</div>
               <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  border: "1px solid",
-                  marginLeft: "10px",
-                }}
+                style={{ display: "flex", flexDirection: "row" }}
+                className="pd-10"
               >
-                <div className="width-200 pd-4">Order details</div>
-                <div className="width-100 pd-4">Available</div>
-              </div>
-            </div>
-            <hr />
-            <div
-              hidden={!this.state.check_item}
-              style={{ display: "flex", flexDirection: "row" }}
-            >
-              <div style={{ display: "flex", flexDirection: "row" }}>
-                <Row style={{ width: "500px" }}>
-                  {this.props.qualitytype.map((qitem, index) => (
-                    <Col lg="6">
-                      <div>
-                        <div className="font-size-14">{qitem.name}</div>
-                        <div className="pd-4 mr-t-10" key={index}>
-                          <select
-                            id={qitem.qaid}
-                            onChange={(e) =>
-                              this.clickDropDown(e, qitem, index)
-                            }
-                          >
-                            <option value="0">No</option>
-                            <option value="1">Yes</option>
-                          </select>
-                        </div>
-                      </div>
-                    </Col>
-                  ))}
-                </Row>
+                <div style={{ width: "500px" }}></div>
                 <div
                   style={{
                     display: "flex",
-                    flexDirection: "column",
-                    marginLeft: "30px",
+                    flexDirection: "row",
+                    border: "1px solid",
+                    marginLeft: "10px",
                   }}
                 >
-                  {this.state.check_item.products.map((item, index) => (
-                    <div style={{ display: "flex", flexDirection: "row" }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          marginLeft: "10px",
-                        }}
-                      >
-                        <div className="width-200 pd-4">
-                          {item.productname} - {item.quantity}
+                  <div className="width-200 pd-4">Order details</div>
+                  <div className="width-100 pd-4 mr-l-20 ">Available</div>
+                </div>
+              </div>
+              <hr className="mr-2" />
+              <div
+                className="pd-10"
+                hidden={!this.state.check_item}
+                style={{ display: "flex", flexDirection: "row" }}
+              >
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <Row style={{ width: "500px" }}>
+                    {this.props.qualitytype.map((qitem, index) => (
+                      <Col lg="6">
+                        <div>
+                          <div className="font-size-14 font-weight-bold">
+                            {qitem.name}
+                          </div>
+                          <div className="pd-4 mr-t-10" key={index}>
+                            <select
+                              id={qitem.qaid}
+                              onChange={(e) =>
+                                this.clickDropDown(e, qitem, index)
+                              }
+                            >
+                              <option value="0">No</option>
+                              <option value="1">Yes</option>
+                            </select>
+                          </div>
                         </div>
-                        <div className="width-150 pd-4">
-                          {item.received_quantity}
+                      </Col>
+                    ))}
+                  </Row>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      marginLeft: "30px",
+                    }}
+                  >
+                    {this.state.check_item.products.map((item, index) => (
+                      <div style={{ display: "flex", flexDirection: "row" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          <div className="width-200 pd-4 flex-row">
+                            <div>{item.productname}</div> -{" "}
+                            <div className="mr-l-10">{item.quantity}</div>
+                          </div>
+                          <div className="width-150 pd-4 mr-l-40">
+                            {item.received_quantity}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -795,6 +1040,91 @@ class LogisticsOrders extends React.Component {
               Submit
             </Button>
           </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.viewchecklistModal}
+          toggle={this.onViewCheckListModal}
+          backdrop={"static"}
+          className="max-width-1000"
+        >
+          <ModalHeader toggle={this.onViewCheckListModal}></ModalHeader>
+          <ModalBody>
+            <div className="fieldset">
+              <div className="legend">QA Checklist</div>
+              <div
+                style={{ display: "flex", flexDirection: "row" }}
+                className="pd-10"
+              >
+                <div style={{ width: "500px" }}></div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    border: "1px solid",
+                    marginLeft: "10px",
+                  }}
+                >
+                  <div className="width-200 pd-4">Order details</div>
+                  <div className="width-100 pd-4 mr-l-20 ">Available</div>
+                </div>
+              </div>
+              <hr className="mr-2" />
+              <div
+                className="pd-10"
+                hidden={!this.state.view_item}
+                style={{ display: "flex", flexDirection: "row" }}
+              >
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <Row style={{ width: "500px" }}>
+                    {this.state.view_item.qachecklist
+                      ? this.state.view_item.qachecklist.map(
+                          (qitem, index) => (
+                            <Col lg="6">
+                              <div className="font-size-14 flex-row">
+                                <div className="font-weight-bold">
+                                  {qitem.name}
+                                </div>
+                                <div className="mr-l-10">
+                                  - {qitem.qavalue === 1 ? "Yes" : "No"}
+                                </div>
+                              </div>
+                            </Col>
+                          )
+                        )
+                      : ""}
+                  </Row>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      marginLeft: "30px",
+                    }}
+                  >
+                    {this.state.check_item.products.map((item, index) => (
+                      <div style={{ display: "flex", flexDirection: "row" }}>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          <div className="width-200 pd-4 flex-row">
+                            <div>{item.productname}</div> -{" "}
+                            <div className="mr-l-10">{item.quantity}</div>
+                          </div>
+                          <div className="width-150 pd-4 mr-l-40">
+                            {item.received_quantity}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ModalBody>
         </Modal>
 
         <Modal
@@ -813,11 +1143,11 @@ class LogisticsOrders extends React.Component {
             Are you sure order assign to dunzo?
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.toggleDunzoPopUp}>
-              NO
-            </Button>
             <Button size="sm" onClick={this.movetoDunzo}>
               YES
+            </Button>
+            <Button size="sm" onClick={this.toggleDunzoPopUp}>
+              NO
             </Button>
           </ModalFooter>
         </Modal>
@@ -845,11 +1175,17 @@ class LogisticsOrders extends React.Component {
                 label="Driver Name"
               />
               <Row className="mr-lr-10 mr-t-50">
-                <Col className="font-size-14 pd-0" lg="4">Trip details</Col>
+                <Col className="font-size-14 pd-0" lg="4">
+                  Trip details
+                </Col>
                 <Col className="font-size-14 border-block  scroll-trip-assign pd-0 mr-r-10 mr-b-20">
                   {this.props.triporderlist.map((item, index) => (
-                    <div className="pd-4" style={{ display: "flex", flexDirection: "row" }}>
-                          {item.doid} , {item.Locality}, {item.pincode}, {item.order_status}
+                    <div
+                      className="pd-10"
+                      style={{ display: "flex", flexDirection: "row" }}
+                    >
+                      {item.doid_name} , {item.Locality}, {item.pincode},{" "}
+                      {item.order_status}
                     </div>
                   ))}
                 </Col>

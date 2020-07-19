@@ -3,6 +3,7 @@ import {
   TRACK_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
+  TRACK_SELECT_TRIP,
 } from "../constants/actionTypes";
 const defult_slot={
   id: -1,
@@ -61,7 +62,7 @@ export default (
         ...state,
         dayorderlist: action.payload.result || [],
         pagelimit: action.payload.pagelimit || 20,
-        totalcount: action.payload.totalcount || 40,
+        totalcount: action.payload.totalcount || 10,
       };
     case TRACK_ORDER_LIST_FILTER:
       return {
@@ -73,6 +74,11 @@ export default (
       return {
         ...state,
         orderSelectedStatus: action.selectedStatus || false,
+      };
+      case TRACK_SELECT_TRIP:
+      return {
+        ...state,
+        orderSelectedTrip: action.selectedStatus || false,
       };
       case TRACK_SELECT_SOLT:
       return {

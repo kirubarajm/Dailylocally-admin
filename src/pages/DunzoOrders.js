@@ -22,19 +22,17 @@ import { notification_color } from "../utils/constant";
 import Searchnew from "../components/Searchnew";
 import AxiosRequest from "../AxiosRequest";
 import { store } from "../store";
-import Search from "../components/Search";
 import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
-  TRACK_ORDER_LIST,
-  TRACK_ORDER_LIST_FILTER,
-  TRACK_SELECT_SOLT,
-  TRACK_SELECT_STATUS,
+  DUNZO_ORDER_LIST,
+  DUNZO_ORDER_FILTER,
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
   ORDER_ACTION_CLEAR,
+  DUNZO_ORDER_PICKED_UP,
+  DUNZO_ORDER_DELIVERED,
 } from "../constants/actionTypes";
-import SearchItem from "../components/SearchItem";
 
 const mapStateToProps = (state) => ({
   ...state.dunzoorders,
@@ -44,25 +42,25 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onGetDayorders: (data) =>
+  onGetDunzoOrders: (data) =>
     dispatch({
-      type: TRACK_ORDER_LIST,
-      payload: AxiosRequest.CRM.getOrderList(data),
+      type: DUNZO_ORDER_LIST,
+      payload: AxiosRequest.Logistics.getDunzoOrderList(data),
     }),
-  onSetDayordersFilters: (data) =>
+  onPostDunzoPickedUp: (data) =>
     dispatch({
-      type: TRACK_ORDER_LIST_FILTER,
+      type: DUNZO_ORDER_PICKED_UP,
+      payload: AxiosRequest.Logistics.postDunzoPickedUp(data),
+    }),
+  onPostDunzoDelivered: (data) =>
+    dispatch({
+      type: DUNZO_ORDER_DELIVERED,
+      payload: AxiosRequest.Logistics.postDunzoDelivered(data),
+    }),
+  onSetDunzoOrderFilters: (data) =>
+    dispatch({
+      type: DUNZO_ORDER_FILTER,
       data,
-    }),
-  onSelectSlot: (selectedSlot) =>
-    dispatch({
-      type: TRACK_SELECT_SOLT,
-      selectedSlot,
-    }),
-  onSelectStatus: (selectedStatus) =>
-    dispatch({
-      type: TRACK_SELECT_STATUS,
-      selectedStatus,
     }),
   onGetReturnReason: () =>
     dispatch({
@@ -152,6 +150,11 @@ class DunzoOrders extends React.Component {
       this.setState({ isLoading: false });
     }
 
+    if (this.props.isOrderUpdated) {
+      this.props.onClear();
+      this.setState({ isLoading: false, selected_dayorderid: false });
+    }
+
     this.onGetOrders();
   }
   toggleAreaDropDown = () => {
@@ -179,7 +182,25 @@ class DunzoOrders extends React.Component {
   };
 
   movetoDunzo = () => {
+    var checkItem = this.state.selected_dayorderid;
+    var Values = Object.keys(checkItem);
+    var indexof = Values.indexOf("selectall");
+    if (indexof !== -1) {
+      Values.splice(indexof, 1);
+    }
+    var data = {
+      zoneid: this.props.zoneItem.id,
+      doid: Values,
+      done_by: 1,
+    };
     this.toggleDunzoPopUp();
+    if (this.state.actionItem.id === 1) {
+      console.log("data-->", data);
+      this.props.onPostDunzoPickedUp(data);
+    } else if (this.state.actionItem.id === 2) {
+      console.log("data-->", data);
+      this.props.onPostDunzoDelivered(data);
+    }
   };
 
   clickArea = (item) => {
@@ -207,7 +228,7 @@ class DunzoOrders extends React.Component {
     this.setState({ orderid_refresh: false });
   };
   onSearch = () => {
-    this.props.onSetDayordersFilters(false);
+    this.props.onSetDunzoOrderFilters(false);
     this.setState({ isLoading: false });
   };
 
@@ -216,16 +237,12 @@ class DunzoOrders extends React.Component {
       startdate: "",
       enddate: "",
       order_no: "",
-      user_search: "",
       orderid_refresh: true,
-      select_order_status: defult_slot,
-      select_slot: defult_slot,
     });
-    this.props.onSelectStatus(defult_slot);
-    this.props.onSelectSlot(defult_slot);
-    this.props.onSetDayordersFilters(false);
-    this.props.onGetDayorders({
+    this.props.onSetDunzoOrderFilters(false);
+    this.props.onGetDunzoOrders({
       zoneid: this.props.zoneItem.id,
+      page:defultPage
     });
   };
 
@@ -239,29 +256,16 @@ class DunzoOrders extends React.Component {
           startdate: data.starting_date,
           enddate: data.end_date,
           order_no: data.id,
-          user_search: data.search,
-          select_order_status: this.props.orderSelectedStatus,
-          select_slot: this.props.orderSelectedSolt,
         });
       } else {
         data.page = defultPage;
-        if (this.state.startdate) data.starting_date = this.state.startdate;
-        if (this.state.enddate) data.end_date = this.state.enddate;
-        if (this.state.order_no) data.id = this.state.order_no;
-        if (this.state.user_search) data.search = this.state.user_search;
-        if (
-          this.state.select_order_status &&
-          this.state.select_order_status.id !== -1
-        )
-          data.dayorderstatus = this.state.select_order_status.id;
-        if (this.state.select_slot && this.state.select_slot.id !== -1)
-          data.slot = this.state.select_slot.id;
+        if (this.state.startdate) data.from_date = this.state.startdate;
+        if (this.state.enddate) data.to_date = this.state.enddate;
+        if (this.state.order_no) data.doid = this.state.order_no;
       }
 
-      this.props.onSelectStatus(this.state.select_order_status);
-      this.props.onSelectSlot(this.state.select_slot);
-      this.props.onGetDayorders(data);
-      this.props.onSetDayordersFilters(data);
+      this.props.onGetDunzoOrders(data);
+      this.props.onSetDunzoOrderFilters(data);
     }
   };
 
@@ -270,8 +274,8 @@ class DunzoOrders extends React.Component {
   };
 
   onCheckOrder = (item) => {
-    if (item.dayorderstatus > 5 && item.dayorderstatus < 10) return true;
-    else return true;
+    if (item.dayorderstatus > 5 && item.dayorderstatus < 11) return true;
+    else return false;
   };
 
   handleSelected = (selectedPage) => {
@@ -280,8 +284,8 @@ class DunzoOrders extends React.Component {
       data = this.props.datafilter;
     }
     data.page = selectedPage;
-    this.props.onGetDayorders(data);
-    this.props.onSetDayordersFilters(data);
+    this.props.onGetDunzoOrders(data);
+    this.props.onSetDunzoOrderFilters(data);
   };
 
   handleChange(e) {
@@ -294,7 +298,8 @@ class DunzoOrders extends React.Component {
       if (value) {
         arvalue[name] = value;
         dayorderlist.map((item, i) => {
-          if (item.dayorderstatus === 6) arvalue[item.id] = value;
+          if (item.dayorderstatus === 7 || item.dayorderstatus === 8)
+            arvalue[item.id] = value;
         });
       } else {
         arvalue = {};
@@ -304,8 +309,10 @@ class DunzoOrders extends React.Component {
         arvalue[name] = value;
         var allCheck = true;
         dayorderlist.map((item, i) => {
-          if (!arvalue[item.id]) {
-            allCheck = false;
+          if (item.dayorderstatus === 7 || item.dayorderstatus === 8) {
+            if (!arvalue[item.id]) {
+              allCheck = false;
+            }
           }
         });
         if (allCheck) arvalue["selectall"] = value;
@@ -328,8 +335,19 @@ class DunzoOrders extends React.Component {
   };
 
   clickAction = (item) => {
-    this.setState({ actionItem: item });
-    this.toggleDunzoPopUp();
+    var checkItem = this.state.selected_dayorderid;
+    var Values = Object.keys(checkItem);
+    if (Values.length === 0) {
+      notify.show(
+        "Please select the order after try this",
+        "custom",
+        2000,
+        notification_color
+      );
+    } else {
+      this.setState({ actionItem: item });
+      this.toggleDunzoPopUp();
+    }
   };
 
   toggleReturnReason = () => {
@@ -361,6 +379,11 @@ class DunzoOrders extends React.Component {
       this.props.onPostReturnOrder(data);
     }
   };
+  dateConvert(date) {
+    var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm a");
+    if (datestr !== "Invalid date") return datestr;
+    else return " - ";
+  }
 
   render() {
     const dayorderlist = this.props.dayorderlist || [];
@@ -397,33 +420,6 @@ class DunzoOrders extends React.Component {
           </Row>
           <div className="fieldset">
             <div className="legend">Dunzo Orders Search</div>
-            <div className="replies_field_container mr-b-10 font-size-14">
-              <div className="width-75 mr-l-20 align_self_center">
-                Dunzo ID :
-              </div>
-              <div className="width-200 mr-l-10">
-                <Search
-                  onSearch={this.onSearchOrderno}
-                  type="number"
-                  value={this.state.order_no}
-                  onRefreshUpdate={this.onSuccessRefresh}
-                  isRefresh={this.state.orderid_refresh}
-                />
-              </div>
-              <div className="width-100 mr-l-20 align_self_center">
-                Driver Name :
-              </div>
-              <div className="width-200 mr-l-10">
-                <SearchItem
-                  onSearch={this.onSearchOrderno}
-                  type="text"
-                  value={this.state.order_no}
-                  onRefreshUpdate={this.onSuccessRefresh}
-                  isRefresh={this.state.orderid_refresh}
-                />
-              </div>
-            </div>
-
             <div className="replies_field_container mr-b-10 font-size-14">
               <div className="width-75 mr-l-20 align_self_center">
                 Order ID :
@@ -513,9 +509,9 @@ class DunzoOrders extends React.Component {
                 </ButtonDropdown>
               </Col>
             </Row>
-            <div className="scroll-horizantal-logistics">
+            <div className="scroll-horizantal-dunzo">
               <div>
-                <Table style={{ width: "1500px" }}>
+                <Table style={{ width: "1300px" }}>
                   <thead>
                     <tr>
                       <th>No</th>
@@ -539,7 +535,10 @@ class DunzoOrders extends React.Component {
                             <input
                               type="checkbox"
                               name={"" + item.id}
-                              disabled={item.dayorderstatus !== 6}
+                              disabled={
+                                item.dayorderstatus !== 7 &&
+                                item.dayorderstatus !== 8
+                              }
                               checked={this.state.selected_dayorderid[item.id]}
                               onChange={(e) => this.handleChange(e)}
                             />
@@ -551,16 +550,10 @@ class DunzoOrders extends React.Component {
                         <td>{item.dayorderstatus_msg}</td>
                         <td>{item.slot}</td>
                         <td>{item.assigned_by}</td>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        
+                        <td>{this.dateConvert(item.date)}</td>
+                        <td>{this.dateConvert(item.moveit_pickup_time)}</td>
+                        <td>{this.dateConvert(item.deliver_date)}</td>
+
                         <td>
                           {this.onCheckOrder(item) ? (
                             <Button
@@ -581,10 +574,10 @@ class DunzoOrders extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right mr-t-20">
+            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
               <PaginationComponent
                 totalItems={this.props.totalcount}
-                pageSize={pagelimit}
+                pageSize={this.props.pagelimit}
                 onSelect={this.handleSelected}
                 activePage={this.props.selectedPage}
                 size="sm"
@@ -611,11 +604,11 @@ class DunzoOrders extends React.Component {
               : "Are you sure order move to delived?"}
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.toggleDunzoPopUp}>
-              NO
-            </Button>
             <Button size="sm" onClick={this.movetoDunzo}>
               YES
+            </Button>
+            <Button size="sm" onClick={this.toggleDunzoPopUp}>
+              NO
             </Button>
           </ModalFooter>
         </Modal>
@@ -627,40 +620,41 @@ class DunzoOrders extends React.Component {
           className="max-width-800"
         >
           <ModalBody className="pd-10">
-          <div className="fieldset">
+            <div className="fieldset">
               <div className="legend">
                 Book Return -Order No - #{this.state.returnItem.id}
               </div>
-            <Row className="mr-l-10 mr-b-10">
-              <Col className="flex-row">
-                <div className="width-200 font-size-14">
-                Return Reason
-                  <span className="must width-25">*</span>
-                </div>
-                <div className="mr-l-10">
-                  <ButtonDropdown
-                    className="max-height-30"
-                    isOpen={this.state.isReturnorderReasonModal}
-                    toggle={this.toggleReturnReason}
-                    size="sm"
-                  >
-                    <DropdownToggle caret>
-                      {this.state.returnorderItem.reason || ""}
-                    </DropdownToggle>
-                    <DropdownMenu>
-                      {this.props.returnReasonList.map((item, index) => (
-                        <DropdownItem
-                          onClick={() => this.clickReturnorderReason(item)}
-                          key={index}
-                        >
-                          {item.reason}
-                        </DropdownItem>
-                      ))}
-                    </DropdownMenu>
-                  </ButtonDropdown>
-                </div>
-              </Col>
-            </Row></div>
+              <Row className="mr-l-10 mr-b-10">
+                <Col className="flex-row">
+                  <div className="width-200 font-size-14">
+                    Return Reason
+                    <span className="must width-25">*</span>
+                  </div>
+                  <div className="mr-l-10">
+                    <ButtonDropdown
+                      className="max-height-30"
+                      isOpen={this.state.isReturnorderReasonModal}
+                      toggle={this.toggleReturnReason}
+                      size="sm"
+                    >
+                      <DropdownToggle caret>
+                        {this.state.returnorderItem.reason || ""}
+                      </DropdownToggle>
+                      <DropdownMenu>
+                        {this.props.returnReasonList.map((item, index) => (
+                          <DropdownItem
+                            onClick={() => this.clickReturnorderReason(item)}
+                            key={index}
+                          >
+                            {item.reason}
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </ButtonDropdown>
+                  </div>
+                </Col>
+              </Row>
+            </div>
             <Row className="mr-b-10 mr-r-10">
               <Col lg="8"></Col>
               <Col className="pd-0 mr-r-10 txt-align-right">

@@ -421,8 +421,8 @@ class OrderView extends React.Component {
         done_by: 1,
       };
       console.log("data-->", data);
-      this.toggleZendeskModal();
-      //this.props.onPostZendeskTicket(data);
+      //this.toggleZendeskModal();
+      this.props.onPostZendeskTicket(data);
     }
   };
   retrunorderConfirm = () => {
@@ -541,9 +541,9 @@ class OrderView extends React.Component {
     window.location.reload();
   };
 
-  OnCommentUpdate= () => {
+  OnCommentUpdate = () => {
     this.props.onGetOrdersLogs({ doid: this.props.match.params.id });
-  }
+  };
 
   ImageDownload = (img) => {
     if (document.getElementById(img)) document.getElementById(img).click();
@@ -610,6 +610,7 @@ class OrderView extends React.Component {
 
   render() {
     const propdata = this.props.orderview;
+    const driverdata = propdata.moveitdetail || false;
     const cartItems = propdata.Products || [];
     return (
       <div className="pd-15">
@@ -712,6 +713,26 @@ class OrderView extends React.Component {
                 lable="Total Quantity"
                 value={propdata.order_quantity}
               />
+
+              <CardRowCol
+                lable="Total Amount"
+                value={propdata.total_product_price}
+              />
+              <Row hidden={!propdata.zendesk_ticketid} className="list-text cart-item font-size-14">
+                <Col lg="4" className="color-grey">
+                  Zendesk Ticket Id
+                </Col>
+                <Col lg="1">:</Col>
+                <Col>
+                  <a
+                    className="text-decoration-underline"
+                    href={`https://dailylocallytest.zendesk.com/agent/tickets/${propdata.zendesk_ticketid}`}
+                    target="_blank"
+                  >
+                    #{propdata.zendesk_ticketid}
+                  </a>
+                </Col>
+              </Row>
               {/* <CardRowCol lable="Packed Qty" value="10" />
               <CardRowCol lable="Total Value" value="10012" /> */}
               <CardRowCol
@@ -801,16 +822,39 @@ class OrderView extends React.Component {
         >
           <Row className="mr-lr-10 pd-8 border-block">
             <Col>
-              <CardRowCol lable="Driver Name" value="M Basheer Ahamed" />
-              <CardRowCol lable="Driver ID" value="#120" />
-              <CardRowCol lable="Phone" value="9566239084" />
-              <CardRowCol lable="Vehicle No" value="TN22 W 1411" />
+              <CardRowCol lable="Driver Name" value={driverdata.name} />
+              <CardRowCol lable="Driver ID" value={driverdata.userid} />
+              <CardRowCol lable="Email" value={driverdata.email} />
+              <CardRowCol lable="Phone" value={driverdata.phoneno} />
+              <CardRowCol lable="Vehicle No" value={driverdata.Vehicle_no} />
+              <CardRowCol
+                lable="Assigned Time"
+                value={this.dateConvert(propdata.created_at)}
+              />
+              <CardRowCol
+                lable="Notificaion Time"
+                value={this.dateConvert(propdata.created_at)}
+              />
+              <CardRowCol
+                lable="PickedUp Time"
+                value={this.dateConvert(propdata.moveit_pickup_time)}
+              />
+              <CardRowCol
+                lable="Reached Time"
+                value={this.dateConvert(
+                  propdata.moveit_customerlocation_reached_time
+                )}
+              />
+              <CardRowCol
+                lable="Delivered Time"
+                value={this.dateConvert(propdata.deliver_date)}
+              />
             </Col>
             <Col>
-              {propdata.order_pickup_img ? (
+              {propdata.checklist_img1 ? (
                 <a
                   id="img1"
-                  href={propdata.order_pickup_img}
+                  href={propdata.checklist_img1}
                   download
                   hidden
                   target="_blank"
@@ -818,10 +862,10 @@ class OrderView extends React.Component {
               ) : (
                 ""
               )}
-              {propdata.order_pickup_img2 ? (
+              {propdata.checklist_img2 ? (
                 <a
                   id="img2"
-                  href={propdata.order_pickup_img2}
+                  href={propdata.checklist_img2}
                   download
                   hidden
                   target="_blank"
@@ -832,15 +876,14 @@ class OrderView extends React.Component {
               <CardRowCol lable="Pickup Image" value="" />
               <div className="flex-row-vertical-center">
                 <Card
+                  hidden={!propdata.checklist_img1}
                   style={{ width: "220px", height: "280px" }}
                   className="flex-row-vertical-center"
                 >
                   <CardImg
                     style={{ width: "200px", height: "200px" }}
                     top
-                    src={
-                      "https://eattovo.s3.ap-south-1.amazonaws.com/upload/sales/makeit/1593750064752-lic"
-                    }
+                    src={propdata.checklist_img1}
                     alt="Pickup Image"
                     className="mr-t-20"
                   />
@@ -853,15 +896,14 @@ class OrderView extends React.Component {
                   </Button>
                 </Card>
                 <Card
+                  hidden={!propdata.checklist_img2}
                   style={{ width: "220px", height: "280px" }}
                   className="flex-row-vertical-center  mr-l-20"
                 >
                   <CardImg
                     top
                     style={{ width: "200px", height: "200px" }}
-                    src={
-                      "https://eattovo.s3.ap-south-1.amazonaws.com/upload/sales/makeit/1593750064752-lic"
-                    }
+                    src={propdata.checklist_img2}
                     alt="Pickup Image"
                     className="mr-t-20"
                   />
@@ -877,7 +919,7 @@ class OrderView extends React.Component {
             </Col>
           </Row>
         </Collapse>
-        
+
         <Card className="pd-tb-0 mr-t-10">
           <CardBody
             onClick={this.onCollapseLogDetail}
@@ -899,7 +941,7 @@ class OrderView extends React.Component {
           isOpen={this.state.isCollapseLogDetail}
           style={{ padding: "0px" }}
         >
-          <Row className="mr-lr-10 pd-8 border-block">
+          <Row className="mr-lr-10 pd-8 border-block scroll-logdetail">
             <Col>
               {this.props.OrderLogs.map((item, i) => (
                 <div className="width-full">
@@ -935,14 +977,15 @@ class OrderView extends React.Component {
           </Row>
         </Collapse>
 
-
         <Row className="mr-lr-10 mr-b-20 mr-t-20">
           <Col className="border-block pd-5">
-            <CommentEditBox dayorderdata={propdata} update={this.OnCommentUpdate}/>{" "}
+            <CommentEditBox
+              dayorderdata={propdata}
+              update={this.OnCommentUpdate}
+            />{" "}
           </Col>
         </Row>
 
-        
         <Modal
           isOpen={this.state.isCancelModal}
           toggle={this.toggleCancel}

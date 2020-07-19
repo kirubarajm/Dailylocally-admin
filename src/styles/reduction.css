@@ -2792,11 +2792,11 @@ fieldset:disabled a.btn {
 
 .btn-link {
   font-weight: 400;
-  color: #6a82fb;
+  color: #9900ff;
   background-color: transparent;
 }
 .btn-link:hover {
-  color: #2044f9;
+  color: #9900ff;
   text-decoration: underline;
   background-color: transparent;
   border-color: transparent;

@@ -27,8 +27,10 @@ import {
   TRACK_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
+  TRACK_SELECT_TRIP
 } from "../constants/actionTypes";
 import { getOrderStatus } from "../utils/ConstantFunction";
+import SearchTrip from "../components/SearchTrip";
 
 const mapStateToProps = (state) => ({
   ...state.crm,
@@ -53,6 +55,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_SELECT_SOLT,
       selectedSlot,
     }),
+    onSelectTrip: (selectedTrip) =>
+    dispatch({
+      type: TRACK_SELECT_TRIP,
+      selectedTrip,
+    }),
   onSelectStatus: (selectedStatus) =>
     dispatch({
       type: TRACK_SELECT_STATUS,
@@ -67,6 +74,7 @@ const defult_slot = {
   status: "All",
 };
 
+var logi;
 class Crm extends React.Component {
   constructor() {
     super();
@@ -84,10 +92,13 @@ class Crm extends React.Component {
       isLoading: false,
       userid: 0,
       user_via_order: false,
+      isTripEnable:true,
+      trip_search:false,
     };
   }
 
   UNSAFE_componentWillMount() {
+    logi=this;
     var userid = this.props.match.params.userid || false;
     if (userid) this.setState({ user_via_order: true, userid: userid });
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
@@ -197,6 +208,7 @@ class Crm extends React.Component {
     this.props.onSetDayordersFilters(false);
     this.props.onGetDayorders({
       zoneid: this.props.zoneItem.id,
+      page:defultPage
     });
   };
 
@@ -206,6 +218,8 @@ class Crm extends React.Component {
       var data = { zoneid: this.props.zoneItem.id };
       if (this.props.datafilter) {
         data = this.props.datafilter;
+        var userid = this.props.match.params.userid || false;
+        if (!userid) delete data.userid
         this.setState({
           startdate: data.starting_date,
           enddate: data.end_date,
@@ -213,6 +227,7 @@ class Crm extends React.Component {
           user_search: data.search,
           select_order_status: this.props.orderSelectedStatus,
           select_slot: this.props.orderSelectedSolt,
+          trip_search:this.props.orderSelectedTrip
         });
       } else {
         data.page = defultPage;
@@ -220,6 +235,7 @@ class Crm extends React.Component {
         if (this.state.enddate) data.end_date = this.state.enddate;
         if (this.state.order_no) data.id = this.state.order_no;
         if (this.state.user_search) data.search = this.state.user_search;
+        if (this.state.trip_search) data.trip_id = this.state.trip_search;
         if (
           this.state.select_order_status &&
           this.state.select_order_status.id !== -1
@@ -227,6 +243,7 @@ class Crm extends React.Component {
           data.dayorderstatus = this.state.select_order_status.id;
         if (this.state.select_slot && this.state.select_slot.id !== -1)
           data.slot = this.state.select_slot.id;
+        if(this.state.userid)  data.userid = this.state.userid;
       }
 
       this.props.onSelectStatus(this.state.select_order_status);
@@ -240,6 +257,15 @@ class Crm extends React.Component {
     this.props.history.push("/orderview/" + Item.id);
   };
 
+  onCheckMoveit= () => {
+    //document.radioForm.onclick = function () {
+      var radVal = document.radioForm.moveit_type.value;
+      var checkVal=parseInt(radVal);
+      logi.setState({trip_search:"",isTripEnable:checkVal===1?false:true,checkBoxVal:checkVal});
+      this.props.onSelectTrip(checkVal);
+    //};
+  }
+
   handleSelected = (selectedPage) => {
     var data = { zoneid: this.props.zoneItem.id };
     if (this.props.datafilter) {
@@ -248,6 +274,11 @@ class Crm extends React.Component {
     data.page = selectedPage;
     this.props.onGetDayorders(data);
     this.props.onSetDayordersFilters(data);
+  };
+
+  onSearchTrip = (e) => {
+    const value = e.target.value || "";
+    this.setState({ trip_search: value });
   };
 
   render() {
@@ -385,6 +416,48 @@ class Crm extends React.Component {
                   </DropdownMenu>
                 </ButtonDropdown>
               </div>
+              <div className="width-100 mr-l-10 align_self_center">
+                Trip/Dunzo :
+              </div>
+              <div className="width-200 mr-l-10 align_self_center" onClick={this.onCheckMoveit}>
+                <form id="radioForm" name="radioForm" className="mr-t-10">
+                  <input
+                    type="radio"
+                    name="moveit_type"
+                    value="0"
+                    checked={this.state.checkBoxVal===0}
+                    className="mr-r-5"
+                  />{" "}
+                  <label className="mr-r-10">All</label>
+                  <input
+                    type="radio"
+                    name="moveit_type"
+                    value="1"
+                    checked={this.state.checkBoxVal===1}
+                    className="mr-r-5"
+                  />{" "}
+                  <label className="mr-r-10">Trip</label>
+                  <input
+                    type="radio"
+                    name="moveit_type"
+                    value="2"
+                    checked={this.state.checkBoxVal===2}
+                    className="mr-r-5"
+                  />{" "}
+                  <label className="mr-r-10">Dunzo</label>
+                </form>
+              </div>
+              <div className="width-200 mr-l-10">
+                <div hidden={this.state.isTripEnable}>
+                <SearchTrip
+                  onSearch={this.onSearchTrip}
+                  type="number"
+                  value={this.state.trip_search}
+                  onRefreshUpdate={this.onSuccessRefresh}
+                  isRefresh={this.state.orderid_refresh}
+                />
+                </div>
+              </div>
             </div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
               <Col lg="8"></Col>
@@ -456,12 +529,12 @@ class Crm extends React.Component {
                         </td>
                         <td>{item.order_quantity}</td>
                         <td>{item.u_product_count}</td>
-                        <td>{item.amount}</td>
+                        <td>{item.total_product_price}</td>
                         <td>
                           {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
                         <td>{getOrderStatus(item.dayorderstatus)}</td>
-                        <td>{item.trip_id}</td>
+                        <td>{item.moveit_type===1?item.trip_id:item.moveit_type===null?"-":"Dunzo"}</td>
                         <td>
                           {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
@@ -471,10 +544,10 @@ class Crm extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right">
+            <div className="float-right" hidden={this.props.totalcount<this.props.pagelimit}>
               <PaginationComponent
                 totalItems={this.props.totalcount}
-                pageSize={pagelimit}
+                pageSize={this.props.pagelimit}
                 onSelect={this.handleSelected}
                 activePage={this.props.selectedPage}
                 size="sm"

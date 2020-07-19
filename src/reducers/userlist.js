@@ -1,7 +1,7 @@
 import { USER_LIST, USER_FILTER } from "../constants/actionTypes";
 
 export default (
-  state = { Userlist: [], userfilter: false, totalcount: 0, selectedPage: 1 },
+  state = { Userlist: [], userfilter: false, totalcount: 0, selectedPage: 1,pagelimit:0},
   action
 ) => {
   switch (action.type) {
@@ -9,7 +9,8 @@ export default (
       return {
         ...state,
         Userlist: action.payload.result || [],
-        totalcount: action.totalcount || 40,
+        pagelimit: action.payload.pagelimit || 20,
+        totalcount: action.payload.totalcount || 10,
       };
     case USER_FILTER:
       return {

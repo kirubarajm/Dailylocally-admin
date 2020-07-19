@@ -2,27 +2,42 @@ import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
-import { Row, Col, Table, Button } from "reactstrap";
+import {
+  Row,
+  Col,
+  Table,
+  Button,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "reactstrap";
 import Moment from "moment";
 import AxiosRequest from "../AxiosRequest";
 import {
   TRANSACTION_FILTER,
-  TRANSACTION_LIST
+  TRANSACTION_LIST,
+  TRANSACTION_VIEW,
 } from "../constants/actionTypes";
 
 const mapStateToProps = (state) => ({ ...state.transaction });
 
 const mapDispatchToProps = (dispatch) => ({
   ongetTrasnactionList: (data) =>
-  dispatch({
-    type: TRANSACTION_LIST,
-    payload: AxiosRequest.CRM.getUserList(data),
-  }),
-onSetUserFilters: (userfilter) =>
-  dispatch({
-    type: TRANSACTION_FILTER,
-    userfilter,
-  }),
+    dispatch({
+      type: TRANSACTION_LIST,
+      payload: AxiosRequest.CRM.getTransactionList(data),
+    }),
+  ongetTrasnactionView: (data) =>
+    dispatch({
+      type: TRANSACTION_VIEW,
+      payload: AxiosRequest.CRM.getTransactionView(data),
+    }),
+  onSetTrasnactionFilters: (userfilter) =>
+    dispatch({
+      type: TRANSACTION_FILTER,
+      userfilter,
+    }),
 });
 const defultPage = 1;
 const pagelimit = 20;
@@ -38,17 +53,21 @@ class TransactionList extends React.Component {
 
   UNSAFE_componentWillMount() {
     this.dateSelectOr = this.dateSelectOr.bind(this);
+    this.onGetTransaction();
   }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
   componentDidMount() {}
-  componentDidUpdate(nextProps, nextState) {}
+  componentDidUpdate(nextProps, nextState) {
+    this.onGetTransaction();
+  }
   componentDidCatch() {}
 
   onGetTransaction = () => {
     if (!this.state.isLoading) {
+      var userid = this.props.match.params.userid;
       this.setState({ isLoading: true });
       var data = {};
       if (this.props.userfilter) {
@@ -59,12 +78,13 @@ class TransactionList extends React.Component {
         });
       } else {
         data.page = defultPage;
+        data.userid = userid;
         if (this.state.startdate) data.starting_date = this.state.startdate;
         if (this.state.enddate) data.end_date = this.state.enddate;
       }
 
-      this.props.ongetUserList(data);
-      this.props.onSetUserFilters(data);
+      this.props.ongetTrasnactionList(data);
+      this.props.onSetTrasnactionFilters(data);
     }
   };
 
@@ -74,7 +94,7 @@ class TransactionList extends React.Component {
     this.setState({ startdate: startdate, enddate: enddate });
   };
   onSearch = () => {
-    this.props.onSetUserFilters(false);
+    this.props.onSetTrasnactionFilters(false);
     this.setState({ isLoading: false });
   };
   onReset = () => {
@@ -82,9 +102,33 @@ class TransactionList extends React.Component {
       startdate: false,
       enddate: false,
     });
-    this.props.onSetUserFilters(false);
+    this.props.onSetTrasnactionFilters(false);
     this.setState({ isLoading: false });
   };
+  onViewTransaction = (item) => {
+    this.setState({ viewtrItem: item });
+    this.props.ongetTrasnactionView({ orderid: item.orderid });
+    this.toggleTransPopUp();
+  };
+
+  toggleTransPopUp = () => {
+    this.setState((prevState) => ({
+      isTransModal: !prevState.isTransModal,
+    }));
+  };
+
+  dateConvert(date) {
+    var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm a");
+    if (datestr !== "Invalid date") return datestr;
+    else return " - ";
+  }
+
+  dateConvertFormat(date) {
+    var datestr = Moment(date).format("dddd DD MMM YYYY");
+    if (datestr !== "Invalid date") return datestr;
+    else return " - ";
+  }
+
   render() {
     const transactionlist = this.props.transactionlist || [];
     return (
@@ -156,33 +200,101 @@ class TransactionList extends React.Component {
                   {transactionlist.map((item, i) => (
                     <tr key={i}>
                       <td>{i + 1}</td>
-
                       <td>{item.orderid}</td>
                       <td>{item.name}</td>
                       <td>{item.userid}</td>
                       <td>{item.phoneno}</td>
+                      <td>{this.dateConvert(item.transaction_time)}</td>
+                      <td>{item.transaction_status}</td>
                       <td>
-                        {Moment(item.createdat).format("DD-MMM-YYYY/hh:mm a")}
+                        {" "}
+                        <Button
+                          size="sm"
+                          color="link"
+                          onClick={() => this.onViewTransaction(item)}
+                        >
+                          {" "}
+                          tranid #{item.orderid}
+                        </Button>
                       </td>
-                      <td>{item.payment_status}</td>
-                      <td>{item.transaction_link}</td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
             </div>
-            <div className="float-right mr-t-20">
+            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
               <PaginationComponent
                 totalItems={this.props.totalcount}
-                pageSize={pagelimit}
+                pageSize={this.props.pagelimit}
                 onSelect={this.handleSelected}
                 activePage={this.props.selectedPage}
                 size="sm"
               />
             </div>
           </div>
-
         </div>
+
+        <Modal
+          isOpen={this.state.isTransModal}
+          toggle={this.toggleTransPopUp}
+          className="max-width-400"
+          backdrop={true}
+        >
+          <ModalBody className="pd-10">
+            <div className="font-size-14 font-weight-bold">Transaction View</div>
+            {this.props.transactionview ? (
+              <div className="font-size-14 mr-t-20">
+                <div className="flex-row">
+                  Transaction ID # {this.props.transactionview.orderid}
+                </div>
+                <div className="color-grey font-size-10">
+                  {this.dateConvertFormat(
+                    this.props.transactionview.transaction_time
+                  )}
+                </div>
+
+                <div className="mr-t-50 font-size-14 font-weight-bold">
+                  Items in my order | {this.props.transactionview.itemscount}{" "}
+                  Items
+                </div>
+                <hr className="mr-2" />
+                <div className="mr-t-20">
+                  {this.props.transactionview.items.map((item, i) => (
+                    <div className="flex-row mr-t-10">
+                      <div className="width-250">
+                        <div>{item.product_name}</div>
+                        <div className="font-size-10 color-grey">
+                          {item.weight} {item.unit}
+                        </div>
+                      </div>
+                      <div className="width-100 txt-align-right mr-l-10">
+                        <i className="fas fa-rupee-sign font-size-12" />{" "}
+                        {item.price}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="mr-t-20 font-size-14 font-weight-bold">Bill Detail</div>
+                  {this.props.transactionview.cartdetails.map((item, i) => (
+                    <div className="flex-row mr-t-10">
+                      <div className="width-250 color-grey">{item.title}</div>
+                      <div className="width-100 txt-align-right mr-l-10">
+                        <i className="fas fa-rupee-sign font-size-12" />{" "}
+                        {item.charges}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleTransPopUp}>
+              CLOSE
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }

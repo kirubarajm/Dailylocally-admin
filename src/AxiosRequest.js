@@ -127,12 +127,24 @@ const CRM= {
   postZendeskCreation:(data) => requests.post("/zendesk/ticketcreate",data),
   postComment:(data) => requests.post("/ordercomments",data),
   getUserList:(data) => requests.post("/crm/userlist", data),
+  getTransactionList:(data) => requests.post("/transaction", data),
+  getTransactionView:(data) => requests.post("/transaction/view", data),
 }
 
 const Logistics= {
   getTripOrders:(data) => requests.post("/logistics/trip/templist", data),
   getOrdersList:(data) => requests.post("/logistics/readytodispatchlist", data),
   getDriverList:(data) => requests.post("/logistics/moveit/listwithtrip", data),
+  getQACheckList:(data) => requests.post("/logistics/qa/type_list", data),
+  getDunzoOrderList:(data) => requests.post("/logistics/dunzo/orderlist", data),
+  getTripList:(data) => requests.post("/logistics/trip/list", data),
+  getTripSearchList:(data) => requests.post("/logistics/trip/tripmoveitfilters", data),
+  postQACheckList:(data) => requests.post("/logistics/qa/submit_checklist", data),
+  postDunzoAssign:(data) => requests.post("/logistics/dunzo/assign", data),
+  postDunzoPickedUp:(data) => requests.post("/logistics/dunzo/pickup", data),
+  postDunzoDelivered:(data) => requests.post("/logistics/dunzo/delivered", data),
+  postTripAssign:(data) => requests.post("/logistics/trip/create", data),
+  postTripUnAssign:(data) => requests.post("/logistics/trip/unassign", data),
 }
 
 export default {

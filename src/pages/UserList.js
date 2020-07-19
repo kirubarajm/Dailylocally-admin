@@ -261,10 +261,10 @@ class UserList extends React.Component {
                 </tbody>
               </Table>
             </div>
-            <div className="float-right mr-t-20">
+            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
               <PaginationComponent
                 totalItems={this.props.totalcount}
-                pageSize={pagelimit}
+                pageSize={this.props.pagelimit}
                 onSelect={this.handleSelected}
                 activePage={this.props.selectedPage}
                 size="sm"

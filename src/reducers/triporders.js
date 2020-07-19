@@ -1,11 +1,13 @@
 import {
-  TRACK_ORDER_LIST,
-  TRACK_ORDER_LIST_FILTER,
+  TRIP_ORDER_LIST,
   TRACK_SELECT_SOLT,
+  TRIP_ORDER_SEARCH,
+  TRIP_ORDER_LIST_FILTER,
   TRACK_SELECT_STATUS,
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
   ORDER_ACTION_CLEAR,
+  TRIP_ORDER_UNASSIGN,
 } from "../constants/actionTypes";
 const defult_slot = {
   id: -1,
@@ -19,6 +21,7 @@ export default (
     selectedPage: 0,
     datafilter: false,
     isReturnordered:false,
+    isOrderUpdated:false,
     orderSelectedStatus: defult_slot,
     orderSelectedSolt: defult_slot,
     returnReasonList:[],
@@ -30,48 +33,24 @@ export default (
     actionList: [
       { id: 1, name: "Unassign Orders" }
     ],
-    orderStatus: [
-      {
-        id: -1,
-        status: "All",
-      },
-      {
-        id: 0,
-        status: "Open",
-      },
-      {
-        id: 1,
-        status: "SCM",
-      },
-      {
-        id: 6,
-        status: "Ready to Dispatch",
-      },
-      {
-        id: 10,
-        status: "Completed",
-      },
-      {
-        id: 11,
-        status: "Cancel",
-      },
-      {
-        id: 12,
-        status: "Return",
-      },
-    ],
   },
   action
 ) => {
   switch (action.type) {
-    case TRACK_ORDER_LIST:
+    case TRIP_ORDER_LIST:
       return {
         ...state,
         dayorderlist: action.payload.result || [],
         pagelimit: action.payload.pagelimit || 20,
-        totalcount: action.payload.totalcount || 40,
+        totalcount: action.payload.totalcount || 10,
       };
-    case TRACK_ORDER_LIST_FILTER:
+      case TRIP_ORDER_SEARCH:
+      return {
+        ...state,
+        moveitlist: action.payload.moveitlist || [],
+        triplist: action.payload.triplist || [],
+      };
+    case TRIP_ORDER_LIST_FILTER:
       return {
         ...state,
         datafilter: action.data || false,
@@ -97,10 +76,17 @@ export default (
         ...state,
         isReturnordered: action.payload.status || false,
       };
+      case TRIP_ORDER_UNASSIGN:
+        return {
+          ...state,
+          isOrderUpdated: action.payload.status || false,
+        };
+      
       case ORDER_ACTION_CLEAR:
       return {
         ...state,
         isReturnordered: false,
+        isOrderUpdated: false,
       };
     default:
       return state;
