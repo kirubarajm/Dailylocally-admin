@@ -15,6 +15,7 @@ import {
   ORDER_ZENDESK_ISSUES,
   POST_ZENDESK_TICKET,
   TRACK_ORDER_LOGS,
+  TRANSACTION_VIEW,
 } from "../constants/actionTypes";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import AxiosRequest from "../AxiosRequest";
@@ -170,6 +171,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: ORDER_ZENDESK_ISSUES,
       payload: AxiosRequest.CRM.getRaiseTicketIssues(data),
     }),
+    ongetTrasnactionView: (data) =>
+    dispatch({
+      type: TRANSACTION_VIEW,
+      payload: AxiosRequest.CRM.getTransactionView(data),
+    }),
   onDeleteImages: () =>
     dispatch({
       type: DELETE_PROOF_IMAGES,
@@ -293,6 +299,18 @@ class OrderView extends React.Component {
       this.getOrderDetail();
     }
   }
+
+  onViewTransaction = (item) => {
+    this.setState({ viewtrItem: item });
+    this.props.ongetTrasnactionView({ orderid: item.orderid });
+    this.toggleTransPopUp();
+  };
+
+  toggleTransPopUp = () => {
+    this.setState((prevState) => ({
+      isTransModal: !prevState.isTransModal,
+    }));
+  };
 
   getOrderDetail() {
     this.props.onGetOrdersDetail({ id: this.props.match.params.id });
@@ -437,7 +455,7 @@ class OrderView extends React.Component {
       const orderview = this.props.orderview;
       var data = {
         doid: orderview.id,
-        return_reason: this.state.returnorderItem.rid,
+        return_reason: this.state.returnorderItem.reason,
         done_by: 1,
       };
       this.props.onPostReturnOrder(data);
@@ -504,7 +522,7 @@ class OrderView extends React.Component {
   };
   messageConfirm = (value) => {
     const orderview = this.props.orderview;
-    var data = { message: value.message, phoneno: orderview.phoneno };
+    var data = { message: value.message, phoneno: orderview.phoneno,done_by:1 };
     this.props.onPostMessageToCustomer(data);
   };
   cancelConfirm = (value) => {
@@ -608,6 +626,12 @@ class OrderView extends React.Component {
     else return "";
   }
 
+  dateConvertFormat(date) {
+    var datestr = Moment(date).format("dddd DD MMM YYYY");
+    if (datestr !== "Invalid date") return datestr;
+    else return " - ";
+  }
+
   render() {
     const propdata = this.props.orderview;
     const driverdata = propdata.moveitdetail || false;
@@ -632,7 +656,7 @@ class OrderView extends React.Component {
                     <DropdownItem
                       onClick={() => this.clickAction(item)}
                       key={index}
-                      disabled={propdata.dayorderstatus === 11 && item.id === 1}
+                      disabled={(propdata.dayorderstatus === 11 && item.id === 1)||(propdata.dayorderstatus === 11 && item.id === 3)}
                     >
                       {item.name}
                     </DropdownItem>
@@ -718,7 +742,10 @@ class OrderView extends React.Component {
                 lable="Total Amount"
                 value={propdata.total_product_price}
               />
-              <Row hidden={!propdata.zendesk_ticketid} className="list-text cart-item font-size-14">
+              <Row
+                hidden={!propdata.zendesk_ticketid}
+                className="list-text cart-item font-size-14"
+              >
                 <Col lg="4" className="color-grey">
                   Zendesk Ticket Id
                 </Col>
@@ -769,6 +796,7 @@ class OrderView extends React.Component {
               <Col className="txt-align-right">Quantity</Col>
               <Col className="txt-align-right">Price</Col>
               <Col className="txt-align-right">Amount</Col>
+              <Col className="txt-align-right">Transaction id</Col>
             </Row>
             <hr />
             {cartItems.map((item, i) => (
@@ -794,6 +822,15 @@ class OrderView extends React.Component {
                     <i className="fas fa-rupee-sign font-size-12" />{" "}
                     {item.quantity * item.price}
                   </div>
+                </Col>
+                <Col className="txt-align-right">
+                  <Button
+                    size="sm"
+                    color="link"
+                    onClick={() => this.onViewTransaction(item)}
+                  >
+                    inv #{item.orderid}
+                  </Button>
                 </Col>
               </Row>
             ))}
@@ -1412,6 +1449,68 @@ class OrderView extends React.Component {
                 </Button>
               </Col>
             </Row>
+          </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isTransModal}
+          toggle={this.toggleTransPopUp}
+          className="max-width-400"
+          backdrop={true}
+        >
+          <ModalBody className="pd-10">
+            <div className="font-size-14 font-weight-bold">Transaction View</div>
+            {this.props.transactionview ? (
+              <div className="font-size-14 mr-t-20">
+                <div className="flex-row">
+                  Transaction ID # {this.props.transactionview.orderid}
+                </div>
+                <div className="color-grey font-size-10">
+                  {this.dateConvertFormat(
+                    this.props.transactionview.transaction_time
+                  )}
+                </div>
+
+                <div className="mr-t-50 font-size-14 font-weight-bold">
+                  Items in my order | {this.props.transactionview.itemscount}{" "}
+                  Items
+                </div>
+                <hr className="mr-2" />
+                <div className="mr-t-20">
+                  {this.props.transactionview.items.map((item, i) => (
+                    <div className="flex-row mr-t-10">
+                      <div className="width-250">
+                        <div>{item.product_name}</div>
+                        <div className="font-size-10 color-grey">
+                          {item.weight} {item.unit}
+                        </div>
+                      </div>
+                      <div className="width-100 txt-align-right mr-l-10">
+                        <i className="fas fa-rupee-sign font-size-12" />{" "}
+                        {item.price}
+                      </div>
+                    </div>
+                  ))}
+                  <div className="mr-t-20 font-size-14 font-weight-bold">Bill Detail</div>
+                  {this.props.transactionview.cartdetails.map((item, i) => (
+                    <div className="flex-row mr-t-10">
+                      <div className="width-250 color-grey">{item.title}</div>
+                      <div className="width-100 txt-align-right mr-l-10">
+                        <i className="fas fa-rupee-sign font-size-12" />{" "}
+                        {item.charges}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleTransPopUp}>
+              CLOSE
+            </Button>
           </ModalFooter>
         </Modal>
       </div>

@@ -13,6 +13,7 @@ import {
   ORDER_ZENDESK_ISSUES,
   POST_ZENDESK_TICKET,
   TRACK_ORDER_LOGS,
+  TRANSACTION_VIEW,
 } from "../constants/actionTypes";
 
 export default (
@@ -72,6 +73,11 @@ export default (
       return {
         ...state,
         zendeskissuesList: action.payload.result || [],
+      };
+      case TRANSACTION_VIEW:
+      return {
+        ...state,
+        transactionview: action.payload.result[0] || [],
       };
     case POST_ORDER_CANCEL:
       return {

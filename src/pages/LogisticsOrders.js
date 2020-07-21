@@ -282,6 +282,7 @@ class LogisticsOrders extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
       doid: doid,
+      done_by: 1,
     };
     this.toggleDunzoPopUp();
     this.props.onPostDunzoAssign(data);
@@ -313,6 +314,19 @@ class LogisticsOrders extends React.Component {
     }
   };
 
+  onTripOrders=() => {
+    var checkItem = this.state.selected_dayorderid;
+    var Values = Object.keys(checkItem);
+    var indexof = Values.indexOf("selectall");
+    if (indexof !== -1) {
+      Values.splice(indexof, 1);
+    }
+    this.props.onGetTripOrders({
+      doid: Values,
+      zoneid: this.props.zoneItem.id,
+    });
+  }
+
   gotoTrip = () => {
     var checkItem = this.state.selected_dayorderid;
     var Values = Object.keys(checkItem);
@@ -324,6 +338,7 @@ class LogisticsOrders extends React.Component {
         notification_color
       );
     } else {
+      this.onTripOrders();
       this.props.onGetDriverList({ zoneid: this.props.zoneItem.id });
       this.toggleTripAssignPopUp();
     }
@@ -538,6 +553,7 @@ class LogisticsOrders extends React.Component {
       zoneid: this.props.zoneItem.id,
       doid: this.state.check_item.id,
       qa_checklist: this.state.qa_checklist,
+      done_by: 1,
     };
     console.log("data-->", data);
     this.props.onPostQACheckList(data);

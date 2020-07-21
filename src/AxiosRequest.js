@@ -33,6 +33,21 @@ const requests = {
       .then(responseBody),
 };
 
+const requests_base = {
+  del: (url, version) =>
+    axios.del(`${BASE_URL_LIVE}${url}`, setheader(version)).then(responseBody),
+  get: (url, version) =>
+    axios.get(`${BASE_URL_LIVE}${url}`, setheader(version)).then(responseBody),
+  put: (url, body, version) =>
+    axios
+      .put(`${BASE_URL_LIVE}${url}`, body, setheader(version))
+      .then(responseBody),
+  post: (url, body, version) =>
+    axios
+      .post(`${BASE_URL_LIVE}${url}`, body, setheader(version))
+      .then(responseBody),
+};
+
 const Auth = {
   current: () => requests.get("/user"),
   login: (email, password) =>
@@ -127,6 +142,7 @@ const CRM= {
   postZendeskCreation:(data) => requests.post("/zendesk/ticketcreate",data),
   postComment:(data) => requests.post("/ordercomments",data),
   getUserList:(data) => requests.post("/crm/userlist", data),
+  postUserAddress:(data) => requests_base.put("user/address", data),
   getTransactionList:(data) => requests.post("/transaction", data),
   getTransactionView:(data) => requests.post("/transaction/view", data),
 }

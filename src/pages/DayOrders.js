@@ -85,7 +85,6 @@ class DayOrders extends React.Component {
   };
   UNSAFE_componentWillMount() {
     this.startSelect = this.startSelect.bind(this);
-    this.endSelect = this.endSelect.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onSearchInput = this.onSearchInput.bind(this);
     this.movetoprocurement = this.movetoprocurement.bind(this);
@@ -182,12 +181,10 @@ class DayOrders extends React.Component {
 
   startSelect = (event, picker) => {
     var startdate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ startdate: startdate });
+    var enddate = picker.endDate.format("YYYY-MM-DD");
+    this.setState({ startdate: startdate, enddate: enddate });
   };
-  endSelect = (event, picker) => {
-    var enddate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ enddate: enddate });
-  };
+
   toggleProcuremPopUp = () => {
     this.setState({
       isprocur: !this.state.isprocur,
@@ -232,24 +229,17 @@ class DayOrders extends React.Component {
   onSearchInput = (e) => {
     const value = e.target.value || "";
     this.setState({ orderid: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
   };
+  onViewOrder = (Item) => {
+    this.props.history.push("/orderview/" + Item.id);
+  };
 
   onSearch = () => {
-    // var data = {
-    //   zoneid: this.props.zoneItem.id
-    // };
-    // if(this.state.startdate)data.starting_date = this.state.startdate;
-    // if(this.state.enddate)data.end_date = this.state.enddate;
-    // if (this.state.orderid) data.doid = this.state.orderid;
-    // if (this.state.select_order_status && this.state.select_order_status.id !== -1)
-    //   data.dayorderstatus = this.state.select_order_status.id;
-    // this.props.onGetDayorders(data);
     this.setState({ isLoading: false });
-    //this.onGetOrders();
   };
 
   onReset = () => {
@@ -279,13 +269,12 @@ class DayOrders extends React.Component {
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset">
             <div className="legend">Day Order - Search</div>
-            <div className="pd-10 font-size-14">
-              <span className="mr-r-20">From Date/Time: </span>
+            <div className="flex-row pd-10 font-size-14">
+              <div className="mr-r-20 width-100">Date/Time: </div>
+              <div className="width-250">
               <DateRangePicker
                 opens="right"
-                singleDatePicker
-                maxDate={this.state.today}
-                endDate="+0d"
+                minDate={this.state.today}
                 drops="down"
                 onApply={this.startSelect}
               >
@@ -300,8 +289,35 @@ class DayOrders extends React.Component {
                 {this.state.startdate
                   ? Moment(this.state.startdate).format("DD/MM/YYYY")
                   : "DD/MM/YYYY"}
+                {this.state.startdate
+                  ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                  : ""}
               </span>
-              <span className="mr-l-50 mr-r-20">To Date/Time: </span>
+              </div>
+              <div className="mr-l-50 mr-r-20">Order Status : </div>
+              <div>
+              <ButtonDropdown
+                  className="max-height-30"
+                  isOpen={this.state.isOpenOrderStatus}
+                  toggle={this.toggleOrderStatus}
+                  size="sm"
+                >
+                  <DropdownToggle caret>
+                    {this.state.select_order_status.status || ""}
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {this.props.orderStatus.map((item, index) => (
+                      <DropdownItem
+                        onClick={() => this.clickOrderStatus(item)}
+                        key={index}
+                      >
+                        {item.status}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </ButtonDropdown>
+                </div>
+              {/* <span className="mr-l-50 mr-r-20">To Date/Time: </span>
               <Button
                 className="mr-r-10"
                 hidden={this.state.startdate}
@@ -310,7 +326,7 @@ class DayOrders extends React.Component {
                 <span href="#" id="DisabledAutoHideExample">
                   <i className="far fa-calendar-alt"></i>
                 </span>
-              </Button>
+              </Button> 
               <DateRangePicker
                 opens="right"
                 singleDatePicker
@@ -332,24 +348,22 @@ class DayOrders extends React.Component {
                 {this.state.enddate
                   ? Moment(this.state.enddate).format("DD/MM/YYYY")
                   : "DD/MM/YYYY"}
-              </span>
+              </span>*/}
             </div>
-            <Row className="pd-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="1">
-                <div>Day Order ID : </div>{" "}
-              </Col>
-              <Col lg="2" className="pd-0">
+            <div className="flex-row pd-10 mr-r-10 mr-b-10 font-size-14 ">
+                <div className="width-120">Day Order ID : </div>
+              <div lg="2" className="pd-0">
                 <Search
                   onSearch={this.onSearchInput}
                   type="number"
                   onRefreshUpdate={this.onSuccessRefresh}
                   isRefresh={this.state.orderid_refresh}
                 />
-              </Col>
-              <Col lg="2">
+              </div>
+              {/*<Col lg="2">
                 <div>Order Status : </div>{" "}
               </Col>
-              <Col lg="3" className="pd-0">
+               <Col lg="3" className="pd-0">
                 <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenOrderStatus}
@@ -370,8 +384,8 @@ class DayOrders extends React.Component {
                     ))}
                   </DropdownMenu>
                 </ButtonDropdown>
-              </Col>
-            </Row>
+              </Col> */}
+            </div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
               <Col lg="10"></Col>
               <Col className="txt-align-right">
@@ -447,10 +461,20 @@ class DayOrders extends React.Component {
                           <span className="checkmark"></span>{" "}
                         </label>
                       </td>
-                      <td>{Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td>
+                        {Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}
+                      </td>
                       <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
                       <td>{item.userid}</td>
-                      <td>{item.id}</td>
+                      <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          onClick={() => this.onViewOrder(item)}
+                        >
+                          {item.id}
+                        </Button>
+                      </td>
                       <td>{item.u_product_count}</td>
                       <td>{item.order_quantity}</td>
                       <td>{getOrderStatus(item.dayorderstatus)}</td>
@@ -524,7 +548,7 @@ class DayOrders extends React.Component {
           </ModalBody>
         </Modal>
 
-        <Tooltip
+        {/* <Tooltip
           placement="right"
           isOpen={this.state.tooltipOpen}
           autohide={false}
@@ -532,7 +556,7 @@ class DayOrders extends React.Component {
           toggle={this.toggle}
         >
           Please select from date
-        </Tooltip>
+        </Tooltip> */}
       </div>
     );
   }

@@ -213,7 +213,7 @@ class StockKeepingAdd extends React.Component {
             </Col>
           </Row>
           <div className="mr-t-10">
-            <div className="search-vscroll">
+            <div className="search-stock-add">
               <Table>
                 <thead>
                   <tr>

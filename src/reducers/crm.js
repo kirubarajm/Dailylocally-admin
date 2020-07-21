@@ -4,6 +4,7 @@ import {
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
   TRACK_SELECT_TRIP,
+  TRACK_SELECT_VIEW
 } from "../constants/actionTypes";
 const defult_slot={
   id: -1,
@@ -16,6 +17,7 @@ export default (
     pagelimit: 0,
     selectedPage: 0,
     datafilter: false,
+    isViewed:false,
     orderSelectedStatus:defult_slot,
     orderSelectedSolt:defult_slot,
     orderSlot: [
@@ -35,6 +37,18 @@ export default (
       {
         id: 1,
         status: "SCM",
+      },
+      {
+        id: 5,
+        status: "QC",
+      },
+      {
+        id: 7,
+        status: "Moveit Assign",
+      },
+      {
+        id: 8,
+        status: "Moveit Pickup",
       },
       {
         id: 6,
@@ -84,6 +98,11 @@ export default (
       return {
         ...state,
         orderSelectedSolt: action.selectedSlot || false,
+      };
+      case TRACK_SELECT_VIEW:
+      return {
+        ...state,
+        isViewed: action.data || false,
       };
     default:
       return state;

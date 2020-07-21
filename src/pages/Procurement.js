@@ -163,6 +163,7 @@ class Procurement extends React.Component {
     this.props.onCreatePo({
       pridlist: Values,
       zone_id: this.props.zoneItem.id,
+      done_by: 1,
     });
   };
   movetopo = () => {

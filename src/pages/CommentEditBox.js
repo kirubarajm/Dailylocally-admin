@@ -105,7 +105,7 @@ class CommentEditBox extends React.Component {
   commentSubmit = (values) => {
     var data = {};
     data.comments = values.comments;
-    data.doid = this.props.dayorderdata.doid;
+    data.doid = this.props.dayorderdata.id;
     data.done_by = 1;
     data.done_type = 1;
     data.type = 1;
@@ -114,7 +114,7 @@ class CommentEditBox extends React.Component {
       if (this.props.CommentImg.length > 1)
         data.Img2 = this.props.CommentImg[1].img_url;
     }
-    //this.props.onOrderPostComments(data);
+    this.props.onOrderPostComments(data);
   };
 
   handleonRemove = (index) => {

@@ -41,6 +41,10 @@ export default (
         status: "All",
       },
       {
+        id: 5,
+        status: "QC",
+      },
+      {
         id: 6,
         status: "Ready to Dispatch",
       },
@@ -53,7 +57,7 @@ export default (
         status: "Moveit Pickup",
       },
       {
-        id: 9,
+        id: 10,
         status: "Completed",
       },
       {

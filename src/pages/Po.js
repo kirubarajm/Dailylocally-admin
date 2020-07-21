@@ -244,6 +244,8 @@ class Po extends React.Component {
     var dData = {};
     dData.zone_id = this.props.zoneItem.id;
     dData.poid = this.state.select_item.poid;
+    dData.done_by= 1;
+    
     if (this.state.isDelete) {
       this.props.onGetDeletePO(dData);
     } else {

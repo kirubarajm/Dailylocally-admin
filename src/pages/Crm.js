@@ -27,7 +27,8 @@ import {
   TRACK_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
-  TRACK_SELECT_TRIP
+  TRACK_SELECT_TRIP,
+  TRACK_SELECT_VIEW,
 } from "../constants/actionTypes";
 import { getOrderStatus } from "../utils/ConstantFunction";
 import SearchTrip from "../components/SearchTrip";
@@ -55,7 +56,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_SELECT_SOLT,
       selectedSlot,
     }),
-    onSelectTrip: (selectedTrip) =>
+  onSelectTrip: (selectedTrip) =>
     dispatch({
       type: TRACK_SELECT_TRIP,
       selectedTrip,
@@ -64,6 +65,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: TRACK_SELECT_STATUS,
       selectedStatus,
+    }),
+    onSelectView: (data) =>
+    dispatch({
+      type: TRACK_SELECT_VIEW,
+      data,
     }),
 });
 
@@ -92,15 +98,19 @@ class Crm extends React.Component {
       isLoading: false,
       userid: 0,
       user_via_order: false,
-      isTripEnable:true,
-      trip_search:false,
+      isTripEnable: true,
+      trip_search: false,
+      checkBoxVal: 0,
     };
   }
 
   UNSAFE_componentWillMount() {
-    logi=this;
+    logi = this;
     var userid = this.props.match.params.userid || false;
-    if (userid) this.setState({ user_via_order: true, userid: userid });
+    if (userid) {
+      this.setState({ user_via_order: true, userid: userid });
+      if(!this.props.isViewed)this.onInit();
+    }
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
     }
@@ -122,9 +132,10 @@ class Crm extends React.Component {
   componentDidMount() {}
   componentWillReceiveProps(nextProps) {
     if (nextProps.match.params.userid !== this.props.match.params.userid) {
-      var userid = this.props.match.params.userid || false;
+      var userid = nextProps.match.params.userid || false;
       if (userid) this.setState({ user_via_order: true, userid: userid });
-      this.onReset();
+      else this.setState({ user_via_order: false, userid: 0,isLoading:false });
+     // this.onReset();
     }
   }
   componentDidUpdate(nextProps, nextState) {
@@ -192,8 +203,7 @@ class Crm extends React.Component {
     this.props.onSetDayordersFilters(false);
     this.setState({ isLoading: false });
   };
-
-  onReset = () => {
+  onInit= () => {
     this.setState({
       startdate: "",
       enddate: "",
@@ -206,10 +216,30 @@ class Crm extends React.Component {
     this.props.onSelectStatus(defult_slot);
     this.props.onSelectSlot(defult_slot);
     this.props.onSetDayordersFilters(false);
-    this.props.onGetDayorders({
-      zoneid: this.props.zoneItem.id,
-      page:defultPage
+  }
+
+  onReset = () => {
+    this.setState({
+      startdate: "",
+      enddate: "",
+      order_no: "",
+      user_search: "",
+      checkBoxVal:0,
+      isTripEnable:true,
+      orderid_refresh: true,
+      select_order_status: defult_slot,
+      select_slot: defult_slot,
     });
+    this.props.onSelectStatus(defult_slot);
+    this.props.onSelectSlot(defult_slot);
+    this.props.onSetDayordersFilters(false);
+    var userid = this.props.match.params.userid || false;
+    var data ={
+      zoneid: this.props.zoneItem.id,
+      page: defultPage
+    }
+    if(userid) data.userid=userid;
+    this.props.onGetDayorders(data);
   };
 
   onGetOrders = () => {
@@ -219,7 +249,8 @@ class Crm extends React.Component {
       if (this.props.datafilter) {
         data = this.props.datafilter;
         var userid = this.props.match.params.userid || false;
-        if (!userid) delete data.userid
+        if (!userid) delete data.userid;
+        else data.userid=userid;
         this.setState({
           startdate: data.starting_date,
           enddate: data.end_date,
@@ -227,7 +258,8 @@ class Crm extends React.Component {
           user_search: data.search,
           select_order_status: this.props.orderSelectedStatus,
           select_slot: this.props.orderSelectedSolt,
-          trip_search:this.props.orderSelectedTrip
+          trip_search: this.props.orderSelectedTrip,
+          checkBoxVal:data.moveit_type || 0,
         });
       } else {
         data.page = defultPage;
@@ -235,7 +267,13 @@ class Crm extends React.Component {
         if (this.state.enddate) data.end_date = this.state.enddate;
         if (this.state.order_no) data.id = this.state.order_no;
         if (this.state.user_search) data.search = this.state.user_search;
-        if (this.state.trip_search) data.trip_id = this.state.trip_search;
+        if (this.state.trip_search&&this.state.checkBoxVal===1){
+            data.trip_id = this.state.trip_search;
+            data.moveit_type = this.state.checkBoxVal;
+        }else if (this.state.checkBoxVal === 2){
+          data.moveit_type = this.state.checkBoxVal;
+        }
+
         if (
           this.state.select_order_status &&
           this.state.select_order_status.id !== -1
@@ -243,7 +281,7 @@ class Crm extends React.Component {
           data.dayorderstatus = this.state.select_order_status.id;
         if (this.state.select_slot && this.state.select_slot.id !== -1)
           data.slot = this.state.select_slot.id;
-        if(this.state.userid)  data.userid = this.state.userid;
+        if (this.state.userid) data.userid = this.state.userid;
       }
 
       this.props.onSelectStatus(this.state.select_order_status);
@@ -254,17 +292,22 @@ class Crm extends React.Component {
   };
 
   onView = (Item) => {
+    this.props.onSelectView(true);
     this.props.history.push("/orderview/" + Item.id);
   };
 
-  onCheckMoveit= () => {
+  onCheckMoveit = () => {
     //document.radioForm.onclick = function () {
-      var radVal = document.radioForm.moveit_type.value;
-      var checkVal=parseInt(radVal);
-      logi.setState({trip_search:"",isTripEnable:checkVal===1?false:true,checkBoxVal:checkVal});
-      this.props.onSelectTrip(checkVal);
+    var radVal = document.radioForm.moveit_type.value;
+    var checkVal = parseInt(radVal);
+    logi.setState({
+      trip_search: "",
+      isTripEnable: checkVal === 1 ? false : true,
+      checkBoxVal: checkVal,
+    });
+    this.props.onSelectTrip(checkVal);
     //};
-  }
+  };
 
   handleSelected = (selectedPage) => {
     var data = { zoneid: this.props.zoneItem.id };
@@ -280,6 +323,12 @@ class Crm extends React.Component {
     const value = e.target.value || "";
     this.setState({ trip_search: value });
   };
+
+  dateConvert(date) {
+    var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm a");
+    if (datestr !== "Invalid date") return datestr;
+    else return " - ";
+  }
 
   render() {
     const dayorderlist = this.props.dayorderlist || [];
@@ -419,13 +468,16 @@ class Crm extends React.Component {
               <div className="width-100 mr-l-10 align_self_center">
                 Trip/Dunzo :
               </div>
-              <div className="width-200 mr-l-10 align_self_center" onClick={this.onCheckMoveit}>
+              <div
+                className="width-200 mr-l-10 align_self_center"
+                onClick={this.onCheckMoveit}
+              >
                 <form id="radioForm" name="radioForm" className="mr-t-10">
                   <input
                     type="radio"
                     name="moveit_type"
                     value="0"
-                    checked={this.state.checkBoxVal===0}
+                    checked={this.state.checkBoxVal === 0}
                     className="mr-r-5"
                   />{" "}
                   <label className="mr-r-10">All</label>
@@ -433,7 +485,7 @@ class Crm extends React.Component {
                     type="radio"
                     name="moveit_type"
                     value="1"
-                    checked={this.state.checkBoxVal===1}
+                    checked={this.state.checkBoxVal === 1}
                     className="mr-r-5"
                   />{" "}
                   <label className="mr-r-10">Trip</label>
@@ -441,7 +493,7 @@ class Crm extends React.Component {
                     type="radio"
                     name="moveit_type"
                     value="2"
-                    checked={this.state.checkBoxVal===2}
+                    checked={this.state.checkBoxVal === 2}
                     className="mr-r-5"
                   />{" "}
                   <label className="mr-r-10">Dunzo</label>
@@ -449,13 +501,13 @@ class Crm extends React.Component {
               </div>
               <div className="width-200 mr-l-10">
                 <div hidden={this.state.isTripEnable}>
-                <SearchTrip
-                  onSearch={this.onSearchTrip}
-                  type="number"
-                  value={this.state.trip_search}
-                  onRefreshUpdate={this.onSuccessRefresh}
-                  isRefresh={this.state.orderid_refresh}
-                />
+                  <SearchTrip
+                    onSearch={this.onSearchTrip}
+                    type="number"
+                    value={this.state.trip_search}
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.orderid_refresh}
+                  />
                 </div>
               </div>
             </div>
@@ -495,6 +547,7 @@ class Crm extends React.Component {
                       <th>Sorted Qty</th>
                       <th>Amt</th>
                       <th>Due date/Time</th>
+                      <th>Slot</th>
                       <th>Status</th>
                       <th>Trip ID</th>
                       <th>Delivered Date/Time</th>
@@ -525,18 +578,25 @@ class Crm extends React.Component {
                         <td>{item.name}</td>
                         <td>{item.userid}</td>
                         <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
+                          {this.dateConvert(item.created_at)}
                         </td>
                         <td>{item.order_quantity}</td>
                         <td>{item.u_product_count}</td>
                         <td>{item.total_product_price}</td>
                         <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
+                          {this.dateConvert(item.date)}
                         </td>
-                        <td>{getOrderStatus(item.dayorderstatus)}</td>
-                        <td>{item.moveit_type===1?item.trip_id:item.moveit_type===null?"-":"Dunzo"}</td>
+                        <td>Solt {item.slot}</td>
+                        <td>{item.dayorderstatus_msg}</td>
                         <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
+                          {item.moveit_type === 1
+                            ? item.trip_id
+                            : item.moveit_type === null
+                            ? "-"
+                            : "Dunzo"}
+                        </td>
+                        <td>
+                          {this.dateConvert(item.deliver_date)}
                         </td>
                       </tr>
                     ))}
@@ -544,7 +604,10 @@ class Crm extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right" hidden={this.props.totalcount<this.props.pagelimit}>
+            <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
               <PaginationComponent
                 totalItems={this.props.totalcount}
                 pageSize={this.props.pagelimit}

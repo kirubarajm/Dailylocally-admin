@@ -266,6 +266,7 @@ class QAPage extends React.Component {
     data.type = 2;
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
+    data.done_by= 1;
     this.props.onSubmitQAOrders(data);
   };
 
@@ -274,6 +275,7 @@ class QAPage extends React.Component {
     data.type = 1;
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
+    data.done_by= 1;
     this.props.onSubmitQAOrders(data);
   };
   orderDate = (event, picker) => {

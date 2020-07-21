@@ -1,5 +1,6 @@
 import Map from '../components/Map'
 import React from 'react';
+var cur_marker;
 var marker;
 var editMap, clocation;
 var ZoneArea=[];
@@ -9,12 +10,12 @@ export class MapContainer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { latitude: this.props.lat || 0, longitude: this.props.lng || 0 }
+    this.state = { cur_latitude: this.props.current_lat || 0, cur_longitude: this.props.current_lng || 0 }
     isZoneMap=this;
     this.state = { latitude: this.props.lat || 0, longitude: this.props.lng || 0,isPolygonViewed:false }
   }
   UNSAFE_componentWillMount() {
-    editMap = this.props.editMap || true;
+    editMap = this.props.editMap?true:false;
     clocation = this.props.clocation?true:false;
     this.getMyLocation = this.getMyLocation.bind(this);
     this.addMarker = this.addMarker.bind(this);
@@ -34,6 +35,18 @@ export class MapContainer extends React.Component {
       position: location,
       map: map,
       title: address
+    });
+    map.setCenter(location);
+  }
+
+  addCurMarker = (map, location, address) => {
+    cur_marker = new window.google.maps.Marker({
+      position: location,
+      map: map,
+      title: address,
+      icon: {
+        url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+      }
     });
     map.setCenter(location);
   }
@@ -106,14 +119,19 @@ export class MapContainer extends React.Component {
       <Map
         id="myMap"
         options={{
-          center: { lat: this.state.latitude, lng: this.state.longitude },
-          zoom: 16
+          center: { lat: this.props.cur_latitude, lng: this.props.cur_longitude },
+          zoom: 16,
+          disableDefaultUI: true
         }}
         onMapLoad={map => {
           vMap = map;
           if (editMap && clocation) this.getMyLocation();
+
+          if (this.props.current_lat && this.props.current_lng) {
+            this.addCurMarker(map, { lat: this.props.current_lat, lng: this.props.current_lng }, 'Current Location');
+          }
           if (this.state.latitude && this.state.longitude) {
-            this.addMarker(map, { lat: this.state.latitude, lng: this.state.longitude }, 'You');
+            this.addMarker(map, { lat: this.state.latitude, lng: this.state.longitude }, 'Edited Location');
           }
           this.onDrawZoneArea();
           // marker = new window.google.maps.Marker({
@@ -126,7 +144,7 @@ export class MapContainer extends React.Component {
               let lat = e.latLng.lat()
               let lng = e.latLng.lng()
               this.setState({ latitude: lat, longitude: lng })
-              this.addMarker(map, e.latLng, 'You');
+              this.addMarker(map, e.latLng, 'Edited Location');
               this.props.handleLatlng(lat, lng);
             }.bind(this));
           }
