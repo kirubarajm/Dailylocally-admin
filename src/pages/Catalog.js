@@ -330,7 +330,8 @@ class Catalog extends React.Component {
       e.preventDefault();
       this.props.onCatelogSearch({
         search: e.target.value,
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
+        done_by:1
       });
       this.setState({ isSearch: true });
     } else if (e.target.value === "") {
@@ -453,6 +454,7 @@ class Catalog extends React.Component {
     this.props.OncategoryLiveUnlive({
       catid: this.props.iscategoryitem.catid,
       zone_id: this.props.zoneItem.id,
+      done_by:1
     });
   };
 
@@ -460,6 +462,7 @@ class Catalog extends React.Component {
     this.props.OnL1SubcategoryLiveUnlive({
       scl1_id: this.props.isL1subcategoryitem.scl1_id,
       zone_id: this.props.zoneItem.id,
+      done_by:1
     });
   };
 
@@ -467,6 +470,7 @@ class Catalog extends React.Component {
     this.props.OnL2SubcategoryLiveUnlive({
       scl2_id: this.props.isL2subcategoryitem.scl2_id,
       zone_id: this.props.zoneItem.id,
+      done_by:1
     });
   };
 
@@ -474,6 +478,7 @@ class Catalog extends React.Component {
     this.props.OnProductLiveUnlive({
       pid: this.props.isProductitem.pid,
       zone_id: this.props.zoneItem.id,
+      done_by:1
     });
   };
 
@@ -558,25 +563,27 @@ class Catalog extends React.Component {
   };
 
   catList() {
-    this.props.onGetCategory({ zone_id: this.props.zoneItem.id });
+    this.props.onGetCategory({ zone_id: this.props.zoneItem.id,done_by:1 });
   }
 
   subCat1List(cat_id) {
-    this.props.onGetSubCat1({ catid: cat_id, zone_id: this.props.zoneItem.id });
+    this.props.onGetSubCat1({ catid: cat_id, zone_id: this.props.zoneItem.id,done_by:1});
   }
 
   subCat2List(scl1_id) {
     this.props.onGetSubCat2({
       scl1_id: scl1_id,
       zone_id: this.props.zoneItem.id,
+      done_by:1
     });
   }
 
-  getProduct(scl1_id, scl2_id, zone_id) {
+  getProduct(scl1_id, scl2_id, zoneid) {
     this.props.onGetProduct({
       scl1_id: scl1_id,
       scl2_id: scl2_id,
-      zone_id: zone_id,
+      zone_id: zoneid,
+      done_by:1
     });
   }
 

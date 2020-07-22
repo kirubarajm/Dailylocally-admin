@@ -452,6 +452,8 @@ class ProductAddEdit extends React.Component {
     } else {
       data.image = "";
     }
+    data.done_by=1;
+    data.zoneid=this.props.zoneItem.id;
     if (this.state.isEdit) {
       var productDe = this.props.productdetail;
       data.pid = productDe.pid;
@@ -484,8 +486,11 @@ class ProductAddEdit extends React.Component {
       venItem.price_agreement_approval = 1;
       venItem.base_price = data.base_price;
       venItem.other_charges = data.other_charges;
+      venItem.done_by=1;
+      venItem.zoneid=this.props.zoneItem.id;
       vendor_details.push(venItem);
       data.vendor_details = vendor_details;
+      
       this.props.onAddProductDetails(data);
     }
   };

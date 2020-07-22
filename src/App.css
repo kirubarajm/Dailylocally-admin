@@ -453,6 +453,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 .mr-l-20 {
   margin-left: 20px !important;
 }
+.mr-l-30 {
+  margin-left: 30px !important;
+}
+
 .mr-l-40 {
   margin-left: 40px !important;
 }
@@ -691,6 +695,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   flex-direction: row !important;
 }
 
+.min-width-150 {
+  min-width: 150px !important;
+}
+
 .max-height-50 {
   max-height: 50px !important;
 }
@@ -857,10 +865,10 @@ a, a:focus, a:hover, a:visited {
 }
 
 .scroll-crm {
-  overflow-y: auto;
-  overflow-x: hidden;
+  margin-bottom: 40px !important;
+  overflow: auto !important;
   background: #ffffff !important;
-  height: 55vh !important;
+  height: 50vh !important;
 }
 
 .scroll-trip-assign {
@@ -1827,6 +1835,10 @@ hr.style-moveit:after {
   width: 150px !important;
 }
 
+.width-170 {
+  width: 170px !important;
+}
+
 .width-120 {
   width: 120px !important;
 }
@@ -1841,6 +1853,10 @@ hr.style-moveit:after {
 
 .width-250 {
   width: 250px !important;
+}
+
+.width-300 {
+  width: 300px !important;
 }
 
 .max-width-1000 {
@@ -2073,4 +2089,11 @@ hr.style-moveit:after {
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+
+.table-cloumn-overflow { 
+  text-overflow: ellipsis;
+  overflow: hidden; 
+  width: 100px !important; 
+  white-space: nowrap;
 }

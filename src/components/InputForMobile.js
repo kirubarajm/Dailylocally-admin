@@ -10,16 +10,18 @@ const InputForMobile = ({
 }) => {
   //pattern="\d*" maxlength="4"
   return (
-    <div>
-      <label>
+    <div className="border-none font-size-14">
+      <div className="flex-row">
+        <label className="width-150 font-size-14">
         {label}{" "}
         <span className="must" hidden={!custom.required}>
           *
         </span>
       </label>
-      <div>
-        <Row style={{ padding: "0px", margin: "0px" ,border:"0px"}}>
+      <div className="flex-column">
+      <div className="flex-row">
           <input
+          style={{ width: "90%" }}
             {...input}
             placeholder={" "+label}
             type={type}
@@ -34,20 +36,22 @@ const InputForMobile = ({
                 ? (input.value = input.value.slice(0, custom.maxLength))
                 : input.value
             }
-            style={{ height: "100%", width: "90%" }}
           />
-          <Button
-            style={{ height: "100%", width: "10%" }}
+           <Button className="font-size-14 pd-0"
+            style={{ height: "100%", width: "30%" }}
             disabled={input.value.length !== 10||custom.disabled}
             onClick={event => {custom.onPhoneNoVerify(input.value)}}
           >
             Verify
           </Button>
-        </Row>
+          </div>
+          <div className="must font-size-14">
         {touched &&
           ((error && <span>{error}</span>) ||
             (warning && <span>{warning}</span>))}
+            </div>
       </div>
+    </div>
     </div>
   );
 };

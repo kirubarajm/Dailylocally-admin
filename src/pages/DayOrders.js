@@ -274,7 +274,6 @@ class DayOrders extends React.Component {
               <div className="width-250">
               <DateRangePicker
                 opens="right"
-                minDate={this.state.today}
                 drops="down"
                 onApply={this.startSelect}
               >

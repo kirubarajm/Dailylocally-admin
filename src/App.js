@@ -25,6 +25,9 @@ import TransactionList from "./pages/TransactionList";
 import LogisticsOrders from "./pages/LogisticsOrders";
 import DunzoOrders from "./pages/DunzoOrders";
 import TripOrders from "./pages/TripOrders";
+import AddMoveitUserForm from "./pages/AddMoveitUserForm";
+import MoveitUserList from "./pages/MoveitUserList";
+import ViewMoveitPage from "./pages/ViewMoveitPage";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -151,6 +154,10 @@ class App extends React.Component {
           <LayoutRoute exact path="/dunzo_orders" layout={MainLayout} component={DunzoOrders} />
           <LayoutRoute exact path="/trip_orders" layout={MainLayout} component={TripOrders} />
           <LayoutRoute exact path="/transaction/:userid" layout={MainLayout} component={TransactionList} />
+          <LayoutRoute exact path="/moveit-add" layout={MainLayout} component={AddMoveitUserForm} />
+          <LayoutRoute exact path="/moveit-list" layout={MainLayout} component={MoveitUserList} />
+          <LayoutRoute exact path="/moveit-edit/:userid" layout={MainLayout} component={AddMoveitUserForm} />
+          <LayoutRoute exact path="/viewmoveituser/:userid" layout={MainLayout} component={ViewMoveitPage} />
 
           <LayoutRoute
             exact

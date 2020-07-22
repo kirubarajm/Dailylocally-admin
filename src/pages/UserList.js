@@ -96,7 +96,6 @@ const InputField = ({
 };
 
 const defultPage = 1;
-const pagelimit = 20;
 var geocoder = null;
 var adPage = null;
 class UserList extends React.Component {

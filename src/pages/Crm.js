@@ -533,8 +533,7 @@ class Crm extends React.Component {
           </div>
           <div className="pd-6">
             <div className="scroll-crm">
-              <div className="order-horizantal-scroll">
-                <Table style={{ width: "1500px" }}>
+                <Table style={{ width: "2000px" }}>
                   <thead>
                     <tr>
                       <th>No</th>
@@ -542,7 +541,10 @@ class Crm extends React.Component {
                       <th>Order no</th>
                       <th>User Name</th>
                       <th>User id</th>
+                      <th>User Phone</th>
+                      <th>User email</th>
                       <th>Date created</th>
+                      <th>Placed time</th>
                       <th>Quantity</th>
                       <th>Sorted Qty</th>
                       <th>Amt</th>
@@ -577,16 +579,22 @@ class Crm extends React.Component {
                         <td>{item.id}</td>
                         <td>{item.name}</td>
                         <td>{item.userid}</td>
+                        <td>{item.phoneno}</td>
+                        <td className="table-cloumn-overflow">{item.email}</td>
                         <td>
                           {this.dateConvert(item.created_at)}
                         </td>
+                        <td>
+                          {this.dateConvert(item.order_place_time)}
+                        </td>
+                        
                         <td>{item.order_quantity}</td>
-                        <td>{item.u_product_count}</td>
+                        <td>{item.sorted_quantity}</td>
                         <td>{item.total_product_price}</td>
                         <td>
                           {this.dateConvert(item.date)}
                         </td>
-                        <td>Solt {item.slot}</td>
+                        <td>Slot {item.slot}</td>
                         <td>{item.dayorderstatus_msg}</td>
                         <td>
                           {item.moveit_type === 1
@@ -602,7 +610,6 @@ class Crm extends React.Component {
                     ))}
                   </tbody>
                 </Table>
-              </div>
             </div>
             <div
               className="float-right"

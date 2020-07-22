@@ -560,7 +560,7 @@ class Po extends React.Component {
               {this.props.poview ? (
                 <div className="font-size-12 mr-b-10">
                   <div>Supplier ID : {this.props.poview.vid}</div>
-                  <div>Supplier Name : {this.props.poview.vendor_name}</div>
+                  <div>Supplier Name : {this.props.poview.vendorname}</div>
                   <div>
                     PO Status :{" "}
                     {this.props.poview.po_status === 0 ? "Open" : "Close"}

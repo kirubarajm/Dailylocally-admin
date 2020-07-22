@@ -79,7 +79,6 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 const defultPage = 1;
-const pagelimit = 20;
 const defult_slot = {
   id: -1,
   status: "All",

@@ -163,6 +163,29 @@ const Logistics= {
   postTripUnAssign:(data) => requests.post("/logistics/trip/unassign", data),
 }
 
+const Moveit ={
+  userAdd: (user) =>
+  requests.post('/logistics/moveit/add',user,AppVersion_1),
+  userUpdate: (user) =>
+  requests.post('/logistics/moveit/edit',user,AppVersion_1),
+  getAll: (data) =>
+  requests.post('/logistics/moveit/list',data,AppVersion_1),
+  getView: (data) =>
+  requests.post('/logistics/moveit/view',data,AppVersion_1),
+  fileUpload: (file) =>
+  requests.post("/fileUpload",file,fileUploadHeader,AppVersion_1),
+  forceLogout: (data) => 
+  requests.post('/moveit/logout',data,AppVersion_1),
+}
+
+
+const MobileNumberVerify ={
+  MobileOtpSend: (data,roleType) =>
+  requests.post('/moveituser/sendotp',data,AppVersion_1),
+  MobileOtpVerify: (data,roleType) =>
+  requests.post('/moveituser/otpverification',data,AppVersion_1),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
@@ -171,6 +194,8 @@ export default {
   StockKeeping,
   CRM,
   Logistics,
+  Moveit,
+  MobileNumberVerify,
   setToken: (_token) => {
     token = _token;
   },

@@ -229,7 +229,7 @@ class CatSubAddEdit extends React.Component {
     }
 
     if (this.props.isSubCat1) {
-      // this.props.onGetCategory({ zone_id: 1 });
+      // this.props.onGetCategory({ zoneid: 1 });
       var cat = [
         {
           catid: this.props.selected_cat.catid,
@@ -247,10 +247,11 @@ class CatSubAddEdit extends React.Component {
     }
 
     if (this.props.isSubCat2) {
-      // this.props.onGetCategory({ zone_id: 1 });
+      // this.props.onGetCategory({ zoneid: 1 });
       this.props.onGetSubCat1({
         catid: this.props.selected_cat.catid,
         zone_id: this.props.zoneItem.id,
+        done_by:1
       });
       var catadd = [
         {
@@ -302,6 +303,8 @@ class CatSubAddEdit extends React.Component {
       var editCat = {
         name: data.categoryname,
         catid: this.props.edit_cat_item.catid,
+        done_by:1,
+        zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
             ? ""
@@ -327,6 +330,8 @@ class CatSubAddEdit extends React.Component {
       }
       var addCat = {
         name: data.categoryname,
+        done_by:1,
+        zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
             ? ""
@@ -351,6 +356,8 @@ class CatSubAddEdit extends React.Component {
         catid: this.state.category[0].catid,
         scl1_id: this.props.edit_cat_sub1_item.scl1_id,
         name: data.l1scname,
+        done_by:1,
+        zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
             ? ""
@@ -370,6 +377,8 @@ class CatSubAddEdit extends React.Component {
       var addL1Cat = {
         catid: this.state.category[0].catid,
         name: data.l1scname,
+        done_by:1,
+        zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
             ? ""
@@ -381,12 +390,16 @@ class CatSubAddEdit extends React.Component {
         scl1_id: this.state.sub1Cat[0].scl1_id,
         scl2_id: this.props.edit_cat_sub2_item.scl2_id,
         name: data.l2scname,
+        zoneid: this.props.zoneItem.id,
+        done_by:1,
       };
       this.props.OnEditL2Category(editL2Cat);
     } else if (this.props.isSubCat2 && !this.props.isEdit) {
       var addL2Cat = {
         scl1_id: this.state.sub1Cat[0].scl1_id,
         name: data.l2scname,
+        zoneid: this.props.zoneItem.id,
+        done_by:1,
       };
       this.props.OnAddL2Category(addL2Cat);
     }
@@ -396,6 +409,7 @@ class CatSubAddEdit extends React.Component {
     this.props.onGetSubCat1({
       catid: item[0].catid,
       zone_id: this.props.zoneItem.id,
+      done_by:1
     });
   }
   selectedSub1Cat(item) {

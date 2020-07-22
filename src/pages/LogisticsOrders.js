@@ -1108,7 +1108,7 @@ class LogisticsOrders extends React.Component {
                             </Col>
                           )
                         )
-                      : ""}
+                      : "mvkldvlkdvkldv"}
                   </Row>
                   <div
                     style={{
@@ -1117,7 +1117,7 @@ class LogisticsOrders extends React.Component {
                       marginLeft: "30px",
                     }}
                   >
-                    {this.state.check_item.products.map((item, index) => (
+                    {this.state.view_item.products?this.state.view_item.products.map((item, index) => (
                       <div style={{ display: "flex", flexDirection: "row" }}>
                         <div
                           style={{
@@ -1135,7 +1135,7 @@ class LogisticsOrders extends React.Component {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    )):""}
                   </div>
                 </div>
               </div>

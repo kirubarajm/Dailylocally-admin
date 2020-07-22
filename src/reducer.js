@@ -27,6 +27,10 @@ import transaction from './reducers/transaction'
 import logistics from './reducers/logistics'
 import dunzoorders from './reducers/dunzoorders'
 import triporders from './reducers/triporders'
+import moveituser from './reducers/moveituser'
+import moveituserlist from './reducers/moveituserlist'
+import viewmoveit from './reducers/viewmoveit'
+import mobileverify from './reducers/mobileverify'
 
 export default combineReducers({
   router: routerReducer,
@@ -56,5 +60,9 @@ export default combineReducers({
   logistics,
   userlist,
   dunzoorders,
-  triporders
+  triporders,
+  moveituser,
+  moveituserlist,
+  viewmoveit,
+  mobileverify
 });

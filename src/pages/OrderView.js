@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import { FaDownload } from "react-icons/fa";
 import {
   TRACK_ORDER_VIEW,
   ORDER_CANCEL_REASON,
@@ -245,6 +246,7 @@ class OrderView extends React.Component {
       isReorderModal: false,
       isReturnorderModal: false,
       isReturnorderReasonModal: false,
+      isImageModal:false
     };
   }
 
@@ -561,6 +563,17 @@ class OrderView extends React.Component {
 
   OnCommentUpdate = () => {
     this.props.onGetOrdersLogs({ doid: this.props.match.params.id });
+  };
+
+  toggleImagePopUp = () => {
+    this.setState((prevState) => ({
+      isImageModal: !prevState.isImageModal,
+    }));
+  };
+
+  selectCommentImage = (item) => {
+    this.setState({ commentItem: item });
+    this.toggleImagePopUp();
   };
 
   ImageDownload = (img) => {
@@ -1006,6 +1019,14 @@ class OrderView extends React.Component {
                         Created By -{item.name}-{item.usertype}
                       </div>
                       <div className="mr-r-10">{item.comments}</div>
+                      <div><Button
+                            size="sm"
+                            color="link"
+                            disabled={!item.Img1}
+                            onClick={() => this.selectCommentImage(item)}
+                          >
+                            <FaDownload size="15"/>{" "}
+                          </Button></div>
                     </Col>
                   </Row>
                 </div>
@@ -1487,7 +1508,7 @@ class OrderView extends React.Component {
                       </div>
                       <div className="width-100 txt-align-right mr-l-10">
                         <i className="fas fa-rupee-sign font-size-12" />{" "}
-                        {item.price}
+                        {item.price * item.quantity}
                       </div>
                     </div>
                   ))}
@@ -1508,8 +1529,94 @@ class OrderView extends React.Component {
             )}
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.toggleTransPopUp}>
+            <Button size="sm" onClick={this.toggleTransPopUp} className="font-size-12">
               CLOSE
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isImageModal}
+          toggle={this.toggleImagePopUp}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalBody className="pd-10">
+            <div className="fieldset">
+              <div className="legend">
+                Comment Image
+              </div>
+              {this.state.commentItem ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    padding: "5px",
+                  }}
+                >
+                  {this.state.commentItem.Img1 ? (
+                    <a
+                      id="img3"
+                      href={this.state.commentItem.Img1}
+                      download
+                      hidden
+                      target="_blank"
+                    ></a>
+                  ) : (
+                    ""
+                  )}
+                  {this.state.commentItem.Img2 ? (
+                    <a
+                      id="img4"
+                      href={this.state.commentItem.Img2}
+                      download
+                      hidden
+                      target="_blank"
+                    ></a>
+                  ) : (
+                    ""
+                  )}
+                  <Card hidden={!this.state.commentItem.Img1}>
+                    <CardImg
+                      top
+                      style={{ width: "200px", height: "200px" }}
+                      src={this.state.commentItem.Img1}
+                      alt="Comment Image1"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => this.ImageDownload("img3")}
+                    >
+                      View
+                    </Button>
+                  </Card>
+                  <Card
+                    className="mr-l-20"
+                    hidden={!this.state.commentItem.Img2}
+                  >
+                    <CardImg
+                      top
+                      style={{ width: "200px", height: "200px" }}
+                      src={this.state.commentItem.Img2}
+                      alt="Comment Image2"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => this.ImageDownload("img4")}
+                    >
+                      View
+                    </Button>
+                  </Card>
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleImagePopUp}>
+              Close
             </Button>
           </ModalFooter>
         </Modal>
