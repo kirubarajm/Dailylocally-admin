@@ -23,6 +23,7 @@
     "react-dropdown-select": "^3.7.0",
     "react-dropzone": "^5.0.1",
     "react-icons": "^3.3.0",
+    "react-mentions": "^4.0.1",
     "react-notify-toast": "^0.5.0",
     "react-reactstrap-pagination": "^1.0.6",
     "react-redux": "^6.0.0",

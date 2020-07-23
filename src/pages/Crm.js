@@ -594,7 +594,7 @@ class Crm extends React.Component {
                         <td>
                           {this.dateConvert(item.date)}
                         </td>
-                        <td>Slot {item.slot}</td>
+                        <td>{item.slot_msg}</td>
                         <td>{item.dayorderstatus_msg}</td>
                         <td>
                           {item.moveit_type === 1

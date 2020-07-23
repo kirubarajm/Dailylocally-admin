@@ -76,6 +76,7 @@ class TransactionList extends React.Component {
           startdate: data.starting_date,
           enddate: data.end_date,
         });
+        data.userid=userid;
       } else {
         data.page = defultPage;
         data.userid = userid;

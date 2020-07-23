@@ -19,6 +19,11 @@ export const requiredTrim = (value) =>{
     var val=value?value.trim():"";
     return val? undefined : 'Please Enter the value';
 }
+
+export const requirednumber = (value) =>{
+    var val=value;
+    return (val===null||val===""||val===undefined)? 'Please Enter the value' : undefined;
+}
 export const maxLength = max => value =>
     value && value.length > max ? `Must be ${max} characters or less` : undefined
 

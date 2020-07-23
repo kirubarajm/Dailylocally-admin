@@ -26,7 +26,7 @@ import {
 import { PRODUCT_ADD_EDIT } from "../utils/constant";
 import { Field, reduxForm, reset } from "redux-form";
 import renderInputField from "../components/renderInputField";
-import { required, minLength2, requiredTrim } from "../utils/Validation";
+import { required, minLength2, requiredTrim, requirednumber } from "../utils/Validation";
 import Select from "react-dropdown-select";
 import { history } from "../store";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
@@ -866,7 +866,7 @@ class ProductAddEdit extends React.Component {
                       type="number"
                       component={renderInputField}
                       label="GST"
-                      validate={[required]}
+                      validate={[requirednumber]}
                       required={true}
                     />
                     <Field

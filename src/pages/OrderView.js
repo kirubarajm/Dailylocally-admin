@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { FaDownload } from "react-icons/fa";
+import { MentionsInput, Mention } from "react-mentions";
 import {
   TRACK_ORDER_VIEW,
   ORDER_CANCEL_REASON,
@@ -172,7 +173,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: ORDER_ZENDESK_ISSUES,
       payload: AxiosRequest.CRM.getRaiseTicketIssues(data),
     }),
-    ongetTrasnactionView: (data) =>
+  ongetTrasnactionView: (data) =>
     dispatch({
       type: TRANSACTION_VIEW,
       payload: AxiosRequest.CRM.getTransactionView(data),
@@ -246,7 +247,33 @@ class OrderView extends React.Component {
       isReorderModal: false,
       isReturnorderModal: false,
       isReturnorderReasonModal: false,
-      isImageModal:false
+      isImageModal: false,
+      users: [
+        {
+          id: 1,
+          display: "Param",
+        },
+        {
+          id: 2,
+          display: "Basheer",
+        },
+        {
+          id: 3,
+          display: "Suresh",
+        },
+        {
+          id: 4,
+          display: "Aravind",
+        },
+        {
+          id: 5,
+          display: "Praveen",
+        },
+        {
+          id: 6,
+          display: "Dhanesh",
+        },
+      ],
     };
   }
 
@@ -524,7 +551,11 @@ class OrderView extends React.Component {
   };
   messageConfirm = (value) => {
     const orderview = this.props.orderview;
-    var data = { message: value.message, phoneno: orderview.phoneno,done_by:1 };
+    var data = {
+      message: value.message,
+      phoneno: orderview.phoneno,
+      done_by: 1,
+    };
     this.props.onPostMessageToCustomer(data);
   };
   cancelConfirm = (value) => {
@@ -645,12 +676,51 @@ class OrderView extends React.Component {
     else return " - ";
   }
 
+  saveComment = () => {
+    let newComment = this.state.comment;
+    newComment = newComment.split("@@@__").join("<a href='/user/");
+    newComment = newComment.split("^^__").join("'>");
+    newComment = newComment.split("@@@^^^").join("</a>");
+    if (newComment != "") {
+      let comment = newComment.trim();
+      console.log("Comments--->", comment);
+      notify.show(comment, "custom", 5000, notification_color);
+      //Call to your DataBase like
+      //backendModule.saveComment(comment,  along_with_other_params);
+      // this.setState({
+      //   comment: "",
+      // });
+    }
+  };
+
   render() {
     const propdata = this.props.orderview;
     const driverdata = propdata.moveitdetail || false;
     const cartItems = propdata.Products || [];
     return (
       <div className="pd-15">
+        <div className="flex-row" hidden={this.state.orderid !== "25"}>
+          <MentionsInput
+            style={{ width: "80%" }}
+            className="comments-textarea"
+            value={this.state.comment}
+            onChange={(event) => this.setState({ comment: event.target.value })}
+          >
+            <Mention
+              trigger="@"
+              displayTransform={this.handleDisplayTextForMention}
+              data={this.state.users}
+              style={{
+                backgroundColor:"#daf4fa",
+              }}
+              markup="@@@____id__^^____display__@@@^^^"
+            />
+          </MentionsInput>
+          <Button className="btn btn-us" onClick={() => this.saveComment()}>
+            Submit
+          </Button>
+        </div>
+
         <Row>
           <Col></Col>
           <Col>
@@ -669,7 +739,10 @@ class OrderView extends React.Component {
                     <DropdownItem
                       onClick={() => this.clickAction(item)}
                       key={index}
-                      disabled={(propdata.dayorderstatus === 11 && item.id === 1)||(propdata.dayorderstatus === 11 && item.id === 3)}
+                      disabled={
+                        (propdata.dayorderstatus === 11 && item.id === 1) ||
+                        (propdata.dayorderstatus === 11 && item.id === 3)
+                      }
                     >
                       {item.name}
                     </DropdownItem>
@@ -994,7 +1067,7 @@ class OrderView extends React.Component {
           <Row className="mr-lr-10 pd-8 border-block scroll-logdetail">
             <Col>
               {this.props.OrderLogs.map((item, i) => (
-                <div className="width-full">
+                <div className="width-full" key={i}>
                   <Row
                     className="font-size-12 font-weight-bold pd-8"
                     style={{ background: "#dddddd" }}
@@ -1019,14 +1092,16 @@ class OrderView extends React.Component {
                         Created By -{item.name}-{item.usertype}
                       </div>
                       <div className="mr-r-10">{item.comments}</div>
-                      <div><Button
-                            size="sm"
-                            color="link"
-                            disabled={!item.Img1}
-                            onClick={() => this.selectCommentImage(item)}
-                          >
-                            <FaDownload size="15"/>{" "}
-                          </Button></div>
+                      <div>
+                        <Button
+                          size="sm"
+                          color="link"
+                          disabled={!item.Img1}
+                          onClick={() => this.selectCommentImage(item)}
+                        >
+                          <FaDownload size="15" />{" "}
+                        </Button>
+                      </div>
                     </Col>
                   </Row>
                 </div>
@@ -1480,7 +1555,9 @@ class OrderView extends React.Component {
           backdrop={true}
         >
           <ModalBody className="pd-10">
-            <div className="font-size-14 font-weight-bold">Transaction View</div>
+            <div className="font-size-14 font-weight-bold">
+              Transaction View
+            </div>
             {this.props.transactionview ? (
               <div className="font-size-14 mr-t-20">
                 <div className="flex-row">
@@ -1512,7 +1589,9 @@ class OrderView extends React.Component {
                       </div>
                     </div>
                   ))}
-                  <div className="mr-t-20 font-size-14 font-weight-bold">Bill Detail</div>
+                  <div className="mr-t-20 font-size-14 font-weight-bold">
+                    Bill Detail
+                  </div>
                   {this.props.transactionview.cartdetails.map((item, i) => (
                     <div className="flex-row mr-t-10">
                       <div className="width-250 color-grey">{item.title}</div>
@@ -1529,7 +1608,11 @@ class OrderView extends React.Component {
             )}
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.toggleTransPopUp} className="font-size-12">
+            <Button
+              size="sm"
+              onClick={this.toggleTransPopUp}
+              className="font-size-12"
+            >
               CLOSE
             </Button>
           </ModalFooter>
@@ -1543,9 +1626,7 @@ class OrderView extends React.Component {
         >
           <ModalBody className="pd-10">
             <div className="fieldset">
-              <div className="legend">
-                Comment Image
-              </div>
+              <div className="legend">Comment Image</div>
               {this.state.commentItem ? (
                 <div
                   style={{
