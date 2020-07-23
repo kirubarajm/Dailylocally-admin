@@ -250,7 +250,7 @@ class CatSubAddEdit extends React.Component {
       // this.props.onGetCategory({ zoneid: 1 });
       this.props.onGetSubCat1({
         catid: this.props.selected_cat.catid,
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
         done_by:1
       });
       var catadd = [
@@ -408,7 +408,7 @@ class CatSubAddEdit extends React.Component {
     this.setState({ category: item, sub1Cat: [] });
     this.props.onGetSubCat1({
       catid: item[0].catid,
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       done_by:1
     });
   }

@@ -100,7 +100,7 @@ class Procurement extends React.Component {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = {
-        zone_id: this.props.zoneItem.id
+        zoneid: this.props.zoneItem.id
       };
       if (this.state.itemcode) data.vpid = this.state.itemcode;
       if (this.state.pr_createdate) data.date = this.state.pr_createdate;
@@ -162,7 +162,7 @@ class Procurement extends React.Component {
     var Values = Object.keys(checkItem);
     this.props.onCreatePo({
       pridlist: Values,
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       done_by: 1,
     });
   };

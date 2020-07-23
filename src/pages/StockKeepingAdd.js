@@ -138,14 +138,15 @@ class StockKeepingAdd extends React.Component {
   onStockProductList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
-      var data = { zone_id: this.props.zoneItem.id };
+      var data = { zoneid: this.props.zoneItem.id,done_by:1 };
       this.props.onGetProductList(data);
     }
   };
 
   submit = (data) => {
     var data1 = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
+      done_by:1
     };
     data1.stockid = this.state.selectedItem.stockid;
     data1.vpid = this.state.selectedItem.vpid;

@@ -221,7 +221,7 @@ class Receiving extends React.Component {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = {
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
       };
       if (this.state.po_createdate) data.date = this.state.po_createdate;
       if (this.state.supplier_name) data.vid = this.state.supplier_name;
@@ -238,7 +238,8 @@ class Receiving extends React.Component {
   };
   confirmTo = () => {
     var dData = {};
-    dData.zone_id = this.props.zoneItem.id;
+    dData.zoneid = this.props.zoneItem.id;
+    dData.done_by=1;
     dData.popid = this.state.selectedItem.popid;
     this.props.onItemMovetoSorting(dData);
     this.toggleConfirmPopup();
@@ -289,8 +290,9 @@ class Receiving extends React.Component {
   };
   submit = (data) => {
     var data1 = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       popid: this.state.selectedItem.popid,
+      done_by:1
     };
       data1.vpid = this.state.selectedItem.vpid;
       data1.quantity = data.item_quantity;
@@ -326,7 +328,7 @@ class Receiving extends React.Component {
       search_refresh: true,
     });
     var data = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
     };
     this.props.onGetReceivingList(data);
   };

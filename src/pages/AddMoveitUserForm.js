@@ -546,7 +546,7 @@ class AddMoveitUserForm extends React.Component {
               <Row>
                 <Col>
                   <Field
-                    name="licensenumber"
+                    name="driver_lic"
                     type="text"
                     component={renderTextInputField}
                     label="License number"

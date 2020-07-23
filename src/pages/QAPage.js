@@ -266,7 +266,8 @@ class QAPage extends React.Component {
     data.type = 2;
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
-    data.done_by= 1;
+    data.zoneid= this.props.zoneItem.id;
+    data.done_by=1;
     this.props.onSubmitQAOrders(data);
   };
 
@@ -275,7 +276,8 @@ class QAPage extends React.Component {
     data.type = 1;
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
-    data.done_by= 1;
+    data.zoneid= this.props.zoneItem.id;
+    data.done_by=1;
     this.props.onSubmitQAOrders(data);
   };
   orderDate = (event, picker) => {
@@ -336,7 +338,8 @@ class QAPage extends React.Component {
     }
     var data = {
       from_type: 2,
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
+      done_by:1,
       dopid: this.state.reportingSortingItem.dopid,
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,

@@ -196,7 +196,7 @@ class Sorting extends React.Component {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = {
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
       };
       if (this.state.orderdate) data.date = this.state.orderdate;
       if (this.state.orderid) data.doid = this.state.orderid;
@@ -227,6 +227,8 @@ class Sorting extends React.Component {
     if (Values.length > 0) {
       var data = {
         dopid_list: Values,
+        zoneid: this.props.zoneItem.id,
+        done_by:1
       };
       this.props.onSaving(data);
     } else {
@@ -250,7 +252,7 @@ class Sorting extends React.Component {
     }
     var data = {
       from_type: 1,
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       dopid: this.state.reportingSortingItem.dopid,
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,
@@ -266,6 +268,7 @@ class Sorting extends React.Component {
     var products = this.state.selectedItem.products || [];
     if (Values.length > 0 && Values.length === products.length) {
       var data = {
+        zoneid: this.props.zoneItem.id,
         dopid_list: Values,
         done_by:1
       };
@@ -314,7 +317,7 @@ class Sorting extends React.Component {
       search_refresh: true,
     });
     var data = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
     };
     this.props.onGetSortingList(data);
   };

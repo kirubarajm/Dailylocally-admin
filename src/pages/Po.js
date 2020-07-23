@@ -132,7 +132,7 @@ class Po extends React.Component {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = {
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
       };
       if (this.state.po_createdate) data.date = this.state.po_createdate;
       if (this.state.supplier_name) data.vid = this.state.supplier_name;
@@ -208,7 +208,7 @@ class Po extends React.Component {
   onView = (Item) => {
     this.setState({ view_item: Item });
     this.props.onGetViewPO({
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       poid: Item.poid,
     });
     this.toggleOrderView();
@@ -242,7 +242,7 @@ class Po extends React.Component {
 
   confirmTo = () => {
     var dData = {};
-    dData.zone_id = this.props.zoneItem.id;
+    dData.zoneid = this.props.zoneItem.id;
     dData.poid = this.state.select_item.poid;
     dData.done_by= 1;
     
@@ -264,7 +264,7 @@ class Po extends React.Component {
       postatusItem: { id: -1, name: "All" },
     });
     var data = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
     };
     this.props.onGetPoList(data);
   };

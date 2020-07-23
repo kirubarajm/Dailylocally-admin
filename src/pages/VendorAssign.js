@@ -321,7 +321,7 @@ class VendorAssign extends React.Component {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
       this.props.onGetPrWatingList({
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
       });
     }
   };
@@ -354,8 +354,9 @@ class VendorAssign extends React.Component {
 
   confirmTo = () => {
     var dData = {};
-    dData.zone_id = this.props.zoneItem.id || 1;
+    dData.zoneid = this.props.zoneItem.id || 1;
     dData.temppoid = this.state.select_item.tempid;
+    dData.done_by = 1;
     this.props.onGetDeleteItem(dData);
     this.toggleDConfirmPopup();
   };
@@ -372,7 +373,7 @@ class VendorAssign extends React.Component {
     });
 
     this.props.onGetVendorList({
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       products: [item.pid],
     });
 
@@ -383,8 +384,9 @@ class VendorAssign extends React.Component {
 
   createPo = () => {
     var item = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       templist: this.state.sPoList,
+      done_by:1
     };
     this.props.onCreatePo(item);
   };
@@ -428,7 +430,7 @@ class VendorAssign extends React.Component {
       .filter((value, index, _req) => _req.indexOf(value) === index);
     if (filtervpid.length > 0) {
       this.props.onGetVendorList({
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
         products: filtervpid,
       });
       this.setState({ startdate: today, suplier: [] });
@@ -457,11 +459,12 @@ class VendorAssign extends React.Component {
       Values.splice(indexof, 1);
     }
     var data = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       buyer_comment: values.buyer_comment,
       due_date: this.state.startdate,
       vid: this.state.suplier[0].vid,
       tempid: Values,
+      done_by:1
     };
     this.props.onUpdateVendorList(data);
     this.toggleAddVendorPopUp();
@@ -480,8 +483,9 @@ class VendorAssign extends React.Component {
       });
       var tem = [item.tempid];
       this.props.onEditPOQuantity({
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
         tempid: tem,
+        done_by:1,
         requested_quantity: item.editquantity || 0,
       });
     } else {

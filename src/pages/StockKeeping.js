@@ -224,7 +224,7 @@ class StockKeeping extends React.Component {
     this.onView = this.onView.bind(this);
     this.onUpdate = this.onUpdate.bind(this);
     this.onValidationModal = this.onValidationModal.bind(this);
-    this.props.onGetCategory({ zone_id: this.props.zoneItem.id || 1 });
+    this.props.onGetCategory({ zoneid: this.props.zoneItem.id || 1 });
     this.onStockKeepingList();
   }
   UNSAFE_componentWillUpdate() {}
@@ -261,7 +261,7 @@ class StockKeeping extends React.Component {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = {
-        zone_id: this.props.zoneItem.id,
+        zoneid: this.props.zoneItem.id,
       };
       if (this.state.category.length > 0)
         data.cat_id = this.state.category[0].catid;
@@ -278,7 +278,7 @@ class StockKeeping extends React.Component {
     if (item.length > 0)
       this.props.onGetSubCat1({
         catid: item[0].catid,
-        zone_id: this.props.zoneItem.id || 1,
+        zoneid: this.props.zoneItem.id || 1,
       });
   };
 
@@ -314,7 +314,7 @@ class StockKeeping extends React.Component {
       isOpenAreaDropDown: false,
     });
     var data = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
     };
     this.props.onGetStockKeepingList(data);
   };
@@ -336,7 +336,7 @@ class StockKeeping extends React.Component {
   onView = (Item) => {
     this.setState({ view_item: Item });
     this.props.onGetViewStock({
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       skid: Item.skid,
     });
     this.toggleOrderView();
@@ -389,19 +389,21 @@ class StockKeeping extends React.Component {
   };
   confirmTo = () => {
     var dData = {};
-    dData.zone_id = this.props.zoneItem.id;
+    dData.zoneid = this.props.zoneItem.id;
     dData.skid = this.state.select_item.skid;
+    dData.done_by=1;
     this.props.onGetDeleteStock(dData);
     this.toggleConfirmPopup();
   };
 
   submit = (data) => {
     var data1 = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
       popid: this.state.selectedItem.popid,
       vpid: this.state.selectedItem.vpid,
       quantity: data.item_quantity,
       delivery_note: data.delivery_note,
+      done_by:1
     };
     if (this.state.receivingSelection.length > 0) {
       data1.action_id = this.state.receivingSelection[0].id;

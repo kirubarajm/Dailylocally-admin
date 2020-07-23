@@ -51,7 +51,7 @@ class MoveitUserList extends React.Component {
     this.onNavigateToMap = this.onNavigateToMap.bind(this);
   }
   onFiltersApply(search, online_status) {
-    var filter = { search: search, online_status: online_status, zone_id: 1 };
+    var filter = { search: search, online_status: online_status, zoneid: 1 };
     this.props.onGetUser(filter);
   }
   filterUser(id) {

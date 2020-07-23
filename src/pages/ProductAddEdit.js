@@ -247,7 +247,7 @@ class ProductAddEdit extends React.Component {
       this.props.history.goBack();
       return;
     }
-    this.props.onGetCategory({ zone_id: this.props.zoneItem.id });
+    this.props.onGetCategory({ zoneid: this.props.zoneItem.id });
     this.props.onDeleteMenuImages();
     this.props.onGetUOM({});
     this.props.onGetBrand({});
@@ -499,7 +499,7 @@ class ProductAddEdit extends React.Component {
     this.setState({ category: item });
     this.props.onGetSubCat1({
       catid: item[0].catid,
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
     });
   };
   selectedSub1Cat = (item) => {
@@ -507,7 +507,7 @@ class ProductAddEdit extends React.Component {
     this.setState({ sub1Cat: item });
     this.props.onGetSubCat2({
       scl1_id: item[0].scl1_id,
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
     });
   };
   dateSelect = (event, picker) => {

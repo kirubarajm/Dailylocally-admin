@@ -185,10 +185,9 @@ class StockAddFrom extends React.Component {
 
   submit = (data) => {
     var data1 = {
-      zone_id: this.props.zoneItem.id,
+      zoneid: this.props.zoneItem.id,
+      done_by:1
     };
-    
-    
     data1.actual_quantity = data.actual;
     data1.missing_quantity = data.missing;
     data1.wastage = data.wastage;
