@@ -391,7 +391,7 @@ class DayOrders extends React.Component {
                 <Button size="sm" className="mr-r-10" onClick={this.onReset}>
                   Reset
                 </Button>
-                <Button size="sm" onClick={this.onSearch}>
+                <Button size="sm" onClick={this.onSearch} disabled={!this.props.zoneItem}>
                   Search
                 </Button>
               </Col>

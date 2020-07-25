@@ -51,7 +51,11 @@ class MoveitUserList extends React.Component {
     this.onNavigateToMap = this.onNavigateToMap.bind(this);
   }
   onFiltersApply(search, online_status) {
-    var filter = { search: search, online_status: online_status, zoneid: 1 };
+    var filter = {
+      moveit_search: search,
+      zoneid: 1,
+    };
+   if(online_status!==-1) filter.livestatus=""+online_status;
     this.props.onGetUser(filter);
   }
   filterUser(id) {
@@ -73,40 +77,41 @@ class MoveitUserList extends React.Component {
             Drivers
             <Row className="float-right">
               {/* <Col><FaMapMarkedAlt className='makeit-view-map-icon' onClick={()=>this.onNavigateToMap()}/></Col>
-              <Col>
-                <ButtonGroup size="sm">
+               */}
+              <Col className="txt-align-right">
+                <ButtonGroup size="sm" className="mr-r-10">
                   <Button
                     color="primary"
-                    onClick={()=>this.filterUser(-1)}
+                    onClick={() => this.filterUser(-1)}
                     active={online_status === -1}
                   >
                     All
                   </Button>
                   <Button
                     color="primary"
-                    onClick={()=>this.filterUser(1)}
+                    onClick={() => this.filterUser(1)}
                     active={online_status === 1}
                   >
                     Live
                   </Button>
                   <Button
                     color="primary"
-                    onClick={()=>this.filterUser(0)}
+                    onClick={() => this.filterUser(0)}
                     active={online_status === 0}
                   >
                     Unlive
                   </Button>
-                  <Button
+                  {/* <Button
                     color="primary"
                     onClick={()=>this.filterUser(-2)}
                     active={online_status === -2}
                   >
                     Inorders
-                  </Button>
+                  </Button> */}
                 </ButtonGroup>
-              </Col> */}
-              <Col className="txt-align-right">
-              <Link to={`/moveit-add`} className="preview-link"><Button size="sm">Driver add</Button></Link>
+                <Link to={`/moveit-add`} className="preview-link">
+                  <Button size="sm">Driver add</Button>
+                </Link>
               </Col>
               <Col>
                 <SearchInput

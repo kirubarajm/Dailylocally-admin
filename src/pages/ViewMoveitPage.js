@@ -66,7 +66,8 @@ class ViewMoveitPage extends React.Component {
     this.props.onMoveitForceLogout(data);
   }
   render() {
-    //var logout_state=(propMoveitdata.login_status===1||propMoveitdata.login_status===2)?'Disable':'Enable';
+    var propMoveitdata=this.props.viewmoveituser;
+    var logout_state=(propMoveitdata.login_status===1||propMoveitdata.login_status===2)?'Disable':'Enable';
     return (
       <div className="pd-8">
         <ViewMoveitUser
@@ -81,12 +82,12 @@ class ViewMoveitPage extends React.Component {
           backdrop={true}
         >
           <ModalHeader toggle={this.togglelogout}>confirmation</ModalHeader>
-          <ModalBody>Are you sure? you want to this moveit user.</ModalBody>
+          <ModalBody>Are you sure? you want to {logout_state} this moveit user.</ModalBody>
           <ModalFooter>
-            <Button color="secondary" onClick={this.confirmToLogout}>
+            <Button color="secondary" size="sm" onClick={this.confirmToLogout}>
               Yes
             </Button>{" "}
-            <Button color="danger" onClick={this.togglelogout}>
+            <Button color="danger" size="sm" onClick={this.togglelogout}>
               No
             </Button>
           </ModalFooter>

@@ -41,12 +41,19 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
+  ButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
 import { reset } from "redux-form";
 import MobileVerifyForm from "../components/MobileVerifyForm";
 import renderTextInputField from "../components/renderTextInputField";
 
-const mapStateToProps = (state) => ({ ...state.moveituser });
+const mapStateToProps = (state) => ({
+  ...state.moveituser,
+  zone_list: state.common.zone_list,
+});
 
 const mapDispatchToProps = (dispatch) => ({
   onSubmit: (formData) =>
@@ -89,9 +96,12 @@ class AddMoveitUserForm extends React.Component {
     mobileVerifyModel: false,
     mobilenumber: 0,
     mobileVerifyStatus: false,
+    isOpenAreaDropDown:false,
     checkBoxVal: 1,
     dob: false,
     Edit: false,
+    zoneItem:false,
+    today: Moment(new Date()),
   };
   componentWillMount() {
     var userid = this.props.match.params.userid;
@@ -106,6 +116,9 @@ class AddMoveitUserForm extends React.Component {
     this.otpStatus = this.otpStatus.bind(this);
   }
   componentDidUpdate(nextProps, nextState) {
+    if (this.props.zone_list.length > 0 && !this.state.zoneItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
     if (this.props.userAddSuccess) {
       this.props.onFromClear();
       this.props.onClearSuccess();
@@ -117,6 +130,8 @@ class AddMoveitUserForm extends React.Component {
         legalDocumentFile: [],
         mobileVerifyStatus: false,
         checkBoxVal: 1,
+        dob: false,
+        licenseExp: false,
       });
       this.props.onClearImage();
     }
@@ -132,6 +147,8 @@ class AddMoveitUserForm extends React.Component {
         legalDocumentFile: [],
         mobileVerifyStatus: false,
         checkBoxVal: 1,
+        dob: false,
+        licenseExp: false,
       });
       this.props.onClearImage();
       this.props.history.goBack();
@@ -164,7 +181,7 @@ class AddMoveitUserForm extends React.Component {
         area: userData.area,
         password: userData.password,
 
-        driver_lic: userData.licensephotograph,
+        driver_lic: userData.driver_lic,
         vech_insurance: userData.panphotograph,
         vech_rcbook: userData.aadharphotograph,
         photo: userData.bankdocument,
@@ -195,7 +212,10 @@ class AddMoveitUserForm extends React.Component {
             },
           ],
         });
-        this.props.onProofImageLoad("driver_lic", userData.licensephotograph);
+        this.props.onProofImageLoad(
+          "licensephotograph",
+          userData.licensephotograph
+        );
       }
       if (userData.panphotograph) {
         this.setState({
@@ -275,48 +295,53 @@ class AddMoveitUserForm extends React.Component {
     if (status) this.setState({ mobileVerifyStatus: status });
   };
 
-  submit = (data) => {
-    // var initData = {
-    //   name: value.name,
-    //   email: value.email,
-    //   phoneno: value.phoneno,
-    //   password: value.password,
-    //   address: value.address,
-    //   driver_lic: this.props.driver_lic,
-    // };
+  toggleAreaDropDown = () => {
+    this.setState((prevState) => ({
+      isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
+    }));
+  };
 
+  submit = (data) => {
     var initData = data;
-    initData.zone = 1;
     if (this.state.dob) initData.dob = this.state.dob;
     if (this.state.licenseExp) initData.licenseexpiry = this.state.licenseExp;
     if (this.state.checkBoxVal) initData.gender = this.state.checkBoxVal;
-    if (this.props.driver_lic)
-      initData.licensephotograph = this.props.driver_lic;
+    if (this.props.licensephotograph)
+      initData.licensephotograph = this.props.licensephotograph;
     if (this.props.vech_insurance)
       initData.panphotograph = this.props.vech_insurance;
     if (this.props.vech_rcbook)
       initData.aadharphotograph = this.props.vech_rcbook;
     if (this.props.photo) initData.bankdocument = this.props.photo;
+    if (this.props.address_document) initData.addressproofdocument = this.props.address_document;
     if (this.props.legal_document)
       initData.contractdocument = this.props.legal_document;
+
+      if(this.state.zoneItem){
+        initData.zone=this.state.zoneItem.id;
+      }else{
+        this.props.ShowToast("Please select zone");
+      }
 
     console.log("inti--", initData);
     if (this.state.Edit) {
       initData.userid = this.state.userid;
       this.props.onEditSubmit(initData);
     } else {
-      this.props.onSubmit(initData);
+      if (this.state.mobileVerifyStatus) {
+        initData.verified_status = 1;
+        initData.online_status = 0;
+        initData.login_status = 1;
+        this.props.onSubmit(initData);
+      } else
+        this.props.ShowToast("Please verify the mobile number and try again");
     }
-
-    // if (this.state.mobileVerifyStatus)
-    // else
-    //this.props.ShowToast("Please verify the mobile number and try again");
   };
   //state = { driverLicenceFile: [] ,vehicleInsuranceFile:[],rcBookFile:[]};
   handleDriverLicence = (newImageFile) => {
     var data = new FormData();
     data.append("file", newImageFile[0]);
-    this.props.onChangeInput("driver_lic", data);
+    this.props.onChangeInput("licensephotograph", data);
     this.setState({ driverLicenceFile: newImageFile });
   };
   handleVehicleInsurance = (newImageFile) => {
@@ -344,6 +369,14 @@ class AddMoveitUserForm extends React.Component {
     data.append("type", 1);
     this.props.onChangeInput("legal_document", data);
     this.setState({ legalDocumentFile: newImageFile });
+  };
+
+  handleAddressDocument = (newImageFile) => {
+    var data = new FormData();
+    data.append("file", newImageFile[0]);
+    data.append("type", 1);
+    this.props.onChangeInput("address_document", data);
+    this.setState({ addressDocumentFile: newImageFile });
   };
 
   resetForm = () => {
@@ -379,12 +412,16 @@ class AddMoveitUserForm extends React.Component {
     this.setState({ checkBoxVal: checkVal });
   };
 
+  clickArea = (item) => {
+    this.setState({zoneItem:item});
+  };
+
   render() {
     return (
       <div className="pd-8">
         <Card>
           <CardHeader>
-            ADD DRIVER
+            {this.state.Edit ? "EDIT DRIVER" : "ADD DRIVER"}
             <span className="float-right">
               <Button size="sm" onClick={() => this.props.history.goBack()}>
                 Back
@@ -414,6 +451,7 @@ class AddMoveitUserForm extends React.Component {
                       <div className="border-grey width-170 flex-row pd-4 mr-l-30">
                         <DateRangePicker
                           singleDatePicker
+                          maxDate={this.state.today}
                           opens="right"
                           drops="down"
                           onApply={this.startSelect}
@@ -446,16 +484,39 @@ class AddMoveitUserForm extends React.Component {
 
               <Row>
                 <Col>
-                  <Field
+                  {/* <Field
                     name="email"
                     type="email"
                     component={renderTextInputField}
                     label="Email"
                     disabled={this.state.Edit}
-                    validate={[required, email]}
                     warn={aol}
-                    required={true}
-                  />
+                  /> */}
+                  <div  className="border-none">
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div className="width-150">zone</div>
+                    <ButtonDropdown
+                      className="max-height-30"
+                      isOpen={this.state.isOpenAreaDropDown}
+                      toggle={this.toggleAreaDropDown}
+                      size="sm"
+                    >
+                      <DropdownToggle caret className="width-170">
+                        {this.state.zoneItem?this.state.zoneItem.Zonename : ""}
+                      </DropdownToggle>
+                      <DropdownMenu>
+                        {this.props.zone_list.map((item, index) => (
+                          <DropdownItem
+                            onClick={() => this.clickArea(item)}
+                            key={index}
+                          >
+                            {item.Zonename}
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </ButtonDropdown>
+                    </div>
+                  </div>
                 </Col>
                 <Col>
                   <div className="border-none">
@@ -527,7 +588,6 @@ class AddMoveitUserForm extends React.Component {
                     component={renderTextInputField}
                     label="Fathers name"
                     validate={[required, maxLength60, minLength2]}
-                    warn={alphaNumeric}
                     required={true}
                   />
                 </Col>
@@ -538,7 +598,6 @@ class AddMoveitUserForm extends React.Component {
                     component={renderTextInputField}
                     label="Qualification"
                     validate={[required, maxLength60, minLength2]}
-                    warn={alphaNumeric}
                     required={true}
                   />
                 </Col>
@@ -562,7 +621,6 @@ class AddMoveitUserForm extends React.Component {
                     component={renderTextInputField}
                     label="Language"
                     validate={[required, maxLength60, minLength2]}
-                    warn={alphaNumeric}
                     required={true}
                   />
                 </Col>
@@ -577,6 +635,7 @@ class AddMoveitUserForm extends React.Component {
                       <div className="border-grey width-170 flex-row pd-4 mr-l-30">
                         <DateRangePicker
                           singleDatePicker
+                          minDate={this.state.today}
                           opens="right"
                           drops="down"
                           onApply={this.licenseSelect}
@@ -657,11 +716,10 @@ class AddMoveitUserForm extends React.Component {
                 <Col>
                   <Field
                     name="address"
-                    type="text"
+                    type="address"
                     component={renderTextInputField}
                     label="Current address"
                     validate={[required, maxLength60, minLength2]}
-                    warn={alphaNumeric}
                     required={true}
                   />
                 </Col>
@@ -756,18 +814,34 @@ class AddMoveitUserForm extends React.Component {
                         // validate={[imageIsRequired]}
                       />
                     </Col>
+
+                    <Col>
+                      <div className="header font-size-14">
+                        Address proof <span className="must">*</span>
+                      </div>
+                      <Field
+                        name="addressDocument"
+                        component={DropzoneFieldMultiple}
+                        type="file"
+                        imagefile={this.state.addressDocumentFile}
+                        handleOnDrop={() => this.handleAddressDocument}
+                        // validate={[imageIsRequired]}
+                      />
+                    </Col>
                   </Row>
                 </Col>
               </Row>
               <div className="float-right">
                 <Button
                   type="submit"
+                  size="sm"
                   disabled={this.props.pristine || this.props.submitting}
                 >
                   Submit
                 </Button>
                 <Button
                   type="button"
+                  size="sm"
                   disabled={this.props.pristine || this.props.submitting}
                   onClick={this.resetForm}
                   className="mr-l-10"

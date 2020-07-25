@@ -28,9 +28,10 @@ import {
   PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
   PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
   ZONE_SELECTED,
+  PRODUCT_DELETE
 } from "../constants/actionTypes";
 import { Link } from "react-router-dom";
-import { FaPlusCircle } from "react-icons/fa";
+import { FaPlusCircle, FaTrashAlt } from "react-icons/fa";
 import { IoIosClose } from "react-icons/io";
 import {
   Row,
@@ -181,6 +182,11 @@ const mapDispatchToProps = (dispatch) => ({
       i,
     }),
 
+  OnDeletePrItem:(data)=>
+  dispatch({
+    type: PRODUCT_DELETE,
+    payload: AxiosRequest.Catelog.ProductDelete(data),
+  }),
   OnProductPopupClear: () =>
     dispatch({
       type: PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
@@ -211,6 +217,7 @@ class Catalog extends React.Component {
       edit_cat_sub2_item: -1,
       isSearch: false,
       isSearchView: false,
+      isProductdelete:false
     };
   }
 
@@ -257,7 +264,7 @@ class Catalog extends React.Component {
     });
     this.productClick = this.productClick.bind(this);
 
-    if (this.props.isLoadingZone && !this.state.areaItem) {
+    if (this.props.isLoadingZone && !this.state.areaItem && this.props.zone_list.length!==0) {
       this.clickArea(this.props.zone_list[0]);
     }
 
@@ -291,7 +298,7 @@ class Catalog extends React.Component {
       }
     }
 
-    if (this.props.isLoadingZone && !this.state.areaItem) {
+    if (this.props.isLoadingZone && !this.state.areaItem&& this.props.zone_list.length!==0) {
       this.clickArea(this.props.zone_list[0]);
     }
 
@@ -314,6 +321,15 @@ class Catalog extends React.Component {
       this.props.OnProductPopupClear();
       this.producttoggleLive();
     }
+
+    if(this.props.isDelete){
+      this.props.OnProductPopupClear();
+      this.getProduct(
+        this.props.selected_cat_sub1.scl1_id,
+        this.props.selected_cat_sub2.scl2_id,
+        this.props.zoneItem.id
+      );
+    }
   }
   componentDidCatch() {
     console.log("--componentDidCatch-->");
@@ -331,7 +347,7 @@ class Catalog extends React.Component {
       this.props.onCatelogSearch({
         search: e.target.value,
         zoneid: this.props.zoneItem.id,
-        done_by:1
+        done_by: 1,
       });
       this.setState({ isSearch: true });
     } else if (e.target.value === "") {
@@ -341,6 +357,17 @@ class Catalog extends React.Component {
         this.catList();
       }
     }
+  };
+
+  onDelete =(item)=>{
+    this.setState({isProductdelete:item});
+    this.toggleDelete();
+  }
+
+  toggleDelete = () => {
+    this.setState((prevState) => ({
+      deleteModal: !prevState.deleteModal,
+    }));
   };
 
   toggleRemoveAll() {
@@ -454,7 +481,7 @@ class Catalog extends React.Component {
     this.props.OncategoryLiveUnlive({
       catid: this.props.iscategoryitem.catid,
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by: 1,
     });
   };
 
@@ -462,7 +489,7 @@ class Catalog extends React.Component {
     this.props.OnL1SubcategoryLiveUnlive({
       scl1_id: this.props.isL1subcategoryitem.scl1_id,
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by: 1,
     });
   };
 
@@ -470,7 +497,7 @@ class Catalog extends React.Component {
     this.props.OnL2SubcategoryLiveUnlive({
       scl2_id: this.props.isL2subcategoryitem.scl2_id,
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by: 1,
     });
   };
 
@@ -478,8 +505,18 @@ class Catalog extends React.Component {
     this.props.OnProductLiveUnlive({
       pid: this.props.isProductitem.pid,
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by: 1,
     });
+  };
+
+  productDelete = () => {
+    var data={
+      pid:this.state.isProductdelete.pid,
+      done_by:1,
+      zoneid:this.props.zoneItem.id
+    }
+    this.props.OnDeletePrItem(data);
+    this.toggleDelete();
   };
 
   formClearAndClose = () => {
@@ -563,18 +600,22 @@ class Catalog extends React.Component {
   };
 
   catList() {
-    this.props.onGetCategory({ zoneid: this.props.zoneItem.id,done_by:1 });
+    this.props.onGetCategory({ zoneid: this.props.zoneItem.id, done_by: 1 });
   }
 
   subCat1List(cat_id) {
-    this.props.onGetSubCat1({ catid: cat_id, zoneid: this.props.zoneItem.id,done_by:1});
+    this.props.onGetSubCat1({
+      catid: cat_id,
+      zoneid: this.props.zoneItem.id,
+      done_by: 1,
+    });
   }
 
   subCat2List(scl1_id) {
     this.props.onGetSubCat2({
       scl1_id: scl1_id,
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by: 1,
     });
   }
 
@@ -583,7 +624,7 @@ class Catalog extends React.Component {
       scl1_id: scl1_id,
       scl2_id: scl2_id,
       zoneid: zoneid,
-      done_by:1
+      done_by: 1,
     });
   }
 
@@ -711,6 +752,7 @@ class Catalog extends React.Component {
                   >
                     <Button
                       size="sm"
+                      disabled={!this.state.areaItem}
                       onClick={() => this.catAddEditClick(false)}
                     >
                       Add New{" "}
@@ -947,12 +989,21 @@ class Catalog extends React.Component {
                 <div className="cat-table">
                   {product.map((item, i) => (
                     <Row className="product-item">
-                      <Col lg="7">{item.Productname}</Col>
+                      <Col lg="6">{item.Productname}</Col>
                       <Col
-                        lg="4"
+                        lg="5"
                         className="txt-align-right pd-0 mr-r-5 pd-r-5"
                       >
-                        <div hidden={this.props.catalog_tab_type === 1}>
+                        <div
+                          hidden={this.props.catalog_tab_type === 1}
+                        >
+                          <Button
+                            size="sm"
+                            color="link"
+                            onClick={() => this.onDelete(item)}
+                          >
+                            <FaTrashAlt size="16" />
+                          </Button>
                           <Link to={`/product_view/${item.pid}`}>
                             <Button
                               size="sm"
@@ -963,11 +1014,11 @@ class Catalog extends React.Component {
                               Details
                             </Button>
                           </Link>
-                          <SwitchButtonCommon
-                            checked={item.live_status === "0" ? false : true}
-                            className="mr-r-10"
-                            handleSwitchChange={this.Onlive(item, i, 4)}
-                          ></SwitchButtonCommon>
+                            <SwitchButtonCommon
+                              checked={item.live_status === "0" ? false : true}
+                              className="mr-r-10 mr-t-10"
+                              handleSwitchChange={this.Onlive(item, i, 4)}
+                            ></SwitchButtonCommon>
                         </div>
                         {/* <Button
                             size="sm"
@@ -1177,6 +1228,30 @@ class Catalog extends React.Component {
             </Button>
           </ModalFooter>
         </Modal>
+
+
+        <Modal
+            isOpen={this.state.deleteModal}
+            toggle={this.toggleDelete}
+            className="add_live_modal"
+            backdrop={"static"}
+          >
+            <ModalHeader>Conformation </ModalHeader>
+            <ModalBody>
+              {this.state.isProductdelete
+                ? "Are you sure you want to delete the '" +
+                  this.state.isProductdelete.Productname+"' ?":""}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" size="sm" onClick={this.productDelete}>
+                Yes
+              </Button>{" "}
+              <Button color="secondary" size="sm"  onClick={this.toggleDelete}>
+                NO
+              </Button>
+            </ModalFooter>
+          </Modal>
+
       </div>
     );
   }

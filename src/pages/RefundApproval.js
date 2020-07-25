@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
+import { FaDownload } from "react-icons/fa";
 import {
   Row,
   Col,
@@ -15,6 +16,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  CardImg,
+  Card,
 } from "reactstrap";
 import Moment from "moment";
 import Searchnew from "../components/Searchnew";
@@ -29,8 +32,8 @@ import Select from "react-dropdown-select";
 import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
-  TRACK_ORDER_LIST,
-  TRACK_ORDER_LIST_FILTER,
+  REFUND_ORDER_LIST,
+  REFUND_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
   ZONE_TRIP_ORDER_LIST,
@@ -38,9 +41,9 @@ import {
   QA_CHECK_LIST,
   POST_QA_CHECK_LIST,
   LOGISTICS_CLEAR,
-  POST_DUNZO_ASSIGN,
+  REFUND_POST_REPAYMENT,
   POST_TRIP_ASSIGN,
-  TRACK_SELECT_TRIP
+  TRACK_SELECT_TRIP,
 } from "../constants/actionTypes";
 import SearchInput from "../components/SearchInput";
 import SearchItem from "../components/SearchItem";
@@ -96,7 +99,7 @@ const InputSearchDropDown = ({
 };
 
 const mapStateToProps = (state) => ({
-  ...state.logistics,
+  ...state.refundapproval,
   zone_list: state.common.zone_list,
   zoneItem: state.common.zoneItem,
   zoneRefresh: state.common.zoneRefresh,
@@ -105,9 +108,20 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   onGetDayorders: (data) =>
     dispatch({
-      type: TRACK_ORDER_LIST,
-      payload: AxiosRequest.Logistics.getOrdersList(data),
+      type: REFUND_ORDER_LIST,
+      payload: AxiosRequest.CRM.getRefundApprovalList(data),
     }),
+  onSetDayordersFilters: (data) =>
+    dispatch({
+      type: REFUND_ORDER_LIST_FILTER,
+      data,
+    }),
+  onPostRepayment: (data) =>
+    dispatch({
+      type: REFUND_POST_REPAYMENT,
+      payload: AxiosRequest.CRM.postRepayment(data),
+    }),
+
   onGetTripOrders: (data) =>
     dispatch({
       type: ZONE_TRIP_ORDER_LIST,
@@ -128,21 +142,13 @@ const mapDispatchToProps = (dispatch) => ({
       type: POST_QA_CHECK_LIST,
       payload: AxiosRequest.Logistics.postQACheckList(data),
     }),
-  onPostDunzoAssign: (data) =>
-    dispatch({
-      type: POST_DUNZO_ASSIGN,
-      payload: AxiosRequest.Logistics.postDunzoAssign(data),
-    }),
+
   onPostTripAssign: (data) =>
     dispatch({
       type: POST_TRIP_ASSIGN,
       payload: AxiosRequest.Logistics.postTripAssign(data),
     }),
-  onSetDayordersFilters: (data) =>
-    dispatch({
-      type: TRACK_ORDER_LIST_FILTER,
-      data,
-    }),
+
   onSelectSlot: (selectedSlot) =>
     dispatch({
       type: TRACK_SELECT_SOLT,
@@ -153,7 +159,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_SELECT_STATUS,
       selectedStatus,
     }),
-    onSelectTrip: (selectedTrip) =>
+  onSelectTrip: (selectedTrip) =>
     dispatch({
       type: TRACK_SELECT_TRIP,
       selectedTrip,
@@ -172,7 +178,7 @@ const defult_slot = {
 };
 
 var logi;
-class LogisticsOrders extends React.Component {
+class RefundApproval extends React.Component {
   constructor() {
     super();
     this.state = {
@@ -189,21 +195,27 @@ class LogisticsOrders extends React.Component {
       orderid_refresh: false,
       isLoading: false,
       userid: 0,
+      action: [
+        { id: 1, status: "Approve" },
+        { id: 2, status: "Reject" },
+      ],
       user_via_order: false,
-      check_item: { products: []},
-      view_item:{qachecklist: 0},
-      isDunzoModal: false,
-      dunzoItem: false,
-      isTripEnable:true,
-      trip_search:false,
+      check_item: { products: [] },
+      view_item: { qachecklist: 0 },
+      isActionModal: false,
+      isTripEnable: true,
+      trip_search: false,
       select_driver: [],
       qa_checklist: [],
-      checkBoxVal:0
+      checkBoxVal: 0,
+      actionindex: 0,
+      actionitem: false,
+      imageItem: false,
     };
   }
 
   UNSAFE_componentWillMount() {
-    logi=this;
+    logi = this;
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
     }
@@ -222,11 +234,8 @@ class LogisticsOrders extends React.Component {
   UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
-  componentDidMount() {
-    
-  }
-  componentWillReceiveProps(nextProps) {
-  }
+  componentDidMount() {}
+  componentWillReceiveProps(nextProps) {}
   componentDidUpdate(nextProps, nextState) {
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
@@ -259,9 +268,17 @@ class LogisticsOrders extends React.Component {
     }));
   };
 
-  toggleDunzoPopUp = () => {
+  toggleActionDropDown = (actionindex, actionitem) => {
     this.setState((prevState) => ({
-      isDunzoModal: !prevState.isDunzoModal,
+      actionindex: actionindex,
+      actionitem: actionitem,
+      isOpenActionDropDown: !prevState.isOpenActionDropDown,
+    }));
+  };
+
+  toggleActionPopUp = () => {
+    this.setState((prevState) => ({
+      isActionModal: !prevState.isActionModal,
     }));
   };
 
@@ -271,21 +288,17 @@ class LogisticsOrders extends React.Component {
     }));
   };
 
-  selectDunzo = (item) => {
-    this.setState({ dunzoItem: item });
-    this.toggleDunzoPopUp();
-  };
-
-  movetoDunzo = () => {
-    var doid = [];
-    doid.push(this.state.dunzoItem.id);
+  movetoApprove = () => {
     var data = {
       zoneid: this.props.zoneItem.id,
-      doid: doid,
+      rs_id: this.state.actionitem.rs_id,
+      amount: this.state.actionitem.refund_amt,
+      paymentid: this.state.actionitem.payment_id,
+      active_status: this.state.dropitem.id,
       done_by: 1,
     };
-    this.toggleDunzoPopUp();
-    this.props.onPostDunzoAssign(data);
+    this.toggleActionPopUp();
+    this.props.onPostRepayment(data);
   };
 
   createToTrip = () => {
@@ -314,7 +327,7 @@ class LogisticsOrders extends React.Component {
     }
   };
 
-  onTripOrders=() => {
+  onTripOrders = () => {
     var checkItem = this.state.selected_dayorderid;
     var Values = Object.keys(checkItem);
     var indexof = Values.indexOf("selectall");
@@ -325,7 +338,7 @@ class LogisticsOrders extends React.Component {
       doid: Values,
       zoneid: this.props.zoneItem.id,
     });
-  }
+  };
 
   gotoTrip = () => {
     var checkItem = this.state.selected_dayorderid;
@@ -348,6 +361,13 @@ class LogisticsOrders extends React.Component {
     store.dispatch({ type: ZONE_SELECT_ITEM, zoneItem: item });
   };
 
+  clickApprove = (item, i) => {
+    if (this.state.actionindex === i) {
+      this.setState({ dropitem: item });
+      this.toggleActionPopUp();
+    }
+  };
+
   componentDidCatch() {}
 
   dateSelectOr = (event, picker) => {
@@ -356,6 +376,10 @@ class LogisticsOrders extends React.Component {
     this.setState({ startdate: startdate, enddate: enddate });
   };
 
+  selectPickupImage = (item) => {
+    this.setState({ imageItem: item });
+    this.toggleImagePopUp();
+  };
   toggleOrderStatus = () => {
     this.setState({
       isOpenOrderStatus: !this.state.isOpenOrderStatus,
@@ -433,14 +457,14 @@ class LogisticsOrders extends React.Component {
           user_search: data.search,
           select_order_status: this.props.orderSelectedStatus,
           select_slot: this.props.orderSelectedSolt,
-          checkVal:this.props.selectedTrip,
+          checkVal: this.props.selectedTrip,
           moveit_search: data.moveit_search,
           trip_search: data.trip_search,
         });
       } else {
         data.page = defultPage;
-        if (this.state.startdate) data.from_date = this.state.startdate;
-        if (this.state.enddate) data.to_date = this.state.enddate;
+        if (this.state.startdate) data.starting_date = this.state.startdate;
+        if (this.state.enddate) data.end_date = this.state.enddate;
         if (this.state.order_no) data.doid = this.state.order_no;
         if (this.state.user_search) data.user_search = this.state.user_search;
         if (this.state.moveit_search)
@@ -559,14 +583,18 @@ class LogisticsOrders extends React.Component {
     this.props.onPostQACheckList(data);
   };
 
-  onCheckMoveit= () => {
+  onCheckMoveit = () => {
     //document.radioForm.onclick = function () {
-      var radVal = document.radioForm.moveit_type.value;
-      var checkVal=parseInt(radVal);
-      logi.setState({trip_search:"",isTripEnable:checkVal===1?false:true,checkBoxVal:checkVal});
-      this.props.onSelectTrip(checkVal);
+    var radVal = document.radioForm.moveit_type.value;
+    var checkVal = parseInt(radVal);
+    logi.setState({
+      trip_search: "",
+      isTripEnable: checkVal === 1 ? false : true,
+      checkBoxVal: checkVal,
+    });
+    this.props.onSelectTrip(checkVal);
     //};
-  }
+  };
 
   clickDropDown(e, qItem, i) {
     var checkList = this.state.qa_checklist || [];
@@ -594,6 +622,17 @@ class LogisticsOrders extends React.Component {
     this.setState({ qa_checklist: checkList });
   }
 
+  reportClick = (e,item,i) => {
+    var id=parseInt(e.target.value);
+    var drop={}
+    drop.id=id;
+    this.setState({dropitem:drop,actionitem:item});
+    if(id!==0){
+      document.getElementById(""+i).selectedIndex = 0; 
+      this.toggleActionPopUp();
+    }
+  };
+
   selectedDriver = (item) => {
     var checkItem = this.state.selected_dayorderid;
     var Values = Object.keys(checkItem);
@@ -607,6 +646,22 @@ class LogisticsOrders extends React.Component {
       moveit_id: item[0].userid,
       zoneid: this.props.zoneItem.id,
     });
+  };
+
+  dateConvert(date) {
+    var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm a");
+    if (datestr !== "Invalid date") return datestr;
+    else return "-";
+  }
+
+  ImageDownload = (img) => {
+    document.getElementById(img).click();
+  };
+
+  toggleImagePopUp = () => {
+    this.setState((prevState) => ({
+      isImageModal: !prevState.isImageModal,
+    }));
   };
 
   render() {
@@ -643,7 +698,7 @@ class LogisticsOrders extends React.Component {
             </Col>
           </Row>
           <div className="fieldset">
-            <div className="legend">Order Tracker</div>
+            <div className="legend">Refund - Search</div>
             <div className="replies_field_container mr-b-10 font-size-14">
               <div className="width-200 mr-l-20 align_self_center">
                 Order No :
@@ -657,7 +712,7 @@ class LogisticsOrders extends React.Component {
                   isRefresh={this.state.orderid_refresh}
                 />
               </div>
-              <div className="width-120 mr-l-20 align_self_center">
+              {/* <div className="width-120 mr-l-20 align_self_center">
                 Order Status :
               </div>
               <div className="width-150 mr-l-10">
@@ -681,7 +736,7 @@ class LogisticsOrders extends React.Component {
                     ))}
                   </DropdownMenu>
                 </ButtonDropdown>
-              </div>
+              </div> */}
               <div className="width-50 mr-l-20 align_self_center">Date:</div>
               <div className="width-250 mr-l-10">
                 <DateRangePicker
@@ -721,7 +776,7 @@ class LogisticsOrders extends React.Component {
                   isRefresh={this.state.orderid_refresh}
                 />
               </div>
-              <div className="width-120 mr-l-20 align_self_center">Slot :</div>
+              <div className="width-50 mr-l-20 align_self_center">Slot :</div>
               <div className="width-150 mr-l-10">
                 <ButtonDropdown
                   className="max-height-30"
@@ -746,7 +801,7 @@ class LogisticsOrders extends React.Component {
               </div>
             </div>
 
-            <div className="replies_field_container mr-b-10 font-size-14">
+            {/* <div className="replies_field_container mr-b-10 font-size-14">
               <div className="width-200 mr-l-20 align_self_center">
                 Delivery name/Phone :
               </div>
@@ -801,7 +856,7 @@ class LogisticsOrders extends React.Component {
                 />
                 </div>
               </div>
-            </div>
+            </div> */}
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
               <Col lg="8"></Col>
               <Col className="txt-align-right">
@@ -823,7 +878,7 @@ class LogisticsOrders extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <Row>
+            {/* <Row>
               <Col>
                 <div className="pd-6">
                   <div>
@@ -845,102 +900,82 @@ class LogisticsOrders extends React.Component {
                   Assign to trip
                 </Button>
               </Col>
-            </Row>
+            </Row> */}
             <div className="scroll-horizantal-logistics">
               <div>
                 <Table style={{ width: "1500px" }}>
                   <thead>
                     <tr>
                       <th>No</th>
-                      <th>Select</th>
-                      <th>Order no</th>
-                      <th>User Name</th>
-                      <th>User Phone</th>
-                      <th>Date created</th>
-                      <th>Area</th>
-                      <th>Pin code</th>
-                      <th>Total qty</th>
-                      <th>ETA</th>
-                      <th>Slot</th>
-                      <th>Status</th>
-                      <th>QA Checklist</th>
-                      <th>Trip ID</th>
+                      <th>Order date/time</th>
+                      <th>CRM Agent</th>
+                      <th>Refund Request time</th>
+                      <th>Order id</th>
+                      <th>User id</th>
+                      <th>Refund reason </th>
+                      <th>Refund amount</th>
+                      <th>Refund products</th>
+                      <th>Attachment</th>
+                      <th>Approval</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dayorderlist.map((item, i) => (
                       <tr key={i}>
                         <td>{i + 1}</td>
+                        <td>{item.created_at}</td>
+                        <td>{item.adminname}</td>
+                        <td>{this.dateConvert(item.refunded_time)}</td>
+                        <td>{item.orderid}</td>
+                        <td>{item.userid}</td>
+                        <td>{item.refund_reason || ""}</td>
+                        <td>{item.refund_amt}</td>
                         <td>
-                          <label className="container-check">
-                            <input
-                              type="checkbox"
-                              name={"" + item.id}
-                              disabled={item.dayorderstatus !== 6}
-                              checked={this.state.selected_dayorderid[item.id]}
-                              onChange={(e) => this.handleChange(e)}
-                            />
-                            <span className="checkmark"></span>{" "}
-                          </label>
+                          <Button
+                            size="sm"
+                            onClick={() => this.onFillView(item)}
+                          >
+                            View list
+                          </Button>
                         </td>
-                        <td>{item.id}</td>
-                        <td>{item.name}</td>
-                        <td>{item.phoneno}</td>
                         <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
+                          <Button
+                            size="sm"
+                            color="link"
+                            disabled={!item.refund_image}
+                            onClick={() => this.selectPickupImage(item)}
+                          >
+                            <FaDownload size="20" />{" "}
+                          </Button>
                         </td>
-                        <td>{item.area}</td>
-                        <td>{item.cus_pincode}</td>
-                        <td>{item.total_quantity}</td>
-                        <td>{item.eta}</td>
-                        <td>{item.slot}</td>
-                        <td>{item.dayorderstatus_msg}</td>
                         <td>
-                          {this.onCheckOrder(item) ? (
-                            item.qachecklist === "0" ? (
-                              <Button
-                                size="sm"
-                                onClick={() => this.onFillCheckList(item)}
-                              >
-                                Fill Checklist
-                              </Button>
-                            ) : (
-                              //onFillView
-                              <Button
-                                size="sm"
-                                color="link"
-                                className="text-decoration-underline txt-color-theme"
-                                onClick={() => this.onFillView(item)}
-                              >
-                                View
-                              </Button>
-                              // <div className="text-decoration-underline txt-cursor">
-                              //   View
-                              // </div>
-                            )
+                          {item.active_status === 0 ? (
+                            <select id={i} onChange={(e) => this.reportClick(e, item, i)} data-default-value="0" className="onDropDown">
+                            <option value="0">Action</option>
+                            <option value="1">Approve</option>
+                            <option value="2">Recject</option>
+                          </select>
+                            // <ButtonDropdown
+                            //   className="max-height-30"
+                            //   key={i}
+                            //   isOpen={this.state.isOpenActionDropDown}
+                            //   toggle={() => this.toggleActionDropDown(i, item)}
+                            //   size="sm"
+                            // >
+                            //   <DropdownToggle caret>Action</DropdownToggle>
+                            //   <DropdownMenu>
+                            //     {this.state.action.map((items, index) => (
+                            //       <DropdownItem
+                            //         onClick={() => this.clickApprove(items, i)}
+                            //         key={index}
+                            //       >
+                            //         <div>{items.status}</div>
+                            //       </DropdownItem>
+                            //     ))}
+                            //   </DropdownMenu>
+                            // </ButtonDropdown>
                           ) : (
-                            <Button size="sm" disabled="true">
-                              Fill Checklist
-                            </Button>
-                          )}
-                        </td>
-                        <td>
-                          {this.onCheckTrip(item) ? (
-                            item.trip_id === null ? (
-                              <Button
-                                size="sm"
-                                disabled={item.moveit_type === 2}
-                                onClick={() => this.selectDunzo(item)}
-                              >
-                                Assign to Dunzo
-                              </Button>
-                            ) : (
-                              <div>{item.trip_id}</div>
-                            )
-                          ) : (
-                            <Button size="sm" disabled="true">
-                              Assign to Dunzo
-                            </Button>
+                            <div>{item.status_message}</div>
                           )}
                         </td>
                       </tr>
@@ -949,7 +984,10 @@ class LogisticsOrders extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
+            <div
+              className="float-right mr-t-20"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
               <PaginationComponent
                 totalItems={this.props.totalcount}
                 pageSize={this.props.pagelimit}
@@ -1061,17 +1099,16 @@ class LogisticsOrders extends React.Component {
           isOpen={this.state.viewchecklistModal}
           toggle={this.onViewCheckListModal}
           backdrop={"static"}
-          className="max-width-1000"
+          className="max-width-600"
         >
           <ModalHeader toggle={this.onViewCheckListModal}></ModalHeader>
           <ModalBody>
             <div className="fieldset">
-              <div className="legend">QA Checklist</div>
+              <div className="legend">View Product</div>
               <div
                 style={{ display: "flex", flexDirection: "row" }}
                 className="pd-10"
               >
-                <div style={{ width: "500px" }}></div>
                 <div
                   style={{
                     display: "flex",
@@ -1091,24 +1128,6 @@ class LogisticsOrders extends React.Component {
                 style={{ display: "flex", flexDirection: "row" }}
               >
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Row style={{ width: "500px" }}>
-                    {this.state.view_item.qachecklist
-                      ? this.state.view_item.qachecklist.map(
-                          (qitem, index) => (
-                            <Col lg="6">
-                              <div className="font-size-14 flex-row">
-                                <div className="font-weight-bold">
-                                  {qitem.name}
-                                </div>
-                                <div className="mr-l-10">
-                                  - {qitem.qavalue === 1 ? "Yes" : "No"}
-                                </div>
-                              </div>
-                            </Col>
-                          )
-                        )
-                      : "mvkldvlkdvkldv"}
-                  </Row>
                   <div
                     style={{
                       display: "flex",
@@ -1116,25 +1135,29 @@ class LogisticsOrders extends React.Component {
                       marginLeft: "30px",
                     }}
                   >
-                    {this.state.view_item.products?this.state.view_item.products.map((item, index) => (
-                      <div style={{ display: "flex", flexDirection: "row" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            marginLeft: "10px",
-                          }}
-                        >
-                          <div className="width-200 pd-4 flex-row">
-                            <div>{item.productname}</div> -{" "}
-                            <div className="mr-l-10">{item.quantity}</div>
+                    {this.state.view_item.products
+                      ? this.state.view_item.products.map((item, index) => (
+                          <div
+                            style={{ display: "flex", flexDirection: "row" }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                marginLeft: "10px",
+                              }}
+                            >
+                              <div className="width-200 pd-4 flex-row">
+                                <div>{item.productname}</div> -{" "}
+                                <div className="mr-l-10">{item.quantity}</div>
+                              </div>
+                              <div className="width-150 pd-4 mr-l-40">
+                                {item.received_quantity}
+                              </div>
+                            </div>
                           </div>
-                          <div className="width-150 pd-4 mr-l-40">
-                            {item.received_quantity}
-                          </div>
-                        </div>
-                      </div>
-                    )):""}
+                        ))
+                      : ""}
                   </div>
                 </div>
               </div>
@@ -1143,25 +1166,29 @@ class LogisticsOrders extends React.Component {
         </Modal>
 
         <Modal
-          isOpen={this.state.isDunzoModal}
-          toggle={this.toggleDunzoPopUp}
+          isOpen={this.state.isActionModal}
+          toggle={this.toggleActionPopUp}
           className={this.props.className}
           backdrop={true}
         >
           <ModalHeader
-            toggle={this.toggleDunzoPopUp}
+            toggle={this.toggleActionPopUp}
             className="pd-10 border-none"
           >
             Confirm
           </ModalHeader>
           <ModalBody className="pd-10">
-            Are you sure order assign to dunzo?
+            {this.state.dropitem
+              ? this.state.dropitem.id === 1
+                ? "Are you sure you want to approve this payment?"
+                : "Are you sure you want to reject this payment?"
+              : ""}
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.movetoDunzo}>
+            <Button size="sm" onClick={this.movetoApprove}>
               YES
             </Button>
-            <Button size="sm" onClick={this.toggleDunzoPopUp}>
+            <Button size="sm" onClick={this.toggleActionPopUp}>
               NO
             </Button>
           </ModalFooter>
@@ -1216,8 +1243,66 @@ class LogisticsOrders extends React.Component {
             </Button>
           </ModalFooter>
         </Modal>
+        <Modal
+          isOpen={this.state.isImageModal}
+          toggle={this.toggleImagePopUp}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalBody className="pd-10">
+            <div className="fieldset">
+              <div className="legend">
+                Proof Image - Order No - #{this.state.imageItem.orderid}
+              </div>
+              {this.state.imageItem ? (
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    padding: "5px",
+                  }}
+                >
+                  {this.state.imageItem.refund_image ? (
+                    <a
+                      id="img1"
+                      href={this.state.imageItem.refund_image}
+                      download
+                      hidden
+                      target="_blank"
+                    ></a>
+                  ) : (
+                    ""
+                  )}
+
+                  <Card hidden={!this.state.imageItem.refund_image}>
+                    <CardImg
+                      top
+                      style={{ width: "200px", height: "200px" }}
+                      src={this.state.imageItem.refund_image}
+                      alt="Proof Image"
+                    />
+                    <Button
+                      size="sm"
+                      onClick={() => this.ImageDownload("img1")}
+                    >
+                      View
+                    </Button>
+                  </Card>
+                </div>
+              ) : (
+                ""
+              )}
+            </div>
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleImagePopUp}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(LogisticsOrders);
+export default connect(mapStateToProps, mapDispatchToProps)(RefundApproval);

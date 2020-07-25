@@ -11,5 +11,6 @@ export const SidebarSuperAdmin=[
     { to: '/dunzo_orders', name: 'Dunzo Orders', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
     { to: '/trip_orders', name: 'Trip Orders', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
     { to: '/moveit-list', name: 'Drivers', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
+    { to: '/refund-approval', name: 'Refund approval', exact: true, Icon: MdDashboard, submenu: false, submenuItem: null },
 ];
 export const navBarSuperAdminItems=[];

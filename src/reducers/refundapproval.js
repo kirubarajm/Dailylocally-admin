@@ -1,15 +1,21 @@
 import {
-  TRACK_ORDER_LIST,
-  TRACK_ORDER_LIST_FILTER,
+  REFUND_ORDER_LIST,
+  REFUND_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
+  ZONE_TRIP_ORDER_LIST,
+  TRIP_DRIVER_LIST,
+  QA_CHECK_LIST,
+  POST_QA_CHECK_LIST,
+  LOGISTICS_CLEAR,
+  REFUND_POST_REPAYMENT,
+  POST_TRIP_ASSIGN,
   TRACK_SELECT_TRIP,
-  TRACK_SELECT_VIEW
 } from "../constants/actionTypes";
-const defult_slot={
+const defult_slot = {
   id: -1,
   status: "All",
-}
+};
 export default (
   state = {
     dayorderlist: [],
@@ -17,30 +23,30 @@ export default (
     pagelimit: 0,
     selectedPage: 0,
     datafilter: false,
-    isViewed:false,
-    orderSelectedStatus:defult_slot,
-    orderSelectedSolt:defult_slot,
+    orderSelectedStatus: defult_slot,
+    orderSelectedSolt: defult_slot,
+    driverlist: [],
+    triporderlist: [],
+    qualityUpdate: false,
+    orderStatusUpdate:false,
     orderSlot: [
       { id: -1, status: "All" },
       { id: 1, status: "11 PM to 7 PM" },
       { id: 2, status: "7 PM to 11 PM" },
     ],
+    qualitytype: [],
     orderStatus: [
       {
         id: -1,
         status: "All",
       },
       {
-        id: 0,
-        status: "Open",
-      },
-      {
-        id: 1,
-        status: "SCM",
-      },
-      {
         id: 5,
         status: "QC",
+      },
+      {
+        id: 6,
+        status: "Ready to Dispatch",
       },
       {
         id: 7,
@@ -49,10 +55,6 @@ export default (
       {
         id: 8,
         status: "Moveit Pickup",
-      },
-      {
-        id: 6,
-        status: "Ready to Dispatch",
       },
       {
         id: 10,
@@ -71,14 +73,47 @@ export default (
   action
 ) => {
   switch (action.type) {
-    case TRACK_ORDER_LIST:
+    case REFUND_ORDER_LIST:
+      var list=action.payload.result || [];
       return {
         ...state,
-        dayorderlist: action.payload.result || [],
+        dayorderlist:list,
         pagelimit: action.payload.pagelimit || 20,
         totalcount: action.payload.totalcount || 10,
       };
-    case TRACK_ORDER_LIST_FILTER:
+    case ZONE_TRIP_ORDER_LIST:
+      return {
+        ...state,
+        triporderlist: action.payload.result || [],
+      };
+    case TRIP_DRIVER_LIST:
+      return {
+        ...state,
+        driverlist: action.payload.result || [],
+      };
+    case QA_CHECK_LIST:
+      return {
+        ...state,
+        qualitytype: action.payload.result || [],
+      };
+    case POST_QA_CHECK_LIST:
+      return {
+        ...state,
+        qualityUpdate: action.payload.status || false,
+      };
+      case REFUND_POST_REPAYMENT:
+      return {
+        ...state,
+        orderStatusUpdate: action.payload.status || false,
+      };
+
+      case POST_TRIP_ASSIGN:
+      return {
+        ...state,
+        orderStatusUpdate: action.payload.status || false,
+      };
+      
+    case REFUND_ORDER_LIST_FILTER:
       return {
         ...state,
         datafilter: action.data || false,
@@ -94,15 +129,16 @@ export default (
         ...state,
         orderSelectedTrip: action.selectedStatus || false,
       };
-      case TRACK_SELECT_SOLT:
+    case TRACK_SELECT_SOLT:
       return {
         ...state,
-        orderSelectedSolt: action.selectedSlot || false,
+        selectedTrip: action.selectedTrip || false,
       };
-      case TRACK_SELECT_VIEW:
+    case LOGISTICS_CLEAR:
       return {
         ...state,
-        isViewed: action.data || false,
+        qualityUpdate: false,
+        orderStatusUpdate:false
       };
     default:
       return state;

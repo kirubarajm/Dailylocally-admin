@@ -23,12 +23,13 @@ import Po from "./Po";
 import Receiving from "./Receiving";
 import Sorting from "./Sorting";
 import QAPage from "./QAPage";
+import ReturnPage from "./ReturnPage";
 
 const mapStateToProps = (state) => ({
   ...state.warehouse,
   zone_list: state.common.zone_list,
   zoneItem: state.common.zoneItem,
-  zoneRefresh:state.common.zoneRefresh
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -44,7 +45,7 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
-const path  = '/warehouse';
+const path = "/warehouse";
 class Warehouse extends React.Component {
   constructor() {
     super();
@@ -72,8 +73,7 @@ class Warehouse extends React.Component {
     }
   }
   UNSAFE_componentWillUpdate() {}
-  UNSAFE_componentWillReceiveProps() {
-  }
+  UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
   componentDidMount() {}
@@ -84,24 +84,26 @@ class Warehouse extends React.Component {
   }
   componentDidCatch() {}
   clickArea = (item) => {
-    store.dispatch({ type: ZONE_SELECT_ITEM,zoneItem:item});
+    store.dispatch({ type: ZONE_SELECT_ITEM, zoneItem: item });
     this.setState({ areaItem: item });
   };
   onWarehouseTabClick = (tab) => {
     this.setState({ catalog_tab_type: tab });
     this.props.onSelectTabType(tab);
-    if(tab===0){
-      this.props.history.push('/warehouse/dayoders')
-    }else if(tab===1){
-      this.props.history.push('/warehouse/procurement')
-    }else if(tab===2){
-      this.props.history.push('/warehouse/po')
-    }else if(tab===3){
-      this.props.history.push('/warehouse/receiving')
-    }else if(tab===4){
-      this.props.history.push('/warehouse/sorting')
-    }else if(tab===5){
-      this.props.history.push('/warehouse/qc')
+    if (tab === 0) {
+      this.props.history.push("/warehouse/dayoders");
+    } else if (tab === 1) {
+      this.props.history.push("/warehouse/procurement");
+    } else if (tab === 2) {
+      this.props.history.push("/warehouse/po");
+    } else if (tab === 3) {
+      this.props.history.push("/warehouse/receiving");
+    } else if (tab === 4) {
+      this.props.history.push("/warehouse/sorting");
+    } else if (tab === 5) {
+      this.props.history.push("/warehouse/qc");
+    } else if (tab === 6) {
+      this.props.history.push("/warehouse/return");
     }
   };
   toggleAreaDropDown = () => {
@@ -111,21 +113,20 @@ class Warehouse extends React.Component {
   };
 
   render() {
-    
     return (
       <div>
         <div className="pd-12">
           <Row className="width-84">
             <Col>
               <ButtonGroup size="sm">
-                  <Button
-                    color="primary"
-                    size="sm"
-                    onClick={() => this.onWarehouseTabClick(0)}
-                    active={this.props.warehouse_tab_type === 0}
-                  >
-                    Day order
-                  </Button>
+                <Button
+                  color="primary"
+                  size="sm"
+                  onClick={() => this.onWarehouseTabClick(0)}
+                  active={this.props.warehouse_tab_type === 0}
+                >
+                  Day order
+                </Button>
                 <Button
                   color="primary"
                   size="sm"
@@ -141,7 +142,7 @@ class Warehouse extends React.Component {
                   active={this.props.warehouse_tab_type === 2}
                 >
                   PO
-                </Button> 
+                </Button>
                 <Button
                   color="primary"
                   onClick={() => this.onWarehouseTabClick(3)}
@@ -165,14 +166,14 @@ class Warehouse extends React.Component {
                 >
                   QC
                 </Button>
-                {/* <Button
+                <Button
                   color="primary"
                   size="sm"
                   onClick={() => this.onWarehouseTabClick(6)}
                   active={this.props.warehouse_tab_type === 6}
                 >
-                  Return order
-                </Button> */}
+                  Return
+                </Button>
               </ButtonGroup>
             </Col>
             <Col></Col>
@@ -203,15 +204,16 @@ class Warehouse extends React.Component {
             </Col>
           </Row>
           <Row>
-              <Switch>
-                <Route path={`${path}/dayoders`} exact component={DayOrders} />
-                <Route path={`${path}/procurement`} component={Procurement} />
-                <Route path={`${path}/po`} component={Po} />
-                <Route path={`${path}/receiving`} component={Receiving} />
-                <Route path={`${path}/sorting`} component={Sorting} />
-                <Route path={`${path}/qc`} component={QAPage} />
-                <Redirect to={`${path}/dayoders`} />
-              </Switch>
+            <Switch>
+              <Route path={`${path}/dayoders`} exact component={DayOrders} />
+              <Route path={`${path}/procurement`} component={Procurement} />
+              <Route path={`${path}/po`} component={Po} />
+              <Route path={`${path}/receiving`} component={Receiving} />
+              <Route path={`${path}/sorting`} component={Sorting} />
+              <Route path={`${path}/qc`} component={QAPage} />
+              <Route path={`${path}/return`} component={ReturnPage} />
+              <Redirect to={`${path}/dayoders`} />
+            </Switch>
           </Row>
         </div>
       </div>

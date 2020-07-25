@@ -5,6 +5,8 @@ import { store, history } from "./store";
 import "./index.css";
 import App from "./App";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+//dl2liveadmin
+//d2admin
 ReactDOM.render(
   <Provider store={store}>
     <Router history={history} basename="/d2admin/">

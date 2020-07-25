@@ -34,12 +34,12 @@ export default (
     case MOVEIT_ADD_USER:
       return {
         ...state,
-        userAddSuccess: action.payload.success,
+        userAddSuccess: action.payload.status,
       };
       case MOVEIT_USERS_EDIT:
       return {
         ...state,
-        userEditSuccess: action.payload.success,
+        userEditSuccess: action.payload.status,
       };
     case MOVEIT_FORM_CLEAR:
       return {

@@ -82,22 +82,23 @@ class ViewMoveitUser extends React.Component {
 
     const proof = [];
     if (propdata.driver_lic)
-      proof.push({ name: "Driving License", proof_url: propdata.driver_lic });
-    if (propdata.vech_insurance)
+      proof.push({ name: "Driving License", proof_url: propdata.licensephotograph });
+    if (propdata.panphotograph)
       proof.push({
-        name: "Vehicle Insurance",
-        proof_url: propdata.vech_insurance,
+        name: "PAN CARD",
+        proof_url: propdata.panphotograph,
       });
-    if (propdata.vech_rcbook)
-      proof.push({ name: "Vehicle RC Book", proof_url: propdata.vech_rcbook });
-    if (propdata.photo)
-      proof.push({ name: "Photo", proof_url: propdata.photo });
-    if (propdata.legal_document)
+    if (propdata.aadharphotograph)
+      proof.push({ name: "AADHAR PHOTO", proof_url: propdata.aadharphotograph });
+    if (propdata.bankdocument)
+      proof.push({ name: "Bank Doc", proof_url: propdata.bankdocument });
+    if (propdata.contractdocument)
       proof.push({
-        name: "Legal Document",
-        proof_url: propdata.legal_document,
+        name: "Contact Document",
+        proof_url: propdata.contractdocument,
       });
     return (
+      
       <div className="pd-8">
         <Card>
           <CardHeader>

@@ -14,6 +14,8 @@ import {
   POST_ZENDESK_TICKET,
   TRACK_ORDER_LOGS,
   TRANSACTION_VIEW,
+  ORDER_REFUNDORDER_REASON,
+  POST_REFUND_ORDER,
 } from "../constants/actionTypes";
 
 export default (
@@ -24,12 +26,12 @@ export default (
       { id: 2, name: "Reorder" },
       { id: 3, name: "Book Return" },
       { id: 4, name: "Refund" },
-      { id: 5, name: "Reassign" },
       { id: 6, name: "Send Message to customer" },
       { id: 7, name: "Raise Ticket" },
     ],
     cancelList: [],
     reorderList: [],
+    refundorderList: [],
     returnReasonList: [],
     zendeskissuesList: [],
     OrderLogs: [],
@@ -39,6 +41,7 @@ export default (
     isReturnordered: false,
     isMessageSented: false,
     isTicketCreated: false,
+    isRefundordered:false,
   },
   action
 ) => {
@@ -64,6 +67,11 @@ export default (
         ...state,
         reorderList: action.payload.result || [],
       };
+      case ORDER_REFUNDORDER_REASON:
+      return {
+        ...state,
+        refundorderList: action.payload.result || [],
+      };
     case ORDER_RETURN_REASON:
       return {
         ...state,
@@ -88,6 +96,11 @@ export default (
       return {
         ...state,
         isReordered: action.payload.status || false,
+      };
+      case POST_REFUND_ORDER:
+      return {
+        ...state,
+        isRefundordered: action.payload.status || false,
       };
     case POST_RETURN_ORDER:
       return {
@@ -127,6 +140,7 @@ export default (
         isReturnordered: false,
         isMessageSented: false,
         isTicketCreated: false,
+        isRefundordered:false,
         ProofImage: [],
       };
 

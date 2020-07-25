@@ -58,7 +58,7 @@ export default (
       },
       {
         id: 10,
-        status: "Completed",
+        status: "Delivered",
       },
       {
         id: 11,

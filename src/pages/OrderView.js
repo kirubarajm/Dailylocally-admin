@@ -18,6 +18,8 @@ import {
   POST_ZENDESK_TICKET,
   TRACK_ORDER_LOGS,
   TRANSACTION_VIEW,
+  ORDER_REFUNDORDER_REASON,
+  POST_REFUND_ORDER,
 } from "../constants/actionTypes";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import AxiosRequest from "../AxiosRequest";
@@ -148,6 +150,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: POST_RE_ORDER,
       payload: AxiosRequest.CRM.postReOrder(data),
     }),
+
   onGetReturnReason: () =>
     dispatch({
       type: ORDER_RETURN_REASON,
@@ -172,6 +175,16 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: ORDER_ZENDESK_ISSUES,
       payload: AxiosRequest.CRM.getRaiseTicketIssues(data),
+    }),
+  onGetRefundorderReason: () =>
+    dispatch({
+      type: ORDER_REFUNDORDER_REASON,
+      payload: AxiosRequest.CRM.getRefundReason(),
+    }),
+  onPostRefundOrder: (data) =>
+    dispatch({
+      type: POST_REFUND_ORDER,
+      payload: AxiosRequest.CRM.postRefundOrder(data),
     }),
   ongetTrasnactionView: (data) =>
     dispatch({
@@ -240,6 +253,7 @@ class OrderView extends React.Component {
       cancelItem: defualtCancelReason,
       reorderItem: defualtReordeReason,
       returnorderItem: defualtReturnReason,
+      refundorderItem: defualtReturnReason,
       zendeskReasonItem: [],
       isCancelModal: false,
       isCancelReasonModal: false,
@@ -248,6 +262,7 @@ class OrderView extends React.Component {
       isReturnorderModal: false,
       isReturnorderReasonModal: false,
       isImageModal: false,
+      isRefundorderModal: false,
       users: [
         {
           id: 1,
@@ -309,6 +324,12 @@ class OrderView extends React.Component {
     if (this.props.isReordered) {
       this.props.onClear();
       this.toggleReorder();
+      this.getOrderDetail();
+    }
+
+    if (this.props.isRefundordered) {
+      this.props.onClear();
+      this.toggleRefundorder();
       this.getOrderDetail();
     }
 
@@ -387,6 +408,10 @@ class OrderView extends React.Component {
       this.setState({ returnorderItem: defualtReturnReason });
       this.props.onGetReturnReason();
       this.toggleReturnorder();
+    } else if (item.id === 4) {
+      this.setState({ refundorderItem: defualtReturnReason });
+      this.props.onGetRefundorderReason();
+      this.toggleRefundorder();
     } else if (item.id === 6) {
       this.props.initialize({ message: "" });
       this.toggleMessage();
@@ -417,6 +442,13 @@ class OrderView extends React.Component {
       isReorderModal: !this.state.isReorderModal,
     });
   };
+
+  toggleRefundorder = () => {
+    this.setState({
+      isRefundorderModal: !this.state.isRefundorderModal,
+    });
+  };
+
   toggleReorderReason = () => {
     this.setState({
       isReorderReasonModal: !this.state.isReorderReasonModal,
@@ -437,6 +469,12 @@ class OrderView extends React.Component {
   clickReorderReason = (item) => {
     this.setState({
       reorderItem: item,
+    });
+  };
+
+  clickRefundorderReason = (item) => {
+    this.setState({
+      refundorderItem: item,
     });
   };
 
@@ -530,6 +568,46 @@ class OrderView extends React.Component {
       }
       console.log("data-->", data);
       this.props.onPostReOrder(data);
+    }
+  };
+
+  refundorderConfirm = () => {
+    var checkItem = this.state.selected_product;
+    var Values = Object.keys(checkItem);
+    var pindex = Values.indexOf("selectall");
+    if (pindex !== -1) {
+      Values.splice(pindex, 1);
+    }
+    if (Values.length === 0) {
+      notify.show(
+        "Please select the product",
+        "custom",
+        3000,
+        notification_color
+      );
+    } else if (this.state.refundorderItem.rid === -1) {
+      notify.show(
+        "Please select the refund reason",
+        "custom",
+        3000,
+        notification_color
+      );
+    } else {
+      const orderview = this.props.orderview;
+      console.log("Values-->", Values);
+      var data = {
+        refunditems: Values,
+        userid: orderview.userid,
+        doid: orderview.id,
+        zoneid: orderview.zoneid,
+        refund_reason: this.state.refundorderItem.reason,
+        done_by: 1,
+      };
+      if (this.props.ProofImage.length > 0) {
+        data.refund_image = this.props.ProofImage[0].img_url;
+      }
+      console.log("data-->", data);
+      this.props.onPostRefundOrder(data);
     }
   };
 
@@ -711,7 +789,7 @@ class OrderView extends React.Component {
               displayTransform={this.handleDisplayTextForMention}
               data={this.state.users}
               style={{
-                backgroundColor:"#daf4fa",
+                backgroundColor: "#daf4fa",
               }}
               markup="@@@____id__^^____display__@@@^^^"
             />
@@ -741,7 +819,8 @@ class OrderView extends React.Component {
                       key={index}
                       disabled={
                         (propdata.dayorderstatus === 11 && item.id === 1) ||
-                        (propdata.dayorderstatus === 11 && item.id === 3)
+                        (propdata.dayorderstatus === 11 && item.id === 3) ||
+                        (!(propdata.dayorderstatus === 10 ||propdata.dayorderstatus === 11) &&item.id === 4)
                       }
                     >
                       {item.name}
@@ -952,11 +1031,11 @@ class OrderView extends React.Component {
               <CardRowCol lable="Vehicle No" value={driverdata.Vehicle_no} />
               <CardRowCol
                 lable="Assigned Time"
-                value={this.dateConvert(propdata.created_at)}
+                value={this.dateConvert(propdata.assigned_time)}
               />
               <CardRowCol
                 lable="Notificaion Time"
-                value={this.dateConvert(propdata.created_at)}
+                value={this.dateConvert(propdata.moveit_notification_time)}
               />
               <CardRowCol
                 lable="PickedUp Time"
@@ -1700,6 +1779,152 @@ class OrderView extends React.Component {
               Close
             </Button>
           </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isRefundorderModal}
+          toggle={this.toggleRefundorder}
+          backdrop={true}
+          className="max-width-800"
+        >
+          <ModalBody className="pd-10">
+            <Row className="mr-l-10 mr-b-10">
+              <Col className="flex-row">
+                <div className="width-250 font-size-14">
+                  Refund Reason
+                  <span className="must width-25">*</span>
+                </div>
+                <div className="mr-l-10">
+                  <ButtonDropdown
+                    className="max-height-30"
+                    isOpen={this.state.isReorderReasonModal}
+                    toggle={this.toggleReorderReason}
+                    size="sm"
+                  >
+                    <DropdownToggle caret>
+                      {this.state.refundorderItem.reason || ""}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.props.refundorderList.map((item, index) => (
+                        <DropdownItem
+                          onClick={() => this.clickRefundorderReason(item)}
+                          key={index}
+                        >
+                          {item.reason}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </ButtonDropdown>
+                </div>
+              </Col>
+            </Row>
+            <Row className="mr-l-10 mr-b-10">
+              <Col className="flex-row">
+                <div className="mr-r-10 width-250 font-size-14">
+                  Attach proof of reason
+                </div>
+                <div>
+                  <form className="width-250">
+                    <Field
+                      name={"CAT"}
+                      type="file"
+                      component={DropzoneFieldMultiple}
+                      imgPrefillDetail={
+                        this.props.ProofImage.length
+                          ? this.props.ProofImage[0]
+                          : ""
+                      }
+                      handleonRemove={this.handleonRemove}
+                      handleOnDrop={() => this.handleProofimages}
+                    />
+                  </form>
+                </div>
+              </Col>
+            </Row>
+            <div className="font-size-14 mr-l-20 mr-b-20">
+              Select products to be refund
+            </div>
+            <div className="fieldset mr-b-10">
+              <div className="legend">Products in order</div>
+              <div className="mr-lr-10">
+                <Row className="mr-lr-10 cart-item font-size-14">
+                  <Col className="pd-0" lg="2">
+                    <div className="flex-row">
+                      <label className="container-check">
+                        <input
+                          type="checkbox"
+                          name="selectall"
+                          checked={this.state.selected_product["selectall"]}
+                          onChange={(e) => this.handleChange(e)}
+                        />
+                        <span className="checkmark"></span>
+                      </label>
+                      <div className="font-size-12 mr-l-20">
+                        {" Full Refund "}
+                      </div>
+                    </div>
+                  </Col>
+                  <Col>Product Name</Col>
+                  <Col className="txt-align-right">Quantity</Col>
+                  <Col className="txt-align-right" lg="2">
+                    Price
+                  </Col>
+                  <Col className="txt-align-right" lg="2">
+                    Amount
+                  </Col>
+                </Row>
+                <hr className="mr-2" />
+                {cartItems.map((item, i) => (
+                  <Row
+                    className="mr-lr-10 list-text cart-item font-size-14"
+                    key={i}
+                  >
+                    <Col lg="1">
+                      <label className="container-check">
+                        <input
+                          type="checkbox"
+                          name={"" + item.id}
+                          checked={this.state.selected_product[item.id]}
+                          onChange={(e) => this.handleChange(e)}
+                        />
+                        <span className="checkmark"></span>{" "}
+                      </label>
+                    </Col>
+                    <Col>{item.productname}</Col>
+                    <Col className="txt-align-right">{item.quantity}</Col>
+                    <Col className="txt-align-right" lg="2">
+                      {item.price}
+                    </Col>
+                    <Col className="txt-align-right" lg="2">
+                      <div className="font-size-14">
+                        <i className="fas fa-rupee-sign font-size-12" />{" "}
+                        {item.quantity * item.price}
+                      </div>
+                    </Col>
+                  </Row>
+                ))}
+              </div>
+            </div>
+            <Row className="mr-b-10 mr-r-10">
+              <Col lg="8"></Col>
+              <Col className="pd-0 mr-r-10 txt-align-right">
+                <Button
+                  size="sm"
+                  type="submit"
+                  onClick={this.refundorderConfirm}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  size="sm"
+                  className="mr-l-10"
+                  onClick={this.toggleRefundorder}
+                >
+                  Close
+                </Button>
+              </Col>
+            </Row>
+          </ModalBody>
         </Modal>
       </div>
     );

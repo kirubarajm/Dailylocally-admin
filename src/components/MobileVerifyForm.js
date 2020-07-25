@@ -113,7 +113,7 @@ class MobileVerifyForm extends React.Component {
           <Button
             type="button"
             disabled={pristine || submitting}
-            onClick={reset}
+            onClick={this.props.onFromClear}
             className="mr-l-10"
           >
             Clear

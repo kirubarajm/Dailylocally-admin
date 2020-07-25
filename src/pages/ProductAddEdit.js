@@ -26,7 +26,12 @@ import {
 import { PRODUCT_ADD_EDIT } from "../utils/constant";
 import { Field, reduxForm, reset } from "redux-form";
 import renderInputField from "../components/renderInputField";
-import { required, minLength2, requiredTrim, requirednumber } from "../utils/Validation";
+import {
+  required,
+  minLength2,
+  requiredTrim,
+  requirednumber,
+} from "../utils/Validation";
 import Select from "react-dropdown-select";
 import { history } from "../store";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
@@ -62,7 +67,7 @@ const InputSearchDropDown = ({
         style={{
           border: "1px solid #000",
           height: "auto",
-          width: "210px",
+          width: "200px",
           marginLeft: "-6px",
           marginRight: "12px",
         }}
@@ -225,6 +230,7 @@ class ProductAddEdit extends React.Component {
       selectedVendor: {},
       today: Moment(new Date()),
       expiry_date: false,
+      checkBoxVal:1
     };
   }
 
@@ -304,7 +310,10 @@ class ProductAddEdit extends React.Component {
         discount_cost: productDe.discount_cost,
         //discountedamount: productDe.discountedamount,
       };
-
+      
+      if (productDe && productDe.subscription) {
+        this.setState({ checkBoxVal: productDe.subscription });
+      }
       if (productDe && productDe.catid) {
         var cat = [{ catid: productDe.catid, name: productDe.category_name }];
         this.setState({ category: cat });
@@ -400,6 +409,11 @@ class ProductAddEdit extends React.Component {
       }
     }
   }
+  onCheckMoveit = ()=>{
+    var radVal = document.radioForm.sur_type.value;
+    var checkVal=parseInt(radVal);
+    this.setState({checkBoxVal:checkVal});
+  }
   componentDidCatch() {}
   submit = (data) => {
     // if (this.state.category.length>0) {
@@ -409,8 +423,6 @@ class ProductAddEdit extends React.Component {
       this.setState({ image_uploaded: false });
       return;
     }
-
-    
 
     this.setState({ image_uploaded: true });
     if (data.KSI0) {
@@ -452,8 +464,9 @@ class ProductAddEdit extends React.Component {
     } else {
       data.image = "";
     }
-    data.done_by=1;
-    data.zoneid=this.props.zoneItem.id;
+    data.done_by = 1;
+    data.zoneid = this.props.zoneItem.id;
+    data.subscription=this.state.checkBoxVal;
     if (this.state.isEdit) {
       var productDe = this.props.productdetail;
       data.pid = productDe.pid;
@@ -463,7 +476,7 @@ class ProductAddEdit extends React.Component {
       var venItem = {};
       if (this.state.addVendorItem.length > 0) {
         venItem.vid = this.state.addVendorItem[0].vid;
-      }else {
+      } else {
         notify.show(
           "Please select the vendor after try this",
           "custom",
@@ -486,11 +499,11 @@ class ProductAddEdit extends React.Component {
       venItem.price_agreement_approval = 1;
       venItem.base_price = data.base_price;
       venItem.other_charges = data.other_charges;
-      venItem.done_by=1;
-      venItem.zoneid=this.props.zoneItem.id;
+      venItem.done_by = 1;
+      venItem.zoneid = this.props.zoneItem.id;
       vendor_details.push(venItem);
       data.vendor_details = vendor_details;
-      
+
       this.props.onAddProductDetails(data);
     }
   };
@@ -551,24 +564,24 @@ class ProductAddEdit extends React.Component {
   };
 
   onAddVendSu = () => {
-    this.setState({is_loading:true})
+    this.setState({ is_loading: true });
     if (this.state.isEdit) {
       var productIds = this.props.match.params.product_id;
       this.props.onClearPr();
       this.props.onGetProduct({ product_id: productIds });
     }
     this.toggleVendorAddPopup();
-  }
+  };
 
   onEditVendSu = () => {
-    this.setState({is_loading:true})
+    this.setState({ is_loading: true });
     if (this.state.isEdit) {
       var productIds = this.props.match.params.product_id;
       this.props.onClearPr();
       this.props.onGetProduct({ product_id: productIds });
     }
     this.toggleVendorEditPopup();
-  }
+  };
 
   onEditVendor = (Item) => {
     this.setState({
@@ -604,7 +617,7 @@ class ProductAddEdit extends React.Component {
             <div>
               <form onSubmit={this.props.handleSubmit(this.submit)}>
                 <Row className="pd-0 mr-l-10 mr-r-10">
-                  <Col lg="4">
+                  <Col lg="4" className="pd-0">
                     <Field
                       name="cat_id"
                       component={InputSearchDropDown}
@@ -697,7 +710,7 @@ class ProductAddEdit extends React.Component {
                     />
                   </Col>
 
-                  <Col lg="4">
+                  <Col lg="4" className="pd-0">
                     <Field
                       name="brand"
                       component={InputSearchDropDown}
@@ -817,9 +830,42 @@ class ProductAddEdit extends React.Component {
                       validate={[required]}
                       required={true}
                     />
+                    <div className="flex-row border-none">
+                      <div className="width-150 align_self_center">
+                        Subscription :
+                      </div>
+                      <div
+                        className="width-120 mr-l-20 align_self_center"
+                        onClick={this.onCheckMoveit}
+                      >
+                        <form
+                          id="radioForm"
+                          name="radioForm"
+                          style={{height:"15px"}}
+                          className="mr-t-10 pr-from"
+                        >
+                          <input
+                            type="radio"
+                            name="sur_type"
+                            value="1"
+                            checked={this.state.checkBoxVal === 1}
+                            className="mr-r-5"
+                          />
+                          <label className="mr-r-10">On</label>
+                          <input
+                            type="radio"
+                            name="sur_type"
+                            value="2"
+                            checked={this.state.checkBoxVal === 2}
+                            className="mr-r-5"
+                          />{" "}
+                          <label className="mr-r-10">Off</label>
+                        </form>
+                      </div>
+                    </div>
                   </Col>
 
-                  <Col lg="4">
+                  <Col lg="4" className="pd-0">
                     <div className="flex-row border-none">
                       <div className="width-150 font-size-14">
                         Photograph <span className="must">*</span>
@@ -896,7 +942,10 @@ class ProductAddEdit extends React.Component {
                 </Row>
                 <div style={{ width: "550px" }} hidden={this.state.isEdit}>
                   <div className="fieldset">
-                    <div className="legend border-none" style={{ width: "100px" }}>
+                    <div
+                      className="legend border-none"
+                      style={{ width: "100px" }}
+                    >
                       Add Vendor
                     </div>
                     <div className="border-none">
@@ -920,25 +969,25 @@ class ProductAddEdit extends React.Component {
                           <span className="must">*</span>
                         </label>
                         <div className="border-grey width-210">
-                        <DateRangePicker
-                          opens="right"
-                          singleDatePicker
-                          minDate={this.state.today}
-                          drops="up"
-                          onApply={this.dateSelect}
-                        >
-                          <Button
-                            className="mr-r-10"
-                            style={{
-                              width: "30px",
-                              height: "30px",
-                              padding: "0px",
-                            }}
+                          <DateRangePicker
+                            opens="right"
+                            singleDatePicker
+                            minDate={this.state.today}
+                            drops="up"
+                            onApply={this.dateSelect}
                           >
-                            <i className="far fa-calendar-alt"></i>
-                          </Button>
-                          {this.state.expiry_date}
-                        </DateRangePicker>
+                            <Button
+                              className="mr-r-10"
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                padding: "0px",
+                              }}
+                            >
+                              <i className="far fa-calendar-alt"></i>
+                            </Button>
+                            {this.state.expiry_date}
+                          </DateRangePicker>
                         </div>
                       </div>
 

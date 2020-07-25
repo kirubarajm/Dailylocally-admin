@@ -12,6 +12,7 @@ import {
   CATELOG_SELECTED_CAT,
   CATELOG_SELECTED_L1CAT,
   CATELOG_SELECTED_L2CAT,
+  PRODUCT_DELETE,
   CATELOG_SELECTED_TAB,
   CATELOG_PRODUCT_ADD_SELECT,
   CATELOG_SEARCH,
@@ -54,7 +55,8 @@ export default (
     isProductlive: false,
     isProductitem: false,
     isProductindex: 0,
-    updatedItem:false
+    updatedItem:false,
+    isDelete:false
   },
   action
 ) => {
@@ -131,6 +133,11 @@ export default (
         }),
       };
 
+    case PRODUCT_DELETE:
+      return {
+        ...state,
+        isDelete:action.payload.status || false
+      }
     case CATEGORY_LIVE_ITEM:
       return {
         ...state,
@@ -221,6 +228,7 @@ export default (
         isProductitem: false,
         isProductindex: 0,
         isProductlive: false,
+        isDelete:false
       };
 
     case CATELOG_SEARCH:

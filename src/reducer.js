@@ -31,6 +31,8 @@ import moveituser from './reducers/moveituser'
 import moveituserlist from './reducers/moveituserlist'
 import viewmoveit from './reducers/viewmoveit'
 import mobileverify from './reducers/mobileverify'
+import refundapproval from './reducers/refundapproval'
+import returnpage from './reducers/returnpage'
 
 export default combineReducers({
   router: routerReducer,
@@ -64,5 +66,7 @@ export default combineReducers({
   moveituser,
   moveituserlist,
   viewmoveit,
-  mobileverify
+  mobileverify,
+  refundapproval,
+  returnpage
 });

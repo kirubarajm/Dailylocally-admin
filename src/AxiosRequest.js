@@ -2,6 +2,7 @@ import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
 const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
 let token =
@@ -85,6 +86,7 @@ const Catelog = {
    onAddL2Cat:(data) => requests.post("/add/subcategoryl2", data),
    L2subcategoryLiveUnlive:(data) => requests.put("/live/subcategoryl2", data),
    ProductLiveUnlive:(data) => requests.put("/live/product", data),
+   ProductDelete:(data) => requests.post("/delete/product", data),
    
 };
 
@@ -93,6 +95,8 @@ const Warehouse = {
   createprocurement:(data) => requests.post("/procurement/create", data),
   procurementwaitinglist:(data) => requests.post("/procurement/list", data),
   createPo:(data) => requests.post("/procurement/movetopurchase", data),
+  movetoStock:(data) => requests.post("/stock/autoassign", data),
+  movetoPRRemove:(data) => requests.post("/po/removebohmapping", data),
   getPoList:(data) => requests.post("/po/getpolist", data),
   getPoView:(data) => requests.post("/po/view", data),
   getPoDelete:(data) => requests.post("/po/delete", data),
@@ -108,12 +112,15 @@ const Warehouse = {
   updateUNReceiving:(data) => requests.post("/po/updatepounreceive", data),
   movetoSorting:(data) => requests.post("/po/popsoring", data),
   getSortingList:(data) => requests.post("/sorting/getsortinglist", data),
+  getReturnList:(data) => requests.post("/return/getreturnlist", data),
   getQaList:(data) => requests.post("/quality/dayorderlist", data),
   saveSorting:(data) => requests.post("/sorting/savesorting", data),
   submitSorting:(data) => requests.post("/sorting/movetoqa", data),
+  submitReturning:(data) => requests.post("/return/updateorders", data),
   submitSortingReport:(data) => requests.post("/sorting/missingquantityreport", data),
   getQaQualityList:(data) => requests.post("/quality/type", data),
   submitQA:(data) => requests.post("/quality/qualitycheck", data),
+  movetoStoring:(data) => requests.post("/return/reorder", data),
 }
 
 const StockKeeping= {
@@ -137,6 +144,7 @@ const CRM= {
   getRefundReason:() => requests.get("/crm/refund/reasonlist"),
   postOrderCancel:(data) => requests.post("/crm/productcancel",data),
   postReOrder:(data) => requests.post("/crm/reorder",data),
+  postRefundOrder:(data) => requests.post("/crm/refundrequest",data),
   postReturnOrder:(data) => requests.post("/crm/bookreturn",data),
   postMessageToCustomer:(data) => requests.post("/crm/usersms",data),
   postZendeskCreation:(data) => requests.post("/zendesk/ticketcreate",data),
@@ -145,6 +153,8 @@ const CRM= {
   postUserAddress:(data) => requests_base.put("user/address", data),
   getTransactionList:(data) => requests.post("/transaction", data),
   getTransactionView:(data) => requests.post("/transaction/view", data),
+  postRepayment:(data) => requests.post("/repayment", data),
+  getRefundApprovalList:(data) => requests.post("/refundlist", data),
 }
 
 const Logistics= {
@@ -161,6 +171,7 @@ const Logistics= {
   postDunzoDelivered:(data) => requests.post("/logistics/dunzo/delivered", data),
   postTripAssign:(data) => requests.post("/logistics/trip/create", data),
   postTripUnAssign:(data) => requests.post("/logistics/trip/unassign", data),
+  
 }
 
 const Moveit ={
@@ -175,15 +186,15 @@ const Moveit ={
   fileUpload: (file) =>
   requests.post("/fileUpload",file,fileUploadHeader,AppVersion_1),
   forceLogout: (data) => 
-  requests.post('/moveit/logout',data,AppVersion_1),
+  requests.post('/logistics/moveit/forcelogout',data,AppVersion_1),
 }
 
 
 const MobileNumberVerify ={
   MobileOtpSend: (data,roleType) =>
-  requests.post('/moveituser/sendotp',data,AppVersion_1),
+  requests.post('/logistics/moveit/sendotp',data,AppVersion_1),
   MobileOtpVerify: (data,roleType) =>
-  requests.post('/moveituser/otpverification',data,AppVersion_1),
+  requests.post('/logistics/moveit/otpverify',data,AppVersion_1),
 }
 
 export default {

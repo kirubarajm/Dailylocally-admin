@@ -23,12 +23,13 @@ import {
   ON_CLEAR_PO_WAITING,
   WARE_HOUSE_SELECTED_TAB,
   ZONE_ITEM_REFRESH,
+  MOVE_TO_PO_STOCK,
 } from "../constants/actionTypes";
 
 const mapStateToProps = (state) => ({
   ...state.procurement,
   zoneItem: state.common.zoneItem,
-  zoneRefresh:state.common.zoneRefresh
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -41,6 +42,16 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: MOVE_TO_PO_WAITING,
       payload: AxiosRequest.Warehouse.createPo(data),
+    }),
+  onMovetoStock: (data) =>
+    dispatch({
+      type: MOVE_TO_PO_STOCK,
+      payload: AxiosRequest.Warehouse.movetoStock(data),
+    }),
+  onRemovePr: (data) =>
+    dispatch({
+      type: MOVE_TO_PO_STOCK,
+      payload: AxiosRequest.Warehouse.movetoPRRemove(data),
     }),
   onClear: () =>
     dispatch({
@@ -82,9 +93,13 @@ class Procurement extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    if(this.props.zoneRefresh){
-      store.dispatch({ type: ZONE_ITEM_REFRESH});
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
+    }
+    if (this.props.movetoStock) {
+      this.setState({ isLoading: false });
+      this.props.onClear();
     }
 
     this.onGetProcumentList();
@@ -100,7 +115,7 @@ class Procurement extends React.Component {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = {
-        zoneid: this.props.zoneItem.id
+        zoneid: this.props.zoneItem.id,
       };
       if (this.state.itemcode) data.vpid = this.state.itemcode;
       if (this.state.pr_createdate) data.date = this.state.pr_createdate;
@@ -155,6 +170,11 @@ class Procurement extends React.Component {
       isprocur: !this.state.isprocur,
     });
   };
+  toggleStockPopUp = () => {
+    this.setState({
+      isstock: !this.state.isstock,
+    });
+  };
 
   confirmTopo = () => {
     var checkItem = this.state.selected_procument;
@@ -166,6 +186,22 @@ class Procurement extends React.Component {
       done_by: 1,
     });
   };
+
+  confirmToStock = () => {
+    this.toggleStockPopUp();
+    if (this.state.isAutoStock) {
+      this.props.onMovetoStock({
+        zoneid: this.props.zoneItem.id,
+        done_by: 1,
+      });
+    } else {
+      this.props.onRemovePr({
+        zoneid: this.props.zoneItem.id,
+        done_by: 1,
+      });
+    }
+  };
+
   movetopo = () => {
     var checkItem = this.state.selected_procument;
     var Values = Object.keys(checkItem);
@@ -180,10 +216,16 @@ class Procurement extends React.Component {
       );
     }
   };
+
+  movetoStock = (isStock) => {
+    this.setState({ isAutoStock: isStock });
+    this.toggleStockPopUp();
+  };
+
   onSearchInput = (e) => {
     const value = e.target.value || "";
     this.setState({ itemcode: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
@@ -197,7 +239,7 @@ class Procurement extends React.Component {
     this.setState({
       pr_createdate: false,
       search: "",
-      itemcode:"",
+      itemcode: "",
       itemid_refresh: true,
     });
     this.setState({ isLoading: false });
@@ -206,8 +248,6 @@ class Procurement extends React.Component {
   onSuccessRefresh = () => {
     this.setState({ itemid_refresh: false });
   };
-
-  
 
   render() {
     const procurmentlist = this.props.procurmentlist || [];
@@ -218,30 +258,38 @@ class Procurement extends React.Component {
             <div className="legend">Procurement - Search</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
               <Col lg="3" className="pd-0">
-              <div style={{ display: "flex", flexDirection: "row",alignItems:"center" }}>
-                <div className="mr-r-10">Date/Time: </div>
-                <DateRangePicker
-                  opens="right"
-                  singleDatePicker
-                  maxDate={this.state.today}
-                  drops="down"
-                  onApply={this.startSelect}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
                 >
-                  <Button
-                    className="mr-r-10"
-                    style={{ width: "30px", height: "30px", padding: "0px" }}
+                  <div className="mr-r-10">Date/Time: </div>
+                  <DateRangePicker
+                    opens="right"
+                    singleDatePicker
+                    maxDate={this.state.today}
+                    drops="down"
+                    onApply={this.startSelect}
                   >
-                    <i className="far fa-calendar-alt"></i>
-                  </Button>
-                </DateRangePicker>
-                {this.state.pr_createdate
-                  ? Moment(this.state.pr_createdate).format("DD/MM/YYYY")
-                  : "DD/MM/YYYY"}
-                  </div>
+                    <Button
+                      className="mr-r-10"
+                      style={{ width: "30px", height: "30px", padding: "0px" }}
+                    >
+                      <i className="far fa-calendar-alt"></i>
+                    </Button>
+                  </DateRangePicker>
+                  {this.state.pr_createdate
+                    ? Moment(this.state.pr_createdate).format("DD/MM/YYYY")
+                    : "DD/MM/YYYY"}
+                </div>
               </Col>
               <Col lg="4" className="pd-0">
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div className="mr-r-10 flex-row-vertical-center">Product Name/Code : </div>
+                  <div className="mr-r-10 flex-row-vertical-center">
+                    Product Name/Code :{" "}
+                  </div>
                   <Search
                     onSearch={this.onSearchInput}
                     type="text"
@@ -283,6 +331,20 @@ class Procurement extends React.Component {
                 </div>
               </Col>
               <Col className="txt-align-right">
+                <Button
+                  size="sm"
+                  onClick={() => this.movetoStock(true)}
+                  className="mr-r-20"
+                >
+                  Move To Stock
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => this.movetoStock(false)}
+                  className="mr-r-20"
+                >
+                  Remove Procurement
+                </Button>
                 <Button size="sm" onClick={this.movetopo}>
                   + Purchase order
                 </Button>
@@ -363,6 +425,33 @@ class Procurement extends React.Component {
               NO
             </Button>
             <Button size="sm" onClick={this.confirmTopo}>
+              YES
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isstock}
+          toggle={this.toggleStockPopUp}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalHeader
+            toggle={this.toggleStockPopUp}
+            className="pd-10 border-none"
+          >
+            Confirm
+          </ModalHeader>
+          <ModalBody className="pd-10">
+            {this.state.isAutoStock
+              ? "Are you sure you want to move to auto stock?"
+              : "Are you sure you want to remove procurment?"}
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleStockPopUp}>
+              NO
+            </Button>
+            <Button size="sm" onClick={this.confirmToStock}>
               YES
             </Button>
           </ModalFooter>

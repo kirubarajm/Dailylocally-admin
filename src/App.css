@@ -48,6 +48,27 @@ input[type='radio']:checked:after {
   background-color: #9900ff;
   border: 1px solid #9900ff !important;
 }
+.pr-from{
+background: #fff;
+}
+.pr-from input[type='radio']:after {
+  width: 15px;
+  height: 15px;
+  border-radius: 15px;
+  top: -3px;
+  position: relative;
+  content: '';
+  display: inline-block;
+  visibility: visible;
+  padding: 5px;
+  background-color: #fff;
+  border: 1px solid #9900ff !important;
+}
+
+.pr-from input[type='radio']:checked:after {
+  background-color: #9900ff;
+  border: 1px solid #9900ff !important;
+}
 
 /* input[type='radio']:after {
   width: 15px;
@@ -865,10 +886,10 @@ a, a:focus, a:hover, a:visited {
 }
 
 .scroll-crm {
-  margin-bottom: 40px !important;
+  margin-bottom: 20px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 50vh !important;
+  height: 40vh !important;
 }
 
 .scroll-trip-assign {
@@ -2137,4 +2158,10 @@ hr.style-moveit:after {
 }
 .comments-textarea__suggestions__item — focused {
   background-color: #daf4fa;
+}
+
+.onDropDown{
+  background-color: #fff;
+  color: #9900ff;
+  border: 1px solid #9900ff;
 }

@@ -66,7 +66,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_SELECT_STATUS,
       selectedStatus,
     }),
-    onSelectView: (data) =>
+  onSelectView: (data) =>
     dispatch({
       type: TRACK_SELECT_VIEW,
       data,
@@ -109,7 +109,7 @@ class Crm extends React.Component {
     var userid = this.props.match.params.userid || false;
     if (userid) {
       this.setState({ user_via_order: true, userid: userid });
-      if(!this.props.isViewed)this.onInit();
+      if (!this.props.isViewed) this.onInit();
     }
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
@@ -134,8 +134,9 @@ class Crm extends React.Component {
     if (nextProps.match.params.userid !== this.props.match.params.userid) {
       var userid = nextProps.match.params.userid || false;
       if (userid) this.setState({ user_via_order: true, userid: userid });
-      else this.setState({ user_via_order: false, userid: 0,isLoading:false });
-     // this.onReset();
+      else
+        this.setState({ user_via_order: false, userid: 0, isLoading: false });
+      // this.onReset();
     }
   }
   componentDidUpdate(nextProps, nextState) {
@@ -203,7 +204,7 @@ class Crm extends React.Component {
     this.props.onSetDayordersFilters(false);
     this.setState({ isLoading: false });
   };
-  onInit= () => {
+  onInit = () => {
     this.setState({
       startdate: "",
       enddate: "",
@@ -216,7 +217,7 @@ class Crm extends React.Component {
     this.props.onSelectStatus(defult_slot);
     this.props.onSelectSlot(defult_slot);
     this.props.onSetDayordersFilters(false);
-  }
+  };
 
   onReset = () => {
     this.setState({
@@ -224,8 +225,8 @@ class Crm extends React.Component {
       enddate: "",
       order_no: "",
       user_search: "",
-      checkBoxVal:0,
-      isTripEnable:true,
+      checkBoxVal: 0,
+      isTripEnable: true,
       orderid_refresh: true,
       select_order_status: defult_slot,
       select_slot: defult_slot,
@@ -234,11 +235,11 @@ class Crm extends React.Component {
     this.props.onSelectSlot(defult_slot);
     this.props.onSetDayordersFilters(false);
     var userid = this.props.match.params.userid || false;
-    var data ={
+    var data = {
       zoneid: this.props.zoneItem.id,
-      page: defultPage
-    }
-    if(userid) data.userid=userid;
+      page: defultPage,
+    };
+    if (userid) data.userid = userid;
     this.props.onGetDayorders(data);
   };
 
@@ -250,7 +251,7 @@ class Crm extends React.Component {
         data = this.props.datafilter;
         var userid = this.props.match.params.userid || false;
         if (!userid) delete data.userid;
-        else data.userid=userid;
+        else data.userid = userid;
         this.setState({
           startdate: data.starting_date,
           enddate: data.end_date,
@@ -259,7 +260,7 @@ class Crm extends React.Component {
           select_order_status: this.props.orderSelectedStatus,
           select_slot: this.props.orderSelectedSolt,
           trip_search: this.props.orderSelectedTrip,
-          checkBoxVal:data.moveit_type || 0,
+          checkBoxVal: data.moveit_type || 0,
         });
       } else {
         data.page = defultPage;
@@ -267,10 +268,10 @@ class Crm extends React.Component {
         if (this.state.enddate) data.end_date = this.state.enddate;
         if (this.state.order_no) data.id = this.state.order_no;
         if (this.state.user_search) data.search = this.state.user_search;
-        if (this.state.trip_search&&this.state.checkBoxVal===1){
-            data.trip_id = this.state.trip_search;
-            data.moveit_type = this.state.checkBoxVal;
-        }else if (this.state.checkBoxVal === 2){
+        if (this.state.trip_search && this.state.checkBoxVal === 1) {
+          data.trip_id = this.state.trip_search;
+          data.moveit_type = this.state.checkBoxVal;
+        } else if (this.state.checkBoxVal === 2) {
           data.moveit_type = this.state.checkBoxVal;
         }
 
@@ -366,10 +367,10 @@ class Crm extends React.Component {
           <div className="fieldset">
             <div className="legend">Order Tracker</div>
             <div className="replies_field_container mr-b-10 font-size-14">
-              <div className="width-200 mr-l-20 align_self_center">
+              <div className="width-200 mr-l-20">
                 Order No :
               </div>
-              <div className="width-200 mr-l-10">
+              <div className="width-200">
                 <Search
                   onSearch={this.onSearchOrderno}
                   type="number"
@@ -378,7 +379,7 @@ class Crm extends React.Component {
                   isRefresh={this.state.orderid_refresh}
                 />
               </div>
-              <div className="width-120 mr-l-20 align_self_center">
+              <div className="width-100 mr-l-20 align-self-center">
                 Order Status :
               </div>
               <div className="width-150 mr-l-10">
@@ -403,7 +404,7 @@ class Crm extends React.Component {
                   </DropdownMenu>
                 </ButtonDropdown>
               </div>
-              <div className="width-50 mr-l-20 align_self_center">Date:</div>
+              <div className="width-50 mr-l-20 align-self-center">Date:</div>
               <div className="width-250 mr-l-10">
                 <DateRangePicker
                   opens="right"
@@ -427,12 +428,9 @@ class Crm extends React.Component {
                 </span>
               </div>
             </div>
-
             <div className="replies_field_container mr-b-10 font-size-14">
-              <div className="width-200 mr-l-20 align_self_center">
-                User id/phone/name :
-              </div>
-              <div className="width-200 mr-l-10">
+              <div className="width-200 mr-l-20">User id/phone/name :</div>
+              <div className="width-200">
                 <Searchnew
                   onSearch={this.onSearchUser}
                   type="text"
@@ -442,7 +440,7 @@ class Crm extends React.Component {
                   isRefresh={this.state.orderid_refresh}
                 />
               </div>
-              <div className="width-120 mr-l-20 align_self_center">Slot :</div>
+              <div className="width-100 mr-l-20 align-self-center">Slot :</div>
               <div className="width-150 mr-l-10">
                 <ButtonDropdown
                   className="max-height-30"
@@ -465,13 +463,12 @@ class Crm extends React.Component {
                   </DropdownMenu>
                 </ButtonDropdown>
               </div>
-              <div className="width-100 mr-l-10 align_self_center">
+            </div>
+            <div className="replies_field_container mr-b-10 font-size-14">
+              <div className="width-200 mr-l-20 align-self-center">
                 Trip/Dunzo :
               </div>
-              <div
-                className="width-200 mr-l-10 align_self_center"
-                onClick={this.onCheckMoveit}
-              >
+              <div className="width-200 mr-l-10" onClick={this.onCheckMoveit}>
                 <form id="radioForm" name="radioForm" className="mr-t-10">
                   <input
                     type="radio"
@@ -479,7 +476,7 @@ class Crm extends React.Component {
                     value="0"
                     checked={this.state.checkBoxVal === 0}
                     className="mr-r-5"
-                  />{" "}
+                  />
                   <label className="mr-r-10">All</label>
                   <input
                     type="radio"
@@ -487,7 +484,7 @@ class Crm extends React.Component {
                     value="1"
                     checked={this.state.checkBoxVal === 1}
                     className="mr-r-5"
-                  />{" "}
+                  />
                   <label className="mr-r-10">Trip</label>
                   <input
                     type="radio"
@@ -495,7 +492,7 @@ class Crm extends React.Component {
                     value="2"
                     checked={this.state.checkBoxVal === 2}
                     className="mr-r-5"
-                  />{" "}
+                  />
                   <label className="mr-r-10">Dunzo</label>
                 </form>
               </div>
@@ -533,83 +530,75 @@ class Crm extends React.Component {
           </div>
           <div className="pd-6">
             <div className="scroll-crm">
-                <Table style={{ width: "2000px" }}>
-                  <thead>
-                    <tr>
-                      <th>No</th>
-                      <th>View</th>
-                      <th>Order no</th>
-                      <th>User Name</th>
-                      <th>User id</th>
-                      <th>User Phone</th>
-                      <th>User email</th>
-                      <th>Date created</th>
-                      <th>Placed time</th>
-                      <th>Quantity</th>
-                      <th>Sorted Qty</th>
-                      <th>Amt</th>
-                      <th>Due date/Time</th>
-                      <th>Slot</th>
-                      <th>Status</th>
-                      <th>Trip ID</th>
-                      <th>Delivered Date/Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {dayorderlist.map((item, i) => (
-                      <tr key={i}>
-                        <td>
-                          {/* {
+              <Table style={{ width: "2000px" }}>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>View</th>
+                    <th>Order no</th>
+                    <th>User Name</th>
+                    <th>User id</th>
+                    <th>User Phone</th>
+                    <th>User email</th>
+                    <th>Date created</th>
+                    <th>Placed time</th>
+                    <th>Quantity</th>
+                    <th>Sorted Qty</th>
+                    <th>Amt</th>
+                    <th>Due date/Time</th>
+                    <th>Slot</th>
+                    <th>Status</th>
+                    <th>Trip ID</th>
+                    <th>Delivered Date/Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dayorderlist.map((item, i) => (
+                    <tr key={i}>
+                      <td>
+                        {/* {
                             <FaPlus
                               className="txt-color-theme txt-cursor pd-2"
                               size="20"
                             />
                           } */}
-                          {i + 1}
-                        </td>
-                        <td>
-                          {
-                            <FaEye
-                              className="txt-color-theme txt-cursor pd-2"
-                              size="20"
-                              onClick={() => this.onView(item)}
-                            />
-                          }
-                        </td>
-                        <td>{item.id}</td>
-                        <td>{item.name}</td>
-                        <td>{item.userid}</td>
-                        <td>{item.phoneno}</td>
-                        <td className="table-cloumn-overflow">{item.email}</td>
-                        <td>
-                          {this.dateConvert(item.created_at)}
-                        </td>
-                        <td>
-                          {this.dateConvert(item.order_place_time)}
-                        </td>
-                        
-                        <td>{item.order_quantity}</td>
-                        <td>{item.sorted_quantity}</td>
-                        <td>{item.total_product_price}</td>
-                        <td>
-                          {this.dateConvert(item.date)}
-                        </td>
-                        <td>{item.slot_msg}</td>
-                        <td>{item.dayorderstatus_msg}</td>
-                        <td>
-                          {item.moveit_type === 1
-                            ? item.trip_id
-                            : item.moveit_type === null
-                            ? "-"
-                            : "Dunzo"}
-                        </td>
-                        <td>
-                          {this.dateConvert(item.deliver_date)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
+                        {i + 1}
+                      </td>
+                      <td>
+                        {
+                          <FaEye
+                            className="txt-color-theme txt-cursor pd-2"
+                            size="20"
+                            onClick={() => this.onView(item)}
+                          />
+                        }
+                      </td>
+                      <td>{item.id}</td>
+                      <td>{item.name}</td>
+                      <td>{item.userid}</td>
+                      <td>{item.phoneno}</td>
+                      <td className="table-cloumn-overflow">{item.email}</td>
+                      <td>{this.dateConvert(item.created_at)}</td>
+                      <td>{this.dateConvert(item.order_place_time)}</td>
+
+                      <td>{item.order_quantity}</td>
+                      <td>{item.sorted_quantity}</td>
+                      <td>{item.total_product_price}</td>
+                      <td>{this.dateConvert(item.date)}</td>
+                      <td>{item.slot_msg}</td>
+                      <td>{item.dayorderstatus_msg}</td>
+                      <td>
+                        {item.moveit_type === 1
+                          ? item.trip_id
+                          : item.moveit_type === null
+                          ? "-"
+                          : "Dunzo"}
+                      </td>
+                      <td>{this.dateConvert(item.deliver_date)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
             <div
               className="float-right"
