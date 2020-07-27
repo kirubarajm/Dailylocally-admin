@@ -1,7 +1,10 @@
 export const ASYNC_START = 'ASYNC_START';
 export const ASYNC_END = 'ASYNC_END';
 export const TOAST_SHOW = 'TOAST_SHOW';
+export const LOGIN_PAGE_UNLOADED = 'LOGIN_PAGE_UNLOADED';
 export const LOGIN = 'LOGIN';
+export const HOME_REDIRECT = 'HOME_REDIRECT';
+export const REDIRECT = 'REDIRECT';
 export const LOGOUT = 'LOGOUT';
 export const CATELOG_SELECTED_TAB='CATELOG_SELECTED_TAB';
 export const CATELOG_SELECTED_CAT='CATELOG_SELECTED_CAT';

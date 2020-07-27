@@ -193,6 +193,14 @@ class AddMoveitUserForm extends React.Component {
         this.setState({ dob: userData.dob });
       }
 
+      if(userData.zone){
+        var zone={
+          Zonename:userData.Zonename,
+          id:userData.zone
+        }
+        this.setState({zoneItem:zone});
+      }
+
       if (userData.licenseexpiry) {
         this.setState({ licenseExp: userData.licenseexpiry });
       }
@@ -270,6 +278,23 @@ class AddMoveitUserForm extends React.Component {
         this.props.onProofImageLoad(
           "legal_document",
           userData.contractdocument
+        );
+      }
+
+      if (userData.addressproofdocument) {
+        this.setState({
+          addressDocumentFile: [
+            {
+              name: userData.name,
+              preview: userData.addressproofdocument,
+              size: 0,
+              type: "image/jpeg",
+            },
+          ],
+        });
+        this.props.onProofImageLoad(
+          "address_document",
+          userData.addressproofdocument
         );
       }
 

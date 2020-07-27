@@ -67,10 +67,31 @@ export const getLoginTypeName = (login_type) => {
 };
 
 export const getLoginDetail = () => {
-  let token = window.localStorage.getItem("locally_login_detail") || false;
+  let token = window.localStorage.getItem("dl2admin_user_detail") || false;
   var loginDetail = null;
   if (token) {
     loginDetail = JSON.parse(token);
   }
   return loginDetail;
 };
+
+export const getLoginStatus = () => {
+  var status=0;
+  console.log("stststs--->",window.localStorage.getItem("dl2admin_login_status"));
+  status = window.localStorage.getItem("dl2admin_login_status")==="true"?1:0;
+  console.log("status--->",status);
+  return status;
+};
+
+
+export const onActionEnable =(key)=>{
+  let token = window.localStorage.getItem("dl2admin_user_detail") || false;
+  var login = 0;
+  if (token && key) {
+    login = JSON.parse(token);
+    var enable=login.logindetail[key] || 0;
+    return enable;
+  }
+  return 0 ;
+}
+

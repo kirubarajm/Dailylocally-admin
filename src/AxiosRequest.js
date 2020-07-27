@@ -58,6 +58,15 @@ const Auth = {
   save: (user) => requests.put("/user", { user }),
 };
 
+const Admin ={
+  login: (user) =>
+  requests.post('/login',user),
+  update: (user) =>
+  requests.put('/pushupdate',user),
+  logout: (user) =>
+  requests.post('/logout',user),
+}
+
 const Catelog = {
   getCategory: (data) => requests.post("/categorylist", data),
   getSubCate1: (data) => requests.post("/subcategoryl1list", data),
@@ -207,6 +216,7 @@ export default {
   Logistics,
   Moveit,
   MobileNumberVerify,
+  Admin,
   setToken: (_token) => {
     token = _token;
   },

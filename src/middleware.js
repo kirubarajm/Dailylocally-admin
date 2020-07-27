@@ -52,14 +52,14 @@ const promiseMiddleware = store => next => action => {
 const localStorageMiddleware = store => next => action => {
   if (action.type === LOGIN) {
     if (!action.error) {
-      window.localStorage.setItem('admin_login_status',action.payload.status);
-      window.localStorage.setItem('admin_user_detail',JSON.stringify({logindetail:action.payload.result[0]}));
-      AxiosRequest.setToken(action.payload.token);
+      window.localStorage.setItem('dl2admin_login_status',action.payload.status);
+      window.localStorage.setItem('dl2admin_user_detail',JSON.stringify({logindetail:action.payload.result[0]}));
+      //AxiosRequest.setToken(action.payload.token);
     }
   } else if (action.type === LOGOUT) {
-    window.localStorage.setItem('admin_login_status',false);
-    window.localStorage.setItem('admin_user_detail',JSON.stringify(''));
-    AxiosRequest.setToken(null);
+    window.localStorage.setItem('dl2admin_login_status',false);
+    window.localStorage.setItem('dl2admin_user_detail',JSON.stringify(''));
+    //AxiosRequest.setToken(null);
   } 
   next(action);
 };

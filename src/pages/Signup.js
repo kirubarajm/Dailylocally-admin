@@ -5,10 +5,19 @@ import { Field, reduxForm } from "redux-form";
 import { SIGN_UP_FORM } from "../utils/constant";
 import renderInputField from "../components/renderInputField";
 import { email, required } from "../utils/Validation";
+import { LOGIN,HOME_REDIRECT, LOGIN_PAGE_UNLOADED} from "../constants/actionTypes";
+import AxiosRequest from "../AxiosRequest";
 
 const mapStateToProps = (state) => ({ ...state.auth });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+  onSubmit: (data) =>
+  dispatch({ type: LOGIN,payload: AxiosRequest.Admin.login(data)}),
+  onRedirect: (redirectTo) =>
+  dispatch({ type: HOME_REDIRECT,redirectTo}),
+  onUnload: () =>
+    dispatch({ type: LOGIN_PAGE_UNLOADED }),
+});
 
 class Signup extends React.Component {
   UNSAFE_componentWillMount() {}
@@ -16,15 +25,24 @@ class Signup extends React.Component {
     this.submit = this.submit.bind(this);
   }
   UNSAFE_componentWillReceiveProps() {}
-  componentWillUnmount() {}
+  componentWillUnmount() {
+    this.props.onUnload();
+  }
 
   componentDidMount() {}
-  componentDidUpdate(nextProps, nextState) {}
+  componentDidUpdate(nextProps, nextState) {
+    if (this.props.loginsuccess&&this.props.isRedirect) {
+      this.props.onRedirect('/dashboard');
+    }
+  }
   componentDidCatch() {}
 
   submit = (values) => {
     console.log("values---", values);
-    this.props.history.push("/dashboard");
+    const push_token = window.localStorage.getItem("push_token");
+    if(push_token) values.push_token=push_token;
+      console.log("push_token-->"+push_token);
+    this.props.onSubmit(values);
   };
   render() {
     return (

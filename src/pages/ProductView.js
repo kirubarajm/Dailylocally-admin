@@ -165,6 +165,12 @@ class ProductView extends React.Component {
                     lable="Targeted Base Price"
                     value={productdetail.targetedbaseprice}
                   />
+
+<CardRowCol
+                    lable="Subscription"
+                    value={productdetail.subscription===1?"On":"Off"}
+                  />
+                  
                 </Col>
                 <Col lg="4">
                   <CardRowColImage

@@ -766,6 +766,7 @@ class Catalog extends React.Component {
                 <div className="cat-table">
                   {category_list.map((item, i) => (
                     <Row
+                    key={i}
                       className={
                         this.props.selected_cat.catid === item.catid
                           ? "cat-item-active"

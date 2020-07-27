@@ -97,6 +97,11 @@ class ViewMoveitUser extends React.Component {
         name: "Contact Document",
         proof_url: propdata.contractdocument,
       });
+      if (propdata.addressproofdocument)
+      proof.push({
+        name: "Address Document",
+        proof_url: propdata.addressproofdocument,
+      });
     return (
       
       <div className="pd-8">

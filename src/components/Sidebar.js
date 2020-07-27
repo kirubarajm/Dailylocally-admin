@@ -14,6 +14,7 @@ import {
 import bn from "../utils/bemnames";
 import { version } from "../../package.json";
 import { SidebarSuperAdmin,navBarSuperAdminItems } from "../utils/SidebarSuperAdmin";
+import { onActionEnable } from "../utils/ConstantFunction";
 const sidebarBackground = {
   backgroundImage: `url("${sidebarBgImage}")`,
   backgroundSize: "cover",
@@ -79,6 +80,7 @@ function NavItems(props) {
   return (
     <NavItem
       className={bem.e("nav-item")}
+      hidden={onActionEnable(props.enable_action)===0}
       onClick={props.handleColClick(props.name)}
     >
       <BSNavLink
@@ -162,7 +164,7 @@ class Sidebar extends React.Component {
 
           <Nav vertical>
             {navItems.map(
-              ({ to, name, exact, Icon, submenu, submenuItem }, index) => (
+              ({ to, name, exact, Icon, submenu, submenuItem,enable_action }, index) => (
                 <NavItems
                   key={index}
                   to={to}
@@ -171,6 +173,7 @@ class Sidebar extends React.Component {
                   Icon={Icon}
                   submenu={submenu}
                   submenuItem={submenuItem}
+                  enable_action={enable_action}
                   index={index}
                   handleClick={this.handleClick}
                   state={this.state}

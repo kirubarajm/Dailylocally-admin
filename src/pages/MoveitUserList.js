@@ -5,6 +5,8 @@ import PasswordShow from "../components/PasswordShow";
 import {
   MOVEIT_USERS_LIST,
   MOVEIT_USERS_FILTER,
+  ZONE_ITEM_REFRESH,
+  ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
@@ -17,6 +19,10 @@ import {
   Col,
   ButtonGroup,
   Button,
+  ButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
 import {
   FaMoneyBillAlt,
@@ -24,49 +30,94 @@ import {
   FaRegDotCircle,
   FaMapMarkedAlt,
 } from "react-icons/fa";
+import { store } from "../store";
 
-const mapStateToProps = (state) => ({ ...state.moveituserlist });
+const mapStateToProps = (state) => ({
+  ...state.moveituserlist,
+  zone_list: state.common.zone_list,
+});
 const mapDispatchToProps = (dispatch) => ({
   onGetUser: (data) =>
     dispatch({
       type: MOVEIT_USERS_LIST,
       payload: AxiosRequest.Moveit.getAll(data),
     }),
-  onSetFilter: (search, online_status) =>
-    dispatch({ type: MOVEIT_USERS_FILTER, search, online_status }),
+  onSetFilter: (search, online_status,item) =>
+    dispatch({ type: MOVEIT_USERS_FILTER, search, online_status,item }),
 });
 
 class MoveitUserList extends React.Component {
+  onSetZone(){
+    var zone=[];
+    zone.push({id:-1,Zonename:"All"});
+    for (let i = 0; i < this.props.zone_list.length; i++) {
+      zone.push(this.props.zone_list[i]);
+    }
+    this.setState({zone_list:zone});
+  }
   componentWillMount() {
-    this.onFiltersApply(this.props.search, this.props.online_status);
+    this.setState({ isOpenAreaDropDown: false,zone_list:[]});
+    this.onFiltersApply(
+      this.props.search,
+      this.props.online_status,
+      this.props.zoneItem
+    );
 
     this.onSearch = (e) => {
       // if (e.keyCode === 13 && e.shiftKey === false) {
       // e.preventDefault();
-      this.props.onSetFilter(e.target.value, this.props.online_status);
-      this.onFiltersApply(e.target.value, this.props.online_status);
+      this.props.onSetFilter(
+        e.target.value,
+        this.props.online_status,
+        this.props.zoneItem
+      );
+      this.onFiltersApply(
+        e.target.value,
+        this.props.online_status,
+        this.props.zoneItem
+      );
       //}
     };
     this.filterUser = this.filterUser.bind(this);
     this.onNavigateToMap = this.onNavigateToMap.bind(this);
   }
-  onFiltersApply(search, online_status) {
+  clickArea = (item) => {
+    this.props.onSetFilter(this.props.search, this.props.online_status, item);
+    this.onFiltersApply(this.props.search, this.props.online_status, item);
+  };
+
+  componentDidUpdate(nextProps, nextState) {
+    if (this.props.zone_list.length > 0 && this.state.zone_list.length===0) {
+      this.onSetZone();
+    }
+    
+  }
+  onFiltersApply(search, online_status, zone) {
     var filter = {
       moveit_search: search,
-      zoneid: 1,
     };
-   if(online_status!==-1) filter.livestatus=""+online_status;
+
+    if (zone.id!== -1) {
+      filter.zoneid = zone.id;
+    }
+
+    if (online_status !== -1) filter.livestatus = "" + online_status;
     this.props.onGetUser(filter);
   }
   filterUser(id) {
-    this.props.onSetFilter(this.props.search, id);
-    this.onFiltersApply(this.props.search, id);
+    this.props.onSetFilter(this.props.search, id, this.props.zoneItem);
+    this.onFiltersApply(this.props.search, id, this.props.zoneItem);
   }
   onNavigateToMap = () => {
     this.props.history.push("/moveit-current-location");
     //this.props.history.push('/zone-draw')
   };
 
+  toggleAreaDropDown = () => {
+    this.setState((prevState) => ({
+      isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
+    }));
+  };
   render() {
     const moveituserlist = this.props.moveituserlist || [];
     const online_status = this.props.online_status;
@@ -74,50 +125,79 @@ class MoveitUserList extends React.Component {
       <div className="pd-8">
         <Card>
           <CardHeader>
-            Drivers
-            <Row className="float-right">
-              {/* <Col><FaMapMarkedAlt className='makeit-view-map-icon' onClick={()=>this.onNavigateToMap()}/></Col>
-               */}
-              <Col className="txt-align-right">
-                <ButtonGroup size="sm" className="mr-r-10">
-                  <Button
-                    color="primary"
-                    onClick={() => this.filterUser(-1)}
-                    active={online_status === -1}
-                  >
-                    All
-                  </Button>
-                  <Button
-                    color="primary"
-                    onClick={() => this.filterUser(1)}
-                    active={online_status === 1}
-                  >
-                    Live
-                  </Button>
-                  <Button
-                    color="primary"
-                    onClick={() => this.filterUser(0)}
-                    active={online_status === 0}
-                  >
-                    Unlive
-                  </Button>
-                  {/* <Button
+            <Row>
+              <Col lg="1">Drivers</Col>
+              <Col>
+                <Row className="float-right">
+                  <Col className="txt-align-right pd-0">
+                    <ButtonGroup size="sm" className="mr-r-10">
+                      <Button
+                        color="primary"
+                        onClick={() => this.filterUser(-1)}
+                        active={online_status === -1}
+                      >
+                        All
+                      </Button>
+                      <Button
+                        color="primary"
+                        onClick={() => this.filterUser(1)}
+                        active={online_status === 1}
+                      >
+                        Live
+                      </Button>
+                      <Button
+                        color="primary"
+                        onClick={() => this.filterUser(0)}
+                        active={online_status === 0}
+                      >
+                        Unlive
+                      </Button>
+                      {/* <Button
                     color="primary"
                     onClick={()=>this.filterUser(-2)}
                     active={online_status === -2}
                   >
                     Inorders
                   </Button> */}
-                </ButtonGroup>
-                <Link to={`/moveit-add`} className="preview-link">
-                  <Button size="sm">Driver add</Button>
-                </Link>
-              </Col>
-              <Col>
-                <SearchInput
-                  onSearch={this.onSearch}
-                  value={this.props.search}
-                />
+                    </ButtonGroup>
+                    <Link to={`/moveit-add`} className="preview-link">
+                      <Button size="sm">Driver add</Button>
+                    </Link>
+                  </Col>
+                  <Col className="txt-align-right pd-0">
+                    <div className="flex-row">
+                      <div className="width-200 mr-r-10 mr-l-10">
+                        <SearchInput
+                          onSearch={this.onSearch}
+                          value={this.props.search}
+                        />
+                      </div>
+                      <div className="mr-r-10 width-120">
+                        <span className="mr-r-20">Zone</span>
+                        <ButtonDropdown
+                          className="max-height-30"
+                          isOpen={this.state.isOpenAreaDropDown}
+                          toggle={this.toggleAreaDropDown}
+                          size="sm"
+                        >
+                          <DropdownToggle caret>
+                            {this.props.zoneItem.Zonename || ""}
+                          </DropdownToggle>
+                          <DropdownMenu>
+                            {this.state.zone_list.map((item, index) => (
+                              <DropdownItem
+                                onClick={() => this.clickArea(item)}
+                                key={index}
+                              >
+                                {item.Zonename}
+                              </DropdownItem>
+                            ))}
+                          </DropdownMenu>
+                        </ButtonDropdown>
+                      </div>
+                    </div>
+                  </Col>
+                </Row>
               </Col>
             </Row>
           </CardHeader>
