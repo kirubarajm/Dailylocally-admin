@@ -29,7 +29,7 @@ import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import SearchItem from "../components/SearchItem";
 import { store } from "../store";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -240,7 +240,7 @@ class Receiving extends React.Component {
   confirmTo = () => {
     var dData = {};
     dData.zoneid = this.props.zoneItem.id;
-    dData.done_by=1;
+    dData.done_by=getAdminId();
     dData.popid = this.state.selectedItem.popid;
     this.props.onItemMovetoSorting(dData);
     this.toggleConfirmPopup();
@@ -293,7 +293,7 @@ class Receiving extends React.Component {
     var data1 = {
       zoneid: this.props.zoneItem.id,
       popid: this.state.selectedItem.popid,
-      done_by:1
+      done_by:getAdminId(),
     };
       data1.vpid = this.state.selectedItem.vpid;
       data1.quantity = data.item_quantity;

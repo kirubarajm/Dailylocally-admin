@@ -25,7 +25,7 @@ import AxiosRequest from "../AxiosRequest";
 import { store } from "../store";
 import Search from "../components/Search";
 import Select from "react-dropdown-select";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
@@ -248,7 +248,7 @@ class RefundApproval extends React.Component {
       amount: this.state.actionitem.refund_amt,
       paymentid: this.state.actionitem.payment_id,
       active_status: this.state.dropitem.id,
-      done_by: 1,
+      done_by: getAdminId(),
     };
     this.toggleActionPopUp();
     this.props.onPostRepayment(data);

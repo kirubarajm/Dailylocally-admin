@@ -6,6 +6,7 @@ import { Row, Col, Button } from "reactstrap";
 import { required } from "../utils/Validation";
 import AxiosRequest from "../AxiosRequest";
 import { EDIT_PRODUCT_VENDOR, CLEAR_PRODUCT_VENDOR } from "../constants/actionTypes";
+import { getAdminId } from "../utils/ConstantFunction";
 const mapStateToProps = (state) => ({ ...state.vendoredit,
   zoneItem: state.catalog.zoneItem });
 
@@ -115,7 +116,7 @@ class VendorEdit extends React.Component {
       data.vid=vendor.vendorid;
       data.base_price= fdata.base_price;
       data.other_charges= fdata.other_charges;
-      data.done_by=1;
+      data.done_by=getAdminId();
       data.zoneid=this.props.zoneItem.id
       this.props.onEditVentorDetails(data);
     }

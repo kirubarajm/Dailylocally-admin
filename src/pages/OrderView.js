@@ -1,8 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { FaDownload } from "react-icons/fa";
-import { MentionsInput, Mention } from "react-mentions";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import {
   TRACK_ORDER_VIEW,
   ORDER_CANCEL_REASON,
@@ -21,6 +20,7 @@ import {
   TRANSACTION_VIEW,
   ORDER_REFUNDORDER_REASON,
   POST_REFUND_ORDER,
+  TRACK_ADMIN_USERS,
 } from "../constants/actionTypes";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import AxiosRequest from "../AxiosRequest";
@@ -121,6 +121,11 @@ const InputField = ({
 const mapStateToProps = (state) => ({ ...state.orderview });
 
 const mapDispatchToProps = (dispatch) => ({
+  onGetAdminUserList: (data) =>
+    dispatch({
+      type: TRACK_ADMIN_USERS,
+      payload: AxiosRequest.Admin.getuserlist(data),
+    }),
   onGetOrdersDetail: (data) =>
     dispatch({
       type: TRACK_ORDER_VIEW,
@@ -264,6 +269,8 @@ class OrderView extends React.Component {
       isReturnorderReasonModal: false,
       isImageModal: false,
       isRefundorderModal: false,
+      mentionData:false,
+      plainComment:false,
       users: [
         {
           id: 1,
@@ -296,6 +303,7 @@ class OrderView extends React.Component {
   UNSAFE_componentWillMount() {
     this.setState({ orderid: this.props.match.params.id });
     this.getOrderDetail();
+    this.props.onGetAdminUserList({});
     this.onCollapseOrderDetail = this.onCollapseOrderDetail.bind(this);
     this.onCollapseProductDetail = this.onCollapseProductDetail.bind(this);
     this.onCollapseDriverDetail = this.onCollapseDriverDetail.bind(this);
@@ -504,7 +512,7 @@ class OrderView extends React.Component {
         userid: orderview.userid,
         doid: orderview.id,
         issues: this.state.zendeskReasonItem,
-        done_by: 1,
+        done_by:getAdminId(),
       };
       console.log("data-->", data);
       //this.toggleZendeskModal();
@@ -524,7 +532,7 @@ class OrderView extends React.Component {
       var data = {
         doid: orderview.id,
         return_reason: this.state.returnorderItem.reason,
-        done_by: 1,
+        done_by:getAdminId(),
       };
       this.props.onPostReturnOrder(data);
     }
@@ -559,7 +567,7 @@ class OrderView extends React.Component {
         doid: orderview.id,
         zoneid: orderview.zoneid,
         reorder_reason: this.state.reorderItem.reason,
-        done_by: 1,
+        done_by:getAdminId(),
         date: Moment("" + this.state.reorderdate, "DD-MM-YYYY").format(
           "YYYY-MM-DD"
         ),
@@ -602,7 +610,7 @@ class OrderView extends React.Component {
         doid: orderview.id,
         zoneid: orderview.zoneid,
         refund_reason: this.state.refundorderItem.reason,
-        done_by: 1,
+        done_by:getAdminId(),
       };
       if (this.props.ProofImage.length > 0) {
         data.refund_image = this.props.ProofImage[0].img_url;
@@ -633,7 +641,7 @@ class OrderView extends React.Component {
     var data = {
       message: value.message,
       phoneno: orderview.phoneno,
-      done_by: 1,
+      done_by:getAdminId(),
     };
     this.props.onPostMessageToCustomer(data);
   };
@@ -755,51 +763,12 @@ class OrderView extends React.Component {
     else return " - ";
   }
 
-  saveComment = () => {
-    let newComment = this.state.comment;
-    newComment = newComment.split("@@@__").join("<a href='/user/");
-    newComment = newComment.split("^^__").join("'>");
-    newComment = newComment.split("@@@^^^").join("</a>");
-    if (newComment != "") {
-      let comment = newComment.trim();
-      console.log("Comments--->", comment);
-      notify.show(comment, "custom", 5000, notification_color);
-      //Call to your DataBase like
-      //backendModule.saveComment(comment,  along_with_other_params);
-      // this.setState({
-      //   comment: "",
-      // });
-    }
-  };
-
   render() {
     const propdata = this.props.orderview;
     const driverdata = propdata.moveitdetail || false;
     const cartItems = propdata.Products || [];
     return (
       <div className="pd-15">
-        <div className="flex-row" hidden={this.state.orderid !== "25"}>
-          <MentionsInput
-            style={{ width: "80%" }}
-            className="comments-textarea"
-            value={this.state.comment}
-            onChange={(event) => this.setState({ comment: event.target.value })}
-          >
-            <Mention
-              trigger="@"
-              displayTransform={this.handleDisplayTextForMention}
-              data={this.state.users}
-              style={{
-                backgroundColor: "#daf4fa",
-              }}
-              markup="@@@____id__^^____display__@@@^^^"
-            />
-          </MentionsInput>
-          <Button className="btn btn-us" onClick={() => this.saveComment()}>
-            Submit
-          </Button>
-        </div>
-
         <Row>
           <Col></Col>
           <Col>
@@ -1182,7 +1151,7 @@ class OrderView extends React.Component {
                         Created By -{item.name}-{item.usertype}
                       </div>
                       <div className="mr-r-10">{item.comments}</div>
-                      <div>
+                      <div hidden={!item.Img1}>
                         <Button
                           size="sm"
                           color="link"
@@ -1199,13 +1168,14 @@ class OrderView extends React.Component {
             </Col>
           </Row>
         </Collapse>
-
-        <Row className="mr-lr-10 mr-b-20 mr-t-20" hidden={onActionHidden("crm_comment_box")}>
-          <Col className="border-block pd-5">
+        {/* hidden={onActionHidden("crm_comment_box")} */}
+        <Row className="mr-lr-10 mr-b-20 mr-t-20" >
+          <Col className="border-block pd-0">
             <CommentEditBox
               dayorderdata={propdata}
+              adminuserlist={this.props.adminuserlist}
               update={this.OnCommentUpdate}
-            />{" "}
+            />
           </Col>
         </Row>
 

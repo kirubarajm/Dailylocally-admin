@@ -32,7 +32,7 @@ import {
 import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.qapage,
@@ -268,7 +268,7 @@ class QAPage extends React.Component {
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
     data.zoneid= this.props.zoneItem.id;
-    data.done_by=1;
+    data.done_by=getAdminId();
     this.props.onSubmitQAOrders(data);
   };
 
@@ -278,7 +278,7 @@ class QAPage extends React.Component {
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
     data.zoneid= this.props.zoneItem.id;
-    data.done_by=1;
+    data.done_by=getAdminId();
     this.props.onSubmitQAOrders(data);
   };
   orderDate = (event, picker) => {
@@ -340,7 +340,7 @@ class QAPage extends React.Component {
     var data = {
       from_type: 2,
       zoneid: this.props.zoneItem.id,
-      done_by:1,
+      done_by:getAdminId(),
       dopid: this.state.reportingSortingItem.dopid,
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,

@@ -27,6 +27,7 @@ import {
   STOCK_UPDATE_PRODUCT_STOCK,
 } from "../constants/actionTypes";
 import StockAddFrom from "./StockAddFrom";
+import { getAdminId } from "../utils/ConstantFunction";
 
 
 
@@ -146,7 +147,7 @@ class StockKeepingAdd extends React.Component {
   submit = (data) => {
     var data1 = {
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by:getAdminId()
     };
     data1.stockid = this.state.selectedItem.stockid;
     data1.vpid = this.state.selectedItem.vpid;

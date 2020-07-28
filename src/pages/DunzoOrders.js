@@ -21,7 +21,7 @@ import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import Searchnew from "../components/Searchnew";
 import AxiosRequest from "../AxiosRequest";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import { store } from "../store";
 import {
   ZONE_ITEM_REFRESH,
@@ -191,7 +191,7 @@ class DunzoOrders extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
       doid: Values,
-      done_by: 1,
+      done_by:getAdminId(),
     };
     this.toggleDunzoPopUp();
     if (this.state.actionItem.id === 1) {
@@ -374,7 +374,7 @@ class DunzoOrders extends React.Component {
       var data = {
         doid: this.state.returnItem.id,
         return_reason: this.state.returnorderItem.rid,
-        done_by: 1,
+        done_by:getAdminId(),
       };
       this.props.onPostReturnOrder(data);
     }

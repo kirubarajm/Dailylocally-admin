@@ -31,7 +31,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 const InputField = ({
   input,
   label,
@@ -229,7 +229,7 @@ class Sorting extends React.Component {
       var data = {
         dopid_list: Values,
         zoneid: this.props.zoneItem.id,
-        done_by:1
+        done_by:getAdminId()
       };
       this.props.onSaving(data);
     } else {
@@ -258,7 +258,7 @@ class Sorting extends React.Component {
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,
       report_type: this.state.reportingItem.id,
-      done_by:1
+      done_by:getAdminId()
     };
     console.log("data-->", data);
     this.props.onReportSubmit(data);
@@ -271,7 +271,7 @@ class Sorting extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
         dopid_list: Values,
-        done_by:1
+        done_by:getAdminId()
       };
       this.props.onSubmit(data);
     } else {

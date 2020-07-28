@@ -16,6 +16,7 @@ import {
   TRANSACTION_VIEW,
   ORDER_REFUNDORDER_REASON,
   POST_REFUND_ORDER,
+  TRACK_ADMIN_USERS
 } from "../constants/actionTypes";
 
 export default (
@@ -29,6 +30,7 @@ export default (
       { id: 6, name: "Send Message to customer" },
       { id: 7, name: "Raise Ticket" },
     ],
+    adminuserlist:[],
     cancelList: [],
     reorderList: [],
     refundorderList: [],
@@ -46,6 +48,12 @@ export default (
   action
 ) => {
   switch (action.type) {
+    
+    case TRACK_ADMIN_USERS:
+      return {
+        ...state,
+        adminuserlist: action.payload.result || [],
+      };
     case TRACK_ORDER_VIEW:
       return {
         ...state,

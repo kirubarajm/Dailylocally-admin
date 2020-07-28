@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import {
   Row,
   Col,
@@ -283,7 +283,7 @@ class LogisticsOrders extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
       doid: doid,
-      done_by: 1,
+      done_by:getAdminId(),
     };
     this.toggleDunzoPopUp();
     this.props.onPostDunzoAssign(data);
@@ -307,7 +307,7 @@ class LogisticsOrders extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
         doid: Values,
-        done_by: 1,
+        done_by:getAdminId(),
         moveit_id: this.state.select_driver[0].userid,
         trip_id: this.state.select_driver[0].tripid,
       };
@@ -554,7 +554,7 @@ class LogisticsOrders extends React.Component {
       zoneid: this.props.zoneItem.id,
       doid: this.state.check_item.id,
       qa_checklist: this.state.qa_checklist,
-      done_by: 1,
+      done_by:getAdminId(),
     };
     console.log("data-->", data);
     this.props.onPostQACheckList(data);

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Field, reduxForm } from "redux-form";
-import { SEARCH_ITEM, SEARCH_TRIP } from "../utils/constant";
+import { SEARCH_TRIP } from "../utils/constant";
 const searchInputField = ({
   input,
   placeholder,

@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { FaEye, FaRegEdit, FaTrashAlt } from "react-icons/fa";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import {
   Row,
   Col,
@@ -392,7 +392,7 @@ class StockKeeping extends React.Component {
     var dData = {};
     dData.zoneid = this.props.zoneItem.id;
     dData.skid = this.state.select_item.skid;
-    dData.done_by = 1;
+    dData.done_by = getAdminId();
     this.props.onGetDeleteStock(dData);
     this.toggleConfirmPopup();
   };
@@ -404,7 +404,7 @@ class StockKeeping extends React.Component {
       vpid: this.state.selectedItem.vpid,
       quantity: data.item_quantity,
       delivery_note: data.delivery_note,
-      done_by: 1,
+      done_by: getAdminId(),
     };
     if (this.state.receivingSelection.length > 0) {
       data1.action_id = this.state.receivingSelection[0].id;

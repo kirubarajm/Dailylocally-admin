@@ -29,7 +29,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import { store } from "../store";
-import { getPoStatus } from "../utils/ConstantFunction";
+import { getPoStatus, getAdminId } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.po,
@@ -244,7 +244,7 @@ class Po extends React.Component {
     var dData = {};
     dData.zoneid = this.props.zoneItem.id;
     dData.poid = this.state.select_item.poid;
-    dData.done_by= 1;
+    dData.done_by= getAdminId();
     
     if (this.state.isDelete) {
       this.props.onGetDeletePO(dData);

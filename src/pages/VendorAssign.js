@@ -39,7 +39,7 @@ import { Field, reduxForm, reset } from "redux-form";
 import Select from "react-dropdown-select";
 import { required, minLength2 } from "../utils/Validation";
 import { store } from "../store";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 
 const InputField = ({
   input,
@@ -368,7 +368,7 @@ class VendorAssign extends React.Component {
     var dData = {};
     dData.zoneid = this.props.zoneItem.id || 1;
     dData.temppoid = this.state.select_item.tempid;
-    dData.done_by = 1;
+    dData.done_by = getAdminId();
     this.props.onGetDeleteItem(dData);
     this.toggleDConfirmPopup();
   };
@@ -398,7 +398,7 @@ class VendorAssign extends React.Component {
     var item = {
       zoneid: this.props.zoneItem.id,
       templist: this.state.sPoList,
-      done_by: 1,
+      done_by: getAdminId(),
     };
     this.props.onCreatePo(item);
   };
@@ -476,7 +476,7 @@ class VendorAssign extends React.Component {
       due_date: this.state.startdate,
       vid: this.state.suplier[0].vid,
       tempid: Values,
-      done_by: 1,
+      done_by: getAdminId(),
     };
     this.props.onUpdateVendorList(data);
     this.toggleAddVendorPopUp();
@@ -497,7 +497,7 @@ class VendorAssign extends React.Component {
       this.props.onEditPOQuantity({
         zoneid: this.props.zoneItem.id,
         tempid: tem,
-        done_by: 1,
+        done_by: getAdminId(),
         requested_quantity: item.editquantity || 0,
       });
     } else {

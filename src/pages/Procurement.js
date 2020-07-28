@@ -25,7 +25,7 @@ import {
   ZONE_ITEM_REFRESH,
   MOVE_TO_PO_STOCK,
 } from "../constants/actionTypes";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.procurement,
@@ -184,7 +184,7 @@ class Procurement extends React.Component {
     this.props.onCreatePo({
       pridlist: Values,
       zoneid: this.props.zoneItem.id,
-      done_by: 1,
+      done_by:getAdminId(),
     });
   };
 
@@ -193,12 +193,12 @@ class Procurement extends React.Component {
     if (this.state.isAutoStock) {
       this.props.onMovetoStock({
         zoneid: this.props.zoneItem.id,
-        done_by: 1,
+        done_by:getAdminId(),
       });
     } else {
       this.props.onRemovePr({
         zoneid: this.props.zoneItem.id,
-        done_by: 1,
+        done_by:getAdminId(),
       });
     }
   };

@@ -23,6 +23,7 @@ import { Field, reduxForm, reset } from "redux-form";
 import { required } from "../utils/Validation";
 import { STOCK_ADD_FORM } from "../utils/constant";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
+import { getAdminId } from "../utils/ConstantFunction";
 
 const InputField = ({
   input,
@@ -205,7 +206,7 @@ class StockAddFrom extends React.Component {
     }
     var data1 = {
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by:getAdminId()
     };
     data1.actual_quantity = data.actual;
     data1.missing_quantity = data.missing;

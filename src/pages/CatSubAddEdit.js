@@ -25,6 +25,7 @@ import { Field, reduxForm } from "redux-form";
 import { required, minLength2, requiredTrim } from "../utils/Validation";
 import Select from "react-dropdown-select";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
+import { getAdminId } from "../utils/ConstantFunction";
 // import { Button} from 'react-bootstrap';
 
 const InputSearchDropDown = ({
@@ -251,7 +252,7 @@ class CatSubAddEdit extends React.Component {
       this.props.onGetSubCat1({
         catid: this.props.selected_cat.catid,
         zoneid: this.props.zoneItem.id,
-        done_by:1
+        done_by:getAdminId(),
       });
       var catadd = [
         {
@@ -303,7 +304,7 @@ class CatSubAddEdit extends React.Component {
       var editCat = {
         name: data.categoryname,
         catid: this.props.edit_cat_item.catid,
-        done_by:1,
+        done_by:getAdminId(),
         zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
@@ -330,7 +331,7 @@ class CatSubAddEdit extends React.Component {
       }
       var addCat = {
         name: data.categoryname,
-        done_by:1,
+        done_by:getAdminId(),
         zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
@@ -356,7 +357,7 @@ class CatSubAddEdit extends React.Component {
         catid: this.state.category[0].catid,
         scl1_id: this.props.edit_cat_sub1_item.scl1_id,
         name: data.l1scname,
-        done_by:1,
+        done_by:getAdminId(),
         zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
@@ -377,7 +378,7 @@ class CatSubAddEdit extends React.Component {
       var addL1Cat = {
         catid: this.state.category[0].catid,
         name: data.l1scname,
-        done_by:1,
+        done_by:getAdminId(),
         zoneid: this.props.zoneItem.id,
         image:
           this.props.Signature.length === 0
@@ -391,7 +392,7 @@ class CatSubAddEdit extends React.Component {
         scl2_id: this.props.edit_cat_sub2_item.scl2_id,
         name: data.l2scname,
         zoneid: this.props.zoneItem.id,
-        done_by:1,
+        done_by:getAdminId(),
       };
       this.props.OnEditL2Category(editL2Cat);
     } else if (this.props.isSubCat2 && !this.props.isEdit) {
@@ -399,7 +400,7 @@ class CatSubAddEdit extends React.Component {
         scl1_id: this.state.sub1Cat[0].scl1_id,
         name: data.l2scname,
         zoneid: this.props.zoneItem.id,
-        done_by:1,
+        done_by:getAdminId(),
       };
       this.props.OnAddL2Category(addL2Cat);
     }
@@ -409,7 +410,7 @@ class CatSubAddEdit extends React.Component {
     this.props.onGetSubCat1({
       catid: item[0].catid,
       zoneid: this.props.zoneItem.id,
-      done_by:1
+      done_by:getAdminId(),
     });
   }
   selectedSub1Cat(item) {

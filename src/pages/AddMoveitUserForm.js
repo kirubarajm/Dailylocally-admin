@@ -1,6 +1,5 @@
 import React from "react";
 import { Field, reduxForm } from "redux-form";
-import renderInputField from "../components/renderInputField";
 import InputForMobile from "../components/InputForMobile";
 import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
 import AxiosRequest from "../AxiosRequest";
@@ -12,10 +11,7 @@ import {
   minLength2,
   phoneNumber,
   alphaNumeric,
-  aol,
-  email,
   passwordValidate,
-  minLength5,
   imageIsRequired,
 } from "../utils/Validation";
 import { MOVEIT_REGISTRATION_FORM } from "../utils/constant";
@@ -105,9 +101,7 @@ class AddMoveitUserForm extends React.Component {
   };
   componentWillMount() {
     var userid = this.props.match.params.userid;
-    var edit = false;
     if (userid) {
-      edit = true;
       this.setState({ userid: userid, Edit: true });
       this.props.onGetUser({ userid: userid });
     }

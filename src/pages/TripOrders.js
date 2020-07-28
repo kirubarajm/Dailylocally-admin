@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
 import {
   Row,
@@ -223,7 +223,7 @@ class TripOrders extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
       doid: Values,
-      done_by: 1,
+      done_by: getAdminId(),
     };
     this.toggleDunzoPopUp();
     if (this.state.actionItem.id === 1) {
@@ -426,7 +426,7 @@ class TripOrders extends React.Component {
       var data = {
         doid: this.state.returnItem.id,
         return_reason: this.state.returnorderItem.rid,
-        done_by: 1,
+        done_by: getAdminId(),
       };
       this.props.onPostReturnOrder(data);
     }

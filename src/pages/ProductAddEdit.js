@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import Moment from "moment";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
@@ -465,7 +465,7 @@ class ProductAddEdit extends React.Component {
     } else {
       data.image = "";
     }
-    data.done_by = 1;
+    data.done_by = getAdminId();
     data.zoneid = this.props.zoneItem.id;
     data.subscription=this.state.checkBoxVal;
     if (this.state.isEdit) {
@@ -500,7 +500,7 @@ class ProductAddEdit extends React.Component {
       venItem.price_agreement_approval = 1;
       venItem.base_price = data.base_price;
       venItem.other_charges = data.other_charges;
-      venItem.done_by = 1;
+      venItem.done_by = getAdminId();
       venItem.zoneid = this.props.zoneItem.id;
       vendor_details.push(venItem);
       data.vendor_details = vendor_details;

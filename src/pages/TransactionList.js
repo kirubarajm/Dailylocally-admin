@@ -8,7 +8,6 @@ import {
   Table,
   Button,
   Modal,
-  ModalHeader,
   ModalBody,
   ModalFooter,
 } from "reactstrap";
@@ -40,7 +39,6 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 const defultPage = 1;
-const pagelimit = 20;
 class TransactionList extends React.Component {
   constructor() {
     super();

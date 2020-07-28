@@ -9,10 +9,6 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  ButtonDropdown,
 } from "reactstrap";
 import {
   RETURN_LIST,
@@ -26,43 +22,11 @@ import {
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { notify } from "react-notify-toast";
-import { notification_color, RECEIVING_FORM } from "../utils/constant";
+import { notification_color} from "../utils/constant";
 import Search from "../components/Search";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import { store } from "../store";
-import { Field, reduxForm } from "redux-form";
-import { required } from "../utils/Validation";
-import { onActionHidden } from "../utils/ConstantFunction";
-const InputField = ({
-  input,
-  label,
-  type,
-  meta: { touched, error, warning },
-  ...custom
-  //
-}) => {
-  return (
-    <div className="border-none">
-      <div>
-        <input {...input} placeholder={label} type={type} autoComplete="off" />
-        <span
-          style={{
-            flex: "0",
-            WebkitFlex: "0",
-            width: "100px",
-            height: "10px",
-            fontSize: "12px",
-            color: "red",
-          }}
-        >
-          {touched &&
-            ((error && <span>{error}</span>) ||
-              (warning && <span>{warning}</span>))}
-        </span>
-      </div>
-    </div>
-  );
-};
+import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.returnpage,
@@ -248,7 +212,7 @@ class ReturnPage extends React.Component {
       var data = {
         dopid_list: Values,
         zoneid: this.props.zoneItem.id,
-        done_by: 1,
+        done_by: getAdminId(),
       };
       this.props.onSaving(data);
     } else {
@@ -277,7 +241,7 @@ class ReturnPage extends React.Component {
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,
       report_type: this.state.reportingItem.id,
-      done_by: 1,
+      done_by: getAdminId(),
     };
     console.log("data-->", data);
     this.props.onReportSubmit(data);
@@ -311,7 +275,7 @@ class ReturnPage extends React.Component {
     } else {
       var data = {
         zoneid: this.props.zoneItem.id,
-        done_by: 1,
+        done_by: getAdminId(),
         doid: this.state.selectedItem.doid,
         products: products,
       };
@@ -559,7 +523,7 @@ class ReturnPage extends React.Component {
   }
 }
 
-ReturnPage = reduxForm({
-  form: RECEIVING_FORM, // a unique identifier for this form
-})(ReturnPage);
+// ReturnPage = reduxForm({
+//   form: RECEIVING_FORM, // a unique identifier for this form
+// })(ReturnPage);
 export default connect(mapStateToProps, mapDispatchToProps)(ReturnPage);

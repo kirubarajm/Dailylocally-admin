@@ -1,13 +1,10 @@
 import React from "react";
 import AxiosRequest from "../AxiosRequest";
 import SearchInput from "../components/SearchInput";
-import PasswordShow from "../components/PasswordShow";
 import { onActionHidden } from "../utils/ConstantFunction";
 import {
   MOVEIT_USERS_LIST,
   MOVEIT_USERS_FILTER,
-  ZONE_ITEM_REFRESH,
-  ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
