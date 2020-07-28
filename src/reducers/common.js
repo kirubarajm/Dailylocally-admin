@@ -3,6 +3,7 @@ import {
   TOAST_SHOW,
   ZONE_SELECT_ITEM,
   ZONE_ITEM_REFRESH,
+  ADMIN_USER_DETAIL,
   HOME_REDIRECT,
   LOGOUT,
   REDIRECT,
@@ -11,7 +12,7 @@ import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 
 export default (
-  state = { zone_list: [], zoneItem: false, zoneRefresh: false },
+  state = { zone_list: [], zoneItem: false, zoneRefresh: false,userdetail:false },
   action
 ) => {
   switch (action.type) {
@@ -37,6 +38,11 @@ export default (
       return {
         ...state,
         redirectTo: action.redirectTo ? action.redirectTo : "/login",
+      };
+    case ADMIN_USER_DETAIL:
+      return {
+        ...state,
+        userdetail: action.payload.result[0]||false,
       };
     case LOGOUT:
       return { ...state, redirectTo: "/login", token: null, currentUser: null };

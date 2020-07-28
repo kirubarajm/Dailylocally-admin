@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import AxiosRequest from "../AxiosRequest";
 import SearchInput from "../components/SearchInput";
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   CATELOG_CATEGORY_LIST,
   CATELOG_SUBCATEGORY_L1_LIST,
@@ -675,7 +676,7 @@ class Catalog extends React.Component {
         <div className="pd-12">
           <Row>
             <Col>
-              <ButtonGroup size="sm">
+              <ButtonGroup size="sm" hidden={onActionHidden('catview')}>
                 <Button
                   color="primary"
                   onClick={() => this.onCatlogTabClick(0)}
@@ -752,6 +753,7 @@ class Catalog extends React.Component {
                   >
                     <Button
                       size="sm"
+                      hidden={onActionHidden('catadd_product')}
                       disabled={!this.state.areaItem}
                       onClick={() => this.catAddEditClick(false)}
                     >
@@ -776,32 +778,18 @@ class Catalog extends React.Component {
                     >
                       <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
-                        {/* <Button
-                            size="sm"
-                            className="bg-color-green btn-live"
-                            hidden={item.active_status === 0}
-                            onClick={() => this.Onlive(item, i, 1)}
-                          >
-                            Live
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-color-red btn-unlive"
-                            hidden={item.active_status === 1}
-                            onClick={() => this.Onlive(item, i, 1)}
-                          >
-                            Unlive
-                          </Button> */}
                         <div hidden={this.props.catalog_tab_type === 1}>
                           <SwitchButtonCommon
+                            hidden={onActionHidden('catlive_unlive')}
                             checked={item.active_status === 0 ? false : true}
                             handleClick={this.OnClickSwitch()}
                             handleSwitchChange={this.Onlive(item, i, 1)}
-                          ></SwitchButtonCommon>{" "}
+                          ></SwitchButtonCommon>
                         </div>
                         <div hidden={this.props.catalog_tab_type === 0}>
                           <Button
                             size="sm"
+                            hidden={onActionHidden('catedit_product')}
                             className="bg-color-red btn-edit"
                             onClick={() => this.catAddEditClick(true, item)}
                           >
@@ -828,6 +816,7 @@ class Catalog extends React.Component {
                   >
                     <Button
                       size="sm"
+                      hidden={onActionHidden('catadd_product')}
                       onClick={() => this.sub1catAddEditClick(false)}
                     >
                       Add New{" "}
@@ -851,23 +840,9 @@ class Catalog extends React.Component {
                       <Col lg="7">{item.name}</Col>
                       <Col lg="4" className="txt-align-right pd-0 mr-r-5">
                         <div hidden={this.props.catalog_tab_type === 1}>
-                          {/* <Button
-                            size="sm"
-                            className="bg-color-green btn-live"
-                            hidden={item.active_status === 0}
-                            onClick={() => this.Onlive(item, i, 2)}
-                          >
-                            Live
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-color-red btn-unlive"
-                            hidden={item.active_status === 1}
-                            onClick={() => this.Onlive(item, i, 2)}
-                          >
-                            Unlive
-                          </Button> */}
+                         
                           <SwitchButtonCommon
+                          hidden={onActionHidden('catlive_unlive')}
                             checked={item.active_status === 0 ? false : true}
                             handleSwitchChange={this.Onlive(item, i, 2)}
                           ></SwitchButtonCommon>
@@ -876,6 +851,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-red btn-edit"
+                            hidden={onActionHidden('catedit_product')}
                             onClick={() => this.sub1catAddEditClick(true, item)}
                           >
                             Edit
@@ -901,6 +877,7 @@ class Catalog extends React.Component {
                   >
                     <Button
                       size="sm"
+                      hidden={onActionHidden('catadd_product')}
                       onClick={() => this.sub2catAddEditClick(false)}
                     >
                       Add New{" "}
@@ -928,23 +905,8 @@ class Catalog extends React.Component {
                         hidden={item.scl2_id === 0}
                       >
                         <div hidden={this.props.catalog_tab_type === 1}>
-                          {/* <Button
-                            size="sm"
-                            className="bg-color-green btn-live"
-                            hidden={item.active_status === 0}
-                            onClick={() => this.Onlive(item, i, 3)}
-                          >
-                            Live
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-color-red btn-unlive"
-                            hidden={item.active_status === 1}
-                            onClick={() => this.Onlive(item, i, 3)}
-                          >
-                            Unlive
-                          </Button> */}
                           <SwitchButtonCommon
+                          hidden={onActionHidden('catlive_unlive')}
                             checked={item.active_status === 0 ? false : true}
                             handleSwitchChange={this.Onlive(item, i, 3)}
                           ></SwitchButtonCommon>
@@ -953,6 +915,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             className="bg-color-red btn-edit"
+                            hidden={onActionHidden('catedit_product')}
                             onClick={() => this.sub2catAddEditClick(true, item)}
                           >
                             Edit
@@ -977,10 +940,10 @@ class Catalog extends React.Component {
                     hidden={this.props.catalog_tab_type === 0}
                   >
                     <Link to={`/product_add`}>
-                      <Button size="sm" onClick={this.productClick}>
-                        Add New{" "}
+                      <Button size="sm" onClick={this.productClick}
+                      hidden={onActionHidden('catadd_product')}>
+                        Add New
                         <span className="vertical-align-center">
-                          {" "}
                           <FaPlusCircle size={12} />
                         </span>
                       </Button>
@@ -1001,6 +964,7 @@ class Catalog extends React.Component {
                           <Button
                             size="sm"
                             color="link"
+                            hidden={onActionHidden('catdelete_product')}
                             onClick={() => this.onDelete(item)}
                           >
                             <FaTrashAlt size="16" />
@@ -1016,27 +980,12 @@ class Catalog extends React.Component {
                             </Button>
                           </Link>
                             <SwitchButtonCommon
+                            hidden={onActionHidden('catlive_unlive')}
                               checked={item.live_status === "0" ? false : true}
                               className="mr-r-10 mr-t-10"
                               handleSwitchChange={this.Onlive(item, i, 4)}
                             ></SwitchButtonCommon>
                         </div>
-                        {/* <Button
-                            size="sm"
-                            className="bg-color-green btn-live"
-                            hidden={item.live_status ==="0"}
-                            onClick={() => this.Onlive(item, i, 4)}
-                          >
-                            Live
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-color-red btn-unlive"
-                            hidden={item.live_status ==="1"}
-                            onClick={() => this.Onlive(item, i, 4)}
-                          >
-                            Unlive
-                          </Button> */}
                         <div hidden={this.props.catalog_tab_type === 0}>
                           <Link to={`/product_view/${item.pid}`}>
                             <Button
@@ -1049,6 +998,7 @@ class Catalog extends React.Component {
                           <Link to={`/product_edit/${item.pid}`}>
                             <Button
                               size="sm"
+                              hidden={onActionHidden('catedit_product')}
                               className="bg-color-red btn-edit"
                               onClick={this.productClick}
                             >

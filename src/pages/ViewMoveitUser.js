@@ -13,6 +13,7 @@ import {
   NavItem,
   NavLink,
 } from "reactstrap";
+import { onActionHidden } from "../utils/ConstantFunction";
 import { FaEdit, FaPowerOff } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { history } from "../store";
@@ -43,13 +44,13 @@ function EnableDisableToggle(props) {
   //login_status 1- login,2-logout,3-forace logout.
   if (props.login_status === 1 || props.login_status === 2) {
     return (
-      <Button className="mr-r-10" onClick={props.forceLogout} size="sm">
+      <Button className="mr-r-10" onClick={props.forceLogout} size="sm" hidden={onActionHidden('driver_disable')}>
         Disable
       </Button>
     );
   } else if (props.login_status === 3) {
     return (
-      <Button className="mr-r-10" onClick={props.forceLogout} size="sm">
+      <Button className="mr-r-10" onClick={props.forceLogout} size="sm" hidden={onActionHidden('driver_disable')}>
         Enable
       </Button>
     );
@@ -113,7 +114,7 @@ class ViewMoveitUser extends React.Component {
                 to={`/moveit-edit/${propdata.userid}`}
                 className="preview-link"
               >
-                <Button color="link">
+                <Button color="link" hidden={onActionHidden('driver_edit')}>
                   <FaEdit size={22} />
                 </Button>
               </Link>

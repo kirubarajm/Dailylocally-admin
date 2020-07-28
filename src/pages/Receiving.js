@@ -29,6 +29,7 @@ import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import SearchItem from "../components/SearchItem";
 import { store } from "../store";
+import { onActionHidden } from "../utils/ConstantFunction";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -462,7 +463,7 @@ class Receiving extends React.Component {
                         <td>
                           <Button
                             className="btn-custom"
-                            disabled={item.received_quantity !== 0}
+                            disabled={item.received_quantity !== 0 ||onActionHidden("wh_receving_action")}
                             onClick={this.onActionClick(item)}
                           >
                             Action
@@ -474,7 +475,7 @@ class Receiving extends React.Component {
                           <Button
                             size="sm"
                             className="btn-custom mr-l-10"
-                            disabled={item.stand_by === 0}
+                            disabled={item.stand_by === 0 ||onActionHidden("wh_push_sort")}
                             onClick={this.onSortingClick(item)}
                           >
                             Push to Sort

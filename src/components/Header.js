@@ -1,7 +1,7 @@
 import React from 'react';
 import bn from '../utils/bemnames'
 import sidebarBgImage from '../assets/img/sidebar/sidebar-14.png';
-
+import { getLoginDetail } from '../utils/ConstantFunction';
 
 import {
   Navbar,
@@ -27,14 +27,21 @@ const sidebarBackground = {
 
 var LoginName=null;
 var LoginEmail=null;
+var loginDetail=null;
 class Header extends React.Component {
-  UNSAFE_componentWillMount() {
-  }
   state = {
     isOpenNotificationPopover: false,
     isNotificationConfirmed: false,
     isOpenUserCardPopover: false,
   };
+  UNSAFE_componentWillMount() {
+    loginDetail=getLoginDetail();
+    if(loginDetail){
+      LoginName=loginDetail.logindetail.name;
+      LoginEmail=loginDetail.logindetail.email;
+    }
+  }
+  
 
   toggleNotificationPopover = () => {
     this.setState({

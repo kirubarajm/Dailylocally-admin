@@ -63,6 +63,8 @@ const Admin ={
   requests.post('/login',user),
   update: (user) =>
   requests.put('/pushupdate',user),
+  getuserdetail: (user) =>
+  requests.post('/userdetails',user),
   logout: (user) =>
   requests.post('/logout',user),
 }

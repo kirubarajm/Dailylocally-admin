@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   Row,
   Col,
@@ -841,7 +842,7 @@ class LogisticsOrders extends React.Component {
                 </div>
               </Col>
               <Col className="txt-align-right">
-                <Button size="sm" onClick={this.gotoTrip}>
+                <Button size="sm" onClick={this.gotoTrip} disabled={onActionHidden("logi_assign_trip")}>
                   Assign to trip
                 </Button>
               </Col>
@@ -900,6 +901,7 @@ class LogisticsOrders extends React.Component {
                             item.qachecklist === "0" ? (
                               <Button
                                 size="sm"
+                                disabled={onActionHidden("logi_fill_checklist")}
                                 onClick={() => this.onFillCheckList(item)}
                               >
                                 Fill Checklist
@@ -909,6 +911,7 @@ class LogisticsOrders extends React.Component {
                               <Button
                                 size="sm"
                                 color="link"
+                                disabled={onActionHidden("logi_fill_checklist")}
                                 className="text-decoration-underline txt-color-theme"
                                 onClick={() => this.onFillView(item)}
                               >
@@ -929,7 +932,7 @@ class LogisticsOrders extends React.Component {
                             item.trip_id === null ? (
                               <Button
                                 size="sm"
-                                disabled={item.moveit_type === 2}
+                                disabled={item.moveit_type === 2 ||onActionHidden("logi_assign_dunzo")}
                                 onClick={() => this.selectDunzo(item)}
                               >
                                 Assign to Dunzo

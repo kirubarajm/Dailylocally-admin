@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
+import { onActionHidden } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
 import {
   Row,
@@ -569,6 +570,7 @@ class TripOrders extends React.Component {
                   <DropdownMenu>
                     {this.props.actionList.map((item, index) => (
                       <DropdownItem
+                        disabled={onActionHidden("trip_unassign_order")&&item.id === 1}
                         onClick={() => this.clickAction(item)}
                         key={index}
                       >
@@ -640,6 +642,7 @@ class TripOrders extends React.Component {
                           {this.onCheckOrder(item) ? (
                             <Button
                               size="sm"
+                              disabled={onActionHidden('trip_book_return')}
                               onClick={() => this.selectBookReturn(item)}
                             >
                               Book Return

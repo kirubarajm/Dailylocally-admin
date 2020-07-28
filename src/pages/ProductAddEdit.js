@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { Row, Col, Button, Modal, ModalBody, ModalHeader } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
+import { onActionHidden } from "../utils/ConstantFunction";
 import Moment from "moment";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
@@ -1034,7 +1035,9 @@ class ProductAddEdit extends React.Component {
               <div className="flex-column">
                 <Row className="mr-l-10 mr-r-10 mr-b-10">
                   <Col className="float-right ">
-                    <Button size="sm" onClick={this.toggleVendorAddPopup}>
+                    <Button size="sm" 
+                    hidden={onActionHidden('catadd_price_agreement')}
+                    onClick={this.toggleVendorAddPopup}>
                       Add Vendor
                     </Button>
                   </Col>
@@ -1068,6 +1071,7 @@ class ProductAddEdit extends React.Component {
                                 <Button
                                   size="sm"
                                   color="primary"
+                                  hidden={onActionHidden('catedit_price_agreement')}
                                   onClick={() => this.onEditVendor(item)}
                                 >
                                   Edit

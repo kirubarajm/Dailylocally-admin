@@ -22,13 +22,10 @@ import {
 import Moment from "moment";
 import Searchnew from "../components/Searchnew";
 import AxiosRequest from "../AxiosRequest";
-import { FaEye, FaPlus } from "react-icons/fa";
-import { notify } from "react-notify-toast";
-import { notification_color } from "../utils/constant";
 import { store } from "../store";
 import Search from "../components/Search";
 import Select from "react-dropdown-select";
-
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
@@ -121,34 +118,6 @@ const mapDispatchToProps = (dispatch) => ({
       type: REFUND_POST_REPAYMENT,
       payload: AxiosRequest.CRM.postRepayment(data),
     }),
-
-  onGetTripOrders: (data) =>
-    dispatch({
-      type: ZONE_TRIP_ORDER_LIST,
-      payload: AxiosRequest.Logistics.getTripOrders(data),
-    }),
-  onGetDriverList: (data) =>
-    dispatch({
-      type: TRIP_DRIVER_LIST,
-      payload: AxiosRequest.Logistics.getDriverList(data),
-    }),
-  onGetQACheckList: (data) =>
-    dispatch({
-      type: QA_CHECK_LIST,
-      payload: AxiosRequest.Logistics.getQACheckList(data),
-    }),
-  onPostQACheckList: (data) =>
-    dispatch({
-      type: POST_QA_CHECK_LIST,
-      payload: AxiosRequest.Logistics.postQACheckList(data),
-    }),
-
-  onPostTripAssign: (data) =>
-    dispatch({
-      type: POST_TRIP_ASSIGN,
-      payload: AxiosRequest.Logistics.postTripAssign(data),
-    }),
-
   onSelectSlot: (selectedSlot) =>
     dispatch({
       type: TRACK_SELECT_SOLT,
@@ -255,7 +224,6 @@ class RefundApproval extends React.Component {
       this.props.onClear();
       this.setState({
         isLoading: false,
-        isTripAssignModal: false,
         selected_dayorderid: false,
       });
     }
@@ -267,24 +235,9 @@ class RefundApproval extends React.Component {
       isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
     }));
   };
-
-  toggleActionDropDown = (actionindex, actionitem) => {
-    this.setState((prevState) => ({
-      actionindex: actionindex,
-      actionitem: actionitem,
-      isOpenActionDropDown: !prevState.isOpenActionDropDown,
-    }));
-  };
-
   toggleActionPopUp = () => {
     this.setState((prevState) => ({
       isActionModal: !prevState.isActionModal,
-    }));
-  };
-
-  toggleTripAssignPopUp = () => {
-    this.setState((prevState) => ({
-      isTripAssignModal: !prevState.isTripAssignModal,
     }));
   };
 
@@ -299,62 +252,6 @@ class RefundApproval extends React.Component {
     };
     this.toggleActionPopUp();
     this.props.onPostRepayment(data);
-  };
-
-  createToTrip = () => {
-    if (this.state.select_driver.length === 0) {
-      notify.show(
-        "Please select the driver after try this",
-        "custom",
-        2000,
-        notification_color
-      );
-    } else {
-      var checkItem = this.state.selected_dayorderid;
-      var Values = Object.keys(checkItem);
-      var indexof = Values.indexOf("selectall");
-      if (indexof !== -1) {
-        Values.splice(indexof, 1);
-      }
-      var data = {
-        zoneid: this.props.zoneItem.id,
-        doid: Values,
-        done_by: 1,
-        moveit_id: this.state.select_driver[0].userid,
-        trip_id: this.state.select_driver[0].tripid,
-      };
-      this.props.onPostTripAssign(data);
-    }
-  };
-
-  onTripOrders = () => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    var indexof = Values.indexOf("selectall");
-    if (indexof !== -1) {
-      Values.splice(indexof, 1);
-    }
-    this.props.onGetTripOrders({
-      doid: Values,
-      zoneid: this.props.zoneItem.id,
-    });
-  };
-
-  gotoTrip = () => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    if (Values.length === 0) {
-      notify.show(
-        "Please select the order after try this",
-        "custom",
-        2000,
-        notification_color
-      );
-    } else {
-      this.onTripOrders();
-      this.props.onGetDriverList({ zoneid: this.props.zoneItem.id });
-      this.toggleTripAssignPopUp();
-    }
   };
 
   clickArea = (item) => {
@@ -490,22 +387,6 @@ class RefundApproval extends React.Component {
     this.props.history.push("/orderview/" + Item.id);
   };
 
-  onCheckOrder = (item) => {
-    if (item.dayorderstatus > 4 && item.dayorderstatus < 11) return true;
-    else return true;
-  };
-
-  onCheckTrip = (item) => {
-    if (item.dayorderstatus === 6) return true;
-    else return false;
-  };
-
-  onFillCheckList = (item) => {
-    this.setState({ check_item: item });
-    this.props.onGetQACheckList();
-    this.onCheckListModal();
-  };
-
   onFillView = (item) => {
     this.setState({ view_item: item });
     this.onViewCheckListModal();
@@ -520,132 +401,20 @@ class RefundApproval extends React.Component {
     this.props.onGetDayorders(data);
     this.props.onSetDayordersFilters(data);
   };
-
-  handleChange(e) {
-    const target = e.target;
-    const value = target.type === "checkbox" ? target.checked : target.value;
-    const name = target.name;
-    var arvalue = this.state.selected_dayorderid || [];
-    const dayorderlist = this.props.dayorderlist || [];
-    if (name === "selectall") {
-      if (value) {
-        arvalue[name] = value;
-        dayorderlist.map((item, i) => {
-          if (item.dayorderstatus === 6) arvalue[item.id] = value;
-        });
-      } else {
-        arvalue = {};
-      }
-    } else {
-      if (value) {
-        arvalue[name] = value;
-        var allCheck = true;
-        dayorderlist.map((item, i) => {
-          if (!arvalue[item.id]) {
-            allCheck = false;
-          }
-        });
-        if (allCheck) arvalue["selectall"] = value;
-      } else {
-        if (arvalue["selectall"]) {
-          delete arvalue["selectall"];
-        }
-        delete arvalue[name];
-      }
-    }
-
-    this.setState({
-      selected_dayorderid: arvalue,
-    });
-  }
-
-  onCheckListModal = () => {
-    this.setState((prevState) => ({
-      checklistModal: !prevState.checklistModal,
-    }));
-  };
-
   onViewCheckListModal = () => {
     this.setState((prevState) => ({
       viewchecklistModal: !prevState.viewchecklistModal,
     }));
   };
-
-  onCheckListSubmit = () => {
-    this.onCheckListModal();
-    var data = {
-      zoneid: this.props.zoneItem.id,
-      doid: this.state.check_item.id,
-      qa_checklist: this.state.qa_checklist,
-      done_by: 1,
-    };
-    console.log("data-->", data);
-    this.props.onPostQACheckList(data);
-  };
-
-  onCheckMoveit = () => {
-    //document.radioForm.onclick = function () {
-    var radVal = document.radioForm.moveit_type.value;
-    var checkVal = parseInt(radVal);
-    logi.setState({
-      trip_search: "",
-      isTripEnable: checkVal === 1 ? false : true,
-      checkBoxVal: checkVal,
-    });
-    this.props.onSelectTrip(checkVal);
-    //};
-  };
-
-  clickDropDown(e, qItem, i) {
-    var checkList = this.state.qa_checklist || [];
-    if (checkList.length === 0) {
-      var qualitytype = this.props.qualitytype;
-      for (var i = 0; i < qualitytype.length; i++) {
-        var data = {};
-        data.qaid = qualitytype[i].qaid;
-        if (qualitytype[i].qaid === qItem.qaid) {
-          data.qavalue = e.target.selectedIndex === 1 ? 1 : 0;
-        } else {
-          data.qavalue = 0;
-        }
-        checkList.push(data);
-      }
-    } else {
-      for (var i = 0; i < checkList.length; i++) {
-        var qdata = checkList[i];
-        if (qdata.qaid === qItem.qaid) {
-          qdata.qavalue = e.target.selectedIndex === 1 ? 1 : 0;
-        }
-        checkList[i] = qdata;
-      }
-    }
-    this.setState({ qa_checklist: checkList });
-  }
-
-  reportClick = (e,item,i) => {
-    var id=parseInt(e.target.value);
-    var drop={}
-    drop.id=id;
-    this.setState({dropitem:drop,actionitem:item});
-    if(id!==0){
-      document.getElementById(""+i).selectedIndex = 0; 
+  reportClick = (e, item, i) => {
+    var id = parseInt(e.target.value);
+    var drop = {};
+    drop.id = id;
+    this.setState({ dropitem: drop, actionitem: item });
+    if (id !== 0) {
+      document.getElementById("" + i).selectedIndex = 0;
       this.toggleActionPopUp();
     }
-  };
-
-  selectedDriver = (item) => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    var indexof = Values.indexOf("selectall");
-    if (indexof !== -1) {
-      Values.splice(indexof, 1);
-    }
-    this.setState({ select_driver: item });
-    this.props.onGetTripOrders({
-      doid: Values,
-      moveit_id: item[0].userid,
-      zoneid: this.props.zoneItem.id,
-    });
   };
 
   dateConvert(date) {
@@ -878,30 +647,7 @@ class RefundApproval extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            {/* <Row>
-              <Col>
-                <div className="pd-6">
-                  <div>
-                    <label className="container-check">
-                      <input
-                        type="checkbox"
-                        name="selectall"
-                        checked={this.state.selected_dayorderid["selectall"]}
-                        onChange={(e) => this.handleChange(e)}
-                      />
-                      <span className="checkmark"></span>
-                    </label>
-                  </div>
-                  <div className="font-size-12 mr-l-20">{" Select All "}</div>
-                </div>
-              </Col>
-              <Col className="txt-align-right">
-                <Button size="sm" onClick={this.gotoTrip}>
-                  Assign to trip
-                </Button>
-              </Col>
-            </Row> */}
-            <div className="scroll-horizantal-logistics">
+            <div className="scroll-horizantal-refund">
               <div>
                 <Table style={{ width: "1500px" }}>
                   <thead>
@@ -911,6 +657,7 @@ class RefundApproval extends React.Component {
                       <th>CRM Agent</th>
                       <th>Refund Request time</th>
                       <th>Order id</th>
+                      <th>Transaction id</th>
                       <th>User id</th>
                       <th>Refund reason </th>
                       <th>Refund amount</th>
@@ -923,13 +670,14 @@ class RefundApproval extends React.Component {
                     {dayorderlist.map((item, i) => (
                       <tr key={i}>
                         <td>{i + 1}</td>
-                        <td>{item.created_at}</td>
+                        <td>{this.dateConvert(item.order_created_time)}</td>
                         <td>{item.adminname}</td>
-                        <td>{this.dateConvert(item.refunded_time)}</td>
-                        <td>{item.orderid}</td>
+                        <td>{this.dateConvert(item.created_at)}</td>
+                        <td>{item.doid}</td>
+                        <td>inv#{item.orderid}</td>
                         <td>{item.userid}</td>
                         <td>{item.refund_reason || ""}</td>
-                        <td>{item.refund_amt}</td>
+                        <td>{item.original_amt}</td>
                         <td>
                           <Button
                             size="sm"
@@ -950,30 +698,16 @@ class RefundApproval extends React.Component {
                         </td>
                         <td>
                           {item.active_status === 0 ? (
-                            <select id={i} onChange={(e) => this.reportClick(e, item, i)} data-default-value="0" className="onDropDown">
-                            <option value="0">Action</option>
-                            <option value="1">Approve</option>
-                            <option value="2">Recject</option>
-                          </select>
-                            // <ButtonDropdown
-                            //   className="max-height-30"
-                            //   key={i}
-                            //   isOpen={this.state.isOpenActionDropDown}
-                            //   toggle={() => this.toggleActionDropDown(i, item)}
-                            //   size="sm"
-                            // >
-                            //   <DropdownToggle caret>Action</DropdownToggle>
-                            //   <DropdownMenu>
-                            //     {this.state.action.map((items, index) => (
-                            //       <DropdownItem
-                            //         onClick={() => this.clickApprove(items, i)}
-                            //         key={index}
-                            //       >
-                            //         <div>{items.status}</div>
-                            //       </DropdownItem>
-                            //     ))}
-                            //   </DropdownMenu>
-                            // </ButtonDropdown>
+                            <select
+                              id={i}
+                              onChange={(e) => this.reportClick(e, item, i)}
+                              data-default-value="0"
+                              className="onDropDown"
+                            >
+                              <option value="0">Action</option>
+                              <option value="1" disabled={onActionHidden('refund_approval')}>Approve</option>
+                              <option value="2" disabled={onActionHidden('refund_reject')}>Recject</option>
+                            </select>
                           ) : (
                             <div>{item.status_message}</div>
                           )}
@@ -998,102 +732,6 @@ class RefundApproval extends React.Component {
             </div>
           </div>
         </div>
-        <Modal
-          isOpen={this.state.checklistModal}
-          toggle={this.onCheckListModal}
-          backdrop={"static"}
-          className="max-width-1000"
-        >
-          <ModalHeader toggle={this.onCheckListModal}></ModalHeader>
-          <ModalBody>
-            <div className="fieldset">
-              <div className="legend">QA Checklist</div>
-              <div
-                style={{ display: "flex", flexDirection: "row" }}
-                className="pd-10"
-              >
-                <div style={{ width: "500px" }}></div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    border: "1px solid",
-                    marginLeft: "10px",
-                  }}
-                >
-                  <div className="width-200 pd-4">Order details</div>
-                  <div className="width-100 pd-4 mr-l-20 ">Available</div>
-                </div>
-              </div>
-              <hr className="mr-2" />
-              <div
-                className="pd-10"
-                hidden={!this.state.check_item}
-                style={{ display: "flex", flexDirection: "row" }}
-              >
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Row style={{ width: "500px" }}>
-                    {this.props.qualitytype.map((qitem, index) => (
-                      <Col lg="6">
-                        <div>
-                          <div className="font-size-14 font-weight-bold">
-                            {qitem.name}
-                          </div>
-                          <div className="pd-4 mr-t-10" key={index}>
-                            <select
-                              id={qitem.qaid}
-                              onChange={(e) =>
-                                this.clickDropDown(e, qitem, index)
-                              }
-                            >
-                              <option value="0">No</option>
-                              <option value="1">Yes</option>
-                            </select>
-                          </div>
-                        </div>
-                      </Col>
-                    ))}
-                  </Row>
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      marginLeft: "30px",
-                    }}
-                  >
-                    {this.state.check_item.products.map((item, index) => (
-                      <div style={{ display: "flex", flexDirection: "row" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            marginLeft: "10px",
-                          }}
-                        >
-                          <div className="width-200 pd-4 flex-row">
-                            <div>{item.productname}</div> -{" "}
-                            <div className="mr-l-10">{item.quantity}</div>
-                          </div>
-                          <div className="width-150 pd-4 mr-l-40">
-                            {item.received_quantity}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ModalBody>
-          <ModalFooter>
-            <Button size="sm" onClick={this.onCheckListModal}>
-              Close
-            </Button>
-            <Button size="sm" onClick={this.onCheckListSubmit}>
-              Submit
-            </Button>
-          </ModalFooter>
-        </Modal>
 
         <Modal
           isOpen={this.state.viewchecklistModal}
@@ -1110,15 +748,16 @@ class RefundApproval extends React.Component {
                 className="pd-10"
               >
                 <div
+                  className="font-size-14"
                   style={{
                     display: "flex",
                     flexDirection: "row",
                     border: "1px solid",
-                    marginLeft: "10px",
+                    marginLeft: "30px",
                   }}
                 >
-                  <div className="width-200 pd-4">Order details</div>
-                  <div className="width-100 pd-4 mr-l-20 ">Available</div>
+                  <div className="width-250 pd-4">Order details</div>
+                  <div className="width-100 pd-4 mr-l-20 ">Delivered</div>
                 </div>
               </div>
               <hr className="mr-2" />
@@ -1138,6 +777,7 @@ class RefundApproval extends React.Component {
                     {this.state.view_item.products
                       ? this.state.view_item.products.map((item, index) => (
                           <div
+                            className="font-size-14"
                             style={{ display: "flex", flexDirection: "row" }}
                           >
                             <div
@@ -1158,6 +798,48 @@ class RefundApproval extends React.Component {
                           </div>
                         ))
                       : ""}
+
+                    {this.state.view_item.refund_delivery_charge ? (
+                      <div
+                        className="font-size-14"
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        <div className="width-250 pd-4 flex-row">
+                          <div>Delivery Charge</div>
+                        </div>
+                        <div className="width-150 pd-4 mr-l-40">
+                          <i className="fas fa-rupee-sign" />{" "}
+                          {this.state.view_item.refund_delivery_charge}
+                        </div>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+
+                    {this.state.view_item.original_amt ? (
+                      <div
+                        className="font-size-14"
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        <div className="width-250 pd-4 flex-row">
+                          <div>Total Amount</div>
+                        </div>
+                        <div className="width-150 pd-4 mr-l-40">
+                          <i className="fas fa-rupee-sign" />{" "}
+                          {this.state.view_item.original_amt}
+                        </div>
+                      </div>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
               </div>
@@ -1194,55 +876,6 @@ class RefundApproval extends React.Component {
           </ModalFooter>
         </Modal>
 
-        <Modal
-          isOpen={this.state.isTripAssignModal}
-          toggle={this.toggleTripAssignPopUp}
-          className={this.props.className}
-          backdrop={true}
-          className="max-width-800"
-        >
-          <ModalBody className="pd-10">
-            <div className="fieldset">
-              <div className="legend">Trip Assign</div>
-              <InputSearchDropDown
-                options={this.props.driverlist}
-                labelField="name"
-                searchable={true}
-                clearable={true}
-                searchBy="name"
-                valueField="userid"
-                noDataLabel="No matches found"
-                values={this.state.select_driver}
-                onSelection={this.selectedDriver}
-                label="Driver Name"
-              />
-              <Row className="mr-lr-10 mr-t-50">
-                <Col className="font-size-14 pd-0" lg="4">
-                  Trip details
-                </Col>
-                <Col className="font-size-14 border-block  scroll-trip-assign pd-0 mr-r-10 mr-b-20">
-                  {this.props.triporderlist.map((item, index) => (
-                    <div
-                      className="pd-10"
-                      style={{ display: "flex", flexDirection: "row" }}
-                    >
-                      {item.doid_name} , {item.Locality}, {item.pincode},{" "}
-                      {item.order_status}
-                    </div>
-                  ))}
-                </Col>
-              </Row>
-            </div>
-          </ModalBody>
-          <ModalFooter className="pd-10 border-none">
-            <Button size="sm" onClick={this.createToTrip}>
-              Confirm
-            </Button>
-            <Button size="sm" onClick={this.toggleTripAssignPopUp}>
-              Close
-            </Button>
-          </ModalFooter>
-        </Modal>
         <Modal
           isOpen={this.state.isImageModal}
           toggle={this.toggleImagePopUp}

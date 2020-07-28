@@ -913,6 +913,13 @@ a, a:focus, a:hover, a:visited {
   min-height: 40vh !important;
 }
 
+.scroll-horizantal-refund {
+  width: 100%;
+  overflow: auto;
+  max-height: 50vh !important;
+  min-height: 50vh !important;
+}
+
 .scroll-horizantal-dunzo {
   width: 100%;
   overflow: auto;

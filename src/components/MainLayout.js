@@ -3,6 +3,7 @@ import React from 'react';
 import {LOGOUT} from '../constants/actionTypes'
 import { connect } from 'react-redux';
 import AxiosRequest from "../AxiosRequest";
+import { getAdminId } from "../utils/ConstantFunction";
 const mapStateToProps = state => ({ ...state 
 
 });
@@ -39,7 +40,7 @@ class MainLayout extends React.Component {
   }
   
 Logout = event =>{
-  var data={admin_userid:0}
+  var data={admin_userid:getAdminId()}
   this.props.onLogout(data);
 }
   // close sidebar when

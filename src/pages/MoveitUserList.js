@@ -2,6 +2,7 @@ import React from "react";
 import AxiosRequest from "../AxiosRequest";
 import SearchInput from "../components/SearchInput";
 import PasswordShow from "../components/PasswordShow";
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   MOVEIT_USERS_LIST,
   MOVEIT_USERS_FILTER,
@@ -152,15 +153,9 @@ class MoveitUserList extends React.Component {
                       >
                         Unlive
                       </Button>
-                      {/* <Button
-                    color="primary"
-                    onClick={()=>this.filterUser(-2)}
-                    active={online_status === -2}
-                  >
-                    Inorders
-                  </Button> */}
+                      
                     </ButtonGroup>
-                    <Link to={`/moveit-add`} className="preview-link">
+                    <Link to={`/moveit-add`} className="preview-link" hidden={onActionHidden('driver_add')}>
                       <Button size="sm">Driver add</Button>
                     </Link>
                   </Col>

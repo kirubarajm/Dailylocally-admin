@@ -32,6 +32,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
+import { onActionHidden } from "../utils/ConstantFunction";
 const InputField = ({
   input,
   label,
@@ -463,12 +464,14 @@ class ReturnPage extends React.Component {
                         </td>
                         <td>{item.doid}</td>
                         <td>
-                          <Button size="sm" onClick={this.onActionClick(item)}>
+                          <Button size="sm" onClick={this.onActionClick(item)}
+                          disabled={onActionHidden("wh_return_receving")}>
                             Receive
                           </Button>
                         </td>
                         <td>
-                          <Button size="sm" onClick={()=>this.movetoSorting(item)}>
+                          <Button size="sm" onClick={()=>this.movetoSorting(item)}
+                          disabled={onActionHidden("wh_retun_sorting")}>
                             Sorting
                           </Button>
                         </td>

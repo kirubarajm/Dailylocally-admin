@@ -21,6 +21,7 @@ import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import Searchnew from "../components/Searchnew";
 import AxiosRequest from "../AxiosRequest";
+import { onActionHidden } from "../utils/ConstantFunction";
 import { store } from "../store";
 import {
   ZONE_ITEM_REFRESH,
@@ -498,6 +499,9 @@ class DunzoOrders extends React.Component {
                   <DropdownMenu>
                     {this.props.actionList.map((item, index) => (
                       <DropdownItem
+                      disabled={
+                        (onActionHidden("dunzo_picked_up")&&item.id === 1) ||
+                        (onActionHidden("dunzo_delivered") && item.id === 2)}
                         onClick={() => this.clickAction(item)}
                         key={index}
                       >
@@ -557,6 +561,7 @@ class DunzoOrders extends React.Component {
                           {this.onCheckOrder(item) ? (
                             <Button
                               size="sm"
+                              disabled={onActionHidden('dunzo_book_return')}
                               onClick={() => this.selectBookReturn(item)}
                             >
                               Book Return

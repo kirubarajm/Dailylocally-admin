@@ -25,7 +25,7 @@ import {
 import Moment from "moment";
 import AxiosRequest from "../AxiosRequest";
 import DateRangePicker from "react-bootstrap-daterangepicker";
-import { getOrderStatus } from "../utils/ConstantFunction";
+import { getOrderStatus, onActionHidden } from "../utils/ConstantFunction";
 import { FaEye } from "react-icons/fa";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
@@ -272,30 +272,30 @@ class DayOrders extends React.Component {
             <div className="flex-row pd-10 font-size-14">
               <div className="mr-r-20 width-100">Date/Time: </div>
               <div className="width-250">
-              <DateRangePicker
-                opens="right"
-                drops="down"
-                onApply={this.startSelect}
-              >
-                <Button
-                  className="mr-r-10"
-                  style={{ width: "30px", height: "30px", padding: "0px" }}
+                <DateRangePicker
+                  opens="right"
+                  drops="down"
+                  onApply={this.startSelect}
                 >
-                  <i className="far fa-calendar-alt"></i>
-                </Button>
-              </DateRangePicker>
-              <span className="mr-l-10">
-                {this.state.startdate
-                  ? Moment(this.state.startdate).format("DD/MM/YYYY")
-                  : "DD/MM/YYYY"}
-                {this.state.startdate
-                  ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
-                  : ""}
-              </span>
+                  <Button
+                    className="mr-r-10"
+                    style={{ width: "30px", height: "30px", padding: "0px" }}
+                  >
+                    <i className="far fa-calendar-alt"></i>
+                  </Button>
+                </DateRangePicker>
+                <span className="mr-l-10">
+                  {this.state.startdate
+                    ? Moment(this.state.startdate).format("DD/MM/YYYY")
+                    : "DD/MM/YYYY"}
+                  {this.state.startdate
+                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                    : ""}
+                </span>
               </div>
               <div className="mr-l-50 mr-r-20">Order Status : </div>
               <div>
-              <ButtonDropdown
+                <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenOrderStatus}
                   toggle={this.toggleOrderStatus}
@@ -315,7 +315,7 @@ class DayOrders extends React.Component {
                     ))}
                   </DropdownMenu>
                 </ButtonDropdown>
-                </div>
+              </div>
               {/* <span className="mr-l-50 mr-r-20">To Date/Time: </span>
               <Button
                 className="mr-r-10"
@@ -350,7 +350,7 @@ class DayOrders extends React.Component {
               </span>*/}
             </div>
             <div className="flex-row pd-10 mr-r-10 mr-b-10 font-size-14 ">
-                <div className="width-120">Day Order ID : </div>
+              <div className="width-120">Day Order ID : </div>
               <div lg="2" className="pd-0">
                 <Search
                   onSearch={this.onSearchInput}
@@ -391,7 +391,11 @@ class DayOrders extends React.Component {
                 <Button size="sm" className="mr-r-10" onClick={this.onReset}>
                   Reset
                 </Button>
-                <Button size="sm" onClick={this.onSearch} disabled={!this.props.zoneItem}>
+                <Button
+                  size="sm"
+                  onClick={this.onSearch}
+                  disabled={!this.props.zoneItem}
+                >
                   Search
                 </Button>
               </Col>
@@ -416,7 +420,7 @@ class DayOrders extends React.Component {
                 </div>
               </Col>
               <Col className="txt-align-right">
-                <Button size="sm" onClick={this.movetoprocurement}>
+                <Button size="sm" onClick={this.movetoprocurement} hidden={onActionHidden('wh_procurement_create')}>
                   Add Selected orders
                 </Button>
               </Col>
@@ -441,11 +445,14 @@ class DayOrders extends React.Component {
                     <tr key={i}>
                       <td>
                         {
-                          <FaEye
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
+                          <Button
+                            size="sm"
+                            color="link"
+                            disabled={onActionHidden('wh_order_view')}
                             onClick={() => this.onView(item)}
-                          />
+                          >
+                            <FaEye size="15" />
+                          </Button>
                         }
                       </td>
                       <td>

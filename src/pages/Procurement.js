@@ -25,6 +25,7 @@ import {
   ZONE_ITEM_REFRESH,
   MOVE_TO_PO_STOCK,
 } from "../constants/actionTypes";
+import { onActionHidden } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.procurement,
@@ -333,6 +334,7 @@ class Procurement extends React.Component {
               <Col className="txt-align-right">
                 <Button
                   size="sm"
+                  hidden={onActionHidden('wh_moveto_st')}
                   onClick={() => this.movetoStock(true)}
                   className="mr-r-20"
                 >
@@ -341,11 +343,12 @@ class Procurement extends React.Component {
                 <Button
                   size="sm"
                   onClick={() => this.movetoStock(false)}
+                  hidden={onActionHidden('wh_remove_proc')}
                   className="mr-r-20"
                 >
                   Remove Procurement
                 </Button>
-                <Button size="sm" onClick={this.movetopo}>
+                <Button size="sm" onClick={this.movetopo} hidden={onActionHidden('wh_purchase_order')}>
                   + Purchase order
                 </Button>
               </Col>

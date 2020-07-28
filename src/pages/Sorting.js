@@ -31,6 +31,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
+import { onActionHidden } from "../utils/ConstantFunction";
 const InputField = ({
   input,
   label,
@@ -413,6 +414,7 @@ class Sorting extends React.Component {
                         <td>
                           <Button
                             size="sm"
+                            disabled={onActionHidden("wh_moveto_qc")}
                             onClick={this.onActionClick(item)}
                           >
                             Move To QC

@@ -77,21 +77,19 @@ export const getLoginDetail = () => {
 
 export const getLoginStatus = () => {
   var status=0;
-  console.log("stststs--->",window.localStorage.getItem("dl2admin_login_status"));
   status = window.localStorage.getItem("dl2admin_login_status")==="true"?1:0;
-  console.log("status--->",status);
   return status;
 };
 
 
-export const onActionEnable =(key)=>{
+export const onActionHidden =(key)=>{
   let token = window.localStorage.getItem("dl2admin_user_detail") || false;
-  var login = 0;
+  var login = false;
   if (token && key) {
     login = JSON.parse(token);
-    var enable=login.logindetail[key] || 0;
-    return enable;
+    var hidden=login.logindetail[key] || 0;
+    return hidden===0?true:false;
   }
-  return 0 ;
+  return false ;
 }
 

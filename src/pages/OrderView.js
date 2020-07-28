@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { FaDownload } from "react-icons/fa";
 import { MentionsInput, Mention } from "react-mentions";
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   TRACK_ORDER_VIEW,
   ORDER_CANCEL_REASON,
@@ -818,9 +819,19 @@ class OrderView extends React.Component {
                       onClick={() => this.clickAction(item)}
                       key={index}
                       disabled={
-                        (propdata.dayorderstatus === 11 && item.id === 1) ||
-                        (propdata.dayorderstatus === 11 && item.id === 3) ||
-                        (!(propdata.dayorderstatus === 10 ||propdata.dayorderstatus === 11) &&item.id === 4)
+                        ((onActionHidden("crm_cancel") ||
+                          propdata.dayorderstatus === 11) &&
+                          item.id === 1) ||
+                        (onActionHidden("crm_reorder") && item.id === 2) ||
+                        ((onActionHidden("crm_book_return") ||
+                          propdata.dayorderstatus === 11) &&
+                          item.id === 3) ||
+                        ((onActionHidden("crm_refund") ||
+                          propdata.dayorderstatus !== 10) &&
+                          item.id === 4) ||
+                        (onActionHidden("crm_msgto_customer") &&
+                          item.id === 5) ||
+                        (onActionHidden("crm_raise_ticket") && item.id === 6)
                       }
                     >
                       {item.name}
@@ -1189,7 +1200,7 @@ class OrderView extends React.Component {
           </Row>
         </Collapse>
 
-        <Row className="mr-lr-10 mr-b-20 mr-t-20">
+        <Row className="mr-lr-10 mr-b-20 mr-t-20" hidden={onActionHidden("crm_comment_box")}>
           <Col className="border-block pd-5">
             <CommentEditBox
               dayorderdata={propdata}

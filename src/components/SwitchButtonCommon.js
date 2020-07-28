@@ -17,7 +17,7 @@ export default class SwitchButtonCommon extends Component {
  
   render() {
     return (
-      <div style={{width:"30px",float:"right"}}>
+      <div style={{width:"30px",float:"right"}} hidden={this.props.hidden||false}>
       <Switch onChange={this.handleChange} onClick={this.handleClick} checked={this.props.checked} height={15} width={30}/>
       </div>
     );

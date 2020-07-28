@@ -14,7 +14,7 @@ import {
 import bn from "../utils/bemnames";
 import { version } from "../../package.json";
 import { SidebarSuperAdmin,navBarSuperAdminItems } from "../utils/SidebarSuperAdmin";
-import { onActionEnable } from "../utils/ConstantFunction";
+import { onActionHidden } from "../utils/ConstantFunction";
 const sidebarBackground = {
   backgroundImage: `url("${sidebarBgImage}")`,
   backgroundSize: "cover",
@@ -80,7 +80,7 @@ function NavItems(props) {
   return (
     <NavItem
       className={bem.e("nav-item")}
-      hidden={onActionEnable(props.enable_action)===0}
+      hidden={onActionHidden(props.enable_action)}
       onClick={props.handleColClick(props.name)}
     >
       <BSNavLink

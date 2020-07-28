@@ -32,6 +32,7 @@ import {
 import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
+import { onActionHidden } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.qapage,
@@ -452,6 +453,7 @@ class QAPage extends React.Component {
                         <td>
                           <Button
                             size="sm"
+                            disabled={onActionHidden("wh_qc_approve")}
                             onClick={this.onActionClick(item, i)}
                           >
                             Approve

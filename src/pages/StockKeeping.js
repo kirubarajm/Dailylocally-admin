@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { FaEye, FaRegEdit, FaTrashAlt } from "react-icons/fa";
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   Row,
   Col,
@@ -358,7 +359,7 @@ class StockKeeping extends React.Component {
 
   onUpdate = () => {
     this.setState({ isLoading: false });
-  }
+  };
 
   toggleConfirmPopup = () => {
     this.setState({
@@ -391,7 +392,7 @@ class StockKeeping extends React.Component {
     var dData = {};
     dData.zoneid = this.props.zoneItem.id;
     dData.skid = this.state.select_item.skid;
-    dData.done_by=1;
+    dData.done_by = 1;
     this.props.onGetDeleteStock(dData);
     this.toggleConfirmPopup();
   };
@@ -403,7 +404,7 @@ class StockKeeping extends React.Component {
       vpid: this.state.selectedItem.vpid,
       quantity: data.item_quantity,
       delivery_note: data.delivery_note,
-      done_by:1
+      done_by: 1,
     };
     if (this.state.receivingSelection.length > 0) {
       data1.action_id = this.state.receivingSelection[0].id;
@@ -549,7 +550,11 @@ class StockKeeping extends React.Component {
           <div className="pd-6">
             <Row style={{ width: "85%" }}>
               <Col className="txt-align-right">
-                <Button size="sm" onClick={this.addstockKeeping}>
+                <Button
+                  size="sm"
+                  onClick={this.addstockKeeping}
+                  hidden={onActionHidden("stockadd")}
+                >
                   + Stock keeping
                 </Button>
               </Col>
@@ -585,33 +590,34 @@ class StockKeeping extends React.Component {
                     {stock_keeping_list.map((item, i) => (
                       <tr key={i}>
                         <td>
-                          <FaEye
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
+                          <Button
+                            size="sm"
+                            disabled={onActionHidden("stockview")}
                             onClick={() => this.onView(item)}
-                          />
+                            color="link"
+                          >
+                            <FaEye size="16" />
+                          </Button>
                         </td>
                         <td>
-                          <FaRegEdit
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
+                          <Button
+                            size="sm"
+                            disabled={onActionHidden("stockedit")}
                             onClick={() => this.onEdit(item)}
-                          />
+                            color="link"
+                          >
+                            <FaRegEdit size="16" />
+                          </Button>
                         </td>
                         <td>
                           <Button
                             size="sm"
                             color="link"
                             onClick={() => this.onDelete(item)}
-                            disabled={item.delete_status !== 0}
+                            disabled={item.delete_status !== 0||onActionHidden("stockdelete")}
                           >
                             <FaTrashAlt
-                              className={
-                                item.delete_status !== 0
-                                  ? "color-disable"
-                                  : "color-red"
-                              }
-                              size="15"
+                              size="16"
                             />
                           </Button>
                         </td>

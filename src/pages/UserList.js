@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import PaginationComponent from "react-reactstrap-pagination";
 import MapContainer from "../components/MapContainer";
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   Row,
   Col,
@@ -270,9 +271,9 @@ class UserList extends React.Component {
   submit = (data) => {
     data.address_type = this.state.address_type;
     data.google_address = this.state.editAddressItem;
-    data.lat=this.state.lat
-    data.lon=this.state.lng
-    data.aid=this.state.addressItem.address_details[0].aid
+    data.lat = this.state.lat;
+    data.lon = this.state.lng;
+    data.aid = this.state.addressItem.address_details[0].aid;
     console.log("data-->", data);
     if (this.state.editAddressItem) {
       this.props.onPostAddress(data);
@@ -377,14 +378,15 @@ class UserList extends React.Component {
                       <td>{item.userid}</td>
                       <td>{item.phoneno}</td>
                       <td>{item.email}</td>
-                      <td>
-                        {this.dateConvert(item.created_at)}
-                      </td>
+                      <td>{this.dateConvert(item.created_at)}</td>
                       <td>
                         <Button
                           size="sm"
                           className="font-size-12"
-                          disabled={item.address_details.length === 0}
+                          disabled={
+                            item.address_details.length === 0 ||
+                            onActionHidden("user_address_btn")
+                          }
                           onClick={() => this.onViewAddress(item)}
                         >
                           Address
@@ -395,12 +397,14 @@ class UserList extends React.Component {
                           <Button
                             size="sm"
                             className="mr-r-10 font-size-12"
+                            disabled={onActionHidden("user_dayorder_btn")}
                             onClick={() => this.onViewDayorders(item)}
                           >
                             Dayorder List
                           </Button>{" "}
                           <Button
                             size="sm"
+                            disabled={onActionHidden("user_trans_btn")}
                             className="mr-r-10 font-size-12"
                             onClick={() => this.onViewTransaction(item)}
                           >
@@ -430,7 +434,7 @@ class UserList extends React.Component {
         <Modal
           isOpen={this.state.isAddressModal}
           toggle={this.toggleAddressPopUp}
-          style={{ maxWidth: "1500px" }}
+          style={onActionHidden("user_edit_address")?{ maxWidth: "600px" }:{ maxWidth: "1200px" }}
           backdrop={true}
         >
           <ModalBody className="pd-10">
@@ -454,10 +458,10 @@ class UserList extends React.Component {
                 </div>
                 <Row className="mr-t-10">
                   <Col>
-                    <div className="font-size-14 font-weight-bold">
-                      Current address
-                    </div>
                     <div className="flex-column">
+                      <div className="font-size-14 font-weight-bold">
+                        Current address
+                      </div>
                       <div className="flex-row mr-t-10">
                         <div className="mr-r-20 width-200">
                           Pinned google location
@@ -565,7 +569,7 @@ class UserList extends React.Component {
                       </div>
                     </div>
                   </Col>
-                  <Col>
+                  <Col hidden={onActionHidden("user_edit_address")}>
                     <div className="flex-column">
                       <div className="font-size-14 font-weight-bold">
                         Edit address
@@ -645,7 +649,7 @@ class UserList extends React.Component {
                                 autoComplete="off"
                                 type="text"
                                 component={InputField}
-                                validate={[required,requiredTrim]}
+                                validate={[required, requiredTrim]}
                               />
                             </div>
                           </div>

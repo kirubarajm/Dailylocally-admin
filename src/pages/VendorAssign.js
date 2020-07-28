@@ -39,6 +39,7 @@ import { Field, reduxForm, reset } from "redux-form";
 import Select from "react-dropdown-select";
 import { required, minLength2 } from "../utils/Validation";
 import { store } from "../store";
+import { onActionHidden } from "../utils/ConstantFunction";
 
 const InputField = ({
   input,
@@ -79,16 +80,28 @@ const InputField = ({
 function EditQuantity(props) {
   var Items = props.item;
   var isEdit = Items.isEdit === undefined ? false : Items.isEdit;
-  var editQuantity = Items.editquantity===null?Items.requested_quantity===null?Items.actual_quantity:Items.requested_quantity:Items.editquantity;
-  console.log("editQuantity-->",editQuantity);
+  var editQuantity =
+    Items.editquantity === null
+      ? Items.requested_quantity === null
+        ? Items.actual_quantity
+        : Items.requested_quantity
+      : Items.editquantity;
+  console.log("editQuantity-->", editQuantity);
   if (!isEdit) {
-    editQuantity = Items.requested_quantity===null?Items.actual_quantity:Items.requested_quantity;
+    editQuantity =
+      Items.requested_quantity === null
+        ? Items.actual_quantity
+        : Items.requested_quantity;
     return (
       <div
         style={{ display: "flex", alignItems: "center", flexDirection: "row" }}
       >
         <div className="mr-r-10">{editQuantity}</div>
-        <Button className="btn-close" onClick={props.action}>
+        <Button
+          className="btn-close"
+          onClick={props.action}
+          disabled={onActionHidden("wh_vendor_qty_edit")}
+        >
           Edit
         </Button>
       </div>
@@ -245,9 +258,9 @@ class VendorAssign extends React.Component {
       suplier: [],
       isconfirm: false,
       sPoList: [],
-      select_item:false,
+      select_item: false,
       selected_vpid: [],
-      isOpenAreaDropDown:false,
+      isOpenAreaDropDown: false,
       today: Moment(new Date()),
     };
   }
@@ -279,7 +292,6 @@ class VendorAssign extends React.Component {
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
     }
@@ -386,7 +398,7 @@ class VendorAssign extends React.Component {
     var item = {
       zoneid: this.props.zoneItem.id,
       templist: this.state.sPoList,
-      done_by:1
+      done_by: 1,
     };
     this.props.onCreatePo(item);
   };
@@ -421,7 +433,7 @@ class VendorAssign extends React.Component {
     var vpid = [];
     const pocreatelist = this.props.pocreatelist || [];
     pocreatelist.map((item, i) => {
-      if(Values.indexOf(""+item.tempid)!==-1){
+      if (Values.indexOf("" + item.tempid) !== -1) {
         vpid.push(item.pid);
       }
     });
@@ -464,13 +476,13 @@ class VendorAssign extends React.Component {
       due_date: this.state.startdate,
       vid: this.state.suplier[0].vid,
       tempid: Values,
-      done_by:1
+      done_by: 1,
     };
     this.props.onUpdateVendorList(data);
     this.toggleAddVendorPopUp();
     this.setState({
       selected_proid: [],
-      selected_vpid:[],
+      selected_vpid: [],
     });
   };
   onAction(item, index) {
@@ -485,7 +497,7 @@ class VendorAssign extends React.Component {
       this.props.onEditPOQuantity({
         zoneid: this.props.zoneItem.id,
         tempid: tem,
-        done_by:1,
+        done_by: 1,
         requested_quantity: item.editquantity || 0,
       });
     } else {
@@ -498,10 +510,10 @@ class VendorAssign extends React.Component {
   }
 
   onChangeQuantity = (index, e) => {
-    var str=e.target.value || "0";
-    if(str.length>1){
+    var str = e.target.value || "0";
+    if (str.length > 1) {
       var nStr = str.startsWith("0", 0);
-      if(nStr) {
+      if (nStr) {
         str = str.substr(1);
       }
     }
@@ -570,56 +582,63 @@ class VendorAssign extends React.Component {
           <div className="pd-6">
             <Row className="width-84 mr-0 pd-b-10">
               <Col className="pd-0 mr-l-10">
-              <div style={{ display: "flex", flexDirection: "row" }}>
-                <div >
+                <div style={{ display: "flex", flexDirection: "row" }}>
                   <div>
-                    <label className="container-check">
-                      <input
-                        type="checkbox"
-                        name="selectall"
-                        checked={this.state.selected_proid["selectall"]}
-                        onChange={(e) => this.handleChange(e, "All")}
-                      />
-                      <span className="checkmark"></span>
-                    </label>
+                    <div>
+                      <label className="container-check">
+                        <input
+                          type="checkbox"
+                          name="selectall"
+                          checked={this.state.selected_proid["selectall"]}
+                          onChange={(e) => this.handleChange(e, "All")}
+                        />
+                        <span className="checkmark"></span>
+                      </label>
+                    </div>
+                    <div className="font-size-12 mr-l-20">{" Select All "}</div>
                   </div>
-                  <div className="font-size-12 mr-l-20">{" Select All "}</div>
-                </div>
-                <Button size="sm" onClick={this.onAddVendor} className="mr-l-20">
-                  + Add Supplier
-                </Button>
+                  <Button
+                    size="sm"
+                    onClick={this.onAddVendor}
+                    className="mr-l-20"
+                    hidden={onActionHidden("wh_vendor_add")}
+                  >
+                    + Add Supplier
+                  </Button>
                 </div>
               </Col>
               <Col className="pd-0">
-              <div  className="float-right" style={{ display: "flex", flexDirection: "row" }}>
-                <span className="mr-r-20">Zone</span>
-                <ButtonDropdown
-                  className="max-height-30 mr-r-10"
-                  isOpen={this.state.isOpenAreaDropDown}
-                  toggle={this.toggleAreaDropDown}
-                  size="sm"
+                <div
+                  className="float-right"
+                  style={{ display: "flex", flexDirection: "row" }}
                 >
-                  <DropdownToggle caret>
-                    {this.props.zoneItem.Zonename || ""}
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {this.props.zone_list.map((item, index) => (
-                      <DropdownItem
-                        onClick={() => this.clickArea(item)}
-                        key={index}
-                      >
-                        {item.Zonename}
-                      </DropdownItem>
-                    ))}
-                  </DropdownMenu>
-                </ButtonDropdown>
+                  <span className="mr-r-20">Zone</span>
+                  <ButtonDropdown
+                    className="max-height-30 mr-r-10"
+                    isOpen={this.state.isOpenAreaDropDown}
+                    toggle={this.toggleAreaDropDown}
+                    size="sm"
+                  >
+                    <DropdownToggle caret>
+                      {this.props.zoneItem.Zonename || ""}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.props.zone_list.map((item, index) => (
+                        <DropdownItem
+                          onClick={() => this.clickArea(item)}
+                          key={index}
+                        >
+                          {item.Zonename}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </ButtonDropdown>
 
-                <Button size="sm" onClick={() => this.props.history.goBack()}>
-                Back
-              </Button>
-              </div>
-              
-            </Col>
+                  <Button size="sm" onClick={() => this.props.history.goBack()}>
+                    Back
+                  </Button>
+                </div>
+              </Col>
             </Row>
             <div className="search-horizantal-scroll">
               <div className="search-v-scroll">
@@ -661,24 +680,32 @@ class VendorAssign extends React.Component {
                           </label>
                         </td>
                         <td>
-                        <Button
+                          <Button
                             size="sm"
                             color="link"
                             className="pd-0"
                             onClick={() => this.VendorEdit(item)}
-                            disabled={!item.vid}
+                            disabled={
+                              !item.vid || onActionHidden("wh_vendor_edit")
+                            }
                           >
-                          <FaRegEdit
-                            className={item.vid?"txt-color-theme":"color-disable"}
-                            size="18"
-                          /></Button>
+                            <FaRegEdit
+                              className={
+                                item.vid ? "txt-color-theme" : "color-disable"
+                              }
+                              size="18"
+                            />
+                          </Button>
                         </td>
                         <td>
-                          <FaTrashAlt
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
+                          <Button
+                            size="sm"
                             onClick={() => this.onDelete(item)}
-                          />
+                            color="link"
+                            disabled={onActionHidden("wh_vendor_delete")}
+                          >
+                            <FaTrashAlt size="15" />
+                          </Button>
                         </td>
                         <td>{item.catagory_name}</td>
                         <td>{item.subcatL1name}</td>
@@ -717,7 +744,12 @@ class VendorAssign extends React.Component {
           </div>
         </div>
         <div className="txt-align-right width-84 mr-b-10">
-          <Button size="sm" className="mr-l-10" onClick={this.submitPo}>
+          <Button
+            size="sm"
+            className="mr-l-10"
+            onClick={this.submitPo}
+            hidden={onActionHidden("wh_po_create")}
+          >
             Submit
           </Button>
         </div>

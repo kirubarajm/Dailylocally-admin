@@ -6,6 +6,8 @@ import {
   SET_WASTAGE_IMAGES,
   DELETE_WASTAGE_IMAGES,
 } from "../constants/actionTypes";
+import { notify } from "react-notify-toast";
+import { notification_color } from "../utils/constant";
 import AxiosRequest from "../AxiosRequest";
 import {
   Row,
@@ -184,6 +186,23 @@ class StockAddFrom extends React.Component {
   componentDidCatch() {}
 
   submit = (data) => {
+    if(this.state.stocktype.length===0){
+      notify.show(
+        "Please select type after try this",
+        "custom",
+        3000,
+        notification_color
+      );
+      return;
+    }else if(!data.wastage&&!data.missing){
+      notify.show(
+        "Please enter wastage or missing quantity",
+        "custom",
+        3000,
+        notification_color
+      );
+      return;
+    }
     var data1 = {
       zoneid: this.props.zoneItem.id,
       done_by:1

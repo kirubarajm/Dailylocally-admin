@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
+import { onActionHidden } from "../utils/ConstantFunction";
 import {
   Row,
   Col,
@@ -556,22 +557,18 @@ class Crm extends React.Component {
                   {dayorderlist.map((item, i) => (
                     <tr key={i}>
                       <td>
-                        {/* {
-                            <FaPlus
-                              className="txt-color-theme txt-cursor pd-2"
-                              size="20"
-                            />
-                          } */}
                         {i + 1}
                       </td>
                       <td>
-                        {
-                          <FaEye
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
+                      <Button
+                            size="sm"
+                            className="pd-0"
+                            disabled={onActionHidden("crm_view")}
                             onClick={() => this.onView(item)}
-                          />
-                        }
+                            color="link"
+                          >
+                            <FaEye size="16" />
+                          </Button>
                       </td>
                       <td>{item.id}</td>
                       <td>{item.name}</td>
