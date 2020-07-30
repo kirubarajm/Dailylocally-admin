@@ -148,7 +148,7 @@ class Po extends React.Component {
   onSearchPOno = (e) => {
     const value = e.target.value || "";
     this.setState({ pono: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
@@ -156,11 +156,10 @@ class Po extends React.Component {
   onSearchSupplier = (e) => {
     const value = e.target.value || "";
     this.setState({ supplier_name: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
-    
   };
 
   pocreateDate = (event, picker) => {
@@ -244,8 +243,8 @@ class Po extends React.Component {
     var dData = {};
     dData.zoneid = this.props.zoneItem.id;
     dData.poid = this.state.select_item.poid;
-    dData.done_by= getAdminId();
-    
+    dData.done_by = getAdminId();
+
     if (this.state.isDelete) {
       this.props.onGetDeletePO(dData);
     } else {
@@ -275,7 +274,7 @@ class Po extends React.Component {
   render() {
     const poList = this.props.poList || [];
     return (
-      <div className="width-full" style={{position:"fixed"}}>
+      <div className="width-full" style={{ position: "fixed" }}>
         <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset width-84">
             <div className="legend">Purchase Order - Search</div>
@@ -440,7 +439,11 @@ class Po extends React.Component {
                 <Button size="sm" className="mr-r-10" onClick={this.onReset}>
                   Reset
                 </Button>
-                <Button size="sm" onClick={this.onSearch} disabled={!this.props.zoneItem}>
+                <Button
+                  size="sm"
+                  onClick={this.onSearch}
+                  disabled={!this.props.zoneItem}
+                >
                   Search
                 </Button>
               </Col>
@@ -449,7 +452,7 @@ class Po extends React.Component {
           <Row className="width-84 mr-b-10 mr-l-10">
             <Col className="txt-align-right pd-0">
               <Button size="sm" onClick={this.gotoVendorAssign}>
-              Supplier Assign
+                Supplier Assign
               </Button>
             </Col>
           </Row>
@@ -479,10 +482,18 @@ class Po extends React.Component {
                     {poList.map((item, i) => (
                       <tr key={i}>
                         <td>
-                          <FaRegFilePdf
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
-                          />
+                          <Button
+                            size="sm"
+                            color="link"
+                            disabled={!item.po_pdf_url}
+                          >
+                            <a href={item.po_pdf} target="_blank">
+                              <FaRegFilePdf
+                                className="txt-color-theme txt-cursor pd-2"
+                                size="20"
+                              />
+                            </a>
+                          </Button>
                         </td>
                         <td>
                           <FaEye
@@ -532,8 +543,7 @@ class Po extends React.Component {
                         <td>
                           {Moment(item.due_date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
-                        <td>{getPoStatus(item.po_status)}
-                        </td>
+                        <td>{getPoStatus(item.po_status)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -591,8 +601,7 @@ class Po extends React.Component {
                         <td>{item.requested_quantity}</td>
                         <td>{item.aditional_quantity}</td>
                         <td>{item.received_quantity}</td>
-                        <td>{getPoStatus(item.pop_status)}
-                        </td>
+                        <td>{getPoStatus(item.pop_status)}</td>
                         <td>{item.delivery_note || "-"}</td>
                       </tr>
                     ))

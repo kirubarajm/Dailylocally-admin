@@ -793,7 +793,7 @@ class OrderView extends React.Component {
                           item.id === 1) ||
                         (onActionHidden("crm_reorder") && item.id === 2) ||
                         ((onActionHidden("crm_book_return") ||
-                          propdata.dayorderstatus === 11) &&
+                          propdata.dayorderstatus !== 8) &&
                           item.id === 3) ||
                         ((onActionHidden("crm_refund") ||
                           propdata.dayorderstatus !== 10) &&

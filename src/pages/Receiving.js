@@ -463,7 +463,7 @@ class Receiving extends React.Component {
                         <td>
                           <Button
                             className="btn-custom"
-                            disabled={item.received_quantity !== 0 ||onActionHidden("wh_receving_action")}
+                            disabled={onActionHidden("wh_receving_action")}
                             onClick={this.onActionClick(item)}
                           >
                             Action
