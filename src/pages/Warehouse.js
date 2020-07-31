@@ -116,7 +116,7 @@ class Warehouse extends React.Component {
     return (
       <div>
         <div className="pd-12">
-          <Row className="width-84">
+          <Row>
             <Col>
               <ButtonGroup size="sm">
                 <Button
@@ -176,7 +176,6 @@ class Warehouse extends React.Component {
                 </Button>
               </ButtonGroup>
             </Col>
-            <Col></Col>
             <Col>
               <div className="float-right">
                 <span className="mr-r-20">Zone</span>

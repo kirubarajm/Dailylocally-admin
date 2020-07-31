@@ -22,11 +22,12 @@ import {
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import { notify } from "react-notify-toast";
-import { notification_color} from "../utils/constant";
+import { notification_color } from "../utils/constant";
 import Search from "../components/Search";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import { store } from "../store";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
+import PaginationComponent from "react-reactstrap-pagination";
 
 const mapStateToProps = (state) => ({
   ...state.returnpage,
@@ -77,12 +78,14 @@ class ReturnPage extends React.Component {
       isOpenReportDropDown: false,
       reportingItem: false,
       reportingSortingItem: false,
-      sortingItem:false,
+      sortingItem: false,
       reportingModal: false,
       recevingModal: false,
+      selectedPage:1,
 
       selected_dopid: false,
       orderdate: false,
+      enddate:false,
       orderid: "",
       selectedItem: { products: [] },
       today: Moment(new Date()),
@@ -182,7 +185,8 @@ class ReturnPage extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
       };
-      if (this.state.orderdate) data.date = this.state.orderdate;
+      if (this.state.orderdate) data.from_date = this.state.orderdate;
+      if (this.state.enddate) data.to_date = this.state.enddate;
       if (this.state.orderid) data.doid = this.state.orderid;
       this.props.onGetReturnList(data);
     }
@@ -299,18 +303,25 @@ class ReturnPage extends React.Component {
 
   orderDate = (event, picker) => {
     var orderdate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ orderdate: orderdate });
+    var endDate = picker.endDate.format("YYYY-MM-DD");
+    this.setState({ orderdate: orderdate, enddate: endDate });
   };
   onSuccessRefresh = () => {
     this.setState({ search_refresh: false });
   };
   onSearch = () => {
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false, selectedPage: 1 });
+  };
+
+  handleSelected = (selectedPage) => {
+    this.setState({ selectedPage: selectedPage, isLoading: false });
   };
 
   onReset = () => {
     this.setState({
       orderdate: false,
+      enddate: false,
+      selectedPage: 1,
       orderid: "",
       search_refresh: true,
     });
@@ -330,12 +341,16 @@ class ReturnPage extends React.Component {
   };
 
   movetoSorting = (item) => {
-    this.setState({sortingItem:item});
+    this.setState({ sortingItem: item });
     this.onSortingModal();
   };
   confirmToSorting = () => {
     this.onSortingModal();
-    this.props.onSorting({ zoneid: this.props.zoneItem.id, done_by: 1,doid:this.state.sortingItem.doid});
+    this.props.onSorting({
+      zoneid: this.props.zoneItem.id,
+      done_by: 1,
+      doid: this.state.sortingItem.doid,
+    });
   };
   onRecevingModal = () => {
     this.setState((prevState) => ({
@@ -374,7 +389,6 @@ class ReturnPage extends React.Component {
                   <div className="mr-r-10 width-50">Date: </div>
                   <DateRangePicker
                     opens="right"
-                    singleDatePicker
                     maxDate={this.state.today}
                     drops="down"
                     onApply={this.orderDate}
@@ -389,6 +403,9 @@ class ReturnPage extends React.Component {
                   {this.state.orderdate
                     ? Moment(this.state.orderdate).format("DD/MM/YYYY")
                     : "DD/MM/YYYY"}
+                  {this.state.orderdate
+                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                    : ""}
                 </div>
               </Col>
             </Row>
@@ -405,8 +422,7 @@ class ReturnPage extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <div className="search-horizantal-scroll width-full">
-              <div className="search-vscroll">
+              <div className="search-horizantal-qc">
                 <Table>
                   <thead>
                     <tr>
@@ -428,14 +444,20 @@ class ReturnPage extends React.Component {
                         </td>
                         <td>{item.doid}</td>
                         <td>
-                          <Button size="sm" onClick={this.onActionClick(item)}
-                          disabled={onActionHidden("wh_return_receving")}>
+                          <Button
+                            size="sm"
+                            onClick={this.onActionClick(item)}
+                            disabled={onActionHidden("wh_return_receving")}
+                          >
                             Receive
                           </Button>
                         </td>
                         <td>
-                          <Button size="sm" onClick={()=>this.movetoSorting(item)}
-                          disabled={onActionHidden("wh_retun_sorting")}>
+                          <Button
+                            size="sm"
+                            onClick={() => this.movetoSorting(item)}
+                            disabled={onActionHidden("wh_retun_sorting")}
+                          >
                             Sorting
                           </Button>
                         </td>
@@ -444,6 +466,17 @@ class ReturnPage extends React.Component {
                   </tbody>
                 </Table>
               </div>
+              <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={this.props.pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.state.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>

@@ -754,12 +754,10 @@ class Catalog extends React.Component {
                     <Button
                       size="sm"
                       hidden={onActionHidden('catadd_product')}
-                      disabled={!this.state.areaItem}
                       onClick={() => this.catAddEditClick(false)}
                     >
-                      Add New{" "}
+                      Add New
                       <span className="vertical-align-center">
-                        {" "}
                         <FaPlusCircle size={12} />
                       </span>
                     </Button>

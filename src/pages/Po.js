@@ -30,6 +30,7 @@ import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import { store } from "../store";
 import { getPoStatus, getAdminId } from "../utils/ConstantFunction";
+import PaginationComponent from "react-reactstrap-pagination";
 
 const mapStateToProps = (state) => ({
   ...state.po,
@@ -73,7 +74,9 @@ class Po extends React.Component {
       search_refresh: false,
       pono: false,
       supplier_name: false,
+      selectedPage: 1,
       po_createdate: false,
+      enddate: false,
       due_date: false,
       today: Moment(new Date()),
       isOpenRecevingDropDown: false,
@@ -134,10 +137,12 @@ class Po extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
       };
-      if (this.state.po_createdate) data.date = this.state.po_createdate;
+      if (this.state.po_createdate) data.from_date = this.state.po_createdate;
+      if (this.state.enddate) data.to_date = this.state.enddate;
       if (this.state.supplier_name) data.vid = this.state.supplier_name;
       if (this.state.due_date) data.due_date = this.state.due_date;
       if (this.state.pono) data.poid = this.state.pono;
+      if (this.state.selectedPage) data.page = this.state.selectedPage;
       if (this.state.postatusItem && this.state.postatusItem.id !== -1)
         data.po_status = this.state.postatusItem.id;
       if (this.state.recevingItem && this.state.recevingItem.id !== -1)
@@ -164,7 +169,8 @@ class Po extends React.Component {
 
   pocreateDate = (event, picker) => {
     var po_createdate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ po_createdate: po_createdate });
+    var endDate = picker.endDate.format("YYYY-MM-DD");
+    this.setState({ po_createdate: po_createdate, enddate: endDate });
   };
 
   dueDate = (event, picker) => {
@@ -221,19 +227,10 @@ class Po extends React.Component {
   };
 
   onSearch = () => {
-    // var data = {
-    //   zone_id: this.props.zoneItem.id,
-    // };
-    // if (this.state.po_createdate) data.date = this.state.po_createdate;
-    // if (this.state.supplier_name) data.vid = this.state.supplier_name;
-    // if (this.state.due_date) data.due_date = this.state.due_date;
-    // if (this.state.pono) data.poid = this.state.pono;
-    // if (this.state.postatusItem&&this.state.postatusItem.id!==-1)
-    // data.po_status = this.state.postatusItem.id;
-    // if (this.state.recevingItem&&this.state.recevingItem.id!==-1)
-    // data.pop_status = this.state.recevingItem.id;
-    // this.props.onGetPoList(data);
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false, selectedPage: 1 });
+  };
+  handleSelected = (selectedPage) => {
+    this.setState({ selectedPage: selectedPage, isLoading: false });
   };
   gotoVendorAssign = () => {
     this.props.history.push("/vendor-assign");
@@ -255,7 +252,9 @@ class Po extends React.Component {
   onReset = () => {
     this.setState({
       po_createdate: false,
+      enddate: false,
       due_date: false,
+      selectedPage: 1,
       pono: "",
       supplier_name: "",
       search_refresh: true,
@@ -274,9 +273,9 @@ class Po extends React.Component {
   render() {
     const poList = this.props.poList || [];
     return (
-      <div className="width-full" style={{ position: "fixed" }}>
-        <div style={{ height: "85vh" }} className="pd-6">
-          <div className="fieldset width-84">
+      <div className="width-full pd-6" style={{ position: "fixed" }}>
+        <div style={{ height: "85vh" }} className="width-85">
+          <div className="fieldset">
             <div className="legend">Purchase Order - Search</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
               <Col lg="4" className="pd-0">
@@ -292,7 +291,7 @@ class Po extends React.Component {
                   />
                 </div>
               </Col>
-              <Col lg="3" className="pd-0">
+              <Col lg="4" className="pd-0">
                 <div
                   style={{
                     display: "flex",
@@ -303,7 +302,6 @@ class Po extends React.Component {
                   <div className="mr-r-10 width-120">Date Created: </div>
                   <DateRangePicker
                     opens="right"
-                    singleDatePicker
                     maxDate={this.state.today}
                     drops="down"
                     onApply={this.pocreateDate}
@@ -318,6 +316,9 @@ class Po extends React.Component {
                   {this.state.po_createdate
                     ? Moment(this.state.po_createdate).format("DD/MM/YYYY")
                     : "DD/MM/YYYY"}
+                  {this.state.po_createdate
+                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                    : ""}
                 </div>
               </Col>
 
@@ -449,7 +450,7 @@ class Po extends React.Component {
               </Col>
             </Row>
           </div>
-          <Row className="width-84 mr-b-10 mr-l-10">
+          <Row className="mr-b-10 mr-l-10 mr-r-10">
             <Col className="txt-align-right pd-0">
               <Button size="sm" onClick={this.gotoVendorAssign}>
                 Supplier Assign
@@ -457,98 +458,108 @@ class Po extends React.Component {
             </Col>
           </Row>
           <div className="pd-6">
-            <div className="search-horizantal-scroll">
-              <div className="search-vscroll">
-                <Table style={{ width: "2000px" }}>
-                  <thead>
-                    <tr>
-                      <th>PDF</th>
-                      <th>View</th>
-                      <th>Delete</th>
-                      <th>Close PO</th>
-                      <th>PO No</th>
-                      <th>Supplier Name</th>
-                      <th>Supplier Code</th>
-                      <th>Date Created</th>
-                      <th>Total Quantity</th>
-                      <th>Open Quantity </th>
-                      <th>Received Quantity </th>
-                      <th>Amt </th>
-                      <th>Due Date/Time</th>
-                      <th>PO Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {poList.map((item, i) => (
-                      <tr key={i}>
-                        <td>
-                          <Button
-                            size="sm"
-                            color="link"
-                            disabled={!item.po_pdf_url}
-                          >
-                            <a href={item.po_pdf} target="_blank">
-                              <FaRegFilePdf
-                                className="txt-color-theme txt-cursor pd-2"
-                                size="20"
-                              />
-                            </a>
-                          </Button>
-                        </td>
-                        <td>
-                          <FaEye
-                            className="txt-color-theme txt-cursor pd-2"
-                            size="20"
-                            onClick={() => this.onView(item)}
-                          />
-                        </td>
-                        <td>
-                          <Button
-                            size="sm"
-                            color="link"
-                            onClick={() => this.onDelete(item)}
-                            disabled={item.po_status !== 0}
-                          >
-                            <FaTrashAlt
-                              className={
-                                item.po_status !== 0
-                                  ? "color-disable"
-                                  : "color-red"
-                              }
-                              size="16"
+            <div className="search-horizantal-po">
+              <Table style={{ width: "2000px" }}>
+                <thead>
+                  <tr>
+                    <th>PDF</th>
+                    <th>View</th>
+                    <th>Delete</th>
+                    <th>Close PO</th>
+                    <th>PO No</th>
+                    <th>Supplier Name</th>
+                    <th>Supplier Code</th>
+                    <th>Date Created</th>
+                    <th>Total Quantity</th>
+                    <th>Open Quantity </th>
+                    <th>Received Quantity </th>
+                    <th>Amt </th>
+                    <th>Due Date/Time</th>
+                    <th>PO Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {poList.map((item, i) => (
+                    <tr key={i}>
+                      <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          disabled={!item.po_pdf_url}
+                        >
+                          <a href={item.po_pdf} target="_blank">
+                            <FaRegFilePdf
+                              className="txt-color-theme txt-cursor pd-2"
+                              size="20"
                             />
-                          </Button>
-                        </td>
-                        <td>
-                          <Button
-                            className="btn-close"
-                            disabled={item.po_status !== 0}
-                            onClick={() => this.onClose(item)}
-                          >
-                            Close
-                          </Button>
-                        </td>
-                        <td>{item.poid}</td>
-                        <td>{item.name}</td>
-                        <td>{item.vid}</td>
-                        <td>
-                          {Moment(item.created_at).format(
-                            "DD-MMM-YYYY/hh:mm a"
-                          )}
-                        </td>
-                        <td>{item.total_quantity}</td>
-                        <td>{item.open_quqntity}</td>
-                        <td>{item.received_quantity}</td>
-                        <td>{item.cost}</td>
-                        <td>
-                          {Moment(item.due_date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>{getPoStatus(item.po_status)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
+                          </a>
+                        </Button>
+                      </td>
+                      <td>
+                        <FaEye
+                          className="txt-color-theme txt-cursor pd-2"
+                          size="20"
+                          onClick={() => this.onView(item)}
+                        />
+                      </td>
+                      <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          onClick={() => this.onDelete(item)}
+                          disabled={item.po_status !== 0}
+                        >
+                          <FaTrashAlt
+                            className={
+                              item.po_status !== 0
+                                ? "color-disable"
+                                : "color-red"
+                            }
+                            size="16"
+                          />
+                        </Button>
+                      </td>
+                      <td>
+                        <Button
+                          className="btn-close"
+                          disabled={
+                            item.po_status !== 1 && item.po_status !== 2
+                          }
+                          onClick={() => this.onClose(item)}
+                        >
+                          Close
+                        </Button>
+                      </td>
+                      <td>{item.poid}</td>
+                      <td>{item.name}</td>
+                      <td>{item.vid}</td>
+                      <td>
+                        {Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}
+                      </td>
+                      <td>{item.total_quantity}</td>
+                      <td>{item.open_quqntity}</td>
+                      <td>{item.received_quantity}</td>
+                      <td>{item.cost}</td>
+                      <td>
+                        {Moment(item.due_date).format("DD-MMM-YYYY/hh:mm a")}
+                      </td>
+                      <td>{getPoStatus(item.po_status)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+            <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={this.props.pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.state.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>

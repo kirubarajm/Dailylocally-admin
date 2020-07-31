@@ -36,7 +36,7 @@ const InputField = ({
   return (
     <div className="border-none">
       <div>
-        <input {...input} placeholder={label} type={type} autoComplete="off" />
+        <input {...input} placeholder={label} type={type} autoComplete="off" disabled={custom.disabled}/>
         <span
           style={{
             flex: "0",
@@ -144,6 +144,7 @@ class StockAddFrom extends React.Component {
       isOpenAreaDropDown: false,
       validateModal: false,
       stocktype: [],
+      isEditAutal:false,
     };
   }
 
@@ -169,8 +170,20 @@ class StockAddFrom extends React.Component {
       this.setState({ stocktype: typearray });
       if(this.props.selectedItem.wastage_image)this.props.onSetImages(this.props.selectedItem.wastage_image);
       this.props.initialize(initData);
+    }else{
+      var initData = {
+        actual: this.props.selectedItem.boh,
+      }
+      this.props.initialize(initData);
     }
   }
+
+  toggleEditPopup = () => {
+    //if (ev) ev.stopPropagation();
+    this.setState({
+      isEditAutal: !this.state.isEditAutal,
+    });
+  };
 
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
@@ -204,25 +217,39 @@ class StockAddFrom extends React.Component {
       );
       return;
     }
-    var data1 = {
-      zoneid: this.props.zoneItem.id,
-      done_by:getAdminId()
-    };
-    data1.actual_quantity = data.actual;
-    data1.missing_quantity = data.missing;
-    data1.wastage = data.wastage;
-    data1.type = this.state.stocktype[0].id;
-    data1.wastage_image =
-      this.props.Signature.length === 0 ? "" : this.props.Signature[0].img_url;
-      if (this.props.isEdit) {
-        data1.skid = this.props.selectedItem.skid;
-        this.props.onEditStockList(data1);
-      } else {
-        data1.stockid = this.props.selectedItem.stockid;
-        data1.vpid = this.props.selectedItem.vpid;
-        this.props.onUpdateStockList(data1);
-      }
-    this.props.onValidationModal();
+
+    var missing =data.missing||0;
+    var wastage =data.wastage||0;
+    var count=(wastage+missing);
+    if(count<=data.actual){
+      var data1 = {
+        zoneid: this.props.zoneItem.id,
+        done_by:getAdminId()
+      };
+      data1.actual_quantity = data.actual;
+      data1.missing_quantity = data.missing;
+      data1.wastage = data.wastage;
+      data1.type = this.state.stocktype[0].id;
+      data1.wastage_image =
+        this.props.Signature.length === 0 ? "" : this.props.Signature[0].img_url;
+        if (this.props.isEdit) {
+          data1.skid = this.props.selectedItem.skid;
+          this.props.onEditStockList(data1);
+        } else {
+          data1.stockid = this.props.selectedItem.stockid;
+          data1.vpid = this.props.selectedItem.vpid;
+          this.props.onUpdateStockList(data1);
+        }
+      this.props.onValidationModal();
+    }else{
+      notify.show(
+        "Mismatched actual quantity and sum of wastage and missing quantity ,please enter valid quantity",
+        "custom",
+        3000,
+        notification_color
+      );
+    }
+    
   };
   handleonRemove = (imgid, imgType, index) => {
     this.props.onDeleteImages(imgType, index);
@@ -238,6 +265,8 @@ class StockAddFrom extends React.Component {
   selectedType = (item) => {
     this.setState({ stocktype: item });
   };
+
+ 
 
   render() {
     return (
@@ -276,15 +305,17 @@ class StockAddFrom extends React.Component {
                     Actual qty <span className="must">*</span>
                   </div>
                 </Col>
-                <Col lg="7">
+                <Col lg="7" className="flex-row">
                   <Field
                     name="actual"
                     autoComplete="off"
                     type="number"
+                    disabled={!this.state.isEditAutal}
                     component={InputField}
                     validate={[required]}
                     required={true}
                   />
+                  <Button size="sm" color="link" onClick={this.toggleEditPopup}>{this.state.isEditAutal?"Done":"Edit"}</Button>
                 </Col>
               </Row>
 

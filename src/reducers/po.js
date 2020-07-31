@@ -26,6 +26,8 @@ export default (
       { id: 3, name: "Close" },
       { id: 4, name: "Delete" },
     ],
+    totalcount:0,
+    pagelimit:0
   },
   action
 ) => {
@@ -34,6 +36,8 @@ export default (
       return {
         ...state,
         poList: action.payload.result || [],
+        totalcount:action.payload.totalcount || 0,
+        pagelimit:action.payload.pagelimit || 0,
       };
     case PO_VIEW:
       return {

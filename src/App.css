@@ -471,6 +471,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   margin-right: 20px !important;
 }
 
+.mr-l-15 {
+  margin-left: 15px !important;
+}
+
 .mr-l-20 {
   margin-left: 20px !important;
 }
@@ -480,6 +484,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 
 .mr-l-40 {
   margin-left: 40px !important;
+}
+
+.mr-l-50 {
+  margin-left: 50px !important;
 }
 
 .mr-r-50 {
@@ -855,12 +863,20 @@ a, a:focus, a:hover, a:visited {
   -webkit-overflow-scrolling: touch;
 }
 
-.search-scroll {
-  margin-bottom: 10px !important;
-  overflow: hidden !important;
-  overflow-y: scroll !important;
+.search-scroll-pr {
+  margin-bottom: 20px !important;
+  overflow: auto !important;
   background: #ffffff !important;
-  height: 55vh !important;
+  max-height: 50vh !important;
+  min-height: 50vh !important;
+}
+
+.search-scroll-dayorder {
+  margin-bottom: 20px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  max-height: 40vh !important;
+  min-height: 40vh !important;
 }
 
 .search-vscroll {
@@ -892,6 +908,22 @@ a, a:focus, a:hover, a:visited {
   height: 40vh !important;
 }
 
+.scroll-user {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  max-height: 55vh !important;
+  min-height: 55vh !important;
+}
+
+.scroll-trview {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  max-height: 55vh !important;
+  min-height: 55vh !important;
+}
+
 .scroll-trip-assign {
   overflow-y: auto;
   overflow-x: hidden;
@@ -911,6 +943,13 @@ a, a:focus, a:hover, a:visited {
   overflow: auto;
   max-height: 40vh !important;
   min-height: 40vh !important;
+}
+
+.scroll-horizantal-trip{
+  width: 100%;
+  overflow: auto;
+  max-height: 45vh !important;
+  min-height: 45vh !important;
 }
 
 .scroll-horizantal-refund {
@@ -937,6 +976,32 @@ a, a:focus, a:hover, a:visited {
 .search-horizantal-scroll {
     width: 86%;
     overflow: auto;
+}
+
+.search-horizantal-po {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  height: 44vh !important;
+}
+.search-horizantal-reci {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  height: 48vh !important;
+}
+.search-horizantal-sort {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  height: 55vh !important;
+}
+
+.search-horizantal-qc {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  height: 55vh !important;
 }
 
 .order-horizantal-scroll {

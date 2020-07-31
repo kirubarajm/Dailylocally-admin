@@ -16,6 +16,8 @@ export default (
     isSaving: false,
     isSubmiting: false,
     isReportSubmiting:false,
+    totalcount:0,
+    pagelimit:0
   },
   action
 ) => {
@@ -24,6 +26,8 @@ export default (
       return {
         ...state,
         sortingList: action.payload.result || [],
+        totalcount:action.payload.totalcount || 0,
+        pagelimit:action.payload.pagelimit || 0,
       };
     case SORTING_SAVING_ITEM:
       return {

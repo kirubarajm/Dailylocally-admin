@@ -355,7 +355,7 @@ class UserList extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <div className="scroll-crm">
+            <div className="scroll-user">
               <Table>
                 <thead>
                   <tr>

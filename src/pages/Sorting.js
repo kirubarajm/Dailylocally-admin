@@ -32,6 +32,7 @@ import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
+import PaginationComponent from "react-reactstrap-pagination";
 const InputField = ({
   input,
   label,
@@ -111,6 +112,8 @@ class Sorting extends React.Component {
 
       selected_dopid: false,
       orderdate: false,
+      enddate:false,
+      selectedPage: 1,
       orderid: "",
       selectedItem: { products: [] },
       today: Moment(new Date()),
@@ -199,7 +202,9 @@ class Sorting extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
       };
-      if (this.state.orderdate) data.date = this.state.orderdate;
+      if (this.state.orderdate) data.from_date = this.state.orderdate;
+      if (this.state.enddate) data.to_date = this.state.enddate;
+      if (this.state.selectedPage) data.page = this.state.selectedPage;
       if (this.state.orderid) data.doid = this.state.orderid;
       this.props.onGetSortingList(data);
     }
@@ -302,18 +307,24 @@ class Sorting extends React.Component {
 
   orderDate = (event, picker) => {
     var orderdate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ orderdate: orderdate });
+    var endDate = picker.endDate.format("YYYY-MM-DD");
+    this.setState({ orderdate: orderdate,enddate:endDate });
   };
   onSuccessRefresh = () => {
     this.setState({ search_refresh: false });
   };
+  handleSelected = (selectedPage) => {
+    this.setState({ selectedPage: selectedPage, isLoading: false });
+  };
   onSearch = () => {
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false,selectedPage: 1,});
   };
 
   onReset = () => {
     this.setState({
       orderdate: false,
+      enddate:false,
+      selectedPage: 1,
       orderid: "",
       search_refresh: true,
     });
@@ -363,7 +374,6 @@ class Sorting extends React.Component {
                   <div className="mr-r-10 width-50">Date: </div>
                   <DateRangePicker
                     opens="right"
-                    singleDatePicker
                     maxDate={this.state.today}
                     drops="down"
                     onApply={this.orderDate}
@@ -378,6 +388,9 @@ class Sorting extends React.Component {
                   {this.state.orderdate
                     ? Moment(this.state.orderdate).format("DD/MM/YYYY")
                     : "DD/MM/YYYY"}
+                  {this.state.orderdate
+                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                    : ""}
                 </div>
               </Col>
             </Row>
@@ -394,8 +407,7 @@ class Sorting extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <div className="search-horizantal-scroll width-full">
-              <div className="search-vscroll">
+              <div className="search-horizantal-sort">
                 <Table>
                   <thead>
                     <tr>
@@ -425,6 +437,17 @@ class Sorting extends React.Component {
                   </tbody>
                 </Table>
               </div>
+              <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={this.props.pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.state.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>

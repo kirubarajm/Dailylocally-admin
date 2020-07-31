@@ -12,6 +12,8 @@ export default (
     unreceivingAction: [
       { id: 2, name: "UnReceiving" },
     ],
+    totalcount:0,
+    pagelimit:0
   },
   action
 ) => {
@@ -20,6 +22,8 @@ export default (
       return {
         ...state,
         recevingList: action.payload.result || [],
+        totalcount:action.payload.totalcount || 0,
+        pagelimit:action.payload.pagelimit || 0,
       };
     case RECEIVING_UPDATE:
       return {

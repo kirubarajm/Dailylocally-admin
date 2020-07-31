@@ -30,6 +30,7 @@ import Searchnew from "../components/Searchnew";
 import SearchItem from "../components/SearchItem";
 import { store } from "../store";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
+import PaginationComponent from "react-reactstrap-pagination";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -170,6 +171,8 @@ class Receiving extends React.Component {
       supplier_name: false,
       item_name: false,
       po_createdate: false,
+      selectedPage: 1,
+      enddate: false,
       isConfrimModal: false,
       today: Moment(new Date()),
     };
@@ -224,7 +227,9 @@ class Receiving extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
       };
-      if (this.state.po_createdate) data.date = this.state.po_createdate;
+      if (this.state.po_createdate) data.from_date = this.state.po_createdate;
+      if (this.state.enddate) data.to_date = this.state.enddate;
+      if (this.state.selectedPage) data.page = this.state.selectedPage;
       if (this.state.supplier_name) data.vid = this.state.supplier_name;
       if (this.state.item_name) data.vpid = this.state.item_name;
       if (this.state.pono) data.poid = this.state.pono;
@@ -240,7 +245,7 @@ class Receiving extends React.Component {
   confirmTo = () => {
     var dData = {};
     dData.zoneid = this.props.zoneItem.id;
-    dData.done_by=getAdminId();
+    dData.done_by = getAdminId();
     dData.popid = this.state.selectedItem.popid;
     this.props.onItemMovetoSorting(dData);
     this.toggleConfirmPopup();
@@ -262,7 +267,7 @@ class Receiving extends React.Component {
   onSearchPOno = (e) => {
     const value = e.target.value || "";
     this.setState({ pono: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
@@ -270,7 +275,7 @@ class Receiving extends React.Component {
   onSearchSupplier = (e) => {
     const value = e.target.value || "";
     this.setState({ supplier_name: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
@@ -279,7 +284,7 @@ class Receiving extends React.Component {
   onSearchItem = (e) => {
     const value = e.target.value || "";
     this.setState({ item_name: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
@@ -293,11 +298,11 @@ class Receiving extends React.Component {
     var data1 = {
       zoneid: this.props.zoneItem.id,
       popid: this.state.selectedItem.popid,
-      done_by:getAdminId(),
+      done_by: getAdminId(),
     };
-      data1.vpid = this.state.selectedItem.vpid;
-      data1.quantity = data.item_quantity;
-      data1.delivery_note = data.delivery_note ||"";
+    data1.vpid = this.state.selectedItem.vpid;
+    data1.quantity = data.item_quantity;
+    data1.delivery_note = data.delivery_note || "";
     if (
       this.state.receivingSelection.length > 0 &&
       this.state.receivingSelection[0].id === 1
@@ -313,16 +318,22 @@ class Receiving extends React.Component {
 
   pocreateDate = (event, picker) => {
     var po_createdate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ po_createdate: po_createdate });
+    var enddate = picker.endDate.format("YYYY-MM-DD");
+    this.setState({ po_createdate: po_createdate, enddate: enddate });
   };
 
   onSearch = () => {
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false, selectedPage: 1 });
+  };
+  handleSelected = (selectedPage) => {
+    this.setState({ selectedPage: selectedPage, isLoading: false });
   };
 
   onReset = () => {
     this.setState({
       po_createdate: false,
+      enddate: false,
+      selectedPage: 1,
       pono: "",
       supplier_name: "",
       item_name: "",
@@ -339,8 +350,8 @@ class Receiving extends React.Component {
   render() {
     const recevingList = this.props.recevingList || [];
     return (
-      <div className="width-full">
-        <div style={{ height: "85vh" }} className="pd-6">
+      <div className="width-full pd-6" style={{ position: "fixed" }}>
+        <div style={{ height: "85vh" }} className="width-85">
           <div className="fieldset">
             <div className="legend">PO search Criteri</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
@@ -383,6 +394,9 @@ class Receiving extends React.Component {
                   {this.state.po_createdate
                     ? Moment(this.state.po_createdate).format("DD/MM/YYYY")
                     : "DD/MM/YYYY"}
+                  {this.state.po_createdate
+                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                    : ""}
                 </div>
               </Col>
             </Row>
@@ -428,66 +442,78 @@ class Receiving extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-          {/* className="search-horizantal-scroll" style={{ width: "1400px" }}*/}
-            <div >
-              <div className="search-vscroll">
-                <Table >
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Product Code</th>
-                      <th>Product Name</th>
-                      <th>PO No - Supplier name</th>
-                      <th>UOM</th>
-                      <th>BOH</th>
-                      <th>PO quantity</th>
-                      <th>received quantity</th>
-                      <th>Receive/Unreceive</th>
-                      <th>Standby count</th>
-                      
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recevingList.map((item, i) => (
-                      <tr key={i}>
-                        <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
-                        <td>{item.vpid}</td>
-                        <td>{item.productname}</td>
-                        <td>
-                          PO#{item.poid} - {item.name}
-                        </td>
-                        <td>{item.uom}</td>
-                        <td>{item.boh}</td>
-                        <td>{item.total_quantity}</td>
-                        <td>{item.received_quantity}</td>
-                        <td>
-                          <Button
-                            className="btn-custom"
-                            disabled={onActionHidden("wh_receving_action")}
-                            onClick={this.onActionClick(item)}
-                          >
-                            Action
-                          </Button>
-                        </td>
-                        <td>
-                          <div className="flex-row">
-                          <div hidden={item.stand_by === 0}>{item.stand_by}</div>
+            <div className="search-horizantal-reci">
+              <Table style={{ width: "1400px" }}>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Product Code</th>
+                    <th>Product Name</th>
+                    <th>PO No - Supplier name</th>
+                    <th>UOM</th>
+                    <th>BOH</th>
+                    <th>PO quantity</th>
+                    <th>received quantity</th>
+                    <th>Receive/Unreceive</th>
+                    <th>Standby count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recevingList.map((item, i) => (
+                    <tr key={i}>
+                      <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
+                      <td>{item.vpid}</td>
+                      <td>{item.productname}</td>
+                      <td>
+                        PO#{item.poid} - {item.name}
+                      </td>
+                      <td>{item.uom}</td>
+                      <td>{item.boh}</td>
+                      <td>{item.total_quantity}</td>
+                      <td>{item.received_quantity}</td>
+                      <td>
+                        <Button
+                          className="btn-custom"
+                          disabled={onActionHidden("wh_receving_action")}
+                          onClick={this.onActionClick(item)}
+                        >
+                          Action
+                        </Button>
+                      </td>
+                      <td>
+                        <div className="flex-row">
+                          <div hidden={item.stand_by === 0}>
+                            {item.stand_by}
+                          </div>
                           <Button
                             size="sm"
                             className="btn-custom mr-l-10"
-                            disabled={item.stand_by === 0 ||onActionHidden("wh_push_sort")}
+                            disabled={
+                              item.stand_by === 0 ||
+                              onActionHidden("wh_push_sort")
+                            }
                             onClick={this.onSortingClick(item)}
                           >
                             Push to Sort
                           </Button>
-                          </div>
-                        </td>
-                        
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+            <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={this.props.pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.state.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>
@@ -513,11 +539,7 @@ class Receiving extends React.Component {
                   <Field
                     name="ac_id"
                     component={InputSearchDropDown}
-                    options={
-                      this.state.selectedItem.pop_status === 1
-                        ? this.props.unreceivingAction
-                        : this.props.receivingAction
-                    }
+                    options={this.props.receivingAction}
                     labelField="name"
                     searchable={true}
                     clearable={true}
@@ -528,53 +550,53 @@ class Receiving extends React.Component {
                     onSelection={this.selectedReceiving}
                     label="Select Action"
                   />
-                  
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <Row
-                        className="pd-0"
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          marginLeft: "3px",
-                        }}
-                      >
-                        <Col lg="5" className="color-grey pd-0 border-none">
-                          <div className="border-none">
-                            Quantity<span className="must">*</span>
-                          </div>
-                        </Col>
-                        <Col lg="7" className="border-none">
-                          <Field
-                            name="item_quantity"
-                            autoComplete="off"
-                            type="number"
-                            component={InputField}
-                            validate={[required]}
-                            required={true}
-                          />
-                        </Col>
-                      </Row>
-                      <Row
-                        className="pd-0"
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          marginLeft: "3px",
-                        }}
-                      >
-                        <Col lg="5" className="color-grey pd-0 border-none">
-                          <div className="border-none">Delivery Note</div>
-                        </Col>
-                        <Col lg="7" className="border-none">
-                          <Field
-                            name="delivery_note"
-                            autoComplete="off"
-                            type="text"
-                            component={InputField}
-                          />
-                        </Col>
-                      </Row>
-                    </div>
+
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <Row
+                      className="pd-0"
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        marginLeft: "3px",
+                      }}
+                    >
+                      <Col lg="5" className="color-grey pd-0 border-none">
+                        <div className="border-none">
+                          Quantity<span className="must">*</span>
+                        </div>
+                      </Col>
+                      <Col lg="7" className="border-none">
+                        <Field
+                          name="item_quantity"
+                          autoComplete="off"
+                          type="number"
+                          component={InputField}
+                          validate={[required]}
+                          required={true}
+                        />
+                      </Col>
+                    </Row>
+                    <Row
+                      className="pd-0"
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        marginLeft: "3px",
+                      }}
+                    >
+                      <Col lg="5" className="color-grey pd-0 border-none">
+                        <div className="border-none">Delivery Note</div>
+                      </Col>
+                      <Col lg="7" className="border-none">
+                        <Field
+                          name="delivery_note"
+                          autoComplete="off"
+                          type="text"
+                          component={InputField}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
                   <Row className="pd-10">
                     <Col className="txt-align-right">
                       <Button color="secondary">Submit</Button>

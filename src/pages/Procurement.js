@@ -26,6 +26,7 @@ import {
   MOVE_TO_PO_STOCK,
 } from "../constants/actionTypes";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
+import PaginationComponent from "react-reactstrap-pagination";
 
 const mapStateToProps = (state) => ({
   ...state.procurement,
@@ -66,6 +67,7 @@ class Procurement extends React.Component {
     this.state = {
       isLoading: false,
       selected_procument: false,
+      selectedPage:1,
       pr_createdate: false,
       enddate: false,
       search: "",
@@ -119,7 +121,9 @@ class Procurement extends React.Component {
         zoneid: this.props.zoneItem.id,
       };
       if (this.state.itemcode) data.vpid = this.state.itemcode;
-      if (this.state.pr_createdate) data.date = this.state.pr_createdate;
+      if (this.state.pr_createdate) data.from_date = this.state.pr_createdate;
+      if (this.state.selectedPage) data.page = this.state.selectedPage;
+      if (this.state.enddate) data.to_date = this.state.enddate;
       this.props.onGetProcurement(data);
     }
   };
@@ -162,8 +166,9 @@ class Procurement extends React.Component {
   }
 
   startSelect = (event, picker) => {
-    var pr_createdate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ pr_createdate: pr_createdate });
+    var startdate = picker.startDate.format("YYYY-MM-DD");
+    var enddate = picker.endDate.format("YYYY-MM-DD");
+    this.setState({ pr_createdate: startdate, enddate: enddate });
   };
 
   togglePoPopUp = () => {
@@ -233,13 +238,18 @@ class Procurement extends React.Component {
   };
 
   onSearch = () => {
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false,selectedPage:1 });
+  };
+  handleSelected = (selectedPage) => {
+    this.setState({selectedPage:selectedPage,isLoading:false});
   };
 
   onReset = () => {
     this.setState({
       pr_createdate: false,
+      selectedPage:1,
       search: "",
+      enddate:false,
       itemcode: "",
       itemid_refresh: true,
     });
@@ -258,7 +268,7 @@ class Procurement extends React.Component {
           <div className="fieldset">
             <div className="legend">Procurement - Search</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="3" className="pd-0">
+              <Col lg="4" className="pd-0">
                 <div
                   style={{
                     display: "flex",
@@ -269,7 +279,6 @@ class Procurement extends React.Component {
                   <div className="mr-r-10">Date/Time: </div>
                   <DateRangePicker
                     opens="right"
-                    singleDatePicker
                     maxDate={this.state.today}
                     drops="down"
                     onApply={this.startSelect}
@@ -281,9 +290,12 @@ class Procurement extends React.Component {
                       <i className="far fa-calendar-alt"></i>
                     </Button>
                   </DateRangePicker>
-                  {this.state.pr_createdate
+                    {this.state.pr_createdate
                     ? Moment(this.state.pr_createdate).format("DD/MM/YYYY")
                     : "DD/MM/YYYY"}
+                  {this.state.pr_createdate
+                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                    : ""}
                 </div>
               </Col>
               <Col lg="4" className="pd-0">
@@ -314,7 +326,7 @@ class Procurement extends React.Component {
           </div>
 
           <div className="pd-6">
-            <Row>
+            <Row className="mr-r-5">
               <Col>
                 <div className="pd-6">
                   <div>
@@ -331,7 +343,7 @@ class Procurement extends React.Component {
                   <div className="font-size-12 mr-l-20">{" Select All "}</div>
                 </div>
               </Col>
-              <Col className="txt-align-right">
+              <Col className="txt-align-right pd-0">
                 <Button
                   size="sm"
                   hidden={onActionHidden('wh_moveto_st')}
@@ -353,7 +365,7 @@ class Procurement extends React.Component {
                 </Button>
               </Col>
             </Row>
-            <div className="search-scroll">
+            <div className="search-scroll-pr">
               <Table>
                 <thead>
                   <tr>
@@ -405,6 +417,18 @@ class Procurement extends React.Component {
                   ))}
                 </tbody>
               </Table>
+            </div>
+            <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={this.props.pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.state.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>

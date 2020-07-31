@@ -561,7 +561,7 @@ class StockKeeping extends React.Component {
             </Row>
             <div className="search-horizantal-scroll mr-t-10">
               <div className="search-vscroll">
-                <Table style={{ width: "2000px" }}>
+                <Table style={{ width: "2500px" }}>
                   <thead>
                     <tr>
                       <th>View</th>

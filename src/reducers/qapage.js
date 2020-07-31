@@ -20,7 +20,9 @@ export default (
     ],
     qualitytype: [],
     qa_submitted: false,
-    isReportSubmiting:false
+    isReportSubmiting:false,
+    totalcount:0,
+    pagelimit:0
   },
   action
 ) => {
@@ -29,6 +31,8 @@ export default (
       return {
         ...state,
         qaList: action.payload.result || [],
+        totalcount:action.payload.totalcount || 0,
+        pagelimit:action.payload.pagelimit || 0,
       };
     case QA_QUALITY_LIST:
       return {

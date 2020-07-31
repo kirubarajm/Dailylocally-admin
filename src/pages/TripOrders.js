@@ -581,7 +581,7 @@ class TripOrders extends React.Component {
                 </ButtonDropdown>
               </Col>
             </Row>
-            <div className="scroll-horizantal-logistics">
+            <div className="scroll-horizantal-trip">
               <div>
                 <Table style={{ width: "1500px" }}>
                   <thead>

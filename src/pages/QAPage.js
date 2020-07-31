@@ -33,6 +33,7 @@ import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
+import PaginationComponent from "react-reactstrap-pagination";
 
 const mapStateToProps = (state) => ({
   ...state.qapage,
@@ -113,9 +114,11 @@ class QAPage extends React.Component {
       qaModal: false,
       isQuality: false,
       orderdate: false,
+      enddate: false,
+      selectedPage: 1,
       orderid: "",
       selectedItem: { products: [] },
-      checklist:[],
+      checklist: [],
       isOpenReportDropDown: false,
       reportingItem: false,
       reportingSortingItem: false,
@@ -195,7 +198,9 @@ class QAPage extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
       };
-      if (this.state.orderdate) data.date = this.state.orderdate;
+      if (this.state.orderdate) data.from_date = this.state.orderdate;
+      if (this.state.enddate) data.to_date = this.state.enddate;
+      if (this.state.selectedPage) data.page = this.state.selectedPage;
       if (this.state.orderid) data.doid = this.state.orderid;
 
       this.props.onGetQAList(data);
@@ -250,7 +255,7 @@ class QAPage extends React.Component {
         var qaidArray = ck.qclist || [];
         qaidArray.map((qcl, i) => {
           if (qcl.qcid === qItem.qcid) {
-            qcl.qcvalue=e.target.selectedIndex === 1?1:0;
+            qcl.qcvalue = e.target.selectedIndex === 1 ? 1 : 0;
           }
         });
       }
@@ -267,8 +272,8 @@ class QAPage extends React.Component {
     data.type = 2;
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
-    data.zoneid= this.props.zoneItem.id;
-    data.done_by=getAdminId();
+    data.zoneid = this.props.zoneItem.id;
+    data.done_by = getAdminId();
     this.props.onSubmitQAOrders(data);
   };
 
@@ -277,24 +282,31 @@ class QAPage extends React.Component {
     data.type = 1;
     data.doid = this.state.selectedItem.doid;
     data.checklist = this.state.checklist;
-    data.zoneid= this.props.zoneItem.id;
-    data.done_by=getAdminId();
+    data.zoneid = this.props.zoneItem.id;
+    data.done_by = getAdminId();
     this.props.onSubmitQAOrders(data);
   };
   orderDate = (event, picker) => {
     var orderdate = picker.startDate.format("YYYY-MM-DD");
-    this.setState({ orderdate: orderdate });
+    var endDate = picker.endDate.format("YYYY-MM-DD");
+    this.setState({ orderdate: orderdate, enddate: endDate });
   };
   onSuccessRefresh = () => {
     this.setState({ search_refresh: false });
   };
   onSearch = () => {
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false, selectedPage: 1 });
+  };
+
+  handleSelected = (selectedPage) => {
+    this.setState({ selectedPage: selectedPage, isLoading: false });
   };
 
   onReset = () => {
     this.setState({
       orderdate: false,
+      enddate: false,
+      selectedPage: 1,
       orderid: "",
       search_refresh: true,
     });
@@ -340,7 +352,7 @@ class QAPage extends React.Component {
     var data = {
       from_type: 2,
       zoneid: this.props.zoneItem.id,
-      done_by:getAdminId(),
+      done_by: getAdminId(),
       dopid: this.state.reportingSortingItem.dopid,
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,
@@ -354,17 +366,17 @@ class QAPage extends React.Component {
     var checklist = [];
     item.products.map((item, index) => {
       var data = {};
-      var qclist=[]
-      data.vpid=item.vpid;
+      var qclist = [];
+      data.vpid = item.vpid;
       this.props.qualitytype.map((qitem, i) => {
-        if(qitem.active_status===1){
-          var qcidv={};
-          qcidv.qcid=qitem.qcid;
-          qcidv.qcvalue=0;
+        if (qitem.active_status === 1) {
+          var qcidv = {};
+          qcidv.qcid = qitem.qcid;
+          qcidv.qcvalue = 0;
           qclist.push(qcidv);
         }
-      })
-      data.qclist=qclist;
+      });
+      data.qclist = qclist;
       checklist.push(data);
     });
     this.setState({ checklist: checklist });
@@ -402,7 +414,6 @@ class QAPage extends React.Component {
                   <div className="mr-r-10 width-50">Date: </div>
                   <DateRangePicker
                     opens="right"
-                    singleDatePicker
                     maxDate={this.state.today}
                     drops="down"
                     onApply={this.orderDate}
@@ -417,6 +428,9 @@ class QAPage extends React.Component {
                   {this.state.orderdate
                     ? Moment(this.state.orderdate).format("DD/MM/YYYY")
                     : "DD/MM/YYYY"}
+                  {this.state.orderdate
+                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
+                    : ""}
                 </div>
               </Col>
             </Row>
@@ -433,37 +447,45 @@ class QAPage extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <div className="search-horizantal-scroll width-full">
-              <div className="search-vscroll">
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Date/Time</th>
-                      <th>Order ID</th>
-                      <th>Order status</th>
+            <div className="search-horizantal-qc">
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Date/Time</th>
+                    <th>Order ID</th>
+                    <th>Order status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {qaList.map((item, i) => (
+                    <tr key={i}>
+                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td>{item.doid}</td>
+                      <td>
+                        <Button
+                          size="sm"
+                          disabled={onActionHidden("wh_qc_approve")}
+                          onClick={this.onActionClick(item, i)}
+                        >
+                          Approve
+                        </Button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {qaList.map((item, i) => (
-                      <tr key={i}>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>{item.doid}</td>
-                        <td>
-                          <Button
-                            size="sm"
-                            disabled={onActionHidden("wh_qc_approve")}
-                            onClick={this.onActionClick(item, i)}
-                          >
-                            Approve
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+            <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={this.props.pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.state.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>

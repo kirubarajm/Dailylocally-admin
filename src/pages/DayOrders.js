@@ -31,6 +31,7 @@ import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import { store } from "../store";
 import Search from "../components/Search";
+import PaginationComponent from "react-reactstrap-pagination";
 
 const mapStateToProps = (state) => ({
   ...state.dayorders,
@@ -72,6 +73,7 @@ class DayOrders extends React.Component {
       isOpenOrderStatus: false,
       view_item: false,
       tooltipOpen: false,
+      selectedPage:1,
       select_order_status: {
         id: -1,
         status: "All",
@@ -113,6 +115,7 @@ class DayOrders extends React.Component {
       };
       if (this.state.startdate) data.starting_date = this.state.startdate;
       if (this.state.enddate) data.end_date = this.state.enddate;
+      if (this.state.selectedPage) data.page = this.state.selectedPage;
       if (this.state.orderid) data.doid = this.state.orderid;
       if (
         this.state.select_order_status &&
@@ -239,7 +242,11 @@ class DayOrders extends React.Component {
   };
 
   onSearch = () => {
-    this.setState({ isLoading: false });
+    this.setState({ isLoading: false,selectedPage:1 });
+  };
+
+  handleSelected = (selectedPage) => {
+    this.setState({selectedPage:selectedPage,isLoading:false});
   };
 
   onReset = () => {
@@ -247,6 +254,7 @@ class DayOrders extends React.Component {
       startdate: "",
       enddate: "",
       orderid: "",
+      selectedPage:1,
       orderid_refresh: true,
       select_order_status: {
         id: -1,
@@ -402,7 +410,7 @@ class DayOrders extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <Row>
+            <Row className="mr-r-5">
               <Col>
                 <div className="pd-6">
                   <div>
@@ -419,14 +427,14 @@ class DayOrders extends React.Component {
                   <div className="font-size-12 mr-l-20">{" Select All "}</div>
                 </div>
               </Col>
-              <Col className="txt-align-right">
+              <Col className="txt-align-right pd-0">
                 <Button size="sm" onClick={this.movetoprocurement} hidden={onActionHidden('wh_procurement_create')}>
                   Add Selected orders
                 </Button>
               </Col>
             </Row>
-            <div className="search-scroll">
-              <Table>
+            <div className="search-scroll-dayorder">
+              <Table style={{width:"1200px"}}>
                 <thead>
                   <tr>
                     <th>View</th>
@@ -488,6 +496,18 @@ class DayOrders extends React.Component {
                   ))}
                 </tbody>
               </Table>
+            </div>
+            <div
+              className="float-right"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
+              <PaginationComponent
+                totalItems={this.props.totalcount}
+                pageSize={this.props.pagelimit}
+                onSelect={this.handleSelected}
+                activePage={this.state.selectedPage}
+                size="sm"
+              />
             </div>
           </div>
         </div>

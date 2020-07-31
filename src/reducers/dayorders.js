@@ -8,6 +8,8 @@ export default (
   state = {
     movetoprocurement: false,
     dayorderlist: [],
+    totalcount:0,
+    pagelimit:0,
     orderStatus: [
       {
         id: -1,
@@ -46,6 +48,8 @@ export default (
       return {
         ...state,
         dayorderlist: action.payload.result || [],
+        totalcount:action.payload.totalcount || 0,
+        pagelimit:action.payload.pagelimit || 0,
       };
     case MOVE_TO_PROCUREMENT:
       return {

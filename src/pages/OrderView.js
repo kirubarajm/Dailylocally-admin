@@ -261,6 +261,7 @@ class OrderView extends React.Component {
       returnorderItem: defualtReturnReason,
       refundorderItem: defualtReturnReason,
       zendeskReasonItem: [],
+      selected_delivery: false,
       isCancelModal: false,
       isCancelReasonModal: false,
       selected_product: [],
@@ -269,8 +270,8 @@ class OrderView extends React.Component {
       isReturnorderReasonModal: false,
       isImageModal: false,
       isRefundorderModal: false,
-      mentionData:false,
-      plainComment:false,
+      mentionData: false,
+      plainComment: false,
       users: [
         {
           id: 1,
@@ -512,7 +513,7 @@ class OrderView extends React.Component {
         userid: orderview.userid,
         doid: orderview.id,
         issues: this.state.zendeskReasonItem,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
       };
       console.log("data-->", data);
       //this.toggleZendeskModal();
@@ -532,7 +533,7 @@ class OrderView extends React.Component {
       var data = {
         doid: orderview.id,
         return_reason: this.state.returnorderItem.reason,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
       };
       this.props.onPostReturnOrder(data);
     }
@@ -567,7 +568,7 @@ class OrderView extends React.Component {
         doid: orderview.id,
         zoneid: orderview.zoneid,
         reorder_reason: this.state.reorderItem.reason,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
         date: Moment("" + this.state.reorderdate, "DD-MM-YYYY").format(
           "YYYY-MM-DD"
         ),
@@ -610,8 +611,11 @@ class OrderView extends React.Component {
         doid: orderview.id,
         zoneid: orderview.zoneid,
         refund_reason: this.state.refundorderItem.reason,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
       };
+      if(this.state.selected_delivery){
+        data.delivery_charge=orderview.delivery_charge
+      }
       if (this.props.ProofImage.length > 0) {
         data.refund_image = this.props.ProofImage[0].img_url;
       }
@@ -641,7 +645,7 @@ class OrderView extends React.Component {
     var data = {
       message: value.message,
       phoneno: orderview.phoneno,
-      done_by:getAdminId(),
+      done_by: getAdminId(),
     };
     this.props.onPostMessageToCustomer(data);
   };
@@ -719,14 +723,21 @@ class OrderView extends React.Component {
     const name = target.name;
     var arvalue = this.state.selected_product || [];
     const cartItem = this.props.orderview.Products || [];
+    if (name === "delivery_charge") {
+      this.setState((prevState) => ({
+        selected_delivery: !prevState.selected_delivery,
+      }));
+    }
     if (name === "selectall") {
       if (value) {
         arvalue[name] = value;
         cartItem.map((item, i) => {
           arvalue[item.id] = value;
         });
+        this.setState({ selected_delivery: true });
       } else {
         arvalue = {};
+        this.setState({ selected_delivery: false });
       }
     } else {
       if (value) {
@@ -1169,7 +1180,7 @@ class OrderView extends React.Component {
           </Row>
         </Collapse>
         {/* hidden={onActionHidden("crm_comment_box")} */}
-        <Row className="mr-lr-10 mr-b-20 mr-t-20" >
+        <Row className="mr-lr-10 mr-b-20 mr-t-20">
           <Col className="border-block pd-0">
             <CommentEditBox
               dayorderdata={propdata}
@@ -1884,6 +1895,31 @@ class OrderView extends React.Component {
                     </Col>
                   </Row>
                 ))}
+                <hr className="mr-2" />
+                <Row className="mr-lr-10 cart-item font-size-14">
+                  <Col className="pd-0" lg="11">
+                    <div className="flex-row">
+                      <label className="container-check mr-l-15 mr-r-20">
+                        <input
+                          type="checkbox"
+                          name="delivery_charge"
+                          checked={this.state.selected_delivery}
+                          onChange={(e) => this.handleChange(e)}
+                        />
+                        <span className="checkmark"></span>
+                      </label>
+                      <div className="font-size-14 mr-l-40">
+                        {"Delivery charge"}
+                      </div>
+                    </div>
+                  </Col>
+                  <Col className="txt-align-right">
+                    <div className="font-size-14">
+                      <i className="fas fa-rupee-sign font-size-12" />
+                      {propdata.delivery_charge}
+                    </div>
+                  </Col>
+                </Row>
               </div>
             </div>
             <Row className="mr-b-10 mr-r-10">

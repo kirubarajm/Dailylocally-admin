@@ -119,6 +119,7 @@ class StockKeepingAdd extends React.Component {
 
     if (this.props.isStackupdated) {
       this.props.onClear();
+      this.setState({ isLoading: false });
       //this.onValidationModal();
     }
 

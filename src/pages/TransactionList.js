@@ -181,7 +181,7 @@ class TransactionList extends React.Component {
           </div>
 
           <div className="pd-6">
-            <div className="scroll-crm">
+            <div className="scroll-trview">
               <Table>
                 <thead>
                   <tr>
@@ -206,7 +206,6 @@ class TransactionList extends React.Component {
                       <td>{this.dateConvert(item.transaction_time)}</td>
                       <td>{item.transaction_status}</td>
                       <td>
-                        {" "}
                         <Button
                           size="sm"
                           color="link"
