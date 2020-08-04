@@ -1,5 +1,6 @@
 import {
   QA_LIST,
+  QA_REPORT,
   QA_QUALITY_LIST,
   UPDATE_QA_LIST,
   ORDERS_QA_SUBMIT,
@@ -10,6 +11,7 @@ import {
 export default (
   state = {
     qaList: [],
+    qcreport: [],
     quality: [
       { id: 0, name: "No" },
       { id: 1, name: "Yes" },
@@ -34,6 +36,12 @@ export default (
         totalcount:action.payload.totalcount || 0,
         pagelimit:action.payload.pagelimit || 0,
       };
+      case QA_REPORT:
+      return {
+        ...state,
+        qcreport: action.payload.result || [],
+      };
+      
     case QA_QUALITY_LIST:
       return {
         ...state,

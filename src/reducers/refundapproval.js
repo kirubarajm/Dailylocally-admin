@@ -1,5 +1,6 @@
 import {
   REFUND_ORDER_LIST,
+  REFUND_ORDER_REPORT,
   REFUND_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
@@ -19,6 +20,7 @@ const defult_slot = {
 export default (
   state = {
     dayorderlist: [],
+    refundorderreport: [],
     totalcount: 0,
     pagelimit: 0,
     selectedPage: 0,
@@ -81,6 +83,12 @@ export default (
         pagelimit: action.payload.pagelimit || 20,
         totalcount: action.payload.totalcount || 10,
       };
+      case REFUND_ORDER_REPORT:
+        var list=action.payload.result || [];
+        return {
+          ...state,
+          refundorderreport:list,
+        };
     case ZONE_TRIP_ORDER_LIST:
       return {
         ...state,

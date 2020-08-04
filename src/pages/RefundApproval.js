@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
 import { FaDownload } from "react-icons/fa";
+import { CSVLink } from "react-csv";
 import {
   Row,
   Col,
@@ -30,6 +31,7 @@ import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
   REFUND_ORDER_LIST,
+  REFUND_ORDER_REPORT,
   REFUND_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
@@ -108,6 +110,12 @@ const mapDispatchToProps = (dispatch) => ({
       type: REFUND_ORDER_LIST,
       payload: AxiosRequest.CRM.getRefundApprovalList(data),
     }),
+  onGetRefundReport: (data) =>
+    dispatch({
+      type: REFUND_ORDER_REPORT,
+      payload: AxiosRequest.CRM.getRefundApprovalReport(data),
+    }),
+
   onSetDayordersFilters: (data) =>
     dispatch({
       type: REFUND_ORDER_LIST_FILTER,
@@ -148,6 +156,7 @@ const defult_slot = {
 
 var logi;
 class RefundApproval extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -180,6 +189,7 @@ class RefundApproval extends React.Component {
       actionindex: 0,
       actionitem: false,
       imageItem: false,
+      isReport: false,
     };
   }
 
@@ -226,6 +236,11 @@ class RefundApproval extends React.Component {
         isLoading: false,
         selected_dayorderid: false,
       });
+    }
+
+    if (this.props.refundorderreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     this.onGetOrders();
@@ -432,7 +447,25 @@ class RefundApproval extends React.Component {
       isImageModal: !prevState.isImageModal,
     }));
   };
-
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.state.startdate) data.starting_date = this.state.startdate;
+    if (this.state.enddate) data.end_date = this.state.enddate;
+    if (this.state.order_no) data.doid = this.state.order_no;
+    if (this.state.user_search) data.user_search = this.state.user_search;
+    if (this.state.moveit_search) data.moveit_search = this.state.moveit_search;
+    if (this.state.trip_search) data.trip_search = this.state.trip_search;
+    if (
+      this.state.select_order_status &&
+      this.state.select_order_status.id !== -1
+    )
+      data.order_status = this.state.select_order_status.id;
+    if (this.state.select_slot && this.state.select_slot.id !== -1)
+      data.slot = this.state.select_slot.id;
+    data.report = 1;
+    this.props.onGetRefundReport(data);
+  };
   render() {
     const dayorderlist = this.props.dayorderlist || [];
     return (
@@ -442,6 +475,23 @@ class RefundApproval extends React.Component {
             <Col></Col>
             <Col>
               <div className="float-right mr-r-20">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("refund_export")}
+                  onClick={() => this.onReportDownLoad()}
+                  >
+                    <FaDownload size="15" />
+                  </Button>
+  
+                  <CSVLink
+                    data={this.props.refundorderreport}
+                    filename={"Refund_Order_Report.csv"}
+                    className="mr-r-20"
+                    ref={this.csvLink}
+                    hidden={true}
+                  ></CSVLink>
                 <span className="mr-r-20">Zone</span>
                 <ButtonDropdown
                   className="max-height-30"
@@ -705,8 +755,18 @@ class RefundApproval extends React.Component {
                               className="onDropDown"
                             >
                               <option value="0">Action</option>
-                              <option value="1" disabled={onActionHidden('refund_approval')}>Approve</option>
-                              <option value="2" disabled={onActionHidden('refund_reject')}>Recject</option>
+                              <option
+                                value="1"
+                                disabled={onActionHidden("refund_approval")}
+                              >
+                                Approve
+                              </option>
+                              <option
+                                value="2"
+                                disabled={onActionHidden("refund_reject")}
+                              >
+                                Recject
+                              </option>
                             </select>
                           ) : (
                             <div>{item.status_message}</div>

@@ -23,10 +23,12 @@ import Searchnew from "../components/Searchnew";
 import AxiosRequest from "../AxiosRequest";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import { store } from "../store";
+import { CSVLink } from "react-csv";
 import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
   DUNZO_ORDER_LIST,
+  DUNZO_ORDER_REPORT,
   DUNZO_ORDER_FILTER,
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
@@ -34,6 +36,7 @@ import {
   DUNZO_ORDER_PICKED_UP,
   DUNZO_ORDER_DELIVERED,
 } from "../constants/actionTypes";
+import { FaDownload } from "react-icons/fa";
 
 const mapStateToProps = (state) => ({
   ...state.dunzoorders,
@@ -47,6 +50,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: DUNZO_ORDER_LIST,
       payload: AxiosRequest.Logistics.getDunzoOrderList(data),
+    }),
+  onGetDunzoReport: (data) =>
+    dispatch({
+      type: DUNZO_ORDER_REPORT,
+      payload: AxiosRequest.Logistics.getDunzoOrderReport(data),
     }),
   onPostDunzoPickedUp: (data) =>
     dispatch({
@@ -86,6 +94,7 @@ const defult_slot = {
 };
 var defualtReturnReason = { rid: -1, reason: "Select reason" };
 class DunzoOrders extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -112,6 +121,7 @@ class DunzoOrders extends React.Component {
       isReturnorderModal: false,
       returnorderItem: defualtReturnReason,
       isReturnorderReasonModal: false,
+      isReport: false,
     };
   }
 
@@ -155,6 +165,11 @@ class DunzoOrders extends React.Component {
       this.setState({ isLoading: false, selected_dayorderid: false });
     }
 
+    if (this.props.dunzoorderreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
+    }
+
     this.onGetOrders();
   }
   toggleAreaDropDown = () => {
@@ -191,7 +206,7 @@ class DunzoOrders extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
       doid: Values,
-      done_by:getAdminId(),
+      done_by: getAdminId(),
     };
     this.toggleDunzoPopUp();
     if (this.state.actionItem.id === 1) {
@@ -242,7 +257,7 @@ class DunzoOrders extends React.Component {
     this.props.onSetDunzoOrderFilters(false);
     this.props.onGetDunzoOrders({
       zoneid: this.props.zoneItem.id,
-      page:defultPage
+      page: defultPage,
     });
   };
 
@@ -374,7 +389,7 @@ class DunzoOrders extends React.Component {
       var data = {
         doid: this.state.returnItem.id,
         return_reason: this.state.returnorderItem.rid,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
       };
       this.props.onPostReturnOrder(data);
     }
@@ -384,6 +399,15 @@ class DunzoOrders extends React.Component {
     if (datestr !== "Invalid date") return datestr;
     else return " - ";
   }
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.state.startdate) data.from_date = this.state.startdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.order_no) data.doid = this.state.order_no;
+    data.report = 1;
+    this.props.onGetDunzoReport(data);
+  };
 
   render() {
     const dayorderlist = this.props.dayorderlist || [];
@@ -488,7 +512,24 @@ class DunzoOrders extends React.Component {
                   <div className="font-size-12 mr-l-20">{" Select All "}</div>
                 </div>
               </Col>
-              <Col className="txt-align-right">
+              <Col className="txt-align-right mr-r-10">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("dunzo_export")}
+                  onClick={() => this.onReportDownLoad()}
+                >
+                  <FaDownload size="15" />
+                </Button>
+
+                <CSVLink
+                  data={this.props.dunzoorderreport}
+                  filename={"Dunzo_OrderReport.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
                 <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenActionDropDown}
@@ -499,9 +540,11 @@ class DunzoOrders extends React.Component {
                   <DropdownMenu>
                     {this.props.actionList.map((item, index) => (
                       <DropdownItem
-                      disabled={
-                        (onActionHidden("dunzo_picked_up")&&item.id === 1) ||
-                        (onActionHidden("dunzo_delivered") && item.id === 2)}
+                        disabled={
+                          (onActionHidden("dunzo_picked_up") &&
+                            item.id === 1) ||
+                          (onActionHidden("dunzo_delivered") && item.id === 2)
+                        }
                         onClick={() => this.clickAction(item)}
                         key={index}
                       >
@@ -561,7 +604,7 @@ class DunzoOrders extends React.Component {
                           {this.onCheckOrder(item) ? (
                             <Button
                               size="sm"
-                              disabled={onActionHidden('dunzo_book_return')}
+                              disabled={onActionHidden("dunzo_book_return")}
                               onClick={() => this.selectBookReturn(item)}
                             >
                               Book Return
@@ -578,7 +621,10 @@ class DunzoOrders extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
+            <div
+              className="float-right mr-t-20"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
               <PaginationComponent
                 totalItems={this.props.totalcount}
                 pageSize={this.props.pagelimit}

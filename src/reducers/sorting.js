@@ -1,5 +1,6 @@
 import {
   SORTING_LIST,
+  SORTING_REPORT,
   SORTING_SUBMIT_ITEM,
   SORTING_SAVING_ITEM,
   SORTING_CLEAR,
@@ -9,6 +10,7 @@ import {
 export default (
   state = {
     sortingList: [],
+    sortingreport: [],
     report_sorting: [
       { id: 1, report: "Bad quality products" },
       { id: 2, report: "Quantity shown is not available" },
@@ -29,6 +31,12 @@ export default (
         totalcount:action.payload.totalcount || 0,
         pagelimit:action.payload.pagelimit || 0,
       };
+      case SORTING_REPORT:
+      return {
+        ...state,
+        sortingreport: action.payload.result || [],
+      };
+      
     case SORTING_SAVING_ITEM:
       return {
         ...state,

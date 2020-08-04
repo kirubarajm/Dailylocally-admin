@@ -26,14 +26,17 @@ import {
   ZONE_SELECT_ITEM,
   USER_FILTER,
   USER_LIST,
+  USER_REPORT,
   USER_CLEAR,
   USER_ADD_ADDRESS,
 } from "../constants/actionTypes";
+import { CSVLink } from "react-csv";
 import { Field, reduxForm } from "redux-form";
 import { requiredTrim, minLength2, required } from "../utils/Validation";
 import { ADDRESS_FORM } from "../utils/constant";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
+import { FaDownload } from "react-icons/fa";
 
 const mapStateToProps = (state) => ({
   ...state.userlist,
@@ -47,6 +50,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: USER_LIST,
       payload: AxiosRequest.CRM.getUserList(data),
+    }),
+    ongetUserReport: (data) =>
+    dispatch({
+      type: USER_REPORT,
+      payload: AxiosRequest.CRM.getUserReport(data),
     }),
   onPostAddress: (data) =>
     dispatch({
@@ -100,6 +108,7 @@ const defultPage = 1;
 var geocoder = null;
 var adPage = null;
 class UserList extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -112,6 +121,7 @@ class UserList extends React.Component {
       addressItem: false,
       editAddressItem: false,
       address_type: 1,
+      isReport: false,
       lat: 0,
       lng: 0,
     };
@@ -139,6 +149,10 @@ class UserList extends React.Component {
     if (this.props.zoneRefresh) {
       store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
+    }
+    if (this.props.UserReport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     if (this.props.address_updated) {
@@ -292,6 +306,13 @@ class UserList extends React.Component {
     if (datestr !== "Invalid date") return datestr;
     else return " - ";
   }
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.state.user_search) data.search = this.state.user_search;
+    data.report = 1;
+    this.props.ongetUserReport(data);
+  };
 
   render() {
     const Userlist = this.props.Userlist || [];
@@ -355,6 +376,27 @@ class UserList extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
+            <Row className="mr-b-10 mr-l-10 mr-r-10">
+              <Col className="txt-align-right pd-0">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("user_export")}
+                  onClick={() => this.onReportDownLoad()}
+                  >
+                    <FaDownload size="15" />
+                  </Button>
+  
+                  <CSVLink
+                    data={this.props.UserReport}
+                    filename={"User_Report.csv"}
+                    className="mr-r-20"
+                    ref={this.csvLink}
+                    hidden={true}
+                  ></CSVLink>
+              </Col>
+            </Row>
             <div className="scroll-user">
               <Table>
                 <thead>
@@ -434,7 +476,11 @@ class UserList extends React.Component {
         <Modal
           isOpen={this.state.isAddressModal}
           toggle={this.toggleAddressPopUp}
-          style={onActionHidden("user_edit_address")?{ maxWidth: "600px" }:{ maxWidth: "1200px" }}
+          style={
+            onActionHidden("user_edit_address")
+              ? { maxWidth: "600px" }
+              : { maxWidth: "1200px" }
+          }
           backdrop={true}
         >
           <ModalBody className="pd-10">

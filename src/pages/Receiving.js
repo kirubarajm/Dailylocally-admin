@@ -11,8 +11,10 @@ import {
   ModalFooter,
 } from "reactstrap";
 import Select from "react-dropdown-select";
+import { CSVLink } from "react-csv";
 import {
   RECEIVING_LIST,
+  RECEIVING_REPORT,
   RECEIVING_UPDATE,
   RECEIVING_CLEAR,
   ZONE_ITEM_REFRESH,
@@ -31,6 +33,7 @@ import SearchItem from "../components/SearchItem";
 import { store } from "../store";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
+import { FaDownload } from "react-icons/fa";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -135,6 +138,12 @@ const mapDispatchToProps = (dispatch) => ({
       type: RECEIVING_LIST,
       payload: AxiosRequest.Warehouse.getReceivingList(data),
     }),
+    onGetReceivingReport: (data) =>
+    dispatch({
+      type: RECEIVING_REPORT,
+      payload: AxiosRequest.Warehouse.getReceivingReport(data),
+    }),
+    
   onUpdateList: (data) =>
     dispatch({
       type: RECEIVING_UPDATE,
@@ -158,6 +167,7 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class Receiving extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -175,6 +185,7 @@ class Receiving extends React.Component {
       enddate: false,
       isConfrimModal: false,
       today: Moment(new Date()),
+      isReport: false,
     };
   }
 
@@ -215,6 +226,11 @@ class Receiving extends React.Component {
     if (this.props.zoneRefresh) {
       store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
+    }
+
+    if (this.props.recevingReport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     this.onReceivingList();
@@ -347,6 +363,21 @@ class Receiving extends React.Component {
   onSuccessRefresh = () => {
     this.setState({ search_refresh: false });
   };
+
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.po_createdate) data.from_date = this.state.po_createdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.supplier_name) data.vid = this.state.supplier_name;
+    if (this.state.item_name) data.vpid = this.state.item_name;
+    if (this.state.pono) data.poid = this.state.pono;
+    data.report = 1;
+    this.props.onGetReceivingReport(data);
+  };
+
   render() {
     const recevingList = this.props.recevingList || [];
     return (
@@ -442,6 +473,27 @@ class Receiving extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
+            <Row className="mr-b-10 mr-l-10 mr-r-10">
+              <Col className="txt-align-right pd-0">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("wh_receving_export")}
+                  onClick={() => this.onReportDownLoad()}
+                  >
+                    <FaDownload size="15" />
+                  </Button>
+  
+                  <CSVLink
+                    data={this.props.recevingReport}
+                    filename={"RecevingReport.csv"}
+                    className="mr-r-20"
+                    ref={this.csvLink}
+                    hidden={true}
+                  ></CSVLink>
+              </Col>
+            </Row>
             <div className="search-horizantal-reci">
               <Table style={{ width: "1400px" }}>
                 <thead>

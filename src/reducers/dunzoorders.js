@@ -1,5 +1,6 @@
 import {
   DUNZO_ORDER_LIST,
+  DUNZO_ORDER_REPORT,
   DUNZO_ORDER_FILTER,
   ORDER_RETURN_REASON,
   POST_RETURN_ORDER,
@@ -10,6 +11,7 @@ import {
 export default (
   state = {
     dayorderlist: [],
+    dunzoorderreport:[],
     totalcount: 0,
     pagelimit: 0,
     selectedPage: 0,
@@ -31,6 +33,11 @@ export default (
         dayorderlist: action.payload.result || [],
         pagelimit: action.payload.pagelimit || 20,
         totalcount: action.payload.totalcount || 10,
+      };
+      case DUNZO_ORDER_REPORT:
+      return {
+        ...state,
+        dunzoorderreport: action.payload.result || [],
       };
     case DUNZO_ORDER_FILTER:
       return {

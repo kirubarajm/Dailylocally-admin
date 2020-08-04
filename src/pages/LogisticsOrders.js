@@ -20,10 +20,11 @@ import {
 import Moment from "moment";
 import Searchnew from "../components/Searchnew";
 import AxiosRequest from "../AxiosRequest";
-import { FaEye, FaPlus } from "react-icons/fa";
+import { FaEye, FaPlus, FaDownload } from "react-icons/fa";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import { store } from "../store";
+import { CSVLink } from "react-csv";
 import Search from "../components/Search";
 import Select from "react-dropdown-select";
 
@@ -31,6 +32,7 @@ import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
   TRACK_ORDER_LIST,
+  TRACK_LOGISTICS_REPORT,
   TRACK_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
@@ -41,7 +43,7 @@ import {
   LOGISTICS_CLEAR,
   POST_DUNZO_ASSIGN,
   POST_TRIP_ASSIGN,
-  TRACK_SELECT_TRIP
+  TRACK_SELECT_TRIP,
 } from "../constants/actionTypes";
 import SearchInput from "../components/SearchInput";
 import SearchItem from "../components/SearchItem";
@@ -109,6 +111,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_ORDER_LIST,
       payload: AxiosRequest.Logistics.getOrdersList(data),
     }),
+    onGetDayordersReport: (data) =>
+    dispatch({
+      type: TRACK_LOGISTICS_REPORT,
+      payload: AxiosRequest.Logistics.getOrderReport(data),
+    }),
   onGetTripOrders: (data) =>
     dispatch({
       type: ZONE_TRIP_ORDER_LIST,
@@ -154,7 +161,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_SELECT_STATUS,
       selectedStatus,
     }),
-    onSelectTrip: (selectedTrip) =>
+  onSelectTrip: (selectedTrip) =>
     dispatch({
       type: TRACK_SELECT_TRIP,
       selectedTrip,
@@ -174,6 +181,7 @@ const defult_slot = {
 
 var logi;
 class LogisticsOrders extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -191,20 +199,21 @@ class LogisticsOrders extends React.Component {
       isLoading: false,
       userid: 0,
       user_via_order: false,
-      check_item: { products: []},
-      view_item:{qachecklist: 0},
+      check_item: { products: [] },
+      view_item: { qachecklist: 0 },
       isDunzoModal: false,
       dunzoItem: false,
-      isTripEnable:true,
-      trip_search:false,
+      isTripEnable: true,
+      trip_search: false,
       select_driver: [],
       qa_checklist: [],
-      checkBoxVal:0
+      checkBoxVal: 0,
+      isReport:false,
     };
   }
 
   UNSAFE_componentWillMount() {
-    logi=this;
+    logi = this;
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
     }
@@ -223,11 +232,8 @@ class LogisticsOrders extends React.Component {
   UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
-  componentDidMount() {
-    
-  }
-  componentWillReceiveProps(nextProps) {
-  }
+  componentDidMount() {}
+  componentWillReceiveProps(nextProps) {}
   componentDidUpdate(nextProps, nextState) {
     if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
       this.clickArea(this.props.zone_list[0]);
@@ -241,6 +247,11 @@ class LogisticsOrders extends React.Component {
     if (this.props.qualityUpdate) {
       this.props.onClear();
       this.setState({ isLoading: false, qa_checklist: [] });
+    }
+    
+    if (this.props.logisticsreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     if (this.props.orderStatusUpdate) {
@@ -283,7 +294,7 @@ class LogisticsOrders extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
       doid: doid,
-      done_by:getAdminId(),
+      done_by: getAdminId(),
     };
     this.toggleDunzoPopUp();
     this.props.onPostDunzoAssign(data);
@@ -307,7 +318,7 @@ class LogisticsOrders extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
         doid: Values,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
         moveit_id: this.state.select_driver[0].userid,
         trip_id: this.state.select_driver[0].tripid,
       };
@@ -315,7 +326,7 @@ class LogisticsOrders extends React.Component {
     }
   };
 
-  onTripOrders=() => {
+  onTripOrders = () => {
     var checkItem = this.state.selected_dayorderid;
     var Values = Object.keys(checkItem);
     var indexof = Values.indexOf("selectall");
@@ -326,7 +337,7 @@ class LogisticsOrders extends React.Component {
       doid: Values,
       zoneid: this.props.zoneItem.id,
     });
-  }
+  };
 
   gotoTrip = () => {
     var checkItem = this.state.selected_dayorderid;
@@ -434,7 +445,7 @@ class LogisticsOrders extends React.Component {
           user_search: data.search,
           select_order_status: this.props.orderSelectedStatus,
           select_slot: this.props.orderSelectedSolt,
-          checkVal:this.props.selectedTrip,
+          checkVal: this.props.selectedTrip,
           moveit_search: data.moveit_search,
           trip_search: data.trip_search,
         });
@@ -554,20 +565,24 @@ class LogisticsOrders extends React.Component {
       zoneid: this.props.zoneItem.id,
       doid: this.state.check_item.id,
       qa_checklist: this.state.qa_checklist,
-      done_by:getAdminId(),
+      done_by: getAdminId(),
     };
     console.log("data-->", data);
     this.props.onPostQACheckList(data);
   };
 
-  onCheckMoveit= () => {
+  onCheckMoveit = () => {
     //document.radioForm.onclick = function () {
-      var radVal = document.radioForm.moveit_type.value;
-      var checkVal=parseInt(radVal);
-      logi.setState({trip_search:"",isTripEnable:checkVal===1?false:true,checkBoxVal:checkVal});
-      this.props.onSelectTrip(checkVal);
+    var radVal = document.radioForm.moveit_type.value;
+    var checkVal = parseInt(radVal);
+    logi.setState({
+      trip_search: "",
+      isTripEnable: checkVal === 1 ? false : true,
+      checkBoxVal: checkVal,
+    });
+    this.props.onSelectTrip(checkVal);
     //};
-  }
+  };
 
   clickDropDown(e, qItem, i) {
     var checkList = this.state.qa_checklist || [];
@@ -608,6 +623,26 @@ class LogisticsOrders extends React.Component {
       moveit_id: item[0].userid,
       zoneid: this.props.zoneItem.id,
     });
+  };
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = { zoneid: this.props.zoneItem.id };if (this.state.startdate) data.from_date = this.state.startdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.order_no) data.doid = this.state.order_no;
+    if (this.state.user_search) data.user_search = this.state.user_search;
+    if (this.state.moveit_search)
+      data.moveit_search = this.state.moveit_search;
+    if (this.state.trip_search) data.trip_search = this.state.trip_search;
+    if (
+      this.state.select_order_status &&
+      this.state.select_order_status.id !== -1
+    )
+      data.order_status = this.state.select_order_status.id;
+    if (this.state.select_slot && this.state.select_slot.id !== -1)
+      data.slot = this.state.select_slot.id;
+      data.report=1;
+
+      this.props.onGetDayordersReport(data);
   };
 
   render() {
@@ -763,13 +798,16 @@ class LogisticsOrders extends React.Component {
               <div className="width-100 mr-l-20 align_self_center">
                 Trip/Dunzo :
               </div>
-              <div className="width-200 mr-l-20 align_self_center" onClick={this.onCheckMoveit}>
+              <div
+                className="width-200 mr-l-20 align_self_center"
+                onClick={this.onCheckMoveit}
+              >
                 <form id="radioForm" name="radioForm" className="mr-t-10">
                   <input
                     type="radio"
                     name="moveit_type"
                     value="0"
-                    checked={this.state.checkBoxVal===0}
+                    checked={this.state.checkBoxVal === 0}
                     className="mr-r-5"
                   />{" "}
                   <label className="mr-r-10">All</label>
@@ -777,7 +815,7 @@ class LogisticsOrders extends React.Component {
                     type="radio"
                     name="moveit_type"
                     value="1"
-                    checked={this.state.checkBoxVal===1}
+                    checked={this.state.checkBoxVal === 1}
                     className="mr-r-5"
                   />{" "}
                   <label className="mr-r-10">Trip</label>
@@ -785,7 +823,7 @@ class LogisticsOrders extends React.Component {
                     type="radio"
                     name="moveit_type"
                     value="2"
-                    checked={this.state.checkBoxVal===2}
+                    checked={this.state.checkBoxVal === 2}
                     className="mr-r-5"
                   />{" "}
                   <label className="mr-r-10">Dunzo</label>
@@ -793,13 +831,13 @@ class LogisticsOrders extends React.Component {
               </div>
               <div className="width-200 mr-l-10">
                 <div hidden={this.state.isTripEnable}>
-                <SearchTrip
-                  onSearch={this.onSearchTrip}
-                  type="number"
-                  value={this.state.trip_search}
-                  onRefreshUpdate={this.onSuccessRefresh}
-                  isRefresh={this.state.orderid_refresh}
-                />
+                  <SearchTrip
+                    onSearch={this.onSearchTrip}
+                    type="number"
+                    value={this.state.trip_search}
+                    onRefreshUpdate={this.onSuccessRefresh}
+                    isRefresh={this.state.orderid_refresh}
+                  />
                 </div>
               </div>
             </div>
@@ -842,7 +880,29 @@ class LogisticsOrders extends React.Component {
                 </div>
               </Col>
               <Col className="txt-align-right">
-                <Button size="sm" onClick={this.gotoTrip} disabled={onActionHidden("logi_assign_trip")}>
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("logi_invoice_download")}
+                  onClick={() => this.onReportDownLoad()}
+                  >
+                    <FaDownload size="15" />
+                  </Button>
+  
+                  <CSVLink
+                    data={this.props.logisticsreport}
+                    filename={"Logistics_OrderReport.csv"}
+                    className="mr-r-20"
+                    ref={this.csvLink}
+                    hidden={true}
+                  ></CSVLink>
+                <Button
+                  size="sm"
+                  onClick={this.gotoTrip}
+                  disabled={onActionHidden("logi_assign_trip")}
+                  className="mr-r-20"
+                >
                   Assign to trip
                 </Button>
               </Col>
@@ -932,7 +992,10 @@ class LogisticsOrders extends React.Component {
                             item.trip_id === null ? (
                               <Button
                                 size="sm"
-                                disabled={item.moveit_type === 2 ||onActionHidden("logi_assign_dunzo")}
+                                disabled={
+                                  item.moveit_type === 2 ||
+                                  onActionHidden("logi_assign_dunzo")
+                                }
                                 onClick={() => this.selectDunzo(item)}
                               >
                                 Assign to Dunzo
@@ -952,7 +1015,10 @@ class LogisticsOrders extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
+            <div
+              className="float-right mr-t-20"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
               <PaginationComponent
                 totalItems={this.props.totalcount}
                 pageSize={this.props.pagelimit}
@@ -1096,20 +1162,18 @@ class LogisticsOrders extends React.Component {
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <Row style={{ width: "500px" }}>
                     {this.state.view_item.qachecklist
-                      ? this.state.view_item.qachecklist.map(
-                          (qitem, index) => (
-                            <Col lg="6">
-                              <div className="font-size-14 flex-row">
-                                <div className="font-weight-bold">
-                                  {qitem.name}
-                                </div>
-                                <div className="mr-l-10">
-                                  - {qitem.qavalue === 1 ? "Yes" : "No"}
-                                </div>
+                      ? this.state.view_item.qachecklist.map((qitem, index) => (
+                          <Col lg="6">
+                            <div className="font-size-14 flex-row">
+                              <div className="font-weight-bold">
+                                {qitem.name}
                               </div>
-                            </Col>
-                          )
-                        )
+                              <div className="mr-l-10">
+                                - {qitem.qavalue === 1 ? "Yes" : "No"}
+                              </div>
+                            </div>
+                          </Col>
+                        ))
                       : "mvkldvlkdvkldv"}
                   </Row>
                   <div
@@ -1119,25 +1183,29 @@ class LogisticsOrders extends React.Component {
                       marginLeft: "30px",
                     }}
                   >
-                    {this.state.view_item.products?this.state.view_item.products.map((item, index) => (
-                      <div style={{ display: "flex", flexDirection: "row" }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            marginLeft: "10px",
-                          }}
-                        >
-                          <div className="width-200 pd-4 flex-row">
-                            <div>{item.productname}</div> -{" "}
-                            <div className="mr-l-10">{item.quantity}</div>
+                    {this.state.view_item.products
+                      ? this.state.view_item.products.map((item, index) => (
+                          <div
+                            style={{ display: "flex", flexDirection: "row" }}
+                          >
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                marginLeft: "10px",
+                              }}
+                            >
+                              <div className="width-200 pd-4 flex-row">
+                                <div>{item.productname}</div> -{" "}
+                                <div className="mr-l-10">{item.quantity}</div>
+                              </div>
+                              <div className="width-150 pd-4 mr-l-40">
+                                {item.received_quantity}
+                              </div>
+                            </div>
                           </div>
-                          <div className="width-150 pd-4 mr-l-40">
-                            {item.received_quantity}
-                          </div>
-                        </div>
-                      </div>
-                    )):""}
+                        ))
+                      : ""}
                   </div>
                 </div>
               </div>

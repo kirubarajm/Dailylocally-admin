@@ -1,5 +1,6 @@
 import {
   TRIP_ORDER_LIST,
+  TRIP_ORDER_REPORT,
   TRACK_SELECT_SOLT,
   TRIP_ORDER_SEARCH,
   TRIP_ORDER_LIST_FILTER,
@@ -16,6 +17,7 @@ const defult_slot = {
 export default (
   state = {
     dayorderlist: [],
+    triporderreport: [],
     totalcount: 0,
     pagelimit: 0,
     selectedPage: 0,
@@ -43,6 +45,11 @@ export default (
         dayorderlist: action.payload.result || [],
         pagelimit: action.payload.pagelimit || 20,
         totalcount: action.payload.totalcount || 10,
+      };
+      case TRIP_ORDER_REPORT:
+      return {
+        ...state,
+        triporderreport: action.payload.result || [],
       };
       case TRIP_ORDER_SEARCH:
       return {

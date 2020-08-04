@@ -1,8 +1,8 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
-const BASE_URL_LIVE = "http://68.183.87.233:8000/";
-//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
 let token =
@@ -76,6 +76,7 @@ const Catelog = {
   getSubCate1: (data) => requests.post("/subcategoryl1list", data),
   getSubCate2: (data) => requests.post("/subcategoryl2list", data),
   getProduct: (data) => requests.post("/productlist", data),
+  getProductReport: (data) => requests.post("/productlist", data),
   getSearch: (data) => requests.post("/search/catalog", data),
   getSearchView: (data) => requests.post("/search/catalogdata", data),
   getProductDetail: (data) => requests.post("/view/product", data),
@@ -105,12 +106,15 @@ const Catelog = {
 
 const Warehouse = {
   dayorderlist:(data) => requests.post("/dayorderlist", data),
+  dayorderreport:(data) => requests.post("/dayorderlist", data),
   createprocurement:(data) => requests.post("/procurement/create", data),
   procurementwaitinglist:(data) => requests.post("/procurement/list", data),
+  procurementwaitingreport:(data) => requests.post("/procurement/list", data),
   createPo:(data) => requests.post("/procurement/movetopurchase", data),
   movetoStock:(data) => requests.post("/stock/autoassign", data),
   movetoPRRemove:(data) => requests.post("/po/removebohmapping", data),
   getPoList:(data) => requests.post("/po/getpolist", data),
+  getPoReport:(data) => requests.post("/po/getpolist", data),
   getPoView:(data) => requests.post("/po/view", data),
   getPoDelete:(data) => requests.post("/po/delete", data),
   VendorItemDelete:(data) => requests.post("/po/deletepotemp", data),
@@ -121,12 +125,16 @@ const Warehouse = {
   updateVendorAssign:(data) => requests.post("/po/productvendorassign", data),
   createPoConfirm:(data) => requests.post("/po/createpo", data),
   getReceivingList:(data) => requests.post("/po/getporeceivelist", data),
+  getReceivingReport:(data) => requests.post("/po/getporeceivelist", data),
   updateReceiving:(data) => requests.post("/po/updateporeceive", data),
   updateUNReceiving:(data) => requests.post("/po/updatepounreceive", data),
   movetoSorting:(data) => requests.post("/po/popsoring", data),
   getSortingList:(data) => requests.post("/sorting/getsortinglist", data),
+  getSortingReport:(data) => requests.post("/sorting/getsortinglist", data),
   getReturnList:(data) => requests.post("/return/getreturnlist", data),
+  getReturnReport:(data) => requests.post("/return/getreturnlist", data),
   getQaList:(data) => requests.post("/quality/dayorderlist", data),
+  getQaReport:(data) => requests.post("/quality/dayorderlist", data),
   saveSorting:(data) => requests.post("/sorting/savesorting", data),
   submitSorting:(data) => requests.post("/sorting/movetoqa", data),
   submitReturning:(data) => requests.post("/return/updateorders", data),
@@ -138,6 +146,7 @@ const Warehouse = {
 
 const StockKeeping= {
   getStockKeepingList:(data) => requests.post("/stockkeeping/list", data),
+  getStockKeepingReport:(data) => requests.post("/stockkeeping/list", data),
   getProductList:(data) => requests.post("/stockkeeping/openlist", data),
   deleteStockKeeping:(data) => requests.post("/stockkeeping/delete", data),
   viewStockKeeping:(data) => requests.post("/stockkeeping/view", data),
@@ -147,6 +156,7 @@ const StockKeeping= {
 
 const CRM= {
   getOrderList:(data) => requests.post("/crm/dayorderlist", data),
+  getOrderReport:(data) => requests.post("/crm/dayorderlist", data),
   getOrderDetail:(data) => requests.post("/crm/dayorderview", data),
   getOrderLogs:(data) => requests.post("/dayorderlog", data),
   getRaiseTicketIssues:(data) => requests.post("/zendesk/issues", data),
@@ -163,20 +173,25 @@ const CRM= {
   postZendeskCreation:(data) => requests.post("/zendesk/ticketcreate",data),
   postComment:(data) => requests.post("/ordercomments",data),
   getUserList:(data) => requests.post("/crm/userlist", data),
+  getUserReport:(data) => requests.post("/crm/userlist", data),
   postUserAddress:(data) => requests_base.put("user/address", data),
   getTransactionList:(data) => requests.post("/transaction", data),
   getTransactionView:(data) => requests.post("/transaction/view", data),
   postRepayment:(data) => requests.post("/repayment", data),
   getRefundApprovalList:(data) => requests.post("/refundlist", data),
+  getRefundApprovalReport:(data) => requests.post("/refundlist", data),
 }
 
 const Logistics= {
   getTripOrders:(data) => requests.post("/logistics/trip/templist", data),
   getOrdersList:(data) => requests.post("/logistics/readytodispatchlist", data),
+  getOrderReport:(data) => requests.post("/logistics/readytodispatchlist", data),
   getDriverList:(data) => requests.post("/logistics/moveit/listwithtrip", data),
   getQACheckList:(data) => requests.post("/logistics/qa/type_list", data),
   getDunzoOrderList:(data) => requests.post("/logistics/dunzo/orderlist", data),
+  getDunzoOrderReport:(data) => requests.post("/logistics/dunzo/orderlist", data),
   getTripList:(data) => requests.post("/logistics/trip/list", data),
+  getTripReport:(data) => requests.post("/logistics/trip/list", data),
   getTripSearchList:(data) => requests.post("/logistics/trip/tripmoveitfilters", data),
   postQACheckList:(data) => requests.post("/logistics/qa/submit_checklist", data),
   postDunzoAssign:(data) => requests.post("/logistics/dunzo/assign", data),
@@ -193,6 +208,8 @@ const Moveit ={
   userUpdate: (user) =>
   requests.post('/logistics/moveit/edit',user,AppVersion_1),
   getAll: (data) =>
+  requests.post('/logistics/moveit/list',data,AppVersion_1),
+  getUserReport: (data) =>
   requests.post('/logistics/moveit/list',data,AppVersion_1),
   getView: (data) =>
   requests.post('/logistics/moveit/view',data,AppVersion_1),

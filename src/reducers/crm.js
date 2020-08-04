@@ -1,5 +1,6 @@
 import {
   TRACK_ORDER_LIST,
+  TRACK_ORDER_REPORT,
   TRACK_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
@@ -13,6 +14,7 @@ const defult_slot={
 export default (
   state = {
     dayorderlist: [],
+    dayorderreport: [],
     totalcount: 0,
     pagelimit: 0,
     selectedPage: 0,
@@ -77,6 +79,11 @@ export default (
         dayorderlist: action.payload.result || [],
         pagelimit: action.payload.pagelimit || 20,
         totalcount: action.payload.totalcount || 10,
+      };
+      case TRACK_ORDER_REPORT:
+      return {
+        ...state,
+        dayorderreport: action.payload.result || [],
       };
     case TRACK_ORDER_LIST_FILTER:
       return {

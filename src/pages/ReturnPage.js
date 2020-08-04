@@ -10,8 +10,10 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
+import { CSVLink } from "react-csv";
 import {
   RETURN_LIST,
+  RETURN_REPORT,
   SORTING_SAVING_ITEM,
   RETURN_SORTING_ITEM,
   RETURN_SUBMIT_ITEM,
@@ -28,6 +30,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import { store } from "../store";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
+import { FaDownload } from "react-icons/fa";
 
 const mapStateToProps = (state) => ({
   ...state.returnpage,
@@ -40,6 +43,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: RETURN_LIST,
       payload: AxiosRequest.Warehouse.getReturnList(data),
+    }),
+    onGetReturnReport: (data) =>
+    dispatch({
+      type: RETURN_REPORT,
+      payload: AxiosRequest.Warehouse.getReturnReport(data),
     }),
   onSaving: (data) =>
     dispatch({
@@ -68,12 +76,14 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class ReturnPage extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
       isLoading: false,
       search_refresh: false,
       sortingModal: false,
+      isReport:false,
 
       isOpenReportDropDown: false,
       reportingItem: false,
@@ -81,11 +91,11 @@ class ReturnPage extends React.Component {
       sortingItem: false,
       reportingModal: false,
       recevingModal: false,
-      selectedPage:1,
+      selectedPage: 1,
 
       selected_dopid: false,
       orderdate: false,
-      enddate:false,
+      enddate: false,
       orderid: "",
       selectedItem: { products: [] },
       today: Moment(new Date()),
@@ -145,6 +155,11 @@ class ReturnPage extends React.Component {
     if (this.props.zoneRefresh) {
       store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
+    }
+
+    if (this.props.returnReport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     this.onSortingList();
@@ -357,6 +372,20 @@ class ReturnPage extends React.Component {
       recevingModal: !prevState.recevingModal,
     }));
   };
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.orderdate) data.from_date = this.state.orderdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.orderid) data.doid = this.state.orderid;
+    data.report=1;
+    this.props.onGetReturnReport(data);
+  };
   render() {
     const sortingList = this.props.sortingList || [];
     return (
@@ -422,51 +451,68 @@ class ReturnPage extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-              <div className="search-horizantal-qc">
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Order Date/Time</th>
-                      <th>Return Date/Time</th>
-                      <th>Order ID</th>
-                      <th>Receive order</th>
-                      <th>Sorting order</th>
+            <Row className="mr-b-10 mr-l-10 mr-r-10">
+              <Col className="txt-align-right pd-0">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("wh_sorting_export")}
+                  onClick={() => this.onReportDownLoad()}
+                  >
+                    <FaDownload size="15" />
+                  </Button>
+  
+                  <CSVLink
+                    data={this.props.returnReport}
+                    filename={"ReturnReport.csv"}
+                    className="mr-r-20"
+                    ref={this.csvLink}
+                    hidden={true}
+                  ></CSVLink>
+              </Col>
+            </Row>
+            <div className="search-horizantal-qc">
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Order Date/Time</th>
+                    <th>Return Date/Time</th>
+                    <th>Order ID</th>
+                    <th>Receive order</th>
+                    <th>Sorting order</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortingList.map((item, i) => (
+                    <tr key={i}>
+                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td>{item.doid}</td>
+                      <td>
+                        <Button
+                          size="sm"
+                          onClick={this.onActionClick(item)}
+                          disabled={onActionHidden("wh_return_receving")}
+                        >
+                          Receive
+                        </Button>
+                      </td>
+                      <td>
+                        <Button
+                          size="sm"
+                          onClick={() => this.movetoSorting(item)}
+                          disabled={onActionHidden("wh_retun_sorting")}
+                        >
+                          Sorting
+                        </Button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {sortingList.map((item, i) => (
-                      <tr key={i}>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>{item.doid}</td>
-                        <td>
-                          <Button
-                            size="sm"
-                            onClick={this.onActionClick(item)}
-                            disabled={onActionHidden("wh_return_receving")}
-                          >
-                            Receive
-                          </Button>
-                        </td>
-                        <td>
-                          <Button
-                            size="sm"
-                            onClick={() => this.movetoSorting(item)}
-                            disabled={onActionHidden("wh_retun_sorting")}
-                          >
-                            Sorting
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-              <div
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+            <div
               className="float-right"
               hidden={this.props.totalcount < this.props.pagelimit}
             >

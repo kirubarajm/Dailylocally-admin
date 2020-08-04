@@ -25,12 +25,14 @@ import {
   PRODUCT_LIVE_UNLIVE_LIVE_ITEM,
   PRODUCT_LIVE_UNLIVE_LIVE_POPUP_CLEAR,
   ZONE_SELECTED,
+  CATELOG_PRODUCT_REPORT,
 } from "../constants/actionTypes";
 
 export default (
   state = {
     catalog_tab_type: 0,
     category_list: [],
+    product_report:[],
     subcat_L1: [],
     subcat_L2: [],
     product: [],
@@ -101,6 +103,11 @@ export default (
         ...state,
         product: action.payload.result || [],
         isAddProduct: false,
+      };
+      case CATELOG_PRODUCT_REPORT:
+      return {
+        ...state,
+        product_report: action.payload.result || [],
       };
     case CATELOG_SELECTED_CAT:
       return {

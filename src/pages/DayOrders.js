@@ -17,6 +17,7 @@ import {
 } from "reactstrap";
 import {
   DAT_ORDER_LIST,
+  DAT_ORDER_REPORT,
   MOVE_TO_PROCUREMENT,
   ON_CLEAR_PROCUREMENT,
   WARE_HOUSE_SELECTED_TAB,
@@ -26,12 +27,13 @@ import Moment from "moment";
 import AxiosRequest from "../AxiosRequest";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import { getOrderStatus, onActionHidden } from "../utils/ConstantFunction";
-import { FaEye } from "react-icons/fa";
+import { FaEye, FaDownload } from "react-icons/fa";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import { store } from "../store";
 import Search from "../components/Search";
 import PaginationComponent from "react-reactstrap-pagination";
+import { CSVLink } from "react-csv";
 
 const mapStateToProps = (state) => ({
   ...state.dayorders,
@@ -45,6 +47,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: DAT_ORDER_LIST,
       payload: AxiosRequest.Warehouse.dayorderlist(data),
     }),
+    onGetDayordersReport: (data) =>
+    dispatch({
+      type: DAT_ORDER_REPORT,
+      payload: AxiosRequest.Warehouse.dayorderreport(data),
+    }),
   onCreateProcurement: (data) =>
     dispatch({
       type: MOVE_TO_PROCUREMENT,
@@ -57,6 +64,7 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class DayOrders extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -73,7 +81,7 @@ class DayOrders extends React.Component {
       isOpenOrderStatus: false,
       view_item: false,
       tooltipOpen: false,
-      selectedPage:1,
+      selectedPage: 1,
       select_order_status: {
         id: -1,
         status: "All",
@@ -141,6 +149,12 @@ class DayOrders extends React.Component {
       this.props.history.push("/warehouse/procurement");
       store.dispatch({ type: WARE_HOUSE_SELECTED_TAB, tab_type: 1 });
     }
+
+    if (this.props.dayorderreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
+    }
+
     this.onGetOrders();
   }
   componentDidCatch() {}
@@ -242,11 +256,11 @@ class DayOrders extends React.Component {
   };
 
   onSearch = () => {
-    this.setState({ isLoading: false,selectedPage:1 });
+    this.setState({ isLoading: false, selectedPage: 1 });
   };
 
   handleSelected = (selectedPage) => {
-    this.setState({selectedPage:selectedPage,isLoading:false});
+    this.setState({ selectedPage: selectedPage, isLoading: false });
   };
 
   onReset = () => {
@@ -254,7 +268,7 @@ class DayOrders extends React.Component {
       startdate: "",
       enddate: "",
       orderid: "",
-      selectedPage:1,
+      selectedPage: 1,
       orderid_refresh: true,
       select_order_status: {
         id: -1,
@@ -268,6 +282,24 @@ class DayOrders extends React.Component {
 
   onSuccessRefresh = () => {
     this.setState({ orderid_refresh: false });
+  };
+
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.startdate) data.starting_date = this.state.startdate;
+    if (this.state.enddate) data.end_date = this.state.enddate;
+    if (this.state.orderid) data.doid = this.state.orderid;
+    if (
+      this.state.select_order_status &&
+      this.state.select_order_status.id !== -1
+    )
+      data.dayorderstatus = this.state.select_order_status.id;
+      data.report=1;
+
+    this.props.onGetDayordersReport(data);
   };
 
   render() {
@@ -428,13 +460,33 @@ class DayOrders extends React.Component {
                 </div>
               </Col>
               <Col className="txt-align-right pd-0">
-                <Button size="sm" onClick={this.movetoprocurement} hidden={onActionHidden('wh_procurement_create')}>
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={!onActionHidden("wh_dayorder_report")}
+                  onClick={() => this.onReportDownLoad()}
+                >
+                  <FaDownload size="15" />
+                </Button>
+                <CSVLink
+                  data={this.props.dayorderreport}
+                  filename={"dayorderreport.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
+                <Button
+                  size="sm"
+                  onClick={this.movetoprocurement}
+                  hidden={onActionHidden("wh_procurement_create")}
+                >
                   Add Selected orders
                 </Button>
               </Col>
             </Row>
             <div className="search-scroll-dayorder">
-              <Table style={{width:"1200px"}}>
+              <Table style={{ width: "1200px" }}>
                 <thead>
                   <tr>
                     <th>View</th>
@@ -456,7 +508,7 @@ class DayOrders extends React.Component {
                           <Button
                             size="sm"
                             color="link"
-                            disabled={onActionHidden('wh_order_view')}
+                            disabled={onActionHidden("wh_order_view")}
                             onClick={() => this.onView(item)}
                           >
                             <FaEye size="15" />

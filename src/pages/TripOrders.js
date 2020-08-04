@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
+import { CSVLink } from "react-csv";
 import {
   Row,
   Col,
@@ -31,6 +32,7 @@ import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
   TRIP_ORDER_LIST,
+  TRIP_ORDER_REPORT,
   TRIP_ORDER_SEARCH,
   TRIP_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
@@ -54,6 +56,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: TRIP_ORDER_LIST,
       payload: AxiosRequest.Logistics.getTripList(data),
+    }),
+  onGetTripReport: (data) =>
+    dispatch({
+      type: TRIP_ORDER_REPORT,
+      payload: AxiosRequest.Logistics.getTripReport(data),
     }),
   onGetTripSearchList: (data) =>
     dispatch({
@@ -104,6 +111,7 @@ const defult_slot = {
 };
 var defualtReturnReason = { rid: -1, reason: "Select reason" };
 class TripOrders extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -133,6 +141,7 @@ class TripOrders extends React.Component {
       isReturnorderModal: false,
       returnorderItem: defualtReturnReason,
       isReturnorderReasonModal: false,
+      isReport: false,
     };
   }
 
@@ -174,6 +183,11 @@ class TripOrders extends React.Component {
     if (this.props.isOrderUpdated) {
       this.props.onClear();
       this.setState({ isLoading: false, selected_dayorderid: false });
+    }
+
+    if (this.props.triporderreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     this.onGetOrders();
@@ -276,7 +290,7 @@ class TripOrders extends React.Component {
     this.props.onSetTripFilters(false);
     this.props.onGetTripList({
       zoneid: this.props.zoneItem.id,
-      page :defultPage
+      page: defultPage,
     });
   };
 
@@ -441,6 +455,23 @@ class TripOrders extends React.Component {
   ImageDownload = (img) => {
     document.getElementById(img).click();
   };
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.state.startdate) data.from_date = this.state.startdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.order_no) data.tripid = this.state.order_no;
+    if (this.state.user_search) data.moveit_id = this.state.user_search;
+    if (
+      this.state.select_order_status &&
+      this.state.select_order_status.id !== -1
+    )
+      data.dayorderstatus = this.state.select_order_status.id;
+    if (this.state.select_slot && this.state.select_slot.id !== -1)
+      data.slot = this.state.select_slot.id;
+    data.report = 1;
+    this.props.onGetTripReport(data);
+  };
 
   render() {
     const dayorderlist = this.props.dayorderlist || [];
@@ -559,7 +590,24 @@ class TripOrders extends React.Component {
                   <div className="font-size-12 mr-l-20">{" Select All "}</div>
                 </div>
               </Col>
-              <Col className="txt-align-right">
+              <Col className="txt-align-right mr-r-20">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("trip_export")}
+                  onClick={() => this.onReportDownLoad()}
+                >
+                  <FaDownload size="15" />
+                </Button>
+
+                <CSVLink
+                  data={this.props.triporderreport}
+                  filename={"Trip_OrderReport.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
                 <ButtonDropdown
                   className="max-height-30"
                   isOpen={this.state.isOpenActionDropDown}
@@ -570,7 +618,9 @@ class TripOrders extends React.Component {
                   <DropdownMenu>
                     {this.props.actionList.map((item, index) => (
                       <DropdownItem
-                        disabled={onActionHidden("trip_unassign_order")&&item.id === 1}
+                        disabled={
+                          onActionHidden("trip_unassign_order") && item.id === 1
+                        }
                         onClick={() => this.clickAction(item)}
                         key={index}
                       >
@@ -635,14 +685,14 @@ class TripOrders extends React.Component {
                             disabled={!item.checklist_img1}
                             onClick={() => this.selectPickupImage(item)}
                           >
-                            <FaDownload size="20"/>{" "}
+                            <FaDownload size="20" />{" "}
                           </Button>
                         </td>
                         <td>
                           {this.onCheckOrder(item) ? (
                             <Button
                               size="sm"
-                              disabled={onActionHidden('trip_book_return')}
+                              disabled={onActionHidden("trip_book_return")}
                               onClick={() => this.selectBookReturn(item)}
                             >
                               Book Return
@@ -659,7 +709,10 @@ class TripOrders extends React.Component {
                 </Table>
               </div>
             </div>
-            <div className="float-right mr-t-20" hidden={this.props.totalcount<this.props.pagelimit}>
+            <div
+              className="float-right mr-t-20"
+              hidden={this.props.totalcount < this.props.pagelimit}
+            >
               <PaginationComponent
                 totalItems={this.props.totalcount}
                 pageSize={this.props.pagelimit}

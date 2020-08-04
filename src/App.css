@@ -912,8 +912,8 @@ a, a:focus, a:hover, a:visited {
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  max-height: 55vh !important;
-  min-height: 55vh !important;
+  max-height: 50vh !important;
+  min-height: 50vh !important;
 }
 
 .scroll-trview {
@@ -988,20 +988,20 @@ a, a:focus, a:hover, a:visited {
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 48vh !important;
+  height: 40vh !important;
 }
 .search-horizantal-sort {
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 55vh !important;
+  height: 50vh !important;
 }
 
 .search-horizantal-qc {
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 55vh !important;
+  height: 50vh !important;
 }
 
 .order-horizantal-scroll {

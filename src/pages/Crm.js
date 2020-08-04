@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
+import { CSVLink } from "react-csv";
 import { onActionHidden } from "../utils/ConstantFunction";
 import {
   Row,
@@ -16,7 +17,7 @@ import {
 import Moment from "moment";
 import Searchnew from "../components/Searchnew";
 import AxiosRequest from "../AxiosRequest";
-import { FaEye, FaPlus } from "react-icons/fa";
+import { FaEye, FaPlus, FaDownload } from "react-icons/fa";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import { store } from "../store";
@@ -25,6 +26,7 @@ import {
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
   TRACK_ORDER_LIST,
+  TRACK_ORDER_REPORT,
   TRACK_ORDER_LIST_FILTER,
   TRACK_SELECT_SOLT,
   TRACK_SELECT_STATUS,
@@ -47,6 +49,12 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_ORDER_LIST,
       payload: AxiosRequest.CRM.getOrderList(data),
     }),
+    onGetDayordersReport: (data) =>
+    dispatch({
+      type: TRACK_ORDER_REPORT,
+      payload: AxiosRequest.CRM.getOrderReport(data),
+    }),
+    
   onSetDayordersFilters: (data) =>
     dispatch({
       type: TRACK_ORDER_LIST_FILTER,
@@ -83,6 +91,7 @@ const defult_slot = {
 
 var logi;
 class Crm extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -102,6 +111,7 @@ class Crm extends React.Component {
       isTripEnable: true,
       trip_search: false,
       checkBoxVal: 0,
+      isReport:false,
     };
   }
 
@@ -148,6 +158,11 @@ class Crm extends React.Component {
     if (this.props.zoneRefresh) {
       store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
+    }
+
+    if (this.props.dayorderreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     this.onGetOrders();
@@ -332,6 +347,33 @@ class Crm extends React.Component {
     else return " - ";
   }
 
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.state.startdate) data.starting_date = this.state.startdate;
+        if (this.state.enddate) data.end_date = this.state.enddate;
+        if (this.state.order_no) data.id = this.state.order_no;
+        if (this.state.user_search) data.search = this.state.user_search;
+        if (this.state.trip_search && this.state.checkBoxVal === 1) {
+          data.trip_id = this.state.trip_search;
+          data.moveit_type = this.state.checkBoxVal;
+        } else if (this.state.checkBoxVal === 2) {
+          data.moveit_type = this.state.checkBoxVal;
+        }
+
+        if (
+          this.state.select_order_status &&
+          this.state.select_order_status.id !== -1
+        )
+          data.dayorderstatus = this.state.select_order_status.id;
+        if (this.state.select_slot && this.state.select_slot.id !== -1)
+          data.slot = this.state.select_slot.id;
+        if (this.state.userid) data.userid = this.state.userid;
+      data.report=1;
+
+      this.props.onGetDayordersReport(data);
+  };
+
   render() {
     const dayorderlist = this.props.dayorderlist || [];
     return (
@@ -341,6 +383,24 @@ class Crm extends React.Component {
             <Col></Col>
             <Col>
               <div className="float-right mr-r-20">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("crm_export")}
+                  onClick={() => this.onReportDownLoad()}
+                  >
+                    <FaDownload size="15" />
+                  </Button>
+  
+                  <CSVLink
+                    data={this.props.dayorderreport}
+                    filename={"CRM_OrderReport.csv"}
+                    className="mr-r-20"
+                    ref={this.csvLink}
+                    hidden={true}
+                  ></CSVLink>
+
                 <span className="mr-r-20">Zone</span>
                 <ButtonDropdown
                   className="max-height-30"
@@ -368,9 +428,7 @@ class Crm extends React.Component {
           <div className="fieldset">
             <div className="legend">Order Tracker</div>
             <div className="replies_field_container mr-b-10 font-size-14">
-              <div className="width-200 mr-l-20">
-                Order No :
-              </div>
+              <div className="width-200 mr-l-20">Order No :</div>
               <div className="width-200">
                 <Search
                   onSearch={this.onSearchOrderno}
@@ -556,19 +614,17 @@ class Crm extends React.Component {
                 <tbody>
                   {dayorderlist.map((item, i) => (
                     <tr key={i}>
+                      <td>{i + 1}</td>
                       <td>
-                        {i + 1}
-                      </td>
-                      <td>
-                      <Button
-                            size="sm"
-                            className="pd-0"
-                            disabled={onActionHidden("crm_view")}
-                            onClick={() => this.onView(item)}
-                            color="link"
-                          >
-                            <FaEye size="16" />
-                          </Button>
+                        <Button
+                          size="sm"
+                          className="pd-0"
+                          disabled={onActionHidden("crm_view")}
+                          onClick={() => this.onView(item)}
+                          color="link"
+                        >
+                          <FaEye size="16" />
+                        </Button>
                       </td>
                       <td>{item.id}</td>
                       <td>{item.name}</td>

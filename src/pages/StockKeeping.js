@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { FaEye, FaRegEdit, FaTrashAlt } from "react-icons/fa";
+import { FaEye, FaRegEdit, FaTrashAlt, FaDownload } from "react-icons/fa";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import {
   Row,
@@ -27,6 +27,7 @@ import {
   STOCK_KEEPING_DELETE,
   STOCK_KEEPING_VIEW,
   STOCK_KEEPING_EDIT,
+  STOCK_KEEPING_REPORT,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
@@ -34,6 +35,7 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import SearchItem from "../components/SearchItem";
 import { store } from "../store";
 import StockAddFrom from "./StockAddFrom";
+import { CSVLink } from "react-csv";
 
 function CardRowCol(props) {
   var lable = props.lable ? props.lable : "";
@@ -155,6 +157,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: STOCK_KEEPING_LIST,
       payload: AxiosRequest.StockKeeping.getStockKeepingList(data),
     }),
+  onGetStockKeepingReport: (data) =>
+    dispatch({
+      type: STOCK_KEEPING_REPORT,
+      payload: AxiosRequest.StockKeeping.getStockKeepingReport(data),
+    }),
   onGetDeleteStock: (data) =>
     dispatch({
       type: STOCK_KEEPING_DELETE,
@@ -177,6 +184,7 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class StockKeeping extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -254,6 +262,11 @@ class StockKeeping extends React.Component {
       this.setState({ isLoading: false });
     }
 
+    if (this.props.stock_keeping_report.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
+    }
+
     this.onStockKeepingList();
   }
   componentDidCatch() {}
@@ -270,7 +283,6 @@ class StockKeeping extends React.Component {
         data.scl1_id = this.state.l1category[0].scl1_id;
       if (this.state.date) data.date = this.state.date;
       if (this.state.stock_type) data.type = this.state.stock_type;
-
       this.props.onGetStockKeepingList(data);
     }
   };
@@ -410,6 +422,22 @@ class StockKeeping extends React.Component {
       data1.action_id = this.state.receivingSelection[0].id;
     }
     this.props.onUpdateList(data1);
+  };
+
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.category.length > 0)
+      data.cat_id = this.state.category[0].catid;
+    if (this.state.l1category.length > 0)
+      data.scl1_id = this.state.l1category[0].scl1_id;
+    if (this.state.date) data.date = this.state.date;
+    if (this.state.stock_type) data.type = this.state.stock_type;
+    data.report=1;
+
+    this.props.onGetStockKeepingReport(data);
   };
 
   render() {
@@ -552,6 +580,22 @@ class StockKeeping extends React.Component {
               <Col className="txt-align-right">
                 <Button
                   size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("stockexport_catalog_master_report")}
+                  onClick={() => this.onReportDownLoad()}
+                >
+                  <FaDownload size="15" />
+                </Button>
+                <CSVLink
+                  data={this.props.stock_keeping_report}
+                  filename={"stock_keeping_report.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
+                <Button
+                  size="sm"
                   onClick={this.addstockKeeping}
                   hidden={onActionHidden("stockadd")}
                 >
@@ -614,11 +658,12 @@ class StockKeeping extends React.Component {
                             size="sm"
                             color="link"
                             onClick={() => this.onDelete(item)}
-                            disabled={item.delete_status !== 0||onActionHidden("stockdelete")}
+                            disabled={
+                              item.delete_status !== 0 ||
+                              onActionHidden("stockdelete")
+                            }
                           >
-                            <FaTrashAlt
-                              size="16"
-                            />
+                            <FaTrashAlt size="16" />
                           </Button>
                         </td>
                         <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>

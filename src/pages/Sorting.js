@@ -16,6 +16,7 @@ import {
 } from "reactstrap";
 import {
   SORTING_LIST,
+  SORTING_REPORT,
   SORTING_SAVING_ITEM,
   SORTING_SUBMIT_ITEM,
   SORTING_CLEAR,
@@ -33,6 +34,8 @@ import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
+import { CSVLink } from "react-csv";
+import { FaDownload } from "react-icons/fa";
 const InputField = ({
   input,
   label,
@@ -76,6 +79,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: SORTING_LIST,
       payload: AxiosRequest.Warehouse.getSortingList(data),
     }),
+    onGetSortingReport: (data) =>
+    dispatch({
+      type: SORTING_REPORT,
+      payload: AxiosRequest.Warehouse.getSortingReport(data),
+    }),
   onSaving: (data) =>
     dispatch({
       type: SORTING_SAVING_ITEM,
@@ -86,7 +94,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: SORTING_SUBMIT_ITEM,
       payload: AxiosRequest.Warehouse.submitSorting(data),
     }),
-    onReportSubmit: (data) =>
+  onReportSubmit: (data) =>
     dispatch({
       type: SORTING_SUBMIT_REPORT,
       payload: AxiosRequest.Warehouse.submitSortingReport(data),
@@ -98,13 +106,14 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class Sorting extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
       isLoading: false,
       search_refresh: false,
       sortingModal: false,
-      
+
       isOpenReportDropDown: false,
       reportingItem: false,
       reportingSortingItem: false,
@@ -112,7 +121,8 @@ class Sorting extends React.Component {
 
       selected_dopid: false,
       orderdate: false,
-      enddate:false,
+      enddate: false,
+      isReport:false,
       selectedPage: 1,
       orderid: "",
       selectedItem: { products: [] },
@@ -153,9 +163,14 @@ class Sorting extends React.Component {
       this.setState({ isLoading: false });
     }
 
-    if(this.props.isReportSubmiting){
+    if (this.props.isReportSubmiting) {
       this.props.onClear();
       this.onReportingModal();
+    }
+
+    if (this.props.sortingreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     if (this.props.isSubmiting) {
@@ -234,7 +249,7 @@ class Sorting extends React.Component {
       var data = {
         dopid_list: Values,
         zoneid: this.props.zoneItem.id,
-        done_by:getAdminId()
+        done_by: getAdminId(),
       };
       this.props.onSaving(data);
     } else {
@@ -263,7 +278,7 @@ class Sorting extends React.Component {
       vpid: this.state.reportingSortingItem.vpid,
       report_quantity: values.item_quantity,
       report_type: this.state.reportingItem.id,
-      done_by:getAdminId()
+      done_by: getAdminId(),
     };
     console.log("data-->", data);
     this.props.onReportSubmit(data);
@@ -276,7 +291,7 @@ class Sorting extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
         dopid_list: Values,
-        done_by:getAdminId()
+        done_by: getAdminId(),
       };
       this.props.onSubmit(data);
     } else {
@@ -308,7 +323,7 @@ class Sorting extends React.Component {
   orderDate = (event, picker) => {
     var orderdate = picker.startDate.format("YYYY-MM-DD");
     var endDate = picker.endDate.format("YYYY-MM-DD");
-    this.setState({ orderdate: orderdate,enddate:endDate });
+    this.setState({ orderdate: orderdate, enddate: endDate });
   };
   onSuccessRefresh = () => {
     this.setState({ search_refresh: false });
@@ -317,13 +332,13 @@ class Sorting extends React.Component {
     this.setState({ selectedPage: selectedPage, isLoading: false });
   };
   onSearch = () => {
-    this.setState({ isLoading: false,selectedPage: 1,});
+    this.setState({ isLoading: false, selectedPage: 1 });
   };
 
   onReset = () => {
     this.setState({
       orderdate: false,
-      enddate:false,
+      enddate: false,
       selectedPage: 1,
       orderid: "",
       search_refresh: true,
@@ -337,10 +352,21 @@ class Sorting extends React.Component {
   onSearchOrderId = (e) => {
     const value = e.target.value || "";
     this.setState({ orderid: value });
-    if (e.keyCode === 13 && (e.shiftKey === false || value==="")) {
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
       e.preventDefault();
       this.setState({ isLoading: false });
     }
+  };
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.orderdate) data.from_date = this.state.orderdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.orderid) data.doid = this.state.orderid;
+    data.report=1;
+    this.props.onGetSortingReport(data);
   };
   render() {
     const sortingList = this.props.sortingList || [];
@@ -407,37 +433,55 @@ class Sorting extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-              <div className="search-horizantal-sort">
-                <Table>
-                  <thead>
-                    <tr>
-                      <th>Date/Time</th>
-                      <th>Order ID</th>
-                      <th>Order status</th>
+            <Row className="mr-b-10 mr-l-10 mr-r-10">
+              <Col className="txt-align-right pd-0">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("wh_sorting_export")}
+                  onClick={() => this.onReportDownLoad()}
+                >
+                  <FaDownload size="15" />
+                </Button>
+                <CSVLink
+                  data={this.props.sortingreport}
+                  filename={"sortingreport.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
+              </Col>
+            </Row>
+            <div className="search-horizantal-sort">
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Date/Time</th>
+                    <th>Order ID</th>
+                    <th>Order status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortingList.map((item, i) => (
+                    <tr key={i}>
+                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td>{item.doid}</td>
+                      <td>
+                        <Button
+                          size="sm"
+                          disabled={onActionHidden("wh_moveto_qc")}
+                          onClick={this.onActionClick(item)}
+                        >
+                          Move To QC
+                        </Button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {sortingList.map((item, i) => (
-                      <tr key={i}>
-                        <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
-                        </td>
-                        <td>{item.doid}</td>
-                        <td>
-                          <Button
-                            size="sm"
-                            disabled={onActionHidden("wh_moveto_qc")}
-                            onClick={this.onActionClick(item)}
-                          >
-                            Move To QC
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-              <div
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+            <div
               className="float-right"
               hidden={this.props.totalcount < this.props.pagelimit}
             >
@@ -484,7 +528,11 @@ class Sorting extends React.Component {
                   </div>
                   <div className="width-150 pd-4">{item.received_quantity}</div>
                   <div className="width-150 pd-4">
-                    <Button size="sm" onClick={this.reportClick(item)} disabled={item.received_quantity===0}>
+                    <Button
+                      size="sm"
+                      onClick={this.reportClick(item)}
+                      disabled={item.received_quantity === 0}
+                    >
                       Report
                     </Button>
                   </div>

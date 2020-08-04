@@ -327,9 +327,14 @@ class ProductAddEdit extends React.Component {
         this.setState({ sub1Cat: subcat });
       }
 
-      if (productDe && productDe.scl1_id) {
+      if (productDe && productDe.scl2_id) {
         var subcat2 = [
           { scl2_id: productDe.scl2_id, name: productDe.subcategory2_name },
+        ];
+        this.setState({ sub2Cat: subcat2 });
+      }else{
+        var subcat2 = [
+          { scl2_id: 0, name: "No L2 SC" },
         ];
         this.setState({ sub2Cat: subcat2 });
       }

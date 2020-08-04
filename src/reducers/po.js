@@ -1,5 +1,6 @@
 import {
   PO_LIST,
+  PO_REPORT,
   PO_VIEW,
   PO_DELETE,
   PO_CLOSE,
@@ -10,6 +11,7 @@ export default (
   state = {
     movetopo: false,
     poList: [],
+    poreport:[],
     poview: false,
     deleteStatus: false,
     closeStatus: false,
@@ -38,6 +40,11 @@ export default (
         poList: action.payload.result || [],
         totalcount:action.payload.totalcount || 0,
         pagelimit:action.payload.pagelimit || 0,
+      };
+      case PO_REPORT:
+      return {
+        ...state,
+        poreport: action.payload.result || [],
       };
     case PO_VIEW:
       return {

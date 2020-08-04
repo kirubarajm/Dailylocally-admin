@@ -14,9 +14,10 @@ import {
   ModalBody,
   ModalFooter,
 } from "reactstrap";
-import { FaEye, FaRegFilePdf, FaTrashAlt } from "react-icons/fa";
+import { FaEye, FaRegFilePdf, FaTrashAlt, FaDownload } from "react-icons/fa";
 import {
   PO_LIST,
+  PO_REPORT,
   ZONE_ITEM_REFRESH,
   PO_VIEW,
   PO_DELETE,
@@ -29,7 +30,12 @@ import DateRangePicker from "react-bootstrap-daterangepicker";
 import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import { store } from "../store";
-import { getPoStatus, getAdminId } from "../utils/ConstantFunction";
+import {
+  getPoStatus,
+  getAdminId,
+  onActionHidden,
+} from "../utils/ConstantFunction";
+import { CSVLink } from "react-csv";
 import PaginationComponent from "react-reactstrap-pagination";
 
 const mapStateToProps = (state) => ({
@@ -43,6 +49,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: PO_LIST,
       payload: AxiosRequest.Warehouse.getPoList(data),
+    }),
+    onGetPoReport: (data) =>
+    dispatch({
+      type: PO_REPORT,
+      payload: AxiosRequest.Warehouse.getPoReport(data),
     }),
 
   onGetViewPO: (data) =>
@@ -67,6 +78,7 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class Po extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -85,6 +97,7 @@ class Po extends React.Component {
       view_item: false,
       isConfrimModal: false,
       select_item: false,
+      isReport:false,
       isDelete: false,
       recevingItem: { id: -1, name: "All" },
       postatusItem: { id: -1, name: "All" },
@@ -127,6 +140,11 @@ class Po extends React.Component {
       this.props.onPoClear();
       this.setState({ isLoading: false });
     }
+    if (this.props.poreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
+    }
+
     this.onGetPoList();
   }
   componentDidCatch() {}
@@ -268,6 +286,25 @@ class Po extends React.Component {
   };
   onSuccessRefresh = () => {
     this.setState({ search_refresh: false });
+  };
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.po_createdate) data.from_date = this.state.po_createdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.supplier_name) data.vid = this.state.supplier_name;
+    if (this.state.due_date) data.due_date = this.state.due_date;
+    if (this.state.pono) data.poid = this.state.pono;
+    if (this.state.postatusItem && this.state.postatusItem.id !== -1)
+      data.po_status = this.state.postatusItem.id;
+    if (this.state.recevingItem && this.state.recevingItem.id !== -1)
+      data.pop_status = this.state.recevingItem.id;
+      
+      data.report=1;
+
+    this.props.onGetPoReport(data);
   };
 
   render() {
@@ -452,6 +489,22 @@ class Po extends React.Component {
           </div>
           <Row className="mr-b-10 mr-l-10 mr-r-10">
             <Col className="txt-align-right pd-0">
+              <Button
+                size="sm"
+                color="link"
+                className="mr-r-20"
+                hidden={onActionHidden("wh_po_export")}
+                onClick={() => this.onReportDownLoad()}
+              >
+                <FaDownload size="15" />
+              </Button>
+              <CSVLink
+                  data={this.props.poreport}
+                  filename={"poreport.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
               <Button size="sm" onClick={this.gotoVendorAssign}>
                 Supplier Assign
               </Button>
@@ -485,45 +538,47 @@ class Po extends React.Component {
                         <Button
                           size="sm"
                           color="link"
-                          disabled={!item.po_pdf_url}
+                          disabled={
+                            !item.po_pdf_url || onActionHidden("wh_po_view")
+                          }
                         >
                           <a href={item.po_pdf} target="_blank">
                             <FaRegFilePdf
                               className="txt-color-theme txt-cursor pd-2"
-                              size="20"
+                              size="18"
                             />
                           </a>
                         </Button>
                       </td>
                       <td>
-                        <FaEye
-                          className="txt-color-theme txt-cursor pd-2"
-                          size="20"
+                        <Button
+                          size="sm"
+                          color="link"
                           onClick={() => this.onView(item)}
-                        />
+                          disabled={onActionHidden("wh_po_view")}
+                        >
+                          <FaEye size="16" />
+                        </Button>
                       </td>
                       <td>
                         <Button
                           size="sm"
                           color="link"
                           onClick={() => this.onDelete(item)}
-                          disabled={item.po_status !== 0}
+                          disabled={
+                            item.po_status !== 0 ||
+                            onActionHidden("wh_delete_po")
+                          }
                         >
-                          <FaTrashAlt
-                            className={
-                              item.po_status !== 0
-                                ? "color-disable"
-                                : "color-red"
-                            }
-                            size="16"
-                          />
+                          <FaTrashAlt size="16" />
                         </Button>
                       </td>
                       <td>
                         <Button
                           className="btn-close"
                           disabled={
-                            item.po_status !== 1 && item.po_status !== 2
+                            (item.po_status !== 1 && item.po_status !== 2) ||
+                            onActionHidden("wh_po_close")
                           }
                           onClick={() => this.onClose(item)}
                         >

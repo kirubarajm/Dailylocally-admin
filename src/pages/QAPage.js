@@ -22,6 +22,7 @@ import Search from "../components/Search";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import {
   QA_LIST,
+  QA_REPORT,
   QA_QUALITY_LIST,
   UPDATE_QA_LIST,
   ORDERS_QA_SUBMIT,
@@ -29,11 +30,13 @@ import {
   ZONE_ITEM_REFRESH,
   SORTING_SUBMIT_REPORT,
 } from "../constants/actionTypes";
+import { CSVLink } from "react-csv";
 import { store } from "../store";
 import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
+import { FaDownload } from "react-icons/fa";
 
 const mapStateToProps = (state) => ({
   ...state.qapage,
@@ -46,6 +49,11 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: QA_LIST,
       payload: AxiosRequest.Warehouse.getQaList(data),
+    }),
+  onGetQAReport: (data) =>
+    dispatch({
+      type: QA_REPORT,
+      payload: AxiosRequest.Warehouse.getQaReport(data),
     }),
   onGetQualityOpation: (data) =>
     dispatch({
@@ -106,6 +114,7 @@ const InputField = ({
 };
 
 class QAPage extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
@@ -123,7 +132,7 @@ class QAPage extends React.Component {
       reportingItem: false,
       reportingSortingItem: false,
       reportingModal: false,
-
+      isReport: false,
       today: Moment(new Date()),
     };
   }
@@ -175,6 +184,11 @@ class QAPage extends React.Component {
     if (this.props.zoneRefresh) {
       store.dispatch({ type: ZONE_ITEM_REFRESH });
       this.setState({ isLoading: false });
+    }
+
+    if (this.props.qcreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
     }
 
     if (this.props.isReportSubmiting) {
@@ -381,6 +395,17 @@ class QAPage extends React.Component {
     });
     this.setState({ checklist: checklist });
   };
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.orderdate) data.from_date = this.state.orderdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.orderid) data.doid = this.state.orderid;
+    data.report = 1;
+    this.props.onGetQAReport(data);
+  };
 
   render() {
     const qaList = this.props.qaList || [];
@@ -447,6 +472,26 @@ class QAPage extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
+            <Row className="mr-b-10 mr-l-10 mr-r-10">
+              <Col className="txt-align-right pd-0">
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("wh_qc_report")}
+                  onClick={() => this.onReportDownLoad()}
+                  >
+                    <FaDownload size="15" />
+                  </Button>
+                  <CSVLink
+                    data={this.props.qcreport}
+                    filename={"qcreport.csv"}
+                    className="mr-r-20"
+                    ref={this.csvLink}
+                    hidden={true}
+                  ></CSVLink>
+              </Col>
+            </Row>
             <div className="search-horizantal-qc">
               <Table>
                 <thead>

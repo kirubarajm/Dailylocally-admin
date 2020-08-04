@@ -4,6 +4,7 @@ import {
   STOCK_KEEPING_CLEAR,
   STOCK_KEEPING_LIST,
   STOCK_KEEPING_EDIT,
+  STOCK_KEEPING_REPORT,
   STOCK_KEEPING_DELETE,
   STOCK_KEEPING_VIEW,
 } from "../constants/actionTypes";
@@ -11,6 +12,7 @@ import {
 export default (
   state = {
     stock_keeping_list: [],
+    stock_keeping_report:[],
     category_list: [],
     subcat_L1: [],
     receving_update: false,
@@ -51,6 +53,11 @@ export default (
       return {
         ...state,
         stock_keeping_edit: action.payload.status || false,
+      };
+      case STOCK_KEEPING_REPORT:
+      return {
+        ...state,
+        stock_keeping_report: action.payload.result || [],
       };
     case STOCK_KEEPING_CLEAR:
       return {

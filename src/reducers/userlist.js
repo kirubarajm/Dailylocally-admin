@@ -1,7 +1,21 @@
-import { USER_LIST, USER_FILTER, USER_ADD_ADDRESS,USER_CLEAR } from "../constants/actionTypes";
+import {
+  USER_LIST,
+  USER_FILTER,
+  USER_ADD_ADDRESS,
+  USER_CLEAR,
+  USER_REPORT,
+} from "../constants/actionTypes";
 
 export default (
-  state = { Userlist: [], userfilter: false, totalcount: 0, selectedPage: 1,pagelimit:0,address_updated:false},
+  state = {
+    Userlist: [],
+    UserReport: [],
+    userfilter: false,
+    totalcount: 0,
+    selectedPage: 1,
+    pagelimit: 0,
+    address_updated: false,
+  },
   action
 ) => {
   switch (action.type) {
@@ -12,17 +26,22 @@ export default (
         pagelimit: action.payload.pagelimit || 20,
         totalcount: action.payload.totalcount || 10,
       };
-      case USER_ADD_ADDRESS:
+    case USER_REPORT:
+      return {
+        ...state,
+        UserReport: action.payload.result || [],
+      };
+    case USER_ADD_ADDRESS:
       return {
         ...state,
         address_updated: action.payload.status || false,
       };
-      case USER_CLEAR:
+    case USER_CLEAR:
       return {
         ...state,
-        address_updated:false,
+        address_updated: false,
       };
-      
+
     case USER_FILTER:
       return {
         ...state,

@@ -2,12 +2,14 @@ import {
   DAT_ORDER_LIST,
   MOVE_TO_PROCUREMENT,
   ON_CLEAR_PROCUREMENT,
+  DAT_ORDER_REPORT,
 } from "../constants/actionTypes";
 
 export default (
   state = {
     movetoprocurement: false,
     dayorderlist: [],
+    dayorderreport:[],
     totalcount:0,
     pagelimit:0,
     orderStatus: [
@@ -50,6 +52,15 @@ export default (
         dayorderlist: action.payload.result || [],
         totalcount:action.payload.totalcount || 0,
         pagelimit:action.payload.pagelimit || 0,
+      };
+      case DAT_ORDER_REPORT:
+        var product=action.payload.result||[];
+        // product=product.map(function(item, i) {
+        //   item.product = JSON.parse(item.product);
+        // });
+      return {
+        ...state,
+        dayorderreport: product || [],
       };
     case MOVE_TO_PROCUREMENT:
       return {

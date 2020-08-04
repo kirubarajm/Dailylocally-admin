@@ -2,8 +2,10 @@ import React from "react";
 import AxiosRequest from "../AxiosRequest";
 import SearchInput from "../components/SearchInput";
 import { onActionHidden } from "../utils/ConstantFunction";
+import { CSVLink } from "react-csv";
 import {
   MOVEIT_USERS_LIST,
+  MOVEIT_USERS_REPORT,
   MOVEIT_USERS_FILTER,
 } from "../constants/actionTypes";
 import { connect } from "react-redux";
@@ -27,6 +29,7 @@ import {
   FaMixcloud,
   FaRegDotCircle,
   FaMapMarkedAlt,
+  FaDownload,
 } from "react-icons/fa";
 import { store } from "../store";
 
@@ -40,21 +43,27 @@ const mapDispatchToProps = (dispatch) => ({
       type: MOVEIT_USERS_LIST,
       payload: AxiosRequest.Moveit.getAll(data),
     }),
-  onSetFilter: (search, online_status,item) =>
-    dispatch({ type: MOVEIT_USERS_FILTER, search, online_status,item }),
+    onGetDriverReport: (data) =>
+    dispatch({
+      type: MOVEIT_USERS_REPORT,
+      payload: AxiosRequest.Moveit.getUserReport(data),
+    }),
+  onSetFilter: (search, online_status, item) =>
+    dispatch({ type: MOVEIT_USERS_FILTER, search, online_status, item }),
 });
 
 class MoveitUserList extends React.Component {
-  onSetZone(){
-    var zone=[];
-    zone.push({id:-1,Zonename:"All"});
+  csvLink = React.createRef();
+  onSetZone() {
+    var zone = [];
+    zone.push({ id: -1, Zonename: "All" });
     for (let i = 0; i < this.props.zone_list.length; i++) {
       zone.push(this.props.zone_list[i]);
     }
-    this.setState({zone_list:zone});
+    this.setState({ zone_list: zone });
   }
   componentWillMount() {
-    this.setState({ isOpenAreaDropDown: false,zone_list:[]});
+    this.setState({ isOpenAreaDropDown: false, zone_list: [] });
     this.onFiltersApply(
       this.props.search,
       this.props.online_status,
@@ -85,17 +94,21 @@ class MoveitUserList extends React.Component {
   };
 
   componentDidUpdate(nextProps, nextState) {
-    if (this.props.zone_list.length > 0 && this.state.zone_list.length===0) {
+    if (this.props.zone_list.length > 0 && this.state.zone_list.length === 0) {
       this.onSetZone();
     }
-    
+
+    if (this.props.moveituserreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
+    }
   }
   onFiltersApply(search, online_status, zone) {
     var filter = {
       moveit_search: search,
     };
 
-    if (zone.id!== -1) {
+    if (zone.id !== -1) {
       filter.zoneid = zone.id;
     }
 
@@ -116,83 +129,112 @@ class MoveitUserList extends React.Component {
       isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
     }));
   };
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    
+    var data = {
+      moveit_search: this.props.search,
+    };
+
+    if (this.props.zoneItem.id !== -1) {
+      data.zoneid = this.props.zoneItem.id;
+    }
+
+    if (this.props.online_status !== -1) data.livestatus = "" + this.props.online_status;
+    data.report = 1;
+    this.props.onGetDriverReport(data);
+  };
+
   render() {
     const moveituserlist = this.props.moveituserlist || [];
     const online_status = this.props.online_status;
     return (
       <div className="pd-8">
         <Card>
-          <CardHeader>
-            <Row>
-              <Col lg="1">Drivers</Col>
-              <Col>
-                <Row className="float-right">
-                  <Col className="txt-align-right pd-0">
-                    <ButtonGroup size="sm" className="mr-r-10">
-                      <Button
-                        color="primary"
-                        onClick={() => this.filterUser(-1)}
-                        active={online_status === -1}
+          <div className="flex-row pd-8">
+            <div style={{ width: "400px" }}>Drivers</div>
+            <div>
+              <ButtonGroup size="sm" className="mr-r-10">
+                <Button
+                  color="primary"
+                  onClick={() => this.filterUser(-1)}
+                  active={online_status === -1}
+                >
+                  All
+                </Button>
+                <Button
+                  color="primary"
+                  onClick={() => this.filterUser(1)}
+                  active={online_status === 1}
+                >
+                  Live
+                </Button>
+                <Button
+                  color="primary"
+                  onClick={() => this.filterUser(0)}
+                  active={online_status === 0}
+                >
+                  Unlive
+                </Button>
+              </ButtonGroup>
+            </div>
+            <div>
+              <Link
+                to={`/moveit-add`}
+                className="preview-link"
+                hidden={onActionHidden("driver_add")}
+              >
+                <Button size="sm">Driver add</Button>
+              </Link>{" "}
+            </div>
+            <div className="width-200 mr-r-10 mr-l-10">
+              <SearchInput onSearch={this.onSearch} value={this.props.search} />
+            </div>
+            <div className="mr-l-40 mr-r-10 width-100 flex-row">
+              <div className="mr-r-20">Zone</div>
+              <div>
+                <ButtonDropdown
+                  className="max-height-30"
+                  isOpen={this.state.isOpenAreaDropDown}
+                  toggle={this.toggleAreaDropDown}
+                  size="sm"
+                >
+                  <DropdownToggle caret>
+                    {this.props.zoneItem.Zonename || ""}
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {this.state.zone_list.map((item, index) => (
+                      <DropdownItem
+                        onClick={() => this.clickArea(item)}
+                        key={index}
                       >
-                        All
-                      </Button>
-                      <Button
-                        color="primary"
-                        onClick={() => this.filterUser(1)}
-                        active={online_status === 1}
-                      >
-                        Live
-                      </Button>
-                      <Button
-                        color="primary"
-                        onClick={() => this.filterUser(0)}
-                        active={online_status === 0}
-                      >
-                        Unlive
-                      </Button>
-                      
-                    </ButtonGroup>
-                    <Link to={`/moveit-add`} className="preview-link" hidden={onActionHidden('driver_add')}>
-                      <Button size="sm">Driver add</Button>
-                    </Link>
-                  </Col>
-                  <Col className="txt-align-right pd-0">
-                    <div className="flex-row">
-                      <div className="width-200 mr-r-10 mr-l-10">
-                        <SearchInput
-                          onSearch={this.onSearch}
-                          value={this.props.search}
-                        />
-                      </div>
-                      <div className="mr-r-10 width-120">
-                        <span className="mr-r-20">Zone</span>
-                        <ButtonDropdown
-                          className="max-height-30"
-                          isOpen={this.state.isOpenAreaDropDown}
-                          toggle={this.toggleAreaDropDown}
-                          size="sm"
-                        >
-                          <DropdownToggle caret>
-                            {this.props.zoneItem.Zonename || ""}
-                          </DropdownToggle>
-                          <DropdownMenu>
-                            {this.state.zone_list.map((item, index) => (
-                              <DropdownItem
-                                onClick={() => this.clickArea(item)}
-                                key={index}
-                              >
-                                {item.Zonename}
-                              </DropdownItem>
-                            ))}
-                          </DropdownMenu>
-                        </ButtonDropdown>
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
-          </CardHeader>
+                        {item.Zonename}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </ButtonDropdown>
+              </div>
+              <div>
+                <Button
+                  size="sm"
+                  color="link"
+                  className="mr-l-20 mr-r-20"
+                  hidden={onActionHidden("user_export")}
+                  onClick={() => this.onReportDownLoad()}
+                >
+                  <FaDownload size="15" />
+                </Button>
+
+                <CSVLink
+                  data={this.props.moveituserreport}
+                  filename={"Driver_Report.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
+              </div>
+            </div>
+          </div>
           <CardBody className="scrollbar pd-0">
             <Table>
               <thead>

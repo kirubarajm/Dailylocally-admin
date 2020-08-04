@@ -10,6 +10,7 @@ import {
   Modal,
   ModalFooter,
 } from "reactstrap";
+import { FaDownload } from "react-icons/fa";
 import Moment from "moment";
 import AxiosRequest from "../AxiosRequest";
 import DateRangePicker from "react-bootstrap-daterangepicker";
@@ -19,6 +20,7 @@ import { store } from "../store";
 import Search from "../components/Search";
 import {
   PROCUREMENT_LIST,
+  PROCUREMENT_REPORT,
   MOVE_TO_PO_WAITING,
   ON_CLEAR_PO_WAITING,
   WARE_HOUSE_SELECTED_TAB,
@@ -27,6 +29,7 @@ import {
 } from "../constants/actionTypes";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
+import { CSVLink } from "react-csv";
 
 const mapStateToProps = (state) => ({
   ...state.procurement,
@@ -40,6 +43,12 @@ const mapDispatchToProps = (dispatch) => ({
       type: PROCUREMENT_LIST,
       payload: AxiosRequest.Warehouse.procurementwaitinglist(data),
     }),
+    onGetProcurementReport: (data) =>
+    dispatch({
+      type: PROCUREMENT_REPORT,
+      payload: AxiosRequest.Warehouse.procurementwaitingreport(data),
+    }),
+    
   onCreatePo: (data) =>
     dispatch({
       type: MOVE_TO_PO_WAITING,
@@ -62,12 +71,13 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 class Procurement extends React.Component {
+  csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
       isLoading: false,
       selected_procument: false,
-      selectedPage:1,
+      selectedPage: 1,
       pr_createdate: false,
       enddate: false,
       search: "",
@@ -75,6 +85,7 @@ class Procurement extends React.Component {
       today: Moment(new Date()),
       isprocur: false,
       itemid_refresh: false,
+      isReport:false
     };
   }
 
@@ -105,6 +116,10 @@ class Procurement extends React.Component {
       this.props.onClear();
     }
 
+    if (this.props.procurementreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
+      this.csvLink.current.link.click();
+    }
     this.onGetProcumentList();
 
     if (this.props.movetopo) {
@@ -189,7 +204,7 @@ class Procurement extends React.Component {
     this.props.onCreatePo({
       pridlist: Values,
       zoneid: this.props.zoneItem.id,
-      done_by:getAdminId(),
+      done_by: getAdminId(),
     });
   };
 
@@ -198,12 +213,12 @@ class Procurement extends React.Component {
     if (this.state.isAutoStock) {
       this.props.onMovetoStock({
         zoneid: this.props.zoneItem.id,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
       });
     } else {
       this.props.onRemovePr({
         zoneid: this.props.zoneItem.id,
-        done_by:getAdminId(),
+        done_by: getAdminId(),
       });
     }
   };
@@ -238,18 +253,18 @@ class Procurement extends React.Component {
   };
 
   onSearch = () => {
-    this.setState({ isLoading: false,selectedPage:1 });
+    this.setState({ isLoading: false, selectedPage: 1 });
   };
   handleSelected = (selectedPage) => {
-    this.setState({selectedPage:selectedPage,isLoading:false});
+    this.setState({ selectedPage: selectedPage, isLoading: false });
   };
 
   onReset = () => {
     this.setState({
       pr_createdate: false,
-      selectedPage:1,
+      selectedPage: 1,
       search: "",
-      enddate:false,
+      enddate: false,
       itemcode: "",
       itemid_refresh: true,
     });
@@ -258,6 +273,19 @@ class Procurement extends React.Component {
 
   onSuccessRefresh = () => {
     this.setState({ itemid_refresh: false });
+  };
+
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    if (this.state.itemcode) data.vpid = this.state.itemcode;
+    if (this.state.pr_createdate) data.from_date = this.state.pr_createdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+      data.report=1;
+
+    this.props.onGetProcurementReport(data);
   };
 
   render() {
@@ -290,7 +318,7 @@ class Procurement extends React.Component {
                       <i className="far fa-calendar-alt"></i>
                     </Button>
                   </DateRangePicker>
-                    {this.state.pr_createdate
+                  {this.state.pr_createdate
                     ? Moment(this.state.pr_createdate).format("DD/MM/YYYY")
                     : "DD/MM/YYYY"}
                   {this.state.pr_createdate
@@ -346,21 +374,43 @@ class Procurement extends React.Component {
               <Col className="txt-align-right pd-0">
                 <Button
                   size="sm"
-                  hidden={onActionHidden('wh_moveto_st')}
+                  color="link"
+                  className="mr-r-20"
+                  hidden={onActionHidden("wh_procurement_export")}
+                  onClick={() => this.onReportDownLoad()}
+                >
+                  <FaDownload size="15" />
+                </Button>
+
+                <CSVLink
+                  data={this.props.procurementreport}
+                  filename={"ProcurementReport.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
+
+                <Button
+                  size="sm"
+                  hidden={onActionHidden("wh_moveto_st")}
                   onClick={() => this.movetoStock(true)}
                   className="mr-r-20"
                 >
-                  Move To Stock
+                  Use existing stock
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => this.movetoStock(false)}
-                  hidden={onActionHidden('wh_remove_proc')}
+                  hidden={onActionHidden("wh_remove_proc")}
                   className="mr-r-20"
                 >
                   Remove Procurement
                 </Button>
-                <Button size="sm" onClick={this.movetopo} hidden={onActionHidden('wh_purchase_order')}>
+                <Button
+                  size="sm"
+                  onClick={this.movetopo}
+                  hidden={onActionHidden("wh_purchase_order")}
+                >
                   + Purchase order
                 </Button>
               </Col>

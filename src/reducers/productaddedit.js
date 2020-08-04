@@ -27,9 +27,12 @@ export default (
         subcat_L1: action.payload.result || [],
       };
     case PRODUCT_SUBCATEGORY_L2_LIST:
+      var subL2 = [];
+      subL2.push({ name: "No L2 SC", scl2_id: 0 });
+      subL2 = subL2.concat(action.payload.result || []);
       return {
         ...state,
-        subcat_L2: action.payload.result || [],
+        subcat_L2: subL2 || [],
       };
     case PRODUCT_VIEW:
       return {
