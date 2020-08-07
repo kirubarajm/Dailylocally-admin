@@ -800,18 +800,17 @@ class OrderView extends React.Component {
                       key={index}
                       disabled={
                         ((onActionHidden("crm_cancel") ||
-                          propdata.dayorderstatus === 11) &&
+                          propdata.dayorderstatus>7) &&
                           item.id === 1) ||
                         (onActionHidden("crm_reorder") && item.id === 2) ||
                         ((onActionHidden("crm_book_return") ||
                           propdata.dayorderstatus !== 8) &&
                           item.id === 3) ||
-                        ((onActionHidden("crm_refund") ||
-                          propdata.dayorderstatus !== 10) &&
+                        ((onActionHidden("crm_refund")) &&
                           item.id === 4) ||
                         (onActionHidden("crm_msgto_customer") &&
-                          item.id === 5) ||
-                        (onActionHidden("crm_raise_ticket") && item.id === 6)
+                          item.id === 6) ||
+                        ((onActionHidden("crm_raise_ticket")||(propdata.zendesk_ticketid!==null)) && item.id === 7)
                       }
                     >
                       {item.name}
@@ -949,10 +948,11 @@ class OrderView extends React.Component {
           <div className="mr-lr-10 border-block pd-8">
             <Row className="mr-lr-10 cart-item font-size-14">
               <Col>Product Name</Col>
-              <Col className="txt-align-right">Quantity</Col>
-              <Col className="txt-align-right">Price</Col>
-              <Col className="txt-align-right">Amount</Col>
-              <Col className="txt-align-right">Transaction id</Col>
+              <Col className="txt-align-left">Quantity</Col>
+              <Col className="txt-align-left">Price</Col>
+              <Col className="txt-align-left">Amount</Col>
+              <Col className="txt-align-left">Transaction view</Col>
+              <Col className="txt-align-left">Transaction id</Col>
             </Row>
             <hr />
             {cartItems.map((item, i) => (
@@ -971,15 +971,15 @@ class OrderView extends React.Component {
                   </div>
                 </Col>
                 {/* <span className=''> (Price * Quantity) </span>  */}
-                <Col className="txt-align-right">{item.quantity}</Col>
-                <Col className="txt-align-right">{item.price}</Col>
-                <Col className="txt-align-right">
+                <Col className="txt-align-left">{item.quantity}</Col>
+                <Col className="txt-align-left">{item.price}</Col>
+                <Col className="txt-align-left">
                   <div className="font-size-14">
                     <i className="fas fa-rupee-sign font-size-12" />{" "}
                     {item.quantity * item.price}
                   </div>
                 </Col>
-                <Col className="txt-align-right">
+                <Col className="txt-align-left">
                   <Button
                     size="sm"
                     color="link"
@@ -987,6 +987,9 @@ class OrderView extends React.Component {
                   >
                     inv #{item.orderid}
                   </Button>
+                </Col>
+                <Col className="txt-align-left">
+                    {item.Transactionid}
                 </Col>
               </Row>
             ))}
@@ -1632,7 +1635,10 @@ class OrderView extends React.Component {
             {this.props.transactionview ? (
               <div className="font-size-14 mr-t-20">
                 <div className="flex-row">
-                  Transaction ID # {this.props.transactionview.orderid}
+                  Order ID # {this.props.transactionview.orderid}
+                </div>
+                <div className="flex-row">
+                  Transaction ID # {this.props.transactionview.tsid}
                 </div>
                 <div className="color-grey font-size-10">
                   {this.dateConvertFormat(

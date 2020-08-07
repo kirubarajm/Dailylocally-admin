@@ -609,6 +609,7 @@ class Crm extends React.Component {
                     <th>Status</th>
                     <th>Trip ID</th>
                     <th>Delivered Date/Time</th>
+                    <th>Download Invoice</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -648,6 +649,19 @@ class Crm extends React.Component {
                           : "Dunzo"}
                       </td>
                       <td>{this.dateConvert(item.deliver_date)}</td>
+                      <td>
+                        <Button
+                          size="sm"
+                          disabled={
+                            !item.invoice_url || onActionHidden("crm_order_details_export")
+                          }
+                        >
+                          {item.invoice_url?<a href={item.invoice_url} target="_blank" className="txt-color-theme">
+                            <div>Download Invoice</div>
+                          </a>:"Download Invoice"}
+                          
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -466,6 +466,11 @@ class RefundApproval extends React.Component {
     data.report = 1;
     this.props.onGetRefundReport(data);
   };
+
+  onViewOrder = (Item) => {
+    this.props.history.push("/orderview/" + Item.doid);
+  };
+
   render() {
     const dayorderlist = this.props.dayorderlist || [];
     return (
@@ -723,7 +728,15 @@ class RefundApproval extends React.Component {
                         <td>{this.dateConvert(item.order_created_time)}</td>
                         <td>{item.adminname}</td>
                         <td>{this.dateConvert(item.created_at)}</td>
-                        <td>{item.doid}</td>
+                        <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          onClick={() => this.onViewOrder(item)}
+                        >
+                          {item.doid}
+                        </Button>
+                      </td>
                         <td>inv#{item.orderid}</td>
                         <td>{item.userid}</td>
                         <td>{item.refund_reason || ""}</td>

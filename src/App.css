@@ -967,6 +967,7 @@ a, a:focus, a:hover, a:visited {
 }
 
 .search-v-scroll {
+  white-space: nowrap;
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
@@ -979,10 +980,12 @@ a, a:focus, a:hover, a:visited {
 }
 
 .search-horizantal-po {
+  white-space: nowrap;
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
   height: 44vh !important;
+  -webkit-overflow-scrolling: touch;
 }
 .search-horizantal-reci {
   margin-bottom: 10px !important;

@@ -566,7 +566,7 @@ class Po extends React.Component {
                           color="link"
                           onClick={() => this.onDelete(item)}
                           disabled={
-                            item.po_status !== 0 ||
+                            item.delete_flag === 0 ||
                             onActionHidden("wh_delete_po")
                           }
                         >
@@ -577,7 +577,7 @@ class Po extends React.Component {
                         <Button
                           className="btn-close"
                           disabled={
-                            (item.po_status !== 1 && item.po_status !== 2) ||
+                            (item.close_flag === 0) ||
                             onActionHidden("wh_po_close")
                           }
                           onClick={() => this.onClose(item)}

@@ -36,7 +36,7 @@ import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
-import { FaDownload } from "react-icons/fa";
+import { FaDownload, FaRegFilePdf } from "react-icons/fa";
 
 const mapStateToProps = (state) => ({
   ...state.qapage,
@@ -499,6 +499,7 @@ class QAPage extends React.Component {
                     <th>Date/Time</th>
                     <th>Order ID</th>
                     <th>Order status</th>
+                    <th>order checklist</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -513,6 +514,19 @@ class QAPage extends React.Component {
                           onClick={this.onActionClick(item, i)}
                         >
                           Approve
+                        </Button>
+                      </td>
+                      <td>
+                        <Button
+                          size="sm"
+                          disabled={
+                            !item.invoice_url || onActionHidden("wh_qc_invoice_download")
+                          }
+                        >
+                          {item.invoice_url?<a href={item.invoice_url} target="_blank" className="txt-color-theme">
+                            <div>Download Invoice</div>
+                          </a>:"Download Invoice"}
+                          
                         </Button>
                       </td>
                     </tr>

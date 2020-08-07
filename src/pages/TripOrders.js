@@ -473,6 +473,10 @@ class TripOrders extends React.Component {
     this.props.onGetTripReport(data);
   };
 
+  onViewOrder = (Item) => {
+    this.props.history.push("/orderview/" + Item.id);
+  };
+
   render() {
     const dayorderlist = this.props.dayorderlist || [];
     return (
@@ -670,7 +674,15 @@ class TripOrders extends React.Component {
                           </label>
                         </td>
 
-                        <td>{item.id}</td>
+                        <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          onClick={() => this.onViewOrder(item)}
+                        >
+                          {item.id}
+                        </Button>
+                      </td>
                         <td>{item.dayorderstatus_msg}</td>
                         <td>{item.trip_id}</td>
                         <td>{item.name}</td>

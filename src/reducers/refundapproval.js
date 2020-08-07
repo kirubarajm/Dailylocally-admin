@@ -84,10 +84,10 @@ export default (
         totalcount: action.payload.totalcount || 10,
       };
       case REFUND_ORDER_REPORT:
-        var list=action.payload.result || [];
+        var lists=action.payload.result || [];
         return {
           ...state,
-          refundorderreport:list,
+          refundorderreport:lists,
         };
     case ZONE_TRIP_ORDER_LIST:
       return {

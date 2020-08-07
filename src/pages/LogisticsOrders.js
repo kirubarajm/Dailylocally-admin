@@ -644,6 +644,9 @@ class LogisticsOrders extends React.Component {
 
       this.props.onGetDayordersReport(data);
   };
+  onViewOrder = (Item) => {
+    this.props.history.push("/orderview/" + Item.id);
+  };
 
   render() {
     const dayorderlist = this.props.dayorderlist || [];
@@ -909,7 +912,7 @@ class LogisticsOrders extends React.Component {
             </Row>
             <div className="scroll-horizantal-logistics">
               <div>
-                <Table style={{ width: "1500px" }}>
+                <Table style={{ width: "2000px" }}>
                   <thead>
                     <tr>
                       <th>No</th>
@@ -926,6 +929,7 @@ class LogisticsOrders extends React.Component {
                       <th>Status</th>
                       <th>QA Checklist</th>
                       <th>Trip ID</th>
+                      <th>Download Invoice</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -944,7 +948,15 @@ class LogisticsOrders extends React.Component {
                             <span className="checkmark"></span>{" "}
                           </label>
                         </td>
-                        <td>{item.id}</td>
+                        <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          onClick={() => this.onViewOrder(item)}
+                        >
+                          {item.id}
+                        </Button>
+                      </td>
                         <td>{item.name}</td>
                         <td>{item.phoneno}</td>
                         <td>
@@ -1009,6 +1021,19 @@ class LogisticsOrders extends React.Component {
                             </Button>
                           )}
                         </td>
+                        <td>
+                        <Button
+                          size="sm"
+                          disabled={
+                            !item.invoice_url || onActionHidden("logi_invoice_download")
+                          }
+                        >
+                          {item.invoice_url?<a href={item.invoice_url} target="_blank" className="txt-color-theme">
+                            <div>Download Invoice</div>
+                          </a>:"Download Invoice"}
+                          
+                        </Button>
+                      </td>
                       </tr>
                     ))}
                   </tbody>

@@ -121,10 +121,10 @@ class DayOrders extends React.Component {
       var data = {
         zoneid: this.props.zoneItem.id,
       };
-      if (this.state.startdate) data.starting_date = this.state.startdate;
-      if (this.state.enddate) data.end_date = this.state.enddate;
+      if (this.state.startdate) data.from_date = this.state.startdate;
+      if (this.state.enddate) data.to_date = this.state.enddate;
       if (this.state.selectedPage) data.page = this.state.selectedPage;
-      if (this.state.orderid) data.doid = this.state.orderid;
+      if (this.state.orderid) data.id = this.state.orderid;
       if (
         this.state.select_order_status &&
         this.state.select_order_status.id !== -1
@@ -289,9 +289,9 @@ class DayOrders extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
     };
-    if (this.state.startdate) data.starting_date = this.state.startdate;
-    if (this.state.enddate) data.end_date = this.state.enddate;
-    if (this.state.orderid) data.doid = this.state.orderid;
+    if (this.state.startdate) data.from_date = this.state.startdate;
+    if (this.state.enddate) data.to_date = this.state.enddate;
+    if (this.state.orderid) data.id = this.state.orderid;
     if (
       this.state.select_order_status &&
       this.state.select_order_status.id !== -1

@@ -409,6 +409,9 @@ class DunzoOrders extends React.Component {
     this.props.onGetDunzoReport(data);
   };
 
+  onViewOrder = (Item) => {
+    this.props.history.push("/orderview/" + Item.id);
+  };
   render() {
     const dayorderlist = this.props.dayorderlist || [];
     return (
@@ -592,7 +595,15 @@ class DunzoOrders extends React.Component {
                           </label>
                         </td>
 
-                        <td>{item.id}</td>
+                        <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          onClick={() => this.onViewOrder(item)}
+                        >
+                          {item.id}
+                        </Button>
+                      </td>
                         <td>{item.dayorderstatus_msg}</td>
                         <td>{item.slot}</td>
                         <td>{item.assigned_by}</td>
