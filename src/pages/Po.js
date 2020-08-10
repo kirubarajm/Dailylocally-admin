@@ -157,7 +157,7 @@ class Po extends React.Component {
       };
       if (this.state.po_createdate) data.from_date = this.state.po_createdate;
       if (this.state.enddate) data.to_date = this.state.enddate;
-      if (this.state.supplier_name) data.vid = this.state.supplier_name;
+      if (this.state.supplier_name) data.vendorsearch = this.state.supplier_name;
       if (this.state.due_date) data.due_date = this.state.due_date;
       if (this.state.pono) data.poid = this.state.pono;
       if (this.state.selectedPage) data.page = this.state.selectedPage;
@@ -294,7 +294,7 @@ class Po extends React.Component {
     };
     if (this.state.po_createdate) data.from_date = this.state.po_createdate;
     if (this.state.enddate) data.to_date = this.state.enddate;
-    if (this.state.supplier_name) data.vid = this.state.supplier_name;
+    if (this.state.supplier_name) data.vendorsearch = this.state.supplier_name;
     if (this.state.due_date) data.due_date = this.state.due_date;
     if (this.state.pono) data.poid = this.state.pono;
     if (this.state.postatusItem && this.state.postatusItem.id !== -1)

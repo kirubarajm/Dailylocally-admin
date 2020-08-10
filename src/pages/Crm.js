@@ -648,7 +648,7 @@ class Crm extends React.Component {
                           ? "-"
                           : "Dunzo"}
                       </td>
-                      <td>{this.dateConvert(item.deliver_date)}</td>
+                      <td>{this.dateConvert(item.moveit_actual_delivered_time)}</td>
                       <td>
                         <Button
                           size="sm"

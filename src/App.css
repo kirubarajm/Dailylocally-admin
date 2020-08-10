@@ -498,6 +498,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   margin-left: 50px !important;
 }
 
+.mr-tb-2 {
+  margin-top:2px !important;
+  margin-bottom:2px !important;
+}
 .mr-t-10 {
   margin-top: 10px !important;
 }

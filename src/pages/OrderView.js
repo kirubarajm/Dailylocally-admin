@@ -269,35 +269,13 @@ class OrderView extends React.Component {
       isReturnorderModal: false,
       isReturnorderReasonModal: false,
       isImageModal: false,
+      isQAChecklist: false,
+      isQCChecklist: false,
       isRefundorderModal: false,
       mentionData: false,
       plainComment: false,
-      users: [
-        {
-          id: 1,
-          display: "Param",
-        },
-        {
-          id: 2,
-          display: "Basheer",
-        },
-        {
-          id: 3,
-          display: "Suresh",
-        },
-        {
-          id: 4,
-          display: "Aravind",
-        },
-        {
-          id: 5,
-          display: "Praveen",
-        },
-        {
-          id: 6,
-          display: "Dhanesh",
-        },
-      ],
+      qachecklist: false,
+      qcchecklist: false,
     };
   }
 
@@ -613,8 +591,8 @@ class OrderView extends React.Component {
         refund_reason: this.state.refundorderItem.reason,
         done_by: getAdminId(),
       };
-      if(this.state.selected_delivery){
-        data.delivery_charge=orderview.delivery_charge
+      if (this.state.selected_delivery) {
+        data.delivery_charge = orderview.delivery_charge;
       }
       if (this.props.ProofImage.length > 0) {
         data.refund_image = this.props.ProofImage[0].img_url;
@@ -690,6 +668,18 @@ class OrderView extends React.Component {
   toggleImagePopUp = () => {
     this.setState((prevState) => ({
       isImageModal: !prevState.isImageModal,
+    }));
+  };
+
+  toggleQAChecklist = () => {
+    this.setState((prevState) => ({
+      isQAChecklist: !prevState.isQAChecklist,
+    }));
+  };
+
+  toggleQCChecklist = () => {
+    this.setState((prevState) => ({
+      isQCChecklist: !prevState.isQCChecklist,
     }));
   };
 
@@ -774,6 +764,16 @@ class OrderView extends React.Component {
     else return " - ";
   }
 
+  onQACheckList = (item) => {
+    this.setState({ qachecklist: item });
+    this.toggleQAChecklist();
+  };
+
+  onQCCheckList = (item) => {
+    this.setState({ qcchecklist: item.Products });
+    this.toggleQCChecklist();
+  };
+
   render() {
     const propdata = this.props.orderview;
     const driverdata = propdata.moveitdetail || false;
@@ -800,17 +800,18 @@ class OrderView extends React.Component {
                       key={index}
                       disabled={
                         ((onActionHidden("crm_cancel") ||
-                          propdata.dayorderstatus>7) &&
+                          propdata.dayorderstatus > 7) &&
                           item.id === 1) ||
                         (onActionHidden("crm_reorder") && item.id === 2) ||
                         ((onActionHidden("crm_book_return") ||
                           propdata.dayorderstatus !== 8) &&
                           item.id === 3) ||
-                        ((onActionHidden("crm_refund")) &&
-                          item.id === 4) ||
+                        (onActionHidden("crm_refund") && item.id === 4) ||
                         (onActionHidden("crm_msgto_customer") &&
                           item.id === 6) ||
-                        ((onActionHidden("crm_raise_ticket")||(propdata.zendesk_ticketid!==null)) && item.id === 7)
+                        ((onActionHidden("crm_raise_ticket") ||
+                          propdata.zendesk_ticketid !== null) &&
+                          item.id === 7)
                       }
                     >
                       {item.name}
@@ -882,7 +883,7 @@ class OrderView extends React.Component {
               />
               <CardRowCol
                 lable="Delivered date/ time"
-                value={this.dateConvert(propdata.deliver_date)}
+                value={this.dateConvert(propdata.moveit_actual_delivered_time)}
               />
               <CardRowCol
                 lable="Total items in order"
@@ -908,7 +909,7 @@ class OrderView extends React.Component {
                 <Col>
                   <a
                     className="text-decoration-underline"
-                    href={`https://dailylocallytest.zendesk.com/agent/tickets/${propdata.zendesk_ticketid}`}
+                    href={`https://dailylocallyapp.zendesk.com/agent/tickets/${propdata.zendesk_ticketid}`}
                     target="_blank"
                   >
                     #{propdata.zendesk_ticketid}
@@ -925,13 +926,32 @@ class OrderView extends React.Component {
           </Row>
         </div>
         <Card className="pd-tb-0 mr-t-10">
-          <CardBody
-            onClick={this.onCollapseProductDetail}
-            className="bg-color-white pd-0"
-          >
+          <CardBody className="bg-color-white pd-0">
             <div className="replies_field_container pd-15 bg-color-white">
-              <div style={{ width: "98%" }}>Product Detail</div>
-              <div>
+              <div
+                style={{ width: "78%" }}
+                onClick={this.onCollapseProductDetail}
+              >
+                Product Detail
+              </div>
+              <div style={{ width: "20%" }} className="flex-row">
+                <Button
+                  size="sm"
+                  className="mr-r-10"
+                  hidden={propdata.dayorderstatus<5}
+                  onClick={() => this.onQCCheckList(propdata)}
+                >
+                  QC Checklist
+                </Button>
+                <Button
+                  size="sm"
+                  hidden={!propdata.qachecklist|| propdata.qachecklist.length===0}
+                  onClick={() => this.onQACheckList(propdata.qachecklist)}
+                >
+                  QA Checklist
+                </Button>
+              </div>
+              <div onClick={this.onCollapseProductDetail}>
                 {this.state.isCollapseProductDetail ? (
                   <FaChevronUp size={14} />
                 ) : (
@@ -988,9 +1008,7 @@ class OrderView extends React.Component {
                     inv #{item.orderid}
                   </Button>
                 </Col>
-                <Col className="txt-align-left">
-                    {item.Transactionid}
-                </Col>
+                <Col className="txt-align-left">{item.Transactionid}</Col>
               </Row>
             ))}
           </div>
@@ -1948,6 +1966,80 @@ class OrderView extends React.Component {
               </Col>
             </Row>
           </ModalBody>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isQAChecklist}
+          toggle={this.toggleQAChecklist}
+          className={this.props.className}
+          backdrop={true}
+        >
+          <ModalBody className="pd-10">
+            <div className="fieldset">
+              <div className="legend">QA Checklist</div>
+              {this.state.qachecklist
+                ? this.state.qachecklist.map((item, i) => (
+                    <Row className="pd-4 mr-l-10">
+                      <Col>{item.name}</Col>
+                      <Col>{item.qcvalue === 0 ? "No" : "Yes"}</Col>
+                    </Row>
+                  ))
+                : ""}
+            </div>
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleQAChecklist}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal
+          isOpen={this.state.isQCChecklist}
+          toggle={this.toggleQCChecklist}
+          className="max-width-600"
+          backdrop={true}
+        >
+          <ModalBody className="pd-10">
+            <div className="fieldset">
+              <div className="legend">QC Checklist</div>
+              {this.state.qcchecklist
+                ? this.state.qcchecklist.map((item, i) =>
+                    i == 0 ? (
+                      <div>
+                        <Row className="pd-2 mr-l-10 font-size-12">
+                          <Col lg="6">Product Name</Col>
+                          {item.qachecklist.map((pi, i) => (
+                            <Col>{pi.name}</Col>
+                          ))}
+                        </Row>
+                        <hr className="mr-tb-2"></hr>
+                        <Row className="pd-2 mr-l-10 font-size-12">
+                          <Col lg="6">{item.productname}</Col>
+                          {item.qachecklist.map((pi, i) => (
+                            <Col>{pi.qcvalue === 0 ? "No" : "Yes"}</Col>
+                          ))}
+                        </Row>
+                      </div>
+                    ) : (
+                      <div><hr className="mr-tb-2"></hr>
+                      <Row className="pd-2 mr-l-10 font-size-12">
+                        <Col lg="6">{item.productname}</Col>
+                        {item.qachecklist.map((pi, i) => (
+                          <Col>{pi.qcvalue === 0 ? "No" : "Yes"}</Col>
+                        ))}
+                      </Row>
+                      </div>
+                    )
+                  )
+                : ""}
+            </div>
+          </ModalBody>
+          <ModalFooter className="pd-10 border-none">
+            <Button size="sm" onClick={this.toggleQCChecklist}>
+              Close
+            </Button>
+          </ModalFooter>
         </Modal>
       </div>
     );

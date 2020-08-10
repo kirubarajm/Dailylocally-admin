@@ -258,10 +258,11 @@ export default (
     case CATELOG_SEARCH_SELECT:
       var category = action.payload.category || [];
       var l1subcategory = action.payload.l1subcategory || [];
-      var l2subcategory = action.payload.l2subcategory || [];
+      var product = action.payload.product|| [];
+      var l2subcategory = action.payload.l2subcategory || product.length?[{ name: "No L2 SC", scl2_id: 0 }]:-1;
       var sCat = category.length ? category[0] : -1;
       var sL1Cat = l1subcategory.length ? l1subcategory[0] : -1;
-      var sL2Cat = l2subcategory.length ? l2subcategory[0] : -1;
+      var sL2Cat = l2subcategory.length ? l2subcategory[0] :-1;
       return {
         ...state,
         category_list: category,

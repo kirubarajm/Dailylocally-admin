@@ -340,7 +340,7 @@ class TripOrders extends React.Component {
   };
 
   onCheckOrder = (item) => {
-    if (item.dayorderstatus > 6 && item.dayorderstatus < 11) return true;
+    if (item.dayorderstatus===8) return true;
     else return false;
   };
 
@@ -689,7 +689,7 @@ class TripOrders extends React.Component {
                         <td>{item.assigned_by}</td>
                         <td>{this.dateConvert(item.assigned_datetime)}</td>
                         <td>{this.dateConvert(item.moveit_pickup_time)}</td>
-                        <td>{this.dateConvert(item.deliver_date)}</td>
+                        <td>{this.dateConvert(item.moveit_actual_delivered_time)}</td>
                         <td>
                           <Button
                             size="sm"
