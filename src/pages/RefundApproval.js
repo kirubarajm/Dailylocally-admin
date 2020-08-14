@@ -893,6 +893,27 @@ class RefundApproval extends React.Component {
                       ""
                     )}
 
+                    {this.state.view_item.gst ? (
+                      <div
+                        className="font-size-14"
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          marginLeft: "10px",
+                        }}
+                      >
+                        <div className="width-250 pd-4 flex-row">
+                          <div>Gst Charge</div>
+                        </div>
+                        <div className="width-150 pd-4 mr-l-40">
+                          <i className="fas fa-rupee-sign" />{" "}
+                          {this.state.view_item.gst}
+                        </div>
+                      </div>
+                    ) : (
+                      ""
+                    )}
+
                     {this.state.view_item.original_amt ? (
                       <div
                         className="font-size-14"

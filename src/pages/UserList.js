@@ -29,6 +29,7 @@ import {
   USER_REPORT,
   USER_CLEAR,
   USER_ADD_ADDRESS,
+  USER_SELECTED_TAB,
 } from "../constants/actionTypes";
 import { CSVLink } from "react-csv";
 import { Field, reduxForm } from "redux-form";
@@ -46,12 +47,17 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
+  onSelectTabType: (tab_type) =>
+    dispatch({
+      type: USER_SELECTED_TAB,
+      tab_type,
+    }),
   ongetUserList: (data) =>
     dispatch({
       type: USER_LIST,
       payload: AxiosRequest.CRM.getUserList(data),
     }),
-    ongetUserReport: (data) =>
+  ongetUserReport: (data) =>
     dispatch({
       type: USER_REPORT,
       payload: AxiosRequest.CRM.getUserReport(data),
@@ -120,6 +126,7 @@ class UserList extends React.Component {
       mapRefresh: false,
       addressItem: false,
       editAddressItem: false,
+      user_tab_type: false,
       address_type: 1,
       isReport: false,
       lat: 0,
@@ -216,7 +223,7 @@ class UserList extends React.Component {
         data.page = defultPage;
         if (this.state.user_search) data.search = this.state.user_search;
       }
-
+      data.ordertype = this.props.user_tab_type ||0;
       this.props.ongetUserList(data);
       this.props.onSetUserFilters(data);
     }
@@ -272,6 +279,7 @@ class UserList extends React.Component {
       data = this.props.userfilter;
     }
     data.page = selectedPage;
+    data.ordertype = this.props.user_tab_type ||0;
     this.props.ongetUserList(data);
     this.props.onSetUserFilters(data);
   };
@@ -311,7 +319,12 @@ class UserList extends React.Component {
     var data = { zoneid: this.props.zoneItem.id };
     if (this.state.user_search) data.search = this.state.user_search;
     data.report = 1;
+    data.ordertype = this.props.user_tab_type;
     this.props.ongetUserReport(data);
+  };
+  onUserTabClick = (tab) => {
+    this.props.onSelectTabType(tab);
+    this.setState({ isLoading: false });
   };
 
   render() {
@@ -377,6 +390,32 @@ class UserList extends React.Component {
           </div>
           <div className="pd-6">
             <Row className="mr-b-10 mr-l-10 mr-r-10">
+              <Col className="txt-align-left pd-0">
+                <ButtonGroup size="sm">
+                  <Button
+                    color="primary"
+                    onClick={() => this.onUserTabClick(0)}
+                    active={this.props.user_tab_type === 0}
+                  >
+                    All
+                  </Button>
+                  <Button
+                    color="primary"
+                    onClick={() => this.onUserTabClick(1)}
+                    active={this.props.user_tab_type === 1}
+                  >
+                    Ordered User
+                  </Button>
+
+                  <Button
+                    color="primary"
+                    onClick={() => this.onUserTabClick(2)}
+                    active={this.props.user_tab_type === 2}
+                  >
+                    Not Ordered User
+                  </Button>
+                </ButtonGroup>
+              </Col>
               <Col className="txt-align-right pd-0">
                 <Button
                   size="sm"
@@ -384,17 +423,17 @@ class UserList extends React.Component {
                   className="mr-r-20"
                   hidden={onActionHidden("user_export")}
                   onClick={() => this.onReportDownLoad()}
-                  >
-                    <FaDownload size="15" />
-                  </Button>
-  
-                  <CSVLink
-                    data={this.props.UserReport}
-                    filename={"User_Report.csv"}
-                    className="mr-r-20"
-                    ref={this.csvLink}
-                    hidden={true}
-                  ></CSVLink>
+                >
+                  <FaDownload size="15" />
+                </Button>
+
+                <CSVLink
+                  data={this.props.UserReport}
+                  filename={"User_Report.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
               </Col>
             </Row>
             <div className="scroll-user">

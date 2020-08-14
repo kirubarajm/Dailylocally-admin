@@ -2,6 +2,7 @@ import {
   USER_LIST,
   USER_FILTER,
   USER_ADD_ADDRESS,
+  USER_SELECTED_TAB,
   USER_CLEAR,
   USER_REPORT,
 } from "../constants/actionTypes";
@@ -14,6 +15,7 @@ export default (
     totalcount: 0,
     selectedPage: 1,
     pagelimit: 0,
+    user_tab_type:0,
     address_updated: false,
   },
   action
@@ -41,7 +43,11 @@ export default (
         ...state,
         address_updated: false,
       };
-
+    case USER_SELECTED_TAB:
+      return {
+        ...state,
+        user_tab_type: action.tab_type || 0,
+      };
     case USER_FILTER:
       return {
         ...state,

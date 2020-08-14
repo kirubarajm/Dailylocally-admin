@@ -111,7 +111,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: TRACK_ORDER_LIST,
       payload: AxiosRequest.Logistics.getOrdersList(data),
     }),
-    onGetDayordersReport: (data) =>
+  onGetDayordersReport: (data) =>
     dispatch({
       type: TRACK_LOGISTICS_REPORT,
       payload: AxiosRequest.Logistics.getOrderReport(data),
@@ -189,6 +189,8 @@ class LogisticsOrders extends React.Component {
       startdate: false,
       enddate: false,
       selected_dayorderid: false,
+      selected_page_dayorderid: false,
+      selectedPage: 1,
       isOpenOrderStatus: false,
       isOpenSlot: false,
       select_order_status: defult_slot,
@@ -208,7 +210,8 @@ class LogisticsOrders extends React.Component {
       select_driver: [],
       qa_checklist: [],
       checkBoxVal: 0,
-      isReport:false,
+      isReport: false,
+      isAllDisable: true,
     };
   }
 
@@ -248,7 +251,7 @@ class LogisticsOrders extends React.Component {
       this.props.onClear();
       this.setState({ isLoading: false, qa_checklist: [] });
     }
-    
+
     if (this.props.logisticsreport.length > 0 && this.state.isReport) {
       this.setState({ isReport: false });
       this.csvLink.current.link.click();
@@ -259,7 +262,7 @@ class LogisticsOrders extends React.Component {
       this.setState({
         isLoading: false,
         isTripAssignModal: false,
-        selected_dayorderid: false,
+        selected_page_dayorderid: false,
       });
     }
 
@@ -309,15 +312,20 @@ class LogisticsOrders extends React.Component {
         notification_color
       );
     } else {
-      var checkItem = this.state.selected_dayorderid;
-      var Values = Object.keys(checkItem);
-      var indexof = Values.indexOf("selectall");
-      if (indexof !== -1) {
-        Values.splice(indexof, 1);
+      var checkItem_page = this.state.selected_page_dayorderid;
+      var Values = Object.keys(checkItem_page);
+      var AllValues = [];
+      for (var i = 0; i < Values.length; i++) {
+        var arr = Object.keys(checkItem_page[Values[i]].ids);
+        var indexof = arr.indexOf("selectall");
+        if (indexof !== -1) {
+          arr.splice(indexof, 1);
+        }
+        AllValues = AllValues.concat(arr);
       }
       var data = {
         zoneid: this.props.zoneItem.id,
-        doid: Values,
+        doid: AllValues,
         done_by: getAdminId(),
         moveit_id: this.state.select_driver[0].userid,
         trip_id: this.state.select_driver[0].tripid,
@@ -327,32 +335,42 @@ class LogisticsOrders extends React.Component {
   };
 
   onTripOrders = () => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    var indexof = Values.indexOf("selectall");
-    if (indexof !== -1) {
-      Values.splice(indexof, 1);
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues = [];
+    for (var i = 0; i < Values.length; i++) {
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      var indexof = arr.indexOf("selectall");
+      if (indexof !== -1) {
+        arr.splice(indexof, 1);
+      }
+      AllValues = AllValues.concat(arr);
     }
     this.props.onGetTripOrders({
-      doid: Values,
+      doid: AllValues,
       zoneid: this.props.zoneItem.id,
     });
   };
 
   gotoTrip = () => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    if (Values.length === 0) {
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues = [];
+    for (var i = 0; i < Values.length; i++) {
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      AllValues = AllValues.concat(arr);
+    }
+    if (AllValues.length > 0) {
+      this.onTripOrders();
+      this.props.onGetDriverList({ zoneid: this.props.zoneItem.id });
+      this.toggleTripAssignPopUp();
+    } else {
       notify.show(
         "Please select the order after try this",
         "custom",
         2000,
         notification_color
       );
-    } else {
-      this.onTripOrders();
-      this.props.onGetDriverList({ zoneid: this.props.zoneItem.id });
-      this.toggleTripAssignPopUp();
     }
   };
 
@@ -420,6 +438,7 @@ class LogisticsOrders extends React.Component {
       enddate: "",
       order_no: "",
       user_search: "",
+      selectedPage: 1,
       orderid_refresh: true,
       select_order_status: defult_slot,
       select_slot: defult_slot,
@@ -505,45 +524,52 @@ class LogisticsOrders extends React.Component {
       data = this.props.datafilter;
     }
     data.page = selectedPage;
+    this.setState({ selectedPage: selectedPage, isAllDisable: true });
     this.props.onGetDayorders(data);
     this.props.onSetDayordersFilters(data);
   };
 
-  handleChange(e) {
+  handleChange(e, page) {
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
+    var pageValue = this.state.selected_page_dayorderid || [];
     var arvalue = this.state.selected_dayorderid || [];
     const dayorderlist = this.props.dayorderlist || [];
+    if (pageValue.length === 0 || !pageValue[page])
+      pageValue[page] = { ids: [] };
+
     if (name === "selectall") {
       if (value) {
-        arvalue[name] = value;
+        pageValue[page].ids[name] = value;
         dayorderlist.map((item, i) => {
-          if (item.dayorderstatus === 6) arvalue[item.id] = value;
+          if (item.dayorderstatus === 6) pageValue[page].ids[item.id] = value;
         });
       } else {
-        arvalue = {};
+        pageValue[page].ids = {};
       }
     } else {
       if (value) {
-        arvalue[name] = value;
-        var allCheck = true;
+        pageValue[page].ids[name] = value;
+        var allCheckPage = true;
         dayorderlist.map((item, i) => {
-          if (!arvalue[item.id]) {
-            allCheck = false;
+          if (!pageValue[page].ids[item.id]) {
+            allCheckPage = false;
           }
         });
-        if (allCheck) arvalue["selectall"] = value;
-      } else {
-        if (arvalue["selectall"]) {
-          delete arvalue["selectall"];
+        if (allCheckPage) {
+          pageValue[page].ids["selectall"] = value;
         }
-        delete arvalue[name];
+      } else {
+        if (pageValue[page].ids["selectall"]) {
+          delete pageValue[page].ids["selectall"];
+        }
+        delete pageValue[page].ids[name];
       }
     }
 
     this.setState({
-      selected_dayorderid: arvalue,
+      selected_page_dayorderid: pageValue,
     });
   }
 
@@ -611,27 +637,32 @@ class LogisticsOrders extends React.Component {
   }
 
   selectedDriver = (item) => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    var indexof = Values.indexOf("selectall");
-    if (indexof !== -1) {
-      Values.splice(indexof, 1);
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues = [];
+    for (var i = 0; i < Values.length; i++) {
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      var indexof = arr.indexOf("selectall");
+      if (indexof !== -1) {
+        arr.splice(indexof, 1);
+      }
+      AllValues = AllValues.concat(arr);
     }
     this.setState({ select_driver: item });
     this.props.onGetTripOrders({
-      doid: Values,
+      doid: AllValues,
       moveit_id: item[0].userid,
       zoneid: this.props.zoneItem.id,
     });
   };
   onReportDownLoad = () => {
     this.setState({ isReport: true });
-    var data = { zoneid: this.props.zoneItem.id };if (this.state.startdate) data.from_date = this.state.startdate;
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.state.startdate) data.from_date = this.state.startdate;
     if (this.state.enddate) data.to_date = this.state.enddate;
     if (this.state.order_no) data.doid = this.state.order_no;
     if (this.state.user_search) data.user_search = this.state.user_search;
-    if (this.state.moveit_search)
-      data.moveit_search = this.state.moveit_search;
+    if (this.state.moveit_search) data.moveit_search = this.state.moveit_search;
     if (this.state.trip_search) data.trip_search = this.state.trip_search;
     if (
       this.state.select_order_status &&
@@ -640,12 +671,21 @@ class LogisticsOrders extends React.Component {
       data.order_status = this.state.select_order_status.id;
     if (this.state.select_slot && this.state.select_slot.id !== -1)
       data.slot = this.state.select_slot.id;
-      data.report=1;
+    data.report = 1;
 
-      this.props.onGetDayordersReport(data);
+    this.props.onGetDayordersReport(data);
   };
   onViewOrder = (Item) => {
     this.props.history.push("/orderview/" + Item.id);
+  };
+
+  checkDisable = (item) => {
+    if (item.dayorderstatus !== 6) {
+      return true;
+    } else {
+      if (this.state.isAllDisable) this.setState({ isAllDisable: false });
+      return false;
+    }
   };
 
   render() {
@@ -873,8 +913,20 @@ class LogisticsOrders extends React.Component {
                       <input
                         type="checkbox"
                         name="selectall"
-                        checked={this.state.selected_dayorderid["selectall"]}
-                        onChange={(e) => this.handleChange(e)}
+                        disabled={this.state.isAllDisable}
+                        checked={
+                          this.state.selected_page_dayorderid &&
+                          this.state.selected_page_dayorderid[
+                            this.state.selectedPage
+                          ]
+                            ? this.state.selected_page_dayorderid[
+                                this.state.selectedPage
+                              ].ids["selectall"]
+                            : false
+                        }
+                        onChange={(e) =>
+                          this.handleChange(e, this.state.selectedPage)
+                        }
                       />
                       <span className="checkmark"></span>
                     </label>
@@ -889,17 +941,17 @@ class LogisticsOrders extends React.Component {
                   className="mr-r-20"
                   hidden={onActionHidden("logi_invoice_download")}
                   onClick={() => this.onReportDownLoad()}
-                  >
-                    <FaDownload size="15" />
-                  </Button>
-  
-                  <CSVLink
-                    data={this.props.logisticsreport}
-                    filename={"Logistics_OrderReport.csv"}
-                    className="mr-r-20"
-                    ref={this.csvLink}
-                    hidden={true}
-                  ></CSVLink>
+                >
+                  <FaDownload size="15" />
+                </Button>
+
+                <CSVLink
+                  data={this.props.logisticsreport}
+                  filename={"Logistics_OrderReport.csv"}
+                  className="mr-r-20"
+                  ref={this.csvLink}
+                  hidden={true}
+                ></CSVLink>
                 <Button
                   size="sm"
                   onClick={this.gotoTrip}
@@ -921,6 +973,8 @@ class LogisticsOrders extends React.Component {
                       <th>User Name</th>
                       <th>User Phone</th>
                       <th>Date created</th>
+                      <th>Weight</th>
+                      <th>Distance</th>
                       <th>Area</th>
                       <th>Pin code</th>
                       <th>Total qty</th>
@@ -941,27 +995,40 @@ class LogisticsOrders extends React.Component {
                             <input
                               type="checkbox"
                               name={"" + item.id}
-                              disabled={item.dayorderstatus !== 6}
-                              checked={this.state.selected_dayorderid[item.id]}
-                              onChange={(e) => this.handleChange(e)}
+                              disabled={this.checkDisable(item)}
+                              checked={
+                                this.state.selected_page_dayorderid &&
+                                this.state.selected_page_dayorderid[
+                                  this.state.selectedPage
+                                ]
+                                  ? this.state.selected_page_dayorderid[
+                                      this.state.selectedPage
+                                    ].ids[item.id]
+                                  : false
+                              }
+                              onChange={(e) =>
+                                this.handleChange(e, this.state.selectedPage)
+                              }
                             />
                             <span className="checkmark"></span>{" "}
                           </label>
                         </td>
                         <td>
-                        <Button
-                          size="sm"
-                          color="link"
-                          onClick={() => this.onViewOrder(item)}
-                        >
-                          {item.id}
-                        </Button>
-                      </td>
+                          <Button
+                            size="sm"
+                            color="link"
+                            onClick={() => this.onViewOrder(item)}
+                          >
+                            {item.id}
+                          </Button>
+                        </td>
                         <td>{item.name}</td>
                         <td>{item.phoneno}</td>
                         <td>
                           {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
+                        <td>{item.total_product_weight}</td>
+                        <td>{item.lastmile}</td>
                         <td>{item.area}</td>
                         <td>{item.cus_pincode}</td>
                         <td>{item.total_quantity}</td>
@@ -1022,18 +1089,26 @@ class LogisticsOrders extends React.Component {
                           )}
                         </td>
                         <td>
-                        <Button
-                          size="sm"
-                          disabled={
-                            !item.invoice_url || onActionHidden("logi_invoice_download")
-                          }
-                        >
-                          {item.invoice_url?<a href={item.invoice_url} target="_blank" className="txt-color-theme">
-                            <div>Download Invoice</div>
-                          </a>:"Download Invoice"}
-                          
-                        </Button>
-                      </td>
+                          <Button
+                            size="sm"
+                            disabled={
+                              !item.invoice_url ||
+                              onActionHidden("logi_invoice_download")
+                            }
+                          >
+                            {item.invoice_url ? (
+                              <a
+                                href={item.invoice_url}
+                                target="_blank"
+                                className="txt-color-theme"
+                              >
+                                <div>Download Invoice</div>
+                              </a>
+                            ) : (
+                              "Download Invoice"
+                            )}
+                          </Button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

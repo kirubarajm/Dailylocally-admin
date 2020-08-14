@@ -102,6 +102,7 @@ class DunzoOrders extends React.Component {
       startdate: false,
       enddate: false,
       selected_dayorderid: false,
+      selected_page_dayorderid: false,
       isOpenOrderStatus: false,
       isOpenSlot: false,
       select_order_status: defult_slot,
@@ -113,7 +114,7 @@ class DunzoOrders extends React.Component {
       userid: 0,
       user_via_order: false,
       check_item: { products: [] },
-
+      selectedPage: 1,
       isDunzoModal: false,
       returnItem: false,
       isOpenActionDropDown: false,
@@ -122,6 +123,7 @@ class DunzoOrders extends React.Component {
       returnorderItem: defualtReturnReason,
       isReturnorderReasonModal: false,
       isReport: false,
+      isAllDisable:true,
     };
   }
 
@@ -162,7 +164,7 @@ class DunzoOrders extends React.Component {
 
     if (this.props.isOrderUpdated) {
       this.props.onClear();
-      this.setState({ isLoading: false, selected_dayorderid: false });
+      this.setState({ isLoading: false, selected_page_dayorderid: false });
     }
 
     if (this.props.dunzoorderreport.length > 0 && this.state.isReport) {
@@ -197,15 +199,20 @@ class DunzoOrders extends React.Component {
   };
 
   movetoDunzo = () => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    var indexof = Values.indexOf("selectall");
-    if (indexof !== -1) {
-      Values.splice(indexof, 1);
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues=[]
+    for(var i=0;i<Values.length;i++){
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      var indexof = arr.indexOf("selectall");
+      if (indexof !== -1) {
+        arr.splice(indexof, 1);
+      }
+      AllValues = AllValues.concat(arr); 
     }
     var data = {
       zoneid: this.props.zoneItem.id,
-      doid: Values,
+      doid: AllValues,
       done_by: getAdminId(),
     };
     this.toggleDunzoPopUp();
@@ -252,6 +259,7 @@ class DunzoOrders extends React.Component {
       startdate: "",
       enddate: "",
       order_no: "",
+      selectedPage: 1,
       orderid_refresh: true,
     });
     this.props.onSetDunzoOrderFilters(false);
@@ -298,51 +306,97 @@ class DunzoOrders extends React.Component {
     if (this.props.datafilter) {
       data = this.props.datafilter;
     }
+    this.setState({ selectedPage: selectedPage,isAllDisable:true});
     data.page = selectedPage;
     this.props.onGetDunzoOrders(data);
     this.props.onSetDunzoOrderFilters(data);
+    
   };
 
-  handleChange(e) {
+  handleChange(e,page) {
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
+    var pageValue = this.state.selected_page_dayorderid || [];
     var arvalue = this.state.selected_dayorderid || [];
     const dayorderlist = this.props.dayorderlist || [];
+    if (pageValue.length === 0 || !pageValue[page])
+    pageValue[page] = { ids: [] };
+    
     if (name === "selectall") {
       if (value) {
-        arvalue[name] = value;
+        pageValue[page].ids[name] = value;
         dayorderlist.map((item, i) => {
           if (item.dayorderstatus === 7 || item.dayorderstatus === 8)
-            arvalue[item.id] = value;
+          pageValue[page].ids[item.id] = value;
         });
       } else {
-        arvalue = {};
+        pageValue[page].ids = {};
       }
     } else {
       if (value) {
-        arvalue[name] = value;
-        var allCheck = true;
+        pageValue[page].ids[name] = value;
+        var allCheckPage = true;
         dayorderlist.map((item, i) => {
-          if (item.dayorderstatus === 7 || item.dayorderstatus === 8) {
-            if (!arvalue[item.id]) {
-              allCheck = false;
-            }
+          if (!pageValue[page].ids[item.id]) {
+            allCheckPage=false;
           }
         });
-        if (allCheck) arvalue["selectall"] = value;
-      } else {
-        if (arvalue["selectall"]) {
-          delete arvalue["selectall"];
+        if (allCheckPage) {
+          pageValue[page].ids["selectall"] = value;
         }
-        delete arvalue[name];
+      } else {
+        if (pageValue[page].ids["selectall"]) {
+          delete pageValue[page].ids["selectall"];
+        }
+        delete pageValue[page].ids[name];
       }
     }
 
     this.setState({
-      selected_dayorderid: arvalue,
+      selected_page_dayorderid: pageValue,
     });
   }
+  // handleChange(e,page) {
+  //   const target = e.target;
+  //   const value = target.type === "checkbox" ? target.checked : target.value;
+  //   const name = target.name;
+  //   var arvalue = this.state.selected_dayorderid || [];
+  //   const dayorderlist = this.props.dayorderlist || [];
+  //   if (name === "selectall") {
+  //     if (value) {
+  //       arvalue[name] = value;
+  //       dayorderlist.map((item, i) => {
+  //         if (item.dayorderstatus === 7 || item.dayorderstatus === 8)
+  //           arvalue[item.id] = value;
+  //       });
+  //     } else {
+  //       arvalue = {};
+  //     }
+  //   } else {
+  //     if (value) {
+  //       arvalue[name] = value;
+  //       var allCheck = true;
+  //       dayorderlist.map((item, i) => {
+  //         if (item.dayorderstatus === 7 || item.dayorderstatus === 8) {
+  //           if (!arvalue[item.id]) {
+  //             allCheck = false;
+  //           }
+  //         }
+  //       });
+  //       if (allCheck) arvalue["selectall"] = value;
+  //     } else {
+  //       if (arvalue["selectall"]) {
+  //         delete arvalue["selectall"];
+  //       }
+  //       delete arvalue[name];
+  //     }
+  //   }
+
+  //   this.setState({
+  //     selected_dayorderid: arvalue,
+  //   });
+  // }
   toggleAction = () => {
     this.setState({
       isOpenActionDropDown: !this.state.isOpenActionDropDown,
@@ -350,9 +404,14 @@ class DunzoOrders extends React.Component {
   };
 
   clickAction = (item) => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    if (Values.length === 0) {
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues=[]
+    for(var i=0;i<Values.length;i++){
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      AllValues = AllValues.concat(arr);
+    }
+    if (AllValues.length === 0) {
       notify.show(
         "Please select the order after try this",
         "custom",
@@ -411,6 +470,14 @@ class DunzoOrders extends React.Component {
 
   onViewOrder = (Item) => {
     this.props.history.push("/orderview/" + Item.id);
+  };
+  checkDisable = (item) => {
+    if(item.dayorderstatus !== 7 &&item.dayorderstatus !== 8){
+        return true;
+    }else{
+      this.setState({isAllDisable:false});
+      return false;
+    }
   };
   render() {
     const dayorderlist = this.props.dayorderlist || [];
@@ -506,8 +573,19 @@ class DunzoOrders extends React.Component {
                       <input
                         type="checkbox"
                         name="selectall"
-                        checked={this.state.selected_dayorderid["selectall"]}
-                        onChange={(e) => this.handleChange(e)}
+                        disabled={this.state.isAllDisable}
+                        checked={
+                          this.state.selected_page_dayorderid &&
+                          this.state.selected_page_dayorderid[
+                            this.state.selectedPage
+                          ]? this.state.selected_page_dayorderid[
+                                this.state.selectedPage
+                              ].ids["selectall"]
+                            : false
+                        }
+                        onChange={(e) =>
+                          this.handleChange(e, this.state.selectedPage)
+                        }
                       />
                       <span className="checkmark"></span>
                     </label>
@@ -581,15 +659,24 @@ class DunzoOrders extends React.Component {
                         <td>{i + 1}</td>
                         <td>
                           <label className="container-check">
-                            <input
+                          <input
                               type="checkbox"
                               name={"" + item.id}
-                              disabled={
-                                item.dayorderstatus !== 7 &&
-                                item.dayorderstatus !== 8
+                              disabled={ this.checkDisable(item)
+                                
                               }
-                              checked={this.state.selected_dayorderid[item.id]}
-                              onChange={(e) => this.handleChange(e)}
+                              checked={
+                                this.state.selected_page_dayorderid &&
+                                this.state.selected_page_dayorderid[
+                                  this.state.selectedPage
+                                ]? this.state.selected_page_dayorderid[
+                                      this.state.selectedPage
+                                    ].ids[item.id]
+                                  : false
+                              }
+                              onChange={(e) =>
+                                this.handleChange(e, this.state.selectedPage)
+                              }
                             />
                             <span className="checkmark"></span>{" "}
                           </label>

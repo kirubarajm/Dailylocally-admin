@@ -269,7 +269,7 @@ class QAPage extends React.Component {
         var qaidArray = ck.qclist || [];
         qaidArray.map((qcl, i) => {
           if (qcl.qcid === qItem.qcid) {
-            qcl.qcvalue = e.target.selectedIndex === 1 ? 1 : 0;
+            qcl.qcvalue = e.target.selectedIndex === 0 ? 1 : 0;
           }
         });
       }
@@ -298,6 +298,7 @@ class QAPage extends React.Component {
     data.checklist = this.state.checklist;
     data.zoneid = this.props.zoneItem.id;
     data.done_by = getAdminId();
+    console.log("data-->",data);
     this.props.onSubmitQAOrders(data);
   };
   orderDate = (event, picker) => {
@@ -386,7 +387,7 @@ class QAPage extends React.Component {
         if (qitem.active_status === 1) {
           var qcidv = {};
           qcidv.qcid = qitem.qcid;
-          qcidv.qcvalue = 0;
+          qcidv.qcvalue = 1;
           qclist.push(qcidv);
         }
       });
@@ -606,8 +607,9 @@ class QAPage extends React.Component {
                             this.clickDropDown(e, qitem, item, index)
                           }
                         >
-                          <option value="0">No</option>
                           <option value="1">Yes</option>
+                          <option value="0">No</option>
+
                         </select>
                       </div>
                     ))}

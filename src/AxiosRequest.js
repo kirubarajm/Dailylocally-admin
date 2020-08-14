@@ -1,8 +1,8 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
-//const BASE_URL_LIVE = "http://68.183.87.233:8000/";
-const BASE_URL_LIVE = "http://68.183.87.233:9000/";
+const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";

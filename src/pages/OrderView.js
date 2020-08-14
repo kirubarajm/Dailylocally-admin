@@ -262,6 +262,7 @@ class OrderView extends React.Component {
       refundorderItem: defualtReturnReason,
       zendeskReasonItem: [],
       selected_delivery: false,
+      selected_gst: false,
       isCancelModal: false,
       isCancelReasonModal: false,
       selected_product: [],
@@ -594,6 +595,9 @@ class OrderView extends React.Component {
       if (this.state.selected_delivery) {
         data.delivery_charge = orderview.delivery_charge;
       }
+      if (this.state.selected_gst) {
+        data.gst_charge = orderview.gst;
+      }
       if (this.props.ProofImage.length > 0) {
         data.refund_image = this.props.ProofImage[0].img_url;
       }
@@ -717,6 +721,10 @@ class OrderView extends React.Component {
       this.setState((prevState) => ({
         selected_delivery: !prevState.selected_delivery,
       }));
+    } else if (name === "delivery_gst") {
+      this.setState((prevState) => ({
+        selected_gst: !prevState.selected_gst,
+      }));
     }
     if (name === "selectall") {
       if (value) {
@@ -725,9 +733,11 @@ class OrderView extends React.Component {
           arvalue[item.id] = value;
         });
         this.setState({ selected_delivery: true });
+        this.setState({ selected_gst: true });
       } else {
         arvalue = {};
         this.setState({ selected_delivery: false });
+        this.setState({ selected_gst: false });
       }
     } else {
       if (value) {
@@ -885,6 +895,15 @@ class OrderView extends React.Component {
                 lable="Delivered date/ time"
                 value={this.dateConvert(propdata.moveit_actual_delivered_time)}
               />
+
+              <CardRowCol
+                lable="Distance"
+                value={propdata.lastmile}
+              />
+              <CardRowCol
+                lable="Weight"
+                value={propdata.total_product_weight}
+              />
               <CardRowCol
                 lable="Total items in order"
                 value={propdata.u_product_count}
@@ -938,14 +957,16 @@ class OrderView extends React.Component {
                 <Button
                   size="sm"
                   className="mr-r-10"
-                  hidden={propdata.dayorderstatus<5}
+                  hidden={propdata.dayorderstatus < 5}
                   onClick={() => this.onQCCheckList(propdata)}
                 >
                   QC Checklist
                 </Button>
                 <Button
                   size="sm"
-                  hidden={!propdata.qachecklist|| propdata.qachecklist.length===0}
+                  hidden={
+                    !propdata.qachecklist || propdata.qachecklist.length === 0
+                  }
                   onClick={() => this.onQACheckList(propdata.qachecklist)}
                 >
                   QA Checklist
@@ -1944,6 +1965,28 @@ class OrderView extends React.Component {
                     </div>
                   </Col>
                 </Row>
+                <Row className="mr-lr-10 cart-item font-size-14">
+                  <Col className="pd-0" lg="11">
+                    <div className="flex-row">
+                      <label className="container-check mr-l-15 mr-r-20">
+                        <input
+                          type="checkbox"
+                          name="delivery_gst"
+                          checked={this.state.selected_gst}
+                          onChange={(e) => this.handleChange(e)}
+                        />
+                        <span className="checkmark"></span>
+                      </label>
+                      <div className="font-size-14 mr-l-40">{"GST charge"}</div>
+                    </div>
+                  </Col>
+                  <Col className="txt-align-right">
+                    <div className="font-size-14">
+                      <i className="fas fa-rupee-sign font-size-12" />
+                      {propdata.gst}
+                    </div>
+                  </Col>
+                </Row>
               </div>
             </div>
             <Row className="mr-b-10 mr-r-10">
@@ -2022,13 +2065,14 @@ class OrderView extends React.Component {
                         </Row>
                       </div>
                     ) : (
-                      <div><hr className="mr-tb-2"></hr>
-                      <Row className="pd-2 mr-l-10 font-size-12">
-                        <Col lg="6">{item.productname}</Col>
-                        {item.qachecklist.map((pi, i) => (
-                          <Col>{pi.qcvalue === 0 ? "No" : "Yes"}</Col>
-                        ))}
-                      </Row>
+                      <div>
+                        <hr className="mr-tb-2"></hr>
+                        <Row className="pd-2 mr-l-10 font-size-12">
+                          <Col lg="6">{item.productname}</Col>
+                          {item.qachecklist.map((pi, i) => (
+                            <Col>{pi.qcvalue === 0 ? "No" : "Yes"}</Col>
+                          ))}
+                        </Row>
                       </div>
                     )
                   )

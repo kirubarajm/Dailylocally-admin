@@ -70,6 +70,7 @@ class DayOrders extends React.Component {
     this.state = {
       isLoading: false,
       selected_dayorderid: false,
+      selected_page_dayorderid: false,
       startdate: false,
       enddate: false,
       search: "",
@@ -158,41 +159,47 @@ class DayOrders extends React.Component {
     this.onGetOrders();
   }
   componentDidCatch() {}
-  handleChange(e) {
+  handleChange(e,page) {
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
+    var pageValue = this.state.selected_page_dayorderid || [];
     var arvalue = this.state.selected_dayorderid || [];
     const dayorderlist = this.props.dayorderlist || [];
+    if (pageValue.length === 0 || !pageValue[page])
+    pageValue[page] = { ids: [] };
+    
     if (name === "selectall") {
       if (value) {
-        arvalue[name] = value;
+        pageValue[page].ids[name] = value;
         dayorderlist.map((item, i) => {
-          arvalue[item.id] = value;
+          pageValue[page].ids[item.id] = value;
         });
       } else {
-        arvalue = {};
+        pageValue[page].ids = {};
       }
     } else {
       if (value) {
-        arvalue[name] = value;
-        var allCheck = true;
+        pageValue[page].ids[name] = value;
+        var allCheckPage = true;
         dayorderlist.map((item, i) => {
-          if (!arvalue[item.id]) {
-            allCheck = false;
+          if (!pageValue[page].ids[item.id]) {
+            allCheckPage=false;
           }
         });
-        if (allCheck) arvalue["selectall"] = value;
-      } else {
-        if (arvalue["selectall"]) {
-          delete arvalue["selectall"];
+        if (allCheckPage) {
+          pageValue[page].ids["selectall"] = value;
         }
-        delete arvalue[name];
+      } else {
+        if (pageValue[page].ids["selectall"]) {
+          delete pageValue[page].ids["selectall"];
+        }
+        delete pageValue[page].ids[name];
       }
     }
 
     this.setState({
-      selected_dayorderid: arvalue,
+      selected_page_dayorderid: pageValue,
     });
   }
 
@@ -221,18 +228,32 @@ class DayOrders extends React.Component {
   };
 
   confirmToprocurment = () => {
-    var checkItem = this.state.selected_dayorderid;
-    delete checkItem["selectall"];
-    var Values = Object.keys(checkItem);
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues=[]
+    for(var i=0;i<Values.length;i++){
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      var indexof = arr.indexOf("selectall");
+      if (indexof !== -1) {
+        arr.splice(indexof, 1);
+      }
+      AllValues = AllValues.concat(arr); 
+    }
+
     this.props.onCreateProcurement({
-      doid: Values,
+      doid: AllValues,
       zoneid: this.props.zoneItem.id,
     });
   };
   movetoprocurement = () => {
-    var checkItem = this.state.selected_dayorderid;
-    var Values = Object.keys(checkItem);
-    if (Values.length > 0) {
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues=[]
+    for(var i=0;i<Values.length;i++){
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      AllValues = AllValues.concat(arr);
+    }
+    if (AllValues.length > 0) {
       this.toggleProcuremPopUp();
     } else {
       notify.show(
@@ -450,8 +471,19 @@ class DayOrders extends React.Component {
                       <input
                         type="checkbox"
                         name="selectall"
-                        checked={this.state.selected_dayorderid["selectall"]}
-                        onChange={(e) => this.handleChange(e)}
+                        checked={
+                          this.state.selected_page_dayorderid &&
+                          this.state.selected_page_dayorderid[
+                            this.state.selectedPage
+                          ]? this.state.selected_page_dayorderid[
+                                this.state.selectedPage
+                              ].ids["selectall"]
+                            : false
+                        }
+                        //checked={this.state.selected_procument["selectall"]}
+                        onChange={(e) =>
+                          this.handleChange(e, this.state.selectedPage)
+                        }
                       />
                       <span className="checkmark"></span>
                     </label>
@@ -517,12 +549,21 @@ class DayOrders extends React.Component {
                       </td>
                       <td>
                         <label className="container-check">
-                          <input
+                        <input
                             type="checkbox"
                             name={"" + item.id}
-                            disabled={item.dayorderstatus !== 0}
-                            checked={this.state.selected_dayorderid[item.id]}
-                            onChange={(e) => this.handleChange(e)}
+                            checked={
+                              this.state.selected_page_dayorderid &&
+                              this.state.selected_page_dayorderid[
+                                this.state.selectedPage
+                              ]? this.state.selected_page_dayorderid[
+                                    this.state.selectedPage
+                                  ].ids[item.id]
+                                : false
+                            }
+                            onChange={(e) =>
+                              this.handleChange(e, this.state.selectedPage)
+                            }
                           />
                           <span className="checkmark"></span>{" "}
                         </label>

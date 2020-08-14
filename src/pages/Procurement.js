@@ -43,12 +43,12 @@ const mapDispatchToProps = (dispatch) => ({
       type: PROCUREMENT_LIST,
       payload: AxiosRequest.Warehouse.procurementwaitinglist(data),
     }),
-    onGetProcurementReport: (data) =>
+  onGetProcurementReport: (data) =>
     dispatch({
       type: PROCUREMENT_REPORT,
       payload: AxiosRequest.Warehouse.procurementwaitingreport(data),
     }),
-    
+
   onCreatePo: (data) =>
     dispatch({
       type: MOVE_TO_PO_WAITING,
@@ -77,6 +77,7 @@ class Procurement extends React.Component {
     this.state = {
       isLoading: false,
       selected_procument: false,
+      selected_page_procument: false,
       selectedPage: 1,
       pr_createdate: false,
       enddate: false,
@@ -85,7 +86,8 @@ class Procurement extends React.Component {
       today: Moment(new Date()),
       isprocur: false,
       itemid_refresh: false,
-      isReport:false
+      isReport: false,
+      pageValue: false,
     };
   }
 
@@ -142,41 +144,60 @@ class Procurement extends React.Component {
       this.props.onGetProcurement(data);
     }
   };
-  handleChange(e) {
+  handleChange(e, page) {
     const target = e.target;
     const value = target.type === "checkbox" ? target.checked : target.value;
     const name = target.name;
-    var arvalue = this.state.selected_procument || [];
+    var pageValue = this.state.selected_page_procument || [];
+    //var arvalue = this.state.selected_procument || [];
     const procurmentlist = this.props.procurmentlist || [];
+    if (pageValue.length === 0 || !pageValue[page])
+        pageValue[page] = { prids: [] };
     if (name === "selectall") {
       if (value) {
-        arvalue[name] = value;
-        procurmentlist.map((item, i) => {
-          arvalue[item.prid] = value;
-        });
-      } else {
-        arvalue = {};
-      }
+      pageValue[page].prids[name] = value;
+      //arvalue[name] = value;
+      procurmentlist.map((item, i) => {
+       // arvalue[item.prid] = value;
+        pageValue[page].prids[item.prid] = value;
+      });
+    }else{
+      pageValue[page].prids = {};
+    }
     } else {
       if (value) {
-        arvalue[name] = value;
-        var allCheck = true;
+        //arvalue[name] = value;
+        pageValue[page].prids[name] = value;
+        //var allCheck = true;
+        var allCheckPage = true;
         procurmentlist.map((item, i) => {
-          if (!arvalue[item.prid]) {
-            allCheck = false;
+          if (!pageValue[page].prids[item.prid]) {
+            //allCheck = false;
+            allCheckPage=false;
           }
         });
-        if (allCheck) arvalue["selectall"] = value;
-      } else {
-        if (arvalue["selectall"]) {
-          delete arvalue["selectall"];
+        if (allCheckPage) {
+          //arvalue["selectall"] = value;
+          pageValue[page].prids["selectall"] = value;
         }
-        delete arvalue[name];
+      } else {
+        // if (arvalue["selectall"]) {
+        //   delete arvalue["selectall"];
+        // }
+        // delete arvalue[name];
+
+        if (pageValue[page].prids["selectall"]) {
+          delete pageValue[page].prids["selectall"];
+        }
+        delete pageValue[page].prids[name];
       }
     }
 
+    
+
     this.setState({
-      selected_procument: arvalue,
+     // selected_procument: arvalue,
+      selected_page_procument: pageValue,
     });
   }
 
@@ -198,11 +219,21 @@ class Procurement extends React.Component {
   };
 
   confirmTopo = () => {
-    var checkItem = this.state.selected_procument;
-    delete checkItem["selectall"];
-    var Values = Object.keys(checkItem);
+    var checkItem_page = this.state.selected_page_procument;
+    var Values = Object.keys(checkItem_page);
+    var AllValues=[]
+    console.log("checkItem_page---",checkItem_page);
+    for(var i=0;i<Values.length;i++){
+      var arr = Object.keys(checkItem_page[Values[i]].prids);
+      var indexof = arr.indexOf("selectall");
+      if (indexof !== -1) {
+        arr.splice(indexof, 1);
+      }
+      AllValues = AllValues.concat(arr); 
+    }
+    console.log("AllValues---",AllValues);
     this.props.onCreatePo({
-      pridlist: Values,
+      pridlist: AllValues,
       zoneid: this.props.zoneItem.id,
       done_by: getAdminId(),
     });
@@ -224,9 +255,17 @@ class Procurement extends React.Component {
   };
 
   movetopo = () => {
-    var checkItem = this.state.selected_procument;
-    var Values = Object.keys(checkItem);
-    if (Values.length > 0) {
+    //var checkItem = this.state.selected_procument;
+    //var Values = Object.keys(checkItem);
+
+    var checkItem_page = this.state.selected_page_procument;
+    var Values = Object.keys(checkItem_page);
+    var AllValues=[]
+    for(var i=0;i<Values.length;i++){
+      var arr = Object.keys(checkItem_page[Values[i]].prids);
+      AllValues = AllValues.concat(arr);
+    }
+    if (AllValues.length > 0) {
       this.togglePoPopUp();
     } else {
       notify.show(
@@ -283,7 +322,7 @@ class Procurement extends React.Component {
     if (this.state.itemcode) data.vpid = this.state.itemcode;
     if (this.state.pr_createdate) data.from_date = this.state.pr_createdate;
     if (this.state.enddate) data.to_date = this.state.enddate;
-      data.report=1;
+    data.report = 1;
 
     this.props.onGetProcurementReport(data);
   };
@@ -291,8 +330,8 @@ class Procurement extends React.Component {
   render() {
     const procurmentlist = this.props.procurmentlist || [];
     return (
-      <div className="width-full">
-        <div style={{ height: "85vh" }} className="pd-6">
+      <div className="pd-6 width-full" style={{ position: "fixed" }}>
+      <div style={{ height: "85vh" }} className="width-85">
           <div className="fieldset">
             <div className="legend">Procurement - Search</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
@@ -362,8 +401,19 @@ class Procurement extends React.Component {
                       <input
                         type="checkbox"
                         name="selectall"
-                        checked={this.state.selected_procument["selectall"]}
-                        onChange={(e) => this.handleChange(e)}
+                        checked={
+                          this.state.selected_page_procument &&
+                          this.state.selected_page_procument[
+                            this.state.selectedPage
+                          ]? this.state.selected_page_procument[
+                                this.state.selectedPage
+                              ].prids["selectall"]
+                            : false
+                        }
+                        //checked={this.state.selected_procument["selectall"]}
+                        onChange={(e) =>
+                          this.handleChange(e, this.state.selectedPage)
+                        }
                       />
                       <span className="checkmark"></span>
                     </label>
@@ -416,7 +466,7 @@ class Procurement extends React.Component {
               </Col>
             </Row>
             <div className="search-scroll-pr">
-              <Table>
+              <Table style={{ width: "1500px" }}>
                 <thead>
                   <tr>
                     {/* <th>View</th> */}
@@ -426,7 +476,7 @@ class Procurement extends React.Component {
                     <th>Product code</th>
                     <th>UOM</th>
                     <th>BOH remaining</th>
-                    <th>BOH mapped</th>
+                    <th>Raised PO but not received</th>
                     <th>required quantity</th>
                     <th>Procurement quantity</th>
                   </tr>
@@ -447,8 +497,18 @@ class Procurement extends React.Component {
                           <input
                             type="checkbox"
                             name={"" + item.prid}
-                            checked={this.state.selected_procument[item.prid]}
-                            onChange={(e) => this.handleChange(e)}
+                            checked={
+                              this.state.selected_page_procument &&
+                              this.state.selected_page_procument[
+                                this.state.selectedPage
+                              ]? this.state.selected_page_procument[
+                                    this.state.selectedPage
+                                  ].prids[item.prid]
+                                : false
+                            }
+                            onChange={(e) =>
+                              this.handleChange(e, this.state.selectedPage)
+                            }
                           />
                           <span className="checkmark"></span>{" "}
                         </label>

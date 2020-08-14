@@ -589,7 +589,7 @@ class Crm extends React.Component {
           </div>
           <div className="pd-6">
             <div className="scroll-crm">
-              <Table style={{ width: "2000px" }}>
+              <Table style={{ width: "3000px" }}>
                 <thead>
                   <tr>
                     <th>No</th>
@@ -604,6 +604,8 @@ class Crm extends React.Component {
                     <th>Quantity</th>
                     <th>Sorted Qty</th>
                     <th>Amt</th>
+                    <th>Weight</th>
+                    <th>Distance</th>
                     <th>Due date/Time</th>
                     <th>Slot</th>
                     <th>Status</th>
@@ -638,6 +640,8 @@ class Crm extends React.Component {
                       <td>{item.order_quantity}</td>
                       <td>{item.sorted_quantity}</td>
                       <td>{item.total_product_price}</td>
+                      <td>{item.total_product_weight}</td>
+                      <td>{item.lastmile}</td>
                       <td>{this.dateConvert(item.date)}</td>
                       <td>{item.slot_msg}</td>
                       <td>{item.dayorderstatus_msg}</td>
