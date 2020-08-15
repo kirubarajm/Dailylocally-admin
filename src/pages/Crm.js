@@ -640,8 +640,8 @@ class Crm extends React.Component {
                       <td>{item.order_quantity}</td>
                       <td>{item.sorted_quantity}</td>
                       <td>{item.total_product_price}</td>
-                      <td>{item.total_product_weight}</td>
-                      <td>{item.lastmile}</td>
+                      <td>{item.total_product_weight?item.total_product_weight+" kg":"0 kg"}</td>
+                      <td>{item.Lastmile?item.Lastmile+" km":"0 km"}</td>
                       <td>{this.dateConvert(item.date)}</td>
                       <td>{item.slot_msg}</td>
                       <td>{item.dayorderstatus_msg}</td>

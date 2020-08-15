@@ -496,7 +496,7 @@ class TripOrders extends React.Component {
     if(item.dayorderstatus !== 7 &&item.dayorderstatus !== 8){
         return true;
     }else{
-      this.setState({isAllDisable:false});
+      if (this.state.isAllDisable) this.setState({isAllDisable:false});
       return false;
     }
   };

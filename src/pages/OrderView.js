@@ -898,11 +898,13 @@ class OrderView extends React.Component {
 
               <CardRowCol
                 lable="Distance"
-                value={propdata.lastmile}
+                value={propdata.Lastmile?propdata.Lastmile + " km" : "0 km"}
               />
               <CardRowCol
                 lable="Weight"
-                value={propdata.total_product_weight}
+                value={propdata.total_product_weight
+                  ? propdata.total_product_weight + " kg"
+                  : "0 kg"}
               />
               <CardRowCol
                 lable="Total items in order"

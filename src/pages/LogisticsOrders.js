@@ -1027,8 +1027,14 @@ class LogisticsOrders extends React.Component {
                         <td>
                           {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
                         </td>
-                        <td>{item.total_product_weight}</td>
-                        <td>{item.lastmile}</td>
+                        <td>
+                          {item.total_product_weight
+                            ? item.total_product_weight + " kg"
+                            : "0 kg"}
+                        </td>
+                        <td>
+                          {item.Lastmile ? item.Lastmile + " km" : "0 km"}
+                        </td>
                         <td>{item.area}</td>
                         <td>{item.cus_pincode}</td>
                         <td>{item.total_quantity}</td>
