@@ -9,11 +9,7 @@ import {
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 import AxiosRequest from "../AxiosRequest";
-import {
-  Row,
-  Col,
-  Button,
-} from "reactstrap";
+import { Row, Col, Button } from "reactstrap";
 import {
   STOCK_UPDATE_CLEAR,
   STOCK_UPDATE_PRODUCT_STOCK,
@@ -36,7 +32,13 @@ const InputField = ({
   return (
     <div className="border-none">
       <div>
-        <input {...input} placeholder={label} type={type} autoComplete="off" disabled={custom.disabled}/>
+        <input
+          {...input}
+          placeholder={label}
+          type={type}
+          autoComplete="off"
+          disabled={custom.disabled}
+        />
         <span
           style={{
             flex: "0",
@@ -109,7 +111,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: STOCK_UPDATE_PRODUCT_STOCK,
       payload: AxiosRequest.StockKeeping.addStockKeeping(data),
     }),
-    onEditStockList: (data) =>
+  onEditStockList: (data) =>
     dispatch({
       type: STOCK_UPDATE_PRODUCT_STOCK,
       payload: AxiosRequest.StockKeeping.editStockKeeping(data),
@@ -144,7 +146,9 @@ class StockAddFrom extends React.Component {
       isOpenAreaDropDown: false,
       validateModal: false,
       stocktype: [],
-      isEditAutal:false,
+      isEditAutal: false,
+      isMissingqty: true,
+      isExcessqty: true,
     };
   }
 
@@ -158,32 +162,40 @@ class StockAddFrom extends React.Component {
     this.props.onDeleteImages();
     if (this.props.isEdit) {
       var initData = {
+        boh: this.props.selectedItem.boh,
         actual: this.props.selectedItem.actual_quantity,
-        missing: this.props.selectedItem.missing_quantity,
-        wastage: this.props.selectedItem.wastage,
-        // data1.type = this.state.stocktype[0].id;
-        // data1.wastage_image =
-        //   this.props.Signature.length === 0 ? "" : this.props.Signature[0].img_url;
+       
       };
+      var diffvalue=0;
+      
+      if(this.props.selectedItem.purchase_type){
+        var local=this.props.selectedItem.purchase_quantity||"0"
+        var other=this.props.selectedItem.other_purchase_quantity||"0"
+        diffvalue=parseInt(local)+parseInt(other);
+        initData.localqty= this.props.selectedItem.purchase_quantity;
+        initData.otherqty= this.props.selectedItem.other_purchase_quantity;
+        this.setState({isExcessqty:false,diffvalue:diffvalue});
+      }else{
+        var missing=this.props.selectedItem.missing_quantity||"0"
+        var wastage=this.props.selectedItem.wastage||"0"
+        diffvalue=parseInt(missing)+parseInt(wastage);
+        initData.missing= this.props.selectedItem.missing_quantity;
+        initData.wastage= this.props.selectedItem.wastage;
+        this.setState({isMissingqty:false,diffvalue:diffvalue});
+      }
       var typearray = [];
       typearray.push(this.props.stock_list[this.props.selectedItem.type]);
-      this.setState({ stocktype: typearray });
-      if(this.props.selectedItem.wastage_image)this.props.onSetImages(this.props.selectedItem.wastage_image);
-      this.props.initialize(initData);
-    }else{
+      this.setState({ stocktype: typearray,isEditAutal:true });
+      if (this.props.selectedItem.wastage_image)
+        this.props.onSetImages(this.props.selectedItem.wastage_image);
+        this.props.initialize(initData);
+    } else {
       var initData = {
-        actual: this.props.selectedItem.boh,
-      }
+        boh: this.props.selectedItem.boh,
+      };
       this.props.initialize(initData);
     }
   }
-
-  toggleEditPopup = () => {
-    //if (ev) ev.stopPropagation();
-    this.setState({
-      isEditAutal: !this.state.isEditAutal,
-    });
-  };
 
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
@@ -192,15 +204,17 @@ class StockAddFrom extends React.Component {
   componentDidUpdate(nextProps, nextState) {
     if (this.props.isStackupdated) {
       this.props.onClear();
-      if(this.props.isEdit){
+      this.props.onValidationModal();
+      if (this.props.isEdit) {
         this.props.onUpdate();
       }
     }
   }
   componentDidCatch() {}
 
-  submit = (data) => {
-    if(this.state.stocktype.length===0){
+  submitCalculate = (data) => {
+    this.setState({ isMissingqty: true, isExcessqty: true });
+    if (this.state.stocktype.length === 0) {
       notify.show(
         "Please select type after try this",
         "custom",
@@ -208,7 +222,37 @@ class StockAddFrom extends React.Component {
         notification_color
       );
       return;
-    }else if(!data.wastage&&!data.missing){
+    }
+    this.setState({
+      isEditAutal: !this.state.isEditAutal,
+    });
+    if (!this.state.isEditAutal) {
+      var actual = data.actual;
+      var boh = this.props.selectedItem.boh;
+      var diffvalue =0;
+      if (boh > actual) {
+        diffvalue = boh - actual;
+        this.setState({ isMissingqty: false });
+      } else if (boh < actual) {
+        diffvalue = actual-boh;
+        this.setState({ isExcessqty: false });
+      }
+      this.setState({ diffvalue: diffvalue });
+    }
+  };
+  submit = (data) => {
+    if (this.state.isMissingqty && this.state.isExcessqty) {
+      return;
+    }
+    if (this.state.stocktype.length === 0) {
+      notify.show(
+        "Please select type after try this",
+        "custom",
+        3000,
+        notification_color
+      );
+      return;
+    } else if (!this.state.isMissingqty&&!data.wastage && !data.missing) {
       notify.show(
         "Please enter wastage or missing quantity",
         "custom",
@@ -216,40 +260,73 @@ class StockAddFrom extends React.Component {
         notification_color
       );
       return;
-    }
-
-    var missing =data.missing||0;
-    var wastage =data.wastage||0;
-    var count=(wastage+missing);
-    if(count<=data.actual){
-      var data1 = {
-        zoneid: this.props.zoneItem.id,
-        done_by:getAdminId()
-      };
-      data1.actual_quantity = data.actual;
-      data1.missing_quantity = data.missing;
-      data1.wastage = data.wastage;
-      data1.type = this.state.stocktype[0].id;
-      data1.wastage_image =
-        this.props.Signature.length === 0 ? "" : this.props.Signature[0].img_url;
-        if (this.props.isEdit) {
-          data1.skid = this.props.selectedItem.skid;
-          this.props.onEditStockList(data1);
-        } else {
-          data1.stockid = this.props.selectedItem.stockid;
-          data1.vpid = this.props.selectedItem.vpid;
-          this.props.onUpdateStockList(data1);
-        }
-      this.props.onValidationModal();
-    }else{
+    } else if (!this.state.isExcessqty&&!data.localqty && !data.otherqty) {
       notify.show(
-        "Mismatched actual quantity and sum of wastage and missing quantity ,please enter valid quantity",
+        "Please enter local or other quantity",
         "custom",
         3000,
         notification_color
       );
+      return;
     }
+
+    var data1 = {
+      zoneid: this.props.zoneItem.id,
+      done_by: getAdminId(),
+    };
+
+      data1.actual_quantity = data.actual;
+      data1.type = this.state.stocktype[0].id;
+      data1.wastage_image =this.props.Signature.length === 0? "": this.props.Signature[0].img_url;
+
+    if(!this.state.isMissingqty){
+      var missing = data.missing || "0";
+      var wastage = data.wastage || "0";
+      var missingcount = parseInt(wastage) + parseInt(missing) ;
+
+      data1.missing_quantity = data.missing;
+      data1.wastage = data.wastage;
+      data1.purchase_type=0;
+      if(missingcount!==this.state.diffvalue){
+        notify.show(
+          "Mismatched missing quantity and sum of wastage and missing quantity ,please enter valid quantity",
+          "custom",
+          4000,
+          notification_color
+        );
+        return;
+      }
+    }
+
+    if(!this.state.isExcessqty){
+      var local = data.localqty || "0";
+      var other = data.otherqty || "0";
+      var excesscount = parseInt(local) + parseInt(other);
+      data1.purchase_quantity = data.localqty;
+      data1.other_purchase_quantity = data.otherqty;
+      data1.purchase_type=1;
+      if(excesscount!==this.state.diffvalue){
+        notify.show(
+          "Mismatched excess quantity and sum of local and other quantity ,please enter valid quantity",
+          "custom",
+          4000,
+          notification_color
+        );
+        return;
+      }
+
+    }
+
+      if (this.props.isEdit) {
+        data1.skid = this.props.selectedItem.skid;
+        this.props.onEditStockList(data1);
+      } else {
+        data1.stockid = this.props.selectedItem.stockid;
+        data1.vpid = this.props.selectedItem.vpid;
+        this.props.onUpdateStockList(data1);
+      }
     
+     
   };
   handleonRemove = (imgid, imgType, index) => {
     this.props.onDeleteImages(imgType, index);
@@ -265,8 +342,6 @@ class StockAddFrom extends React.Component {
   selectedType = (item) => {
     this.setState({ stocktype: item });
   };
-
- 
 
   render() {
     return (
@@ -301,8 +376,22 @@ class StockAddFrom extends React.Component {
 
               <Row className="pd-0">
                 <Col lg="5" className="color-grey pd-0">
+                  <div className="border-none">BOH</div>
+                </Col>
+                <Col lg="7" className="flex-row">
+                  <Field
+                    name="boh"
+                    autoComplete="off"
+                    type="number"
+                    disabled="true"
+                    component={InputField}
+                  />
+                </Col>
+              </Row>
+              <Row className="pd-0">
+                <Col lg="5" className="color-grey pd-0">
                   <div className="border-none">
-                    Actual qty <span className="must">*</span>
+                    Actual <span className="must">*</span>
                   </div>
                 </Col>
                 <Col lg="7" className="flex-row">
@@ -310,46 +399,102 @@ class StockAddFrom extends React.Component {
                     name="actual"
                     autoComplete="off"
                     type="number"
-                    disabled={!this.state.isEditAutal}
+                    disabled={this.state.isEditAutal}
                     component={InputField}
                     validate={[required]}
                     required={true}
                   />
-                  <Button size="sm" color="link" onClick={this.toggleEditPopup}>{this.state.isEditAutal?"Done":"Edit"}</Button>
+                  <Button
+                    size="sm"
+                    color="link"
+                    onClick={this.props.handleSubmit(this.submitCalculate)}
+                  >
+                    {this.state.isEditAutal ? "Edit" : "Calculate"}
+                  </Button>
                 </Col>
               </Row>
-
-              <Row className="pd-0">
+              <div hidden={this.state.isMissingqty}>
+                <div>
+                  <Row className="pd-0 border-none mr-lr-5 mr-tb-10">
+                    <Col lg="5" className="color-grey pd-0">
+                      <div className="border-none">Missing quantity</div>
+                    </Col>
+                    <Col lg="7">
+                      <div className="border-none">{this.state.diffvalue}</div>
+                    </Col>
+                  </Row>
+                  <Row className="pd-0 border-none mr-lr-5 mr-tb-10">
+                    <Col lg="5" className="color-grey pd-0">
+                      <div className="border-none">Missing</div>
+                    </Col>
+                    <Col lg="7">
+                      <Field
+                        name="missing"
+                        autoComplete="off"
+                        type="number"
+                        component={InputField}
+                      />
+                    </Col>
+                  </Row>
+                  <Row className="pd-0 border-none mr-lr-5 mr-tb-10">
+                    <Col lg="5" className="color-grey pd-0">
+                      <div className="border-none">Wastage</div>
+                    </Col>
+                    <Col lg="7">
+                      <Field
+                        name="wastage"
+                        autoComplete="off"
+                        type="number"
+                        component={InputField}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+              <div hidden={this.state.isExcessqty} className="border-none">
+                <div>
+                  <Row className="pd-0  border-none mr-lr-5 mr-tb-10">
+                    <Col lg="5" className="color-grey pd-0">
+                      <div className="border-none">Excess quantity</div>
+                    </Col>
+                    <Col lg="7">
+                      <div className="border-none">{this.state.diffvalue}</div>
+                    </Col>
+                  </Row>
+                  <Row className="pd-0 border-none mr-lr-5 mr-tb-10">
+                    <Col lg="5" className="color-grey pd-0">
+                      <div className="border-none">Local Purchase</div>
+                    </Col>
+                    <Col lg="7">
+                      <Field
+                        name="localqty"
+                        autoComplete="off"
+                        type="number"
+                        component={InputField}
+                      />
+                    </Col>
+                  </Row>
+                  <Row className="pd-0 border-none mr-lr-5 mr-tb-10">
+                    <Col lg="5" className="color-grey pd-0">
+                      <div className="border-none">Other</div>
+                    </Col>
+                    <Col lg="7">
+                      <Field
+                        name="otherqty"
+                        autoComplete="off"
+                        type="number"
+                        component={InputField}
+                      />
+                    </Col>
+                  </Row>
+                </div>
+              </div>
+              <Row
+                className="pd-0 mr-l-10 mr-r-10"
+                hidden={this.state.isMissingqty && this.state.isExcessqty}
+              >
                 <Col lg="5" className="color-grey pd-0">
-                  <div className="border-none">Missing qty</div>
-                </Col>
-                <Col lg="7">
-                  <Field
-                    name="missing"
-                    autoComplete="off"
-                    type="number"
-                    component={InputField}
-                  />
-                </Col>
-              </Row>
-
-              <Row className="pd-0">
-                <Col lg="5" className="color-grey pd-0">
-                  <div className="border-none">Wastage qty</div>
-                </Col>
-                <Col lg="7">
-                  <Field
-                    name="wastage"
-                    autoComplete="off"
-                    type="number"
-                    component={InputField}
-                  />
-                </Col>
-              </Row>
-
-              <Row className="pd-0 mr-l-10 mr-r-10">
-                <Col lg="5" className="color-grey pd-0">
-                  <div className="border-none">Upload Proof</div>
+                  <div className="border-none pd-0">Upload Proof</div>
                 </Col>
                 <Col lg="7">
                   {kitchenSignatureImg.map((item, i) => (
@@ -375,7 +520,12 @@ class StockAddFrom extends React.Component {
 
               <Row className="pd-10">
                 <Col className="txt-align-center">
-                  <Button size="sm">Submit</Button>
+                  <Button
+                    size="sm"
+                    disabled={this.state.isMissingqty && this.state.isExcessqty}
+                  >
+                    Submit
+                  </Button>
                 </Col>
                 <Col className="txt-align-center">
                   <Button

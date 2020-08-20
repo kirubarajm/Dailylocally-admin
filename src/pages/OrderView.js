@@ -653,7 +653,7 @@ class OrderView extends React.Component {
         id: Values,
         doid: orderview.id,
         product_cancel_reason: value.reason,
-        cancel_by: 1,
+        cancel_by: getAdminId(),
         cancel_type: 2,
       };
       this.props.onPostOrderCancel(data);
@@ -907,11 +907,11 @@ class OrderView extends React.Component {
                   : "0 kg"}
               />
               <CardRowCol
-                lable="Total items in order"
+                lable="Total unique items"
                 value={propdata.u_product_count}
               />
               <CardRowCol
-                lable="Total Quantity"
+                lable="Total items"
                 value={propdata.order_quantity}
               />
 

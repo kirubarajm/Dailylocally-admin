@@ -479,7 +479,7 @@ class QAPage extends React.Component {
                   size="sm"
                   color="link"
                   className="mr-r-20"
-                  hidden={onActionHidden("wh_qc_report")}
+                  hidden={onActionHidden("wh_qc_export")}
                   onClick={() => this.onReportDownLoad()}
                   >
                     <FaDownload size="15" />

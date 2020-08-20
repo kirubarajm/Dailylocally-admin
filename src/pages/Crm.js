@@ -599,10 +599,10 @@ class Crm extends React.Component {
                     <th>User id</th>
                     <th>User Phone</th>
                     <th>User email</th>
-                    <th>Date created</th>
+                    {/* <th>Date created</th> */}
                     <th>Placed time</th>
                     <th>Quantity</th>
-                    <th>Sorted Qty</th>
+                    <th>Packed Quantity</th>
                     <th>Amt</th>
                     <th>Weight</th>
                     <th>Distance</th>
@@ -634,7 +634,7 @@ class Crm extends React.Component {
                       <td>{item.userid}</td>
                       <td>{item.phoneno}</td>
                       <td className="table-cloumn-overflow">{item.email}</td>
-                      <td>{this.dateConvert(item.created_at)}</td>
+                      {/* <td>{this.dateConvert(item.created_at)}</td> */}
                       <td>{this.dateConvert(item.order_place_time)}</td>
 
                       <td>{item.order_quantity}</td>

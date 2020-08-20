@@ -29,7 +29,7 @@ export const SidebarSuperAdmin = [
   },
   {
     to: "/crm",
-    name: "CRM",
+    name: "Orders",
     exact: true,
     Icon: MdDashboard,
     submenu: false,

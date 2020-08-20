@@ -251,8 +251,8 @@ class ProductAddEdit extends React.Component {
     } else {
     }
     if (!this.props.zoneItem.id) {
-      this.props.history.goBack();
-      return;
+     // this.props.history.goBack();
+      //return;
     }
     this.props.onGetCategory({ zoneid: this.props.zoneItem.id });
     this.props.onDeleteMenuImages();
