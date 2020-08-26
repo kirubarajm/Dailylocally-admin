@@ -33,6 +33,8 @@ import viewmoveit from './reducers/viewmoveit'
 import mobileverify from './reducers/mobileverify'
 import refundapproval from './reducers/refundapproval'
 import returnpage from './reducers/returnpage'
+import wastage from './reducers/wastage'
+import missing from './reducers/missing'
 
 export default combineReducers({
   router: routerReducer,
@@ -68,5 +70,7 @@ export default combineReducers({
   viewmoveit,
   mobileverify,
   refundapproval,
-  returnpage
+  returnpage,
+  wastage,
+  missing
 });

@@ -602,7 +602,7 @@ class Crm extends React.Component {
                     {/* <th>Date created</th> */}
                     <th>Placed time</th>
                     <th>Quantity</th>
-                    <th>Packed Quantity</th>
+                    <th>Pack Qty</th>
                     <th>Amt</th>
                     <th>Weight</th>
                     <th>Distance</th>

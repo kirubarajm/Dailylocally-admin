@@ -893,7 +893,7 @@ a, a:focus, a:hover, a:visited {
   margin-bottom: 40px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 45vh !important;
+  height: 40vh !important;
 }
 
 .search-stock-add {
@@ -1025,6 +1025,10 @@ a, a:focus, a:hover, a:visited {
 
 .width-84 {
   width: 84% !important;
+}
+
+.width-80 {
+  width: 80% !important;
 }
 
 .width-85 {
@@ -2251,3 +2255,12 @@ hr.style-moveit:after {
   color: #9900ff;
   border: 1px solid #9900ff;
 }
+
+thead th {
+  position: sticky !important;
+  top: 0 !important;
+  background-color: #fff !important;
+  /* border: none !important; */
+  z-index: 5;
+}
+

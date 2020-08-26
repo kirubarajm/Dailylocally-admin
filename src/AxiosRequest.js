@@ -1,8 +1,8 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
-//const BASE_URL_LIVE = "http://68.183.87.233:8000/";
-const BASE_URL_LIVE = "http://68.183.87.233:9000/";
+const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
@@ -147,6 +147,8 @@ const Warehouse = {
 
 const StockKeeping= {
   getStockKeepingList:(data) => requests.post("/stockkeeping/list", data),
+  getWastageList:(data) => requests.post("/stockkeeping/wastage/list", data),
+  getMissingList:(data) => requests.post("/stockkeeping/missingitem/list", data),
   getStockKeepingReport:(data) => requests.post("/stockkeeping/list", data),
   getProductList:(data) => requests.post("/stockkeeping/openlist", data),
   deleteStockKeeping:(data) => requests.post("/stockkeeping/delete", data),

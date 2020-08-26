@@ -10,7 +10,7 @@ export const SidebarSuperAdmin = [
     enable_action: "catalog_sidenav",
   },
   {
-    to: "/stock-keeping",
+    to: "/stock/keeping",
     name: "Stock keeping",
     exact: true,
     Icon: MdDashboard,

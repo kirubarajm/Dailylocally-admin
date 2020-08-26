@@ -13,7 +13,12 @@ import Catalog from "./pages/Catalog";
 import ProductView from "./pages/ProductView";
 import ProductAddEdit from "./pages/ProductAddEdit";
 import Warehouse from "./pages/Warehouse";
-import { ZONE_LIST_VIEW, REDIRECT,ADMIN_USER_DETAIL, LOGOUT } from "./constants/actionTypes";
+import {
+  ZONE_LIST_VIEW,
+  REDIRECT,
+  ADMIN_USER_DETAIL,
+  LOGOUT,
+} from "./constants/actionTypes";
 import AxiosRequest from "./AxiosRequest";
 import VendorAssign from "./pages/VendorAssign";
 import StockKeeping from "./pages/StockKeeping";
@@ -29,7 +34,12 @@ import AddMoveitUserForm from "./pages/AddMoveitUserForm";
 import MoveitUserList from "./pages/MoveitUserList";
 import ViewMoveitPage from "./pages/ViewMoveitPage";
 import RefundApproval from "./pages/RefundApproval";
-import { getLoginStatus,getAdminId,getLoginDetail } from "./utils/ConstantFunction";
+import {
+  getLoginStatus,
+  getAdminId,
+  getLoginDetail,
+} from "./utils/ConstantFunction";
+import StockKeepingTab from "./pages/StockKeepingTab";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -38,13 +48,14 @@ const mapDispatchToProps = (dispatch) => ({
       type: ZONE_LIST_VIEW,
       payload: AxiosRequest.Catelog.getZoneList(data),
     }),
-    onGetUserDetail: (data) =>
+  onGetUserDetail: (data) =>
     dispatch({
       type: ADMIN_USER_DETAIL,
       payload: AxiosRequest.Admin.getuserdetail(data),
     }),
-    onLogout: (data) => dispatch({ type: LOGOUT,payload: AxiosRequest.Admin.logout(data)}),
-    onRedirect: () => dispatch({ type: REDIRECT })
+  onLogout: (data) =>
+    dispatch({ type: LOGOUT, payload: AxiosRequest.Admin.logout(data) }),
+  onRedirect: () => dispatch({ type: REDIRECT }),
 });
 class App extends React.Component {
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -55,30 +66,33 @@ class App extends React.Component {
     }
   }
   UNSAFE_componentWillMount() {
-    this.setState({isProfileUpdate:false});
+    this.setState({ isProfileUpdate: false });
     if (this.props.zone_list.length === 0) this.props.onGetZone();
-    if (getLoginStatus()===1) this.props.onGetUserDetail({admin_userid:getAdminId()});
+    if (getLoginStatus() === 1)
+      this.props.onGetUserDetail({ admin_userid: getAdminId() });
     if (this.props.redirectTo) {
       this.props.history.push(this.props.redirectTo);
     }
   }
 
   componentDidUpdate(nextProps, nextState) {
-    if(this.props.userdetail&&!this.state.isProfileUpdate){
-      this.setState({isProfileUpdate:true});
-      var localdetail=getLoginDetail();
-      if(localdetail.logindetail.password===this.props.userdetail.password){
-        window.localStorage.setItem('dl2admin_user_detail',JSON.stringify({logindetail:this.props.userdetail}));
-      }else{
-        var data={admin_userid:getAdminId()}
+    if (this.props.userdetail && !this.state.isProfileUpdate) {
+      this.setState({ isProfileUpdate: true });
+      var localdetail = getLoginDetail();
+      if (localdetail.logindetail.password === this.props.userdetail.password) {
+        window.localStorage.setItem(
+          "dl2admin_user_detail",
+          JSON.stringify({ logindetail: this.props.userdetail })
+        );
+      } else {
+        var data = { admin_userid: getAdminId() };
         this.props.onLogout(data);
       }
-
     }
   }
 
   render() {
-    if (getLoginStatus()===0) {
+    if (getLoginStatus() === 0) {
       return (
         <div>
           <Notifications options={{ zIndex: 1052, top: "0px" }} />
@@ -184,9 +198,23 @@ class App extends React.Component {
 
             <LayoutRoute
               exact
-              path="/stock-keeping"
+              path="/stock/keeping"
               layout={MainLayout}
-              component={StockKeeping}
+              component={StockKeepingTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/stock/wastage"
+              layout={MainLayout}
+              component={StockKeepingTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/stock/missing"
+              layout={MainLayout}
+              component={StockKeepingTab}
             />
 
             <LayoutRoute

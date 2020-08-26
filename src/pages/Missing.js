@@ -22,12 +22,12 @@ import {
   STOCK_CATEGORY_LIST,
   STOCK_KEEPING_CLEAR,
   ZONE_ITEM_REFRESH,
-  STOCK_KEEPING_LIST,
+  MISSING_LIST,
   ZONE_SELECT_ITEM,
   STOCK_KEEPING_DELETE,
   STOCK_KEEPING_VIEW,
   STOCK_KEEPING_EDIT,
-  STOCK_KEEPING_REPORT,
+  MISSING_REPORT,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
@@ -136,7 +136,7 @@ const InputSearchDropDown = ({
 };
 
 const mapStateToProps = (state) => ({
-  ...state.stockkeeping,
+  ...state.missing,
   zone_list: state.common.zone_list,
   zoneItem: state.common.zoneItem,
   zoneRefresh: state.common.zoneRefresh,
@@ -153,15 +153,15 @@ const mapDispatchToProps = (dispatch) => ({
       type: STOCK_CATEGORY_LIST,
       payload: AxiosRequest.Catelog.getCategory(data),
     }),
-  onGetStockKeepingList: (data) =>
+    onGetMissingList: (data) =>
     dispatch({
-      type: STOCK_KEEPING_LIST,
-      payload: AxiosRequest.StockKeeping.getStockKeepingList(data),
+      type: MISSING_LIST,
+      payload: AxiosRequest.StockKeeping.getMissingList(data),
     }),
-  onGetStockKeepingReport: (data) =>
+  onGetMissingReport: (data) =>
     dispatch({
-      type: STOCK_KEEPING_REPORT,
-      payload: AxiosRequest.StockKeeping.getStockKeepingReport(data),
+      type: MISSING_REPORT,
+      payload: AxiosRequest.StockKeeping.getMissingList(data),
     }),
   onGetDeleteStock: (data) =>
     dispatch({
@@ -184,7 +184,7 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
-class StockKeeping extends React.Component {
+class Missing extends React.Component {
   csvLink = React.createRef();
   constructor() {
     super();
@@ -192,7 +192,7 @@ class StockKeeping extends React.Component {
       isLoading: false,
       startdate: false,
       enddate: false,
-      stock_type: false,
+      product_name: false,
       category: [],
       l1category: [],
       search_refresh: false,
@@ -201,6 +201,7 @@ class StockKeeping extends React.Component {
       today: Moment(new Date()),
       isConfrimModal: false,
       selectedPage: 1,
+
       poid_refresh: false,
       recevingModal: false,
       receivingSelection: [],
@@ -213,7 +214,7 @@ class StockKeeping extends React.Component {
   UNSAFE_componentWillMount() {
     this.selectedCat = this.selectedCat.bind(this);
     this.selectedL1Cat = this.selectedL1Cat.bind(this);
-    this.onStockKeepingList = this.onStockKeepingList.bind(this);
+    this.onMissingList = this.onMissingList.bind(this);
     this.stockDate = this.stockDate.bind(this);
     this.onSearch = this.onSearch.bind(this);
     this.onReset = this.onReset.bind(this);
@@ -236,7 +237,7 @@ class StockKeeping extends React.Component {
     this.onUpdate = this.onUpdate.bind(this);
     this.onValidationModal = this.onValidationModal.bind(this);
     this.props.onGetCategory({ zoneid: this.props.zoneItem.id || 1 });
-    this.onStockKeepingList();
+    this.onMissingList();
   }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
@@ -264,30 +265,32 @@ class StockKeeping extends React.Component {
       this.setState({ isLoading: false });
     }
 
-    if (this.props.stock_keeping_report.length > 0 && this.state.isReport) {
+    if (this.props.missing_report.length > 0 && this.state.isReport) {
       this.setState({ isReport: false });
       this.csvLink.current.link.click();
     }
 
-    this.onStockKeepingList();
+    this.onMissingList();
   }
   componentDidCatch() {}
 
-  onStockKeepingList = () => {
+  onMissingList = () => {
     if (this.props.zoneItem && !this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = {
         zoneid: this.props.zoneItem.id,
       };
       if (this.state.category.length > 0)
-        data.cat_id = this.state.category[0].catid;
+        data.catagorysearch = this.state.category[0].catid;
       if (this.state.l1category.length > 0)
-        data.scl1_id = this.state.l1category[0].scl1_id;
+        data.subcategorysearch = this.state.l1category[0].scl1_id;
       if (this.state.startdate) data.from_date = this.state.startdate;
       if (this.state.enddate) data.to_date = this.state.enddate;
-      if (this.state.stock_type) data.type = this.state.stock_type;
+      if (this.state.product_name) data.productsearch = this.state.product_name;
+
       if (this.state.selectedPage) data.page = this.state.selectedPage;
-      this.props.onGetStockKeepingList(data);
+
+      this.props.onGetMissingList(data);
     }
   };
   selectedCat = (item) => {
@@ -306,7 +309,7 @@ class StockKeeping extends React.Component {
   stockDate = (event, picker) => {
     var startdate = picker.startDate.format("YYYY-MM-DD");
     var enddate = picker.endDate.format("YYYY-MM-DD");
-    this.setState({ startdate: startdate, enddate: enddate });
+    this.setState({ startdate: startdate,enddate:enddate });
   };
 
   addstockKeeping = () => {
@@ -315,18 +318,22 @@ class StockKeeping extends React.Component {
 
   onSearchItem = (e) => {
     const value = e.target.value || "";
-    this.setState({ stock_type: value });
+    this.setState({ product_name: value });
   };
 
   onSearch = () => {
     this.setState({ isLoading: false, selectedPage: 1 });
   };
 
+  handleSelected = (selectedPage) => {
+    this.setState({ selectedPage: selectedPage, isLoading: false });
+  };
+
   onReset = () => {
     this.setState({
       startdate: false,
       enddate: false,
-      stock_type: "",
+      product_name: "",
       selectedPage: 1,
       category: [],
       l1category: [],
@@ -336,7 +343,8 @@ class StockKeeping extends React.Component {
     var data = {
       zoneid: this.props.zoneItem.id,
     };
-    this.props.onGetStockKeepingList(data);
+    
+    this.props.onGetMissingList(data);
   };
   onSuccessRefresh = () => {
     this.setState({ search_refresh: false });
@@ -437,26 +445,23 @@ class StockKeeping extends React.Component {
       zoneid: this.props.zoneItem.id,
     };
     if (this.state.category.length > 0)
-      data.cat_id = this.state.category[0].catid;
+      data.catagorysearch = this.state.category[0].catid;
     if (this.state.l1category.length > 0)
-      data.scl1_id = this.state.l1category[0].scl1_id;
+      data.subcategorysearch = this.state.l1category[0].scl1_id;
     if (this.state.startdate) data.from_date = this.state.startdate;
     if (this.state.enddate) data.to_date = this.state.enddate;
-    if (this.state.stock_type) data.type = this.state.stock_type;
-    data.report = 1;
+    if (this.state.product_name) data.productsearch = this.state.product_name;
+    
+    data.report=1;
 
-    this.props.onGetStockKeepingReport(data);
-  };
-
-  handleSelected = (selectedPage) => {
-    this.setState({ selectedPage: selectedPage, isLoading: false });
+    this.props.onGetMissingReport(data);
   };
 
   render() {
-    const stock_keeping_list = this.props.stock_keeping_list || [];
+    const missing_list = this.props.missing_list || [];
     return (
       <div className="width-full">
-        <div style={{ height: "75vh" }} className="pd-6">
+        <div style={{ height: "85vh" }} className="pd-6">
           <div className="fieldset">
             <div className="legend">
               Cycle count classification search criteria
@@ -537,7 +542,7 @@ class StockKeeping extends React.Component {
               <Col lg="4" className="pd-0">
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div className="mr-r-10 flex-row-vertical-center width-120">
-                    Stock keeping type :{" "}
+                  Product name :{" "}
                   </div>
                   <SearchItem
                     onSearch={this.onSearchItem}
@@ -573,106 +578,52 @@ class StockKeeping extends React.Component {
                   <FaDownload size="15" />
                 </Button>
                 <CSVLink
-                  data={this.props.stock_keeping_report}
-                  filename={"stock_keeping_report.csv"}
+                  data={this.props.missing_report}
+                  filename={"missing_report.csv"}
                   className="mr-r-20"
                   ref={this.csvLink}
                   hidden={true}
                 ></CSVLink>
-                <Button
-                  size="sm"
-                  onClick={this.addstockKeeping}
-                  hidden={onActionHidden("stockadd")}
-                >
-                  + Stock keeping
-                </Button>
               </Col>
             </Row>
-            <div className="search-vscroll mr-t-10">
-              <Table style={{ width: "2500px" }}>
-                <thead>
-                  <tr>
-                    <th>View</th>
-                    <th>Edit</th>
-                    <th>Delete</th>
-                    <th>Date</th>
-                    <th>Stock type</th>
-                    <th>Product Code</th>
-                    <th>Product Name</th>
-                    <th>Category</th>
-                    <th>L1 Category</th>
-                    <th>Actual qty</th>
-                    <th>Actual Value</th>
-                    <th>Wastage qty</th>
-                    <th>Wastage Value</th>
-                    <th>Missing qty</th>
-                    <th>Missing Value</th>
-                    <th>BOH qty</th>
-                    <th>BOH value</th>
-                    <th>In sorting</th>
-                    <th>In sorting value</th>
-                    <th>Comment</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stock_keeping_list.map((item, i) => (
-                    <tr key={i}>
-                      <td>
-                        <Button
-                          size="sm"
-                          disabled={onActionHidden("stockview")}
-                          onClick={() => this.onView(item)}
-                          color="link"
-                        >
-                          <FaEye size="16" />
-                        </Button>
-                      </td>
-                      <td>
-                        <Button
-                          size="sm"
-                          disabled={onActionHidden("stockedit")}
-                          onClick={() => this.onEdit(item)}
-                          color="link"
-                        >
-                          <FaRegEdit size="16" />
-                        </Button>
-                      </td>
-                      <td>
-                        <Button
-                          size="sm"
-                          color="link"
-                          onClick={() => this.onDelete(item)}
-                          disabled={
-                            item.delete_status !== 0 ||
-                            onActionHidden("stockdelete")
-                          }
-                        >
-                          <FaTrashAlt size="16" />
-                        </Button>
-                      </td>
-                      <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
-                      <td>{item.type === 0 ? "Daily" : "Weekly Audit"}</td>
-                      <td>{item.vpid}</td>
-                      <td>{item.product_name}</td>
-                      <td>{item.category_name}</td>
-                      <td>{item.subcategoryl1_name}</td>
-                      <td>{item.actual_quantity}</td>
-                      <td>{item.actual_quantity * item.price}</td>
-                      <td>{item.wastage}</td>
-                      <td>{item.wastage * item.price}</td>
-                      <td>{item.missing_quantity}</td>
-                      <td>{item.missing_quantity * item.price}</td>
-                      <td>{item.boh}</td>
-                      <td>{item.boh * item.price}</td>
-                      <td>{item.in_sorting}</td>
-                      <td>{item.in_sorting * item.price}</td>
-                      <td>{item.commend}</td>
+              <div className="search-vscroll mr-t-10">
+                <Table style={{ width: "1500px" }}>
+                  <thead>
+                    <tr>
+                      <th>Product id</th>
+                      <th>Product Name</th>
+                      <th>Category</th>
+                      <th>L1 Category</th>
+                      <th>Missing source</th>
+                      <th>UOM</th>
+                      <th>Missing</th>
+                      <th>Cost of missing (₹)</th>
+                      <th>Entry date/time</th>
+                      <th>Missing till now</th>
+                      <th>Cost of missing till now (₹)</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-            <div
+                  </thead>
+                  <tbody>
+                    {missing_list.map((item, i) => (
+                      <tr key={i}>
+                        
+                        <td className="txt-align-center">{item.vpid}</td>
+                        <td>{item.productname}</td>
+                        <td>{item.category_name}</td>
+                        <td>{item.subcategoryl1_name}</td>
+                        <td>{item.from_type}</td>
+                        <td>{item.uom}</td>
+                        <td>{item.quantity}</td>
+                        <td>{item.cost}</td>
+                        <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
+                        <td>{item.waste_tillnow}</td>
+                        <td>{item.cost_tillnow}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+              <div
               className="float-right"
               hidden={this.props.totalcount < this.props.pagelimit}
             >
@@ -837,4 +788,4 @@ class StockKeeping extends React.Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(StockKeeping);
+export default connect(mapStateToProps, mapDispatchToProps)(Missing);
