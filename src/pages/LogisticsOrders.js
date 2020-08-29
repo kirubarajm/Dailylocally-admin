@@ -972,7 +972,7 @@ class LogisticsOrders extends React.Component {
                       <th>Order no</th>
                       <th>User Name</th>
                       <th>User Phone</th>
-                      <th>Date created</th>
+                      <th>Due Date</th>
                       <th>Weight</th>
                       <th>Distance</th>
                       <th>Area</th>
@@ -1025,7 +1025,7 @@ class LogisticsOrders extends React.Component {
                         <td>{item.name}</td>
                         <td>{item.phoneno}</td>
                         <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}
+                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm")+" PM"}
                         </td>
                         <td>
                           {item.total_product_weight

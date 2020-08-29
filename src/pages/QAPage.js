@@ -555,7 +555,7 @@ class QAPage extends React.Component {
           backdrop={"static"}
           className="max-width-1000"
         >
-          <ModalHeader toggle={this.onQAModal}></ModalHeader>
+          <ModalHeader toggle={this.onQAModal}>Order Id # {this.state.selectedItem.doid}</ModalHeader>
           <ModalBody>
             <div style={{ display: "flex", flexDirection: "row" }}>
               <div

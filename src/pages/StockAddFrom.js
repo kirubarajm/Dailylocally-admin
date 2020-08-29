@@ -149,6 +149,7 @@ class StockAddFrom extends React.Component {
       isEditAutal: false,
       isMissingqty: true,
       isExcessqty: true,
+      isEqualqty: true,
     };
   }
 
@@ -164,31 +165,32 @@ class StockAddFrom extends React.Component {
       var initData = {
         boh: this.props.selectedItem.boh,
         actual: this.props.selectedItem.actual_quantity,
-       
       };
-      var diffvalue=0;
-      
-      if(this.props.selectedItem.purchase_type){
-        var local=this.props.selectedItem.purchase_quantity||"0"
-        var other=this.props.selectedItem.other_purchase_quantity||"0"
-        diffvalue=parseInt(local)+parseInt(other);
-        initData.localqty= this.props.selectedItem.purchase_quantity;
-        initData.otherqty= this.props.selectedItem.other_purchase_quantity;
-        this.setState({isExcessqty:false,diffvalue:diffvalue});
+      var diffvalue = 0;
+
+      if (this.props.selectedItem.purchase_type===1) {
+        var local = this.props.selectedItem.purchase_quantity || "0";
+        var other = this.props.selectedItem.other_purchase_quantity || "0";
+        diffvalue = parseInt(local) + parseInt(other);
+        initData.localqty = this.props.selectedItem.purchase_quantity;
+        initData.otherqty = this.props.selectedItem.other_purchase_quantity;
+        this.setState({ isExcessqty: false, diffvalue: diffvalue });
+      }else if (this.props.selectedItem.purchase_type===0){
+        var missing = this.props.selectedItem.missing_quantity || "0";
+        var wastage = this.props.selectedItem.wastage || "0";
+        diffvalue = parseInt(missing) + parseInt(wastage);
+        initData.missing = this.props.selectedItem.missing_quantity;
+        initData.wastage = this.props.selectedItem.wastage;
+        this.setState({ isMissingqty: false, diffvalue: diffvalue });
       }else{
-        var missing=this.props.selectedItem.missing_quantity||"0"
-        var wastage=this.props.selectedItem.wastage||"0"
-        diffvalue=parseInt(missing)+parseInt(wastage);
-        initData.missing= this.props.selectedItem.missing_quantity;
-        initData.wastage= this.props.selectedItem.wastage;
-        this.setState({isMissingqty:false,diffvalue:diffvalue});
+        this.setState({ isEqualqty: false, diffvalue: 0 });
       }
       var typearray = [];
       typearray.push(this.props.stock_list[this.props.selectedItem.type]);
-      this.setState({ stocktype: typearray,isEditAutal:true });
+      this.setState({ stocktype: typearray, isEditAutal: true });
       if (this.props.selectedItem.wastage_image)
         this.props.onSetImages(this.props.selectedItem.wastage_image);
-        this.props.initialize(initData);
+      this.props.initialize(initData);
     } else {
       var initData = {
         boh: this.props.selectedItem.boh,
@@ -213,7 +215,7 @@ class StockAddFrom extends React.Component {
   componentDidCatch() {}
 
   submitCalculate = (data) => {
-    this.setState({ isMissingqty: true, isExcessqty: true });
+    this.setState({ isMissingqty: true, isExcessqty: true, isEqualqty: true });
     if (this.state.stocktype.length === 0) {
       notify.show(
         "Please select type after try this",
@@ -229,19 +231,25 @@ class StockAddFrom extends React.Component {
     if (!this.state.isEditAutal) {
       var actual = data.actual;
       var boh = this.props.selectedItem.boh;
-      var diffvalue =0;
+      var diffvalue = 0;
       if (boh > actual) {
         diffvalue = boh - actual;
         this.setState({ isMissingqty: false });
       } else if (boh < actual) {
-        diffvalue = actual-boh;
+        diffvalue = actual - boh;
         this.setState({ isExcessqty: false });
+      } else if (boh == actual) {
+        this.setState({ isEqualqty: false });
       }
       this.setState({ diffvalue: diffvalue });
     }
   };
   submit = (data) => {
-    if (this.state.isMissingqty && this.state.isExcessqty) {
+    if (
+      this.state.isMissingqty &&
+      this.state.isExcessqty &&
+      this.state.isEqualqty
+    ) {
       return;
     }
     if (this.state.stocktype.length === 0) {
@@ -252,7 +260,7 @@ class StockAddFrom extends React.Component {
         notification_color
       );
       return;
-    } else if (!this.state.isMissingqty&&!data.wastage && !data.missing) {
+    } else if (!this.state.isMissingqty && !data.wastage && !data.missing) {
       notify.show(
         "Please enter wastage or missing quantity",
         "custom",
@@ -260,7 +268,7 @@ class StockAddFrom extends React.Component {
         notification_color
       );
       return;
-    } else if (!this.state.isExcessqty&&!data.localqty && !data.otherqty) {
+    } else if (!this.state.isExcessqty && !data.localqty && !data.otherqty) {
       notify.show(
         "Please enter local or other quantity",
         "custom",
@@ -275,19 +283,20 @@ class StockAddFrom extends React.Component {
       done_by: getAdminId(),
     };
 
-      data1.actual_quantity = data.actual;
-      data1.type = this.state.stocktype[0].id;
-      data1.wastage_image =this.props.Signature.length === 0? "": this.props.Signature[0].img_url;
+    data1.actual_quantity = data.actual;
+    data1.type = this.state.stocktype[0].id;
+    data1.wastage_image =
+      this.props.Signature.length === 0 ? "" : this.props.Signature[0].img_url;
 
-    if(!this.state.isMissingqty){
+    if (!this.state.isMissingqty) {
       var missing = data.missing || "0";
       var wastage = data.wastage || "0";
-      var missingcount = parseInt(wastage) + parseInt(missing) ;
+      var missingcount = parseInt(wastage) + parseInt(missing);
 
       data1.missing_quantity = data.missing;
       data1.wastage = data.wastage;
-      data1.purchase_type=0;
-      if(missingcount!==this.state.diffvalue){
+      data1.purchase_type = 0;
+      if (missingcount !== this.state.diffvalue) {
         notify.show(
           "Mismatched missing quantity and sum of wastage and missing quantity ,please enter valid quantity",
           "custom",
@@ -298,14 +307,14 @@ class StockAddFrom extends React.Component {
       }
     }
 
-    if(!this.state.isExcessqty){
+    if (!this.state.isExcessqty) {
       var local = data.localqty || "0";
       var other = data.otherqty || "0";
       var excesscount = parseInt(local) + parseInt(other);
       data1.purchase_quantity = data.localqty;
       data1.other_purchase_quantity = data.otherqty;
-      data1.purchase_type=1;
-      if(excesscount!==this.state.diffvalue){
+      data1.purchase_type = 1;
+      if (excesscount !== this.state.diffvalue) {
         notify.show(
           "Mismatched excess quantity and sum of local and other quantity ,please enter valid quantity",
           "custom",
@@ -314,19 +323,24 @@ class StockAddFrom extends React.Component {
         );
         return;
       }
-
     }
 
-      if (this.props.isEdit) {
-        data1.skid = this.props.selectedItem.skid;
-        this.props.onEditStockList(data1);
-      } else {
-        data1.stockid = this.props.selectedItem.stockid;
-        data1.vpid = this.props.selectedItem.vpid;
-        this.props.onUpdateStockList(data1);
-      }
-    
-     
+    if (!this.state.isEqualqty) {
+      data1.purchase_quantity = 0;
+      data1.other_purchase_quantity = 0;
+      data1.missing_quantity = 0;
+      data1.wastage = 0;
+      data1.purchase_type = 2;
+    }
+
+    if (this.props.isEdit) {
+      data1.skid = this.props.selectedItem.skid;
+      this.props.onEditStockList(data1);
+    } else {
+      data1.stockid = this.props.selectedItem.stockid;
+      data1.vpid = this.props.selectedItem.vpid;
+      this.props.onUpdateStockList(data1);
+    }
   };
   handleonRemove = (imgid, imgType, index) => {
     this.props.onDeleteImages(imgType, index);
@@ -491,7 +505,7 @@ class StockAddFrom extends React.Component {
               </div>
               <Row
                 className="pd-0 mr-l-10 mr-r-10"
-                hidden={this.state.isMissingqty && this.state.isExcessqty}
+                hidden={this.state.isMissingqty && this.state.isExcessqty && this.state.isEqualqty}
               >
                 <Col lg="5" className="color-grey pd-0">
                   <div className="border-none pd-0">Upload Proof</div>
@@ -522,7 +536,7 @@ class StockAddFrom extends React.Component {
                 <Col className="txt-align-center">
                   <Button
                     size="sm"
-                    disabled={this.state.isMissingqty && this.state.isExcessqty}
+                    disabled={this.state.isMissingqty && this.state.isExcessqty&&this.state.isEqualqty}
                   >
                     Submit
                   </Button>

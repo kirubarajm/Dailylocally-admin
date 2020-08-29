@@ -607,6 +607,10 @@ class StockKeeping extends React.Component {
                     <th>Wastage Value</th>
                     <th>Missing qty</th>
                     <th>Missing Value</th>
+                    <th>Local qty</th>
+                    <th>Local Value</th>
+                    <th>Other qty</th>
+                    <th>Other Value</th>
                     <th>BOH qty</th>
                     <th>BOH value</th>
                     <th>In sorting</th>
@@ -662,6 +666,10 @@ class StockKeeping extends React.Component {
                       <td>{item.wastage * item.price}</td>
                       <td>{item.missing_quantity}</td>
                       <td>{item.missing_quantity * item.price}</td>
+                      <td>{item.purchase_quantity}</td>
+                      <td>{item.purchase_quantity * item.price}</td>
+                      <td>{item.other_purchase_quantity}</td>
+                      <td>{item.other_purchase_quantity * item.price}</td>
                       <td>{item.boh}</td>
                       <td>{item.boh * item.price}</td>
                       <td>{item.in_sorting}</td>

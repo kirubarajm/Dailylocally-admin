@@ -500,7 +500,7 @@ class Sorting extends React.Component {
           toggle={this.onSortingModal}
           backdrop={"static"}
         >
-          <ModalHeader toggle={this.onSortingModal}></ModalHeader>
+          <ModalHeader toggle={this.onSortingModal}>Order Id # {this.state.selectedItem.doid}</ModalHeader>
           <ModalBody>
             <div style={{ display: "flex", flexDirection: "row" }}>
               <div className="width-100 pd-4">Quality</div>
