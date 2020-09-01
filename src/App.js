@@ -40,6 +40,7 @@ import {
   getLoginDetail,
 } from "./utils/ConstantFunction";
 import StockKeepingTab from "./pages/StockKeepingTab";
+import CommunityTab from "./pages/CommunityTab";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -234,6 +235,26 @@ class App extends React.Component {
               path="/user"
               layout={MainLayout}
               component={UserList}
+            />
+            <LayoutRoute
+              exact
+              path="/community/master"
+              layout={MainLayout}
+              component={CommunityTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/community/user"
+              layout={MainLayout}
+              component={CommunityTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/community/dashboard"
+              layout={MainLayout}
+              component={CommunityTab}
             />
             <LayoutRoute
               exact
