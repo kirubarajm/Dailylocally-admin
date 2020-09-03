@@ -30,7 +30,7 @@ import { store } from "../store";
 import { CSVLink } from "react-csv";
 import PaginationComponent from "react-reactstrap-pagination";
 import MapContainer from "../components/MapContainer";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, reset } from "redux-form";
 import { COMMUNITY_FORM } from "../utils/constant";
 import { required, requiredTrim } from "../utils/Validation";
 const InputField = ({
@@ -100,6 +100,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: COMMUNITY_CLEAR,
     }),
+    onFromClear: () => dispatch(reset(COMMUNITY_FORM)),
 });
 
 class Community extends React.Component {
@@ -196,6 +197,7 @@ class Community extends React.Component {
       lat: Item.lat,
       lng: Item.lon,
       isView: true,
+      isEdit:false,
       isadd:false,
     });
     this.toggleCommunityView();
@@ -309,6 +311,14 @@ class Community extends React.Component {
   };
 
   addCommunity = () => {
+    var initData = {
+      community_name: "",
+      area: "",
+      noofapartments: "",
+      community_address:"",
+      whatsapp_link: "",
+    };
+    this.props.initialize(initData);
     this.setState({
       addressItem:true,
       isEdit: false,
@@ -714,7 +724,7 @@ class Community extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
+                        validate={[required,requiredTrim]}
                       />
                     </div>
                   </div>
@@ -731,7 +741,7 @@ class Community extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
+                        validate={[required,requiredTrim]}
                       />
                     </div>
                   </div>
@@ -746,10 +756,10 @@ class Community extends React.Component {
                       <Field
                         name="noofapartments"
                         autoComplete="off"
-                        type="text"
+                        type="numbr"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
+                        validate={[required,requiredTrim]}
                       />
                     </div>
                   </div>
@@ -771,7 +781,7 @@ class Community extends React.Component {
                       />
                     </div>
                   </div>
-                  <div className="flex-row mr-t-10 font-size-12">
+                  <div className="flex-row mr-t-10 font-size-12" hidden={this.state.isadd}>
                     <div className="mr-r-10 width-100">
                       <div className="pd-0 border-none">
                         Enter community WhatsApp group link :
