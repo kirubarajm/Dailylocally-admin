@@ -80,7 +80,7 @@ class CommunityTab extends React.Component {
                     onClick={() => this.onCommunityTabClick(0)}
                     active={this.props.community_tab_type === 0}
                   >
-                    Community Maste
+                    Community Master
                   </Button>
                   <Button
                     color="primary"

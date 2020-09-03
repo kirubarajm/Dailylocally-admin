@@ -20,6 +20,7 @@ import {
   COMMUNITY_REPORT,
   COMMUNITY_APPROVAL,
   COMMUNITY_UPDATE,
+  COMMUNITY_ADD,
   COMMUNITY_CLEAR,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
@@ -96,11 +97,16 @@ const mapDispatchToProps = (dispatch) => ({
       type: COMMUNITY_UPDATE,
       payload: AxiosRequest.CommunityList.updateCommunity(data),
     }),
+  onAddCommunity: (data) =>
+    dispatch({
+      type: COMMUNITY_ADD,
+      payload: AxiosRequest.CommunityList.addCommunity(data),
+    }),
   onGetClear: () =>
     dispatch({
       type: COMMUNITY_CLEAR,
     }),
-    onFromClear: () => dispatch(reset(COMMUNITY_FORM)),
+  onFromClear: () => dispatch(reset(COMMUNITY_FORM)),
 });
 
 class Community extends React.Component {
@@ -128,7 +134,7 @@ class Community extends React.Component {
       isView: false,
       isApprove: false,
       isAddressModal: false,
-      isadd:false,
+      isadd: false,
       mapRefresh: false,
       lat: "13.010236",
       lng: "80.215652",
@@ -158,7 +164,7 @@ class Community extends React.Component {
     if (this.props.community_approval) {
       this.props.onGetClear();
       this.toggleCommunityView();
-      this.setState({isLoading:false});
+      this.setState({ isLoading: false });
     }
 
     if (this.props.community_report.length > 0 && this.state.isReport) {
@@ -166,7 +172,6 @@ class Community extends React.Component {
       this.csvLink.current.link.click();
     }
     this.onCommunityList();
-
   }
   componentDidCatch() {}
   onCommunityList = () => {
@@ -197,13 +202,16 @@ class Community extends React.Component {
       lat: Item.lat,
       lng: Item.lon,
       isView: true,
-      isEdit:false,
-      isadd:false,
+      isEdit: false,
+      isadd: false,
     });
     this.toggleCommunityView();
   };
+  ImageDownload = (img) => {
+    if (document.getElementById(img)) document.getElementById(img).click();
+  };
 
-  onFormPrefill =(Item)=>{
+  onFormPrefill = (Item) => {
     var initData = {
       community_name: Item.communityname,
       area: Item.area,
@@ -212,7 +220,7 @@ class Community extends React.Component {
       whatsapp_link: Item.whatsapp_group_link,
     };
     this.props.initialize(initData);
-  }
+  };
   onApproveView = (Item) => {
     this.onFormPrefill(Item);
     this.setState({
@@ -222,7 +230,7 @@ class Community extends React.Component {
       isEdit: false,
       isView: false,
       isApprove: true,
-      isadd:false,
+      isadd: false,
     });
     this.toggleCommunityView();
   };
@@ -238,7 +246,7 @@ class Community extends React.Component {
     data.userid = this.state.addressItem.userid;
     data.comid = this.state.addressItem.comid;
     data.status = status;
-    //data.done_by = getAdminId();
+    data.approved_by = getAdminId();
     this.props.onGetApproval(data);
   };
 
@@ -258,7 +266,7 @@ class Community extends React.Component {
       selectedPage: 1,
       search_refresh: true,
       mapRefresh: false,
-      community_name:"",
+      community_name: "",
       select_status: {
         id: -1,
         status: "All",
@@ -273,18 +281,25 @@ class Community extends React.Component {
 
   submit = (data) => {
     var cmupdatedata = {
-      //done_by: getAdminId(),
       communityname: data.community_name,
       area: data.area,
-      no_of_apartments: data.noofapartments,
+      no_of_apartments: data.noofapartments || 0,
       community_address: data.community_address,
       whatsapp_group_link: data.whatsapp_link,
+      lat: this.state.lat,
+      lon: this.state.lng,
     };
 
-    if (this.state.isEdit) cmupdatedata.comid = this.state.addressItem.comid;
-    else cmupdatedata.isaddadmin = true;
-
-    this.props.onGetSubmit(cmupdatedata);
+    if (this.state.isEdit) {
+      cmupdatedata.comid = this.state.addressItem.comid;
+      cmupdatedata.communtiy_edit_by = getAdminId();
+      this.props.onGetSubmit(cmupdatedata);
+    } else {
+      cmupdatedata.requested_userid = getAdminId();
+      cmupdatedata.request_type = 2;
+      cmupdatedata.zoneid = 1;
+      this.props.onAddCommunity(cmupdatedata);
+    }
   };
 
   onReportDownLoad = () => {
@@ -306,7 +321,7 @@ class Community extends React.Component {
   };
 
   onCheckOrder = (item) => {
-    if (item.status === 1) return true;
+    if (item.status === 0) return true;
     else return false;
   };
 
@@ -315,14 +330,14 @@ class Community extends React.Component {
       community_name: "",
       area: "",
       noofapartments: "",
-      community_address:"",
+      community_address: "",
       whatsapp_link: "",
     };
     this.props.initialize(initData);
     this.setState({
-      addressItem:true,
+      addressItem: true,
       isEdit: false,
-      isadd:true,
+      isadd: true,
       isView: false,
       isApprove: false,
       lat: "13.010236",
@@ -350,7 +365,7 @@ class Community extends React.Component {
       isEdit: true,
       isView: false,
       isApprove: false,
-      isadd:false,
+      isadd: false,
       mapRefresh: true,
     });
   };
@@ -474,7 +489,7 @@ class Community extends React.Component {
               </Col>
             </Row>
             <div className="search-vscroll mr-t-10">
-              <Table style={{ width: "1500px" }}>
+              <Table style={{ width: "1800px" }}>
                 <thead>
                   <tr>
                     <th>View</th>
@@ -488,7 +503,6 @@ class Community extends React.Component {
                     <th>Converted users</th>
                     <th>Total Revenue</th>
                     <th>Total orders</th>
-                    <th>Community’s earnings</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -504,10 +518,12 @@ class Community extends React.Component {
                           <FaEye size="16" />
                         </Button>
                       </td>
-                      <td>{item.apartmentname}</td>
+                      <td>{item.communityname}</td>
                       <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
-                      <td>{item.area}</td>
-                      <td className="table-cloumn-overflow">{item.whatsapp_group_link}</td>
+                      <td className="table-cloumn-overflow">{item.area}</td>
+                      <td className="table-cloumn-overflow">
+                        {item.whatsapp_group_link}
+                      </td>
                       <td>
                         {this.onCheckOrder(item) ? (
                           <Button
@@ -531,7 +547,6 @@ class Community extends React.Component {
                       <td>{item.other_purchase_quantity}</td>
                       <td>{item.boh}</td>
                       <td>{item.in_sorting}</td>
-                      <td>{item.commend}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -579,24 +594,25 @@ class Community extends React.Component {
                     <Col>
                       <div className="flex-column">
                         <div className="flex-row mr-t-10 font-size-14 ">
-                          <div className="mr-r-10 width-200" style={{ flexGrow: "1" }}>
+                          <div
+                            className="mr-r-10 width-200"
+                            style={{ flexGrow: "1" }}
+                          >
                             Latitude,Longitude :
                           </div>
                           <div style={{ flexGrow: "2" }}>
-                            {this.state.lat +
-                              "," +
-                              this.state.lng}
+                            {this.state.lat + "," + this.state.lng}
                           </div>
                           <div style={{ flexGrow: "1" }}>
-                      <Button
-                        size="sm"
-                        hidden={this.state.isEdit}
-                        onClick={this.onEdit}
-                        className="width-100"
-                      >
-                        Edit
-                      </Button>
-                    </div>
+                            <Button
+                              size="sm"
+                              hidden={this.state.isEdit}
+                              onClick={this.onEdit}
+                              className="width-100"
+                            >
+                              Edit
+                            </Button>
+                          </div>
                         </div>
                         <div className="flex-row mr-t-10 font-size-14">
                           <div className="mr-r-10 width-200">
@@ -659,14 +675,14 @@ class Community extends React.Component {
                           </div>
                         </div>
 
-                        <div className="flex-row mr-t-10 font-size-14">
+                        {/* <div className="flex-row mr-t-10 font-size-14">
                           <div className="mr-r-10 width-200">
                             Total Community Earnings:
                           </div>
                           <div>
                             {this.state.addressItem.community_earnings || "-"}
                           </div>
-                        </div>
+                        </div> */}
                       </div>
                     </Col>
                   </Row>
@@ -674,11 +690,13 @@ class Community extends React.Component {
               ) : (
                 <form>
                   <div className="flex-row mr-t-10">
-                    <div className="mr-r-20" style={{ flexGrow: "0.2" }}>Location</div>
+                    <div className="mr-r-20" style={{ flexGrow: "0.2" }}>
+                      Location
+                    </div>
                     <MapContainer
                       handleLatlng={this.handleLatlng}
                       style={{ flexGrow: "1" }}
-                      editMap={this.state.onEdit ||this.state.isadd}
+                      editMap={this.state.isEdit || this.state.isadd}
                       address={"You"}
                       clocation={false}
                       zonearea={[]}
@@ -703,7 +721,7 @@ class Community extends React.Component {
                     <div style={{ flexGrow: "1" }}>
                       <Button
                         size="sm"
-                        hidden={this.state.isEdit|| this.state.isadd}
+                        hidden={this.state.isEdit || this.state.isadd}
                         onClick={this.onEdit}
                         className="width-100"
                       >
@@ -724,7 +742,7 @@ class Community extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required,requiredTrim]}
+                        validate={[required, requiredTrim]}
                       />
                     </div>
                   </div>
@@ -741,7 +759,7 @@ class Community extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required,requiredTrim]}
+                        validate={[required, requiredTrim]}
                       />
                     </div>
                   </div>
@@ -749,7 +767,7 @@ class Community extends React.Component {
                     <div className="mr-r-10 width-100">
                       <div className="pd-0 border-none">
                         No. Of apartments :
-                        <span className="must width-25">*</span>
+                        {/* <span className="must width-25">*</span> */}
                       </div>
                     </div>
                     <div>
@@ -759,7 +777,6 @@ class Community extends React.Component {
                         type="numbr"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required,requiredTrim]}
                       />
                     </div>
                   </div>
@@ -781,11 +798,14 @@ class Community extends React.Component {
                       />
                     </div>
                   </div>
-                  <div className="flex-row mr-t-10 font-size-12" hidden={this.state.isadd}>
+                  <div
+                    className="flex-row mr-t-10 font-size-12"
+                    hidden={this.state.isadd}
+                  >
                     <div className="mr-r-10 width-100">
                       <div className="pd-0 border-none">
                         Enter community WhatsApp group link :
-                        <span className="must width-25">*</span>
+                        {/* <span className="must width-25">*</span> */}
                       </div>
                     </div>
                     <div>
@@ -795,8 +815,64 @@ class Community extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
                       />
+                    </div>
+                  </div>
+                  <div hidden={!this.state.isApprove} className="flex-column">
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        Registered user name:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.name || "-"}
+                      </div>
+                    </div>
+
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        User house number:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.flat_no || "-"}
+                      </div>
+                    </div>
+
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        User Floor number:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.floor_no || "-"}
+                      </div>
+                    </div>
+
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        User profile picture:
+                      </div>
+
+                      <div className="border-none">
+                        {this.state.addressItem.profile_image ? (
+                          <div>
+                            <a
+                              id="img1"
+                              href={this.state.addressItem.profile_image}
+                              download
+                              hidden
+                              target="_blank"
+                            ></a>
+                            <Button
+                              size="sm"
+                              color="link"
+                              onClick={() => this.ImageDownload("img1")}
+                            >
+                              <FaDownload size="15" />
+                            </Button>
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
                     </div>
                   </div>
                 </form>
@@ -810,7 +886,9 @@ class Community extends React.Component {
               size="sm"
               className="mr-r-10"
               onClick={() => this.onAccpect(1)}
-              hidden={this.state.isEdit || this.state.isView || this.state.isadd}
+              hidden={
+                this.state.isEdit || this.state.isView || this.state.isadd
+              }
             >
               Approve
             </Button>
@@ -818,7 +896,9 @@ class Community extends React.Component {
               size="sm"
               className="mr-r-10"
               onClick={() => this.onAccpect(2)}
-              hidden={this.state.isEdit || this.state.isView || this.state.isadd}
+              hidden={
+                this.state.isEdit || this.state.isView || this.state.isadd
+              }
             >
               Unapprove
             </Button>

@@ -4,6 +4,7 @@ import {
   COMMUNITY_APPROVAL,
   COMMUNITY_CLEAR,
   COMMUNITY_UPDATE,
+  COMMUNITY_ADD,
   COMMUNITY_REPORT,
 } from "../constants/actionTypes";
 
@@ -13,7 +14,7 @@ export default (
     community_report: [],
     community_tab_type: 0,
     totalcount: 0,
-    community_approval:false,
+    community_approval: false,
     pagelimit: 0,
     orderStatus: [
       {
@@ -31,7 +32,7 @@ export default (
       {
         id: 2,
         status: "Not Approved",
-      }
+      },
     ],
   },
   action
@@ -54,22 +55,27 @@ export default (
         ...state,
         community_report: action.payload.result || [],
       };
-      case COMMUNITY_APPROVAL:
+    case COMMUNITY_APPROVAL:
       return {
         ...state,
         community_approval: action.payload.status || false,
       };
-      case COMMUNITY_UPDATE:
-        return {
-          ...state,
-          community_approval: action.payload.status || false,
-        };
-        case COMMUNITY_CLEAR:
-        return {
-          ...state,
-          community_approval:false,
-        };
-      
+    case COMMUNITY_UPDATE:
+      return {
+        ...state,
+        community_approval: action.payload.status || false,
+      };
+    case COMMUNITY_ADD:
+      return {
+        ...state,
+        community_approval: action.payload.status || false,
+      };
+    case COMMUNITY_CLEAR:
+      return {
+        ...state,
+        community_approval: false,
+      };
+
     default:
       return state;
   }

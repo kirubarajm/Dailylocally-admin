@@ -235,6 +235,7 @@ const CommunityList= {
   getUserList:(data) => requests.post("/community/userlist", data),
   updateApproval:(data) => requests_base.post("user/communityapproval", data),
   updateCommunity:(data) => requests.put("/community/edit", data),
+  addCommunity:(data) => requests.post("/new_community_registration", data),
 }
 
 export default {
