@@ -91,6 +91,7 @@ export const MOVE_TO_PO_STOCK='MOVE_TO_PO_STOCK';
 export const ON_CLEAR_PO_WAITING='ON_CLEAR_PO_WAITING';
 
 export const PO_LIST='PO_LIST';
+export const PO_DELETE_REASON_LIST='PO_DELETE_REASON_LIST';
 export const PO_REPORT='PO_REPORT';
 export const PO_VIEW='PO_VIEW';
 export const PO_DELETE='PO_DELETE';

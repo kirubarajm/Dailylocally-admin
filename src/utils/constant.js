@@ -13,6 +13,7 @@ export const ORDER_VIEW_FORM="order_view_from"
 export const RECEIVING_FORM="receiving_form"
 export const STOCK_ADD_FORM="stock_add_form"
 export const COMMENT_ENTER_FORM="comment_form"
+export const PO_COMMEND_FORM="po_commend_form"
 export const MOVEIT_REGISTRATION_FORM="moveit_registaration"
 export const MOBILE_NUMBER_VERIFY="moveit_number_verify"
 export const LoginType={1:"/",2:"/",3:"/makeit-vorders",4:"/",5:"/",6:"/"};

@@ -978,11 +978,11 @@ a, a:focus, a:hover, a:visited {
 }
 
 .search-v-scroll {
-  white-space: nowrap;
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 70vh !important;
+  max-height: 42vh !important;
+  min-height: 42vh !important;
 }
 
 .search-horizantal-scroll {
@@ -1033,6 +1033,10 @@ a, a:focus, a:hover, a:visited {
 
 .width-85 {
   width: 85% !important;
+}
+
+.width-85-p {
+  width: 83% !important;
 }
 
 .card-body-with-scroll {

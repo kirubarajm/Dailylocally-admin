@@ -5,13 +5,15 @@ import {
   PO_DELETE,
   PO_CLOSE,
   PO_CLEAR,
+  PO_DELETE_REASON_LIST,
 } from "../constants/actionTypes";
 
 export default (
   state = {
     movetopo: false,
+    po_reason_list: false,
     poList: [],
-    poreport:[],
+    poreport: [],
     poview: false,
     deleteStatus: false,
     closeStatus: false,
@@ -28,8 +30,8 @@ export default (
       { id: 3, name: "Close" },
       { id: 4, name: "Delete" },
     ],
-    totalcount:0,
-    pagelimit:0
+    totalcount: 0,
+    pagelimit: 0,
   },
   action
 ) => {
@@ -38,13 +40,18 @@ export default (
       return {
         ...state,
         poList: action.payload.result || [],
-        totalcount:action.payload.totalcount || 0,
-        pagelimit:action.payload.pagelimit || 0,
+        totalcount: action.payload.totalcount || 0,
+        pagelimit: action.payload.pagelimit || 0,
       };
-      case PO_REPORT:
+    case PO_REPORT:
       return {
         ...state,
         poreport: action.payload.result || [],
+      };
+    case PO_DELETE_REASON_LIST:
+      return {
+        ...state,
+        po_reason_list: action.payload.result || [],
       };
     case PO_VIEW:
       return {
@@ -63,10 +70,10 @@ export default (
         ...state,
         closeStatus: action.payload.status || false,
       };
-      case PO_CLEAR:
+    case PO_CLEAR:
       return {
         ...state,
-        deleteStatus:false,
+        deleteStatus: false,
         closeStatus: false,
       };
 

@@ -115,6 +115,7 @@ const Warehouse = {
   movetoStock:(data) => requests.post("/stock/autoassign", data),
   movetoPRRemove:(data) => requests.post("/po/removebohmapping", data),
   getPoList:(data) => requests.post("/po/getpolist", data),
+  getPoReasonList:(data) => requests.post("/po/reason/list", data),
   getPoReport:(data) => requests.post("/po/getpolist", data),
   getPoView:(data) => requests.post("/po/view", data),
   getPoDelete:(data) => requests.post("/po/delete", data),

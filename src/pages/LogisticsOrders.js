@@ -292,14 +292,25 @@ class LogisticsOrders extends React.Component {
   };
 
   movetoDunzo = () => {
-    var doid = [];
-    doid.push(this.state.dunzoItem.id);
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues = [];
+    for (var i = 0; i < Values.length; i++) {
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      var indexof = arr.indexOf("selectall");
+      if (indexof !== -1) {
+        arr.splice(indexof, 1);
+      }
+      AllValues = AllValues.concat(arr);
+    }
+
     var data = {
       zoneid: this.props.zoneItem.id,
-      doid: doid,
+      doid: AllValues,
       done_by: getAdminId(),
     };
     this.toggleDunzoPopUp();
+    console.log("data-->", data);
     this.props.onPostDunzoAssign(data);
   };
 
@@ -688,6 +699,39 @@ class LogisticsOrders extends React.Component {
     }
   };
 
+  clickAction = (item) => {
+    var checkItem_page = this.state.selected_page_dayorderid;
+    var Values = Object.keys(checkItem_page);
+    var AllValues = [];
+    for (var i = 0; i < Values.length; i++) {
+      var arr = Object.keys(checkItem_page[Values[i]].ids);
+      AllValues = AllValues.concat(arr);
+    }
+    if (AllValues.length > 0) {
+      this.setState({ actionItem: item });
+      if (item.id === 1) {
+        this.onTripOrders();
+        this.props.onGetDriverList({ zoneid: this.props.zoneItem.id });
+        this.toggleTripAssignPopUp();
+      } else {
+        this.toggleDunzoPopUp();
+      }
+    } else {
+      notify.show(
+        "Please select the order after try this",
+        "custom",
+        2000,
+        notification_color
+      );
+    }
+  };
+
+  toggleAction = () => {
+    this.setState({
+      isOpenActionDropDown: !this.state.isOpenActionDropDown,
+    });
+  };
+
   render() {
     const dayorderlist = this.props.dayorderlist || [];
     return (
@@ -952,14 +996,39 @@ class LogisticsOrders extends React.Component {
                   ref={this.csvLink}
                   hidden={true}
                 ></CSVLink>
-                <Button
+
+                <ButtonDropdown
+                  className="max-height-30"
+                  isOpen={this.state.isOpenActionDropDown}
+                  toggle={this.toggleAction}
+                  className="mr-r-20"
+                  size="sm"
+                >
+                  <DropdownToggle caret>Action</DropdownToggle>
+                  <DropdownMenu>
+                    {this.props.actionList.map((item, index) => (
+                      <DropdownItem
+                        disabled={
+                          (onActionHidden("logi_assign_trip") &&
+                            item.id === 1) ||
+                          (onActionHidden("logi_assign_dunzo") && item.id === 2)
+                        }
+                        onClick={() => this.clickAction(item)}
+                        key={index}
+                      >
+                        {item.name}
+                      </DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </ButtonDropdown>
+                {/* <Button
                   size="sm"
                   onClick={this.gotoTrip}
                   disabled={onActionHidden("logi_assign_trip")}
                   className="mr-r-20"
                 >
                   Assign to trip
-                </Button>
+                </Button> */}
               </Col>
             </Row>
             <div className="scroll-horizantal-logistics">
@@ -1025,7 +1094,8 @@ class LogisticsOrders extends React.Component {
                         <td>{item.name}</td>
                         <td>{item.phoneno}</td>
                         <td>
-                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm")+" PM"}
+                          {Moment(item.date).format("DD-MMM-YYYY/hh:mm") +
+                            " PM"}
                         </td>
                         <td>
                           {item.total_product_weight

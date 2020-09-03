@@ -19,6 +19,7 @@ import {
   PO_LIST,
   PO_REPORT,
   ZONE_ITEM_REFRESH,
+  PO_DELETE_REASON_LIST,
   PO_VIEW,
   PO_DELETE,
   PO_CLOSE,
@@ -37,6 +38,8 @@ import {
 } from "../utils/ConstantFunction";
 import { CSVLink } from "react-csv";
 import PaginationComponent from "react-reactstrap-pagination";
+import { notify } from "react-notify-toast";
+import { notification_color } from "../utils/constant";
 
 const mapStateToProps = (state) => ({
   ...state.po,
@@ -45,12 +48,17 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
+  onGetPoDeleteReasonList: (data) =>
+    dispatch({
+      type: PO_DELETE_REASON_LIST,
+      payload: AxiosRequest.Warehouse.getPoReasonList(data),
+    }),
   onGetPoList: (data) =>
     dispatch({
       type: PO_LIST,
       payload: AxiosRequest.Warehouse.getPoList(data),
     }),
-    onGetPoReport: (data) =>
+  onGetPoReport: (data) =>
     dispatch({
       type: PO_REPORT,
       payload: AxiosRequest.Warehouse.getPoReport(data),
@@ -93,11 +101,13 @@ class Po extends React.Component {
       today: Moment(new Date()),
       isOpenRecevingDropDown: false,
       isOpenpoDropDown: false,
+      isOpenpoReasonDropDown: false,
+      poreasonItem: { dpoid: -1, reason: "Wrong PO" },
       isViewModal: false,
       view_item: false,
       isConfrimModal: false,
       select_item: false,
-      isReport:false,
+      isReport: false,
       isDelete: false,
       recevingItem: { id: -1, name: "All" },
       postatusItem: { id: -1, name: "All" },
@@ -118,12 +128,15 @@ class Po extends React.Component {
     this.togglePoDropDown = this.togglePoDropDown.bind(this);
     this.clickReceving = this.clickReceving.bind(this);
     this.clickPostatus = this.clickPostatus.bind(this);
+    this.clickPoReasonstatus = this.clickPoReasonstatus.bind(this);
     this.onReset = this.onReset.bind(this);
     this.toggleOrderView = this.toggleOrderView.bind(this);
     this.onView = this.onView.bind(this);
     this.onDelete = this.onDelete.bind(this);
     this.onClose = this.onClose.bind(this);
+    this.togglePoReasonDropDown = this.togglePoReasonDropDown.bind(this);
     this.onGetPoList();
+    this.props.onGetPoDeleteReasonList();
   }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
@@ -157,7 +170,8 @@ class Po extends React.Component {
       };
       if (this.state.po_createdate) data.from_date = this.state.po_createdate;
       if (this.state.enddate) data.to_date = this.state.enddate;
-      if (this.state.supplier_name) data.vendorsearch = this.state.supplier_name;
+      if (this.state.supplier_name)
+        data.vendorsearch = this.state.supplier_name;
       if (this.state.due_date) data.due_date = this.state.due_date;
       if (this.state.pono) data.poid = this.state.pono;
       if (this.state.selectedPage) data.page = this.state.selectedPage;
@@ -201,6 +215,12 @@ class Po extends React.Component {
     });
   };
 
+  togglePoReasonDropDown = () => {
+    this.setState({
+      isOpenpoReasonDropDown: !this.state.isOpenpoReasonDropDown,
+    });
+  };
+
   togglePoDropDown = () => {
     this.setState({
       isOpenpoDropDown: !this.state.isOpenpoDropDown,
@@ -224,7 +244,11 @@ class Po extends React.Component {
   };
 
   onDelete = (Item) => {
-    this.setState({ select_item: Item, isDelete: true });
+    this.setState({
+      select_item: Item,
+      isDelete: true,
+      poreasonItem: { dpoid: -1, reason: "Select Reason" },
+    });
     this.toggleConfirmPopup();
   };
 
@@ -244,6 +268,10 @@ class Po extends React.Component {
     this.setState({ postatusItem: item });
   };
 
+  clickPoReasonstatus = (item) => {
+    this.setState({ poreasonItem: item });
+  };
+
   onSearch = () => {
     this.setState({ isLoading: false, selectedPage: 1 });
   };
@@ -261,11 +289,22 @@ class Po extends React.Component {
     dData.done_by = getAdminId();
 
     if (this.state.isDelete) {
-      this.props.onGetDeletePO(dData);
+      if (this.state.poreasonItem.dpoid !== -1) {
+        dData.delete_reason=this.state.poreasonItem.reason;
+        this.props.onGetDeletePO(dData);
+        this.toggleConfirmPopup();
+      } else {
+        notify.show(
+          "Please select the reason",
+          "custom",
+          2000,
+          notification_color
+        );
+      }
     } else {
       this.props.onGetClosePO(dData);
+      this.toggleConfirmPopup();
     }
-    this.toggleConfirmPopup();
   };
   onReset = () => {
     this.setState({
@@ -301,8 +340,8 @@ class Po extends React.Component {
       data.po_status = this.state.postatusItem.id;
     if (this.state.recevingItem && this.state.recevingItem.id !== -1)
       data.pop_status = this.state.recevingItem.id;
-      
-      data.report=1;
+
+    data.report = 1;
 
     this.props.onGetPoReport(data);
   };
@@ -499,12 +538,12 @@ class Po extends React.Component {
                 <FaDownload size="15" />
               </Button>
               <CSVLink
-                  data={this.props.poreport}
-                  filename={"poreport.csv"}
-                  className="mr-r-20"
-                  ref={this.csvLink}
-                  hidden={true}
-                ></CSVLink>
+                data={this.props.poreport}
+                filename={"poreport.csv"}
+                className="mr-r-20"
+                ref={this.csvLink}
+                hidden={true}
+              ></CSVLink>
               <Button size="sm" onClick={this.gotoVendorAssign}>
                 Supplier Assign
               </Button>
@@ -577,7 +616,7 @@ class Po extends React.Component {
                         <Button
                           className="btn-close"
                           disabled={
-                            (item.close_flag === 0) ||
+                            item.close_flag === 0 ||
                             onActionHidden("wh_po_close")
                           }
                           onClick={() => this.onClose(item)}
@@ -693,6 +732,34 @@ class Po extends React.Component {
             {this.state.isDelete
               ? "Are you sure you want to delete the po?"
               : "Are you sure you want to close the po?"}
+            {this.state.isDelete ? (
+              <div>
+              <ButtonDropdown
+                className="max-height-30 mr-t-20"
+                isOpen={this.state.isOpenpoReasonDropDown}
+                toggle={this.togglePoReasonDropDown}
+                size="sm"
+              >
+                <DropdownToggle caret>
+                  {this.state.poreasonItem
+                    ? this.state.poreasonItem.reason
+                    : ""}
+                </DropdownToggle>
+                <DropdownMenu>
+                  {this.props.po_reason_list.map((item, index) => (
+                    <DropdownItem
+                      onClick={() => this.clickPoReasonstatus(item)}
+                      key={index}
+                    >
+                      {item.reason}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </ButtonDropdown>
+              </div>
+            ) : (
+              ""
+            )}
           </ModalBody>
           <ModalFooter className="pd-10 border-none">
             <Button size="sm" onClick={this.toggleConfirmPopup}>
