@@ -1,24 +1,37 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Switch, Route, Redirect } from "react-router-dom";
+import { store } from "../store";
 import {
   Row,
   Col,
   ButtonGroup,
   Button,
+  ButtonDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
 import {
-  COMMUNITY_SELECTED_TAB,
+  COMMUNITY_SELECTED_TAB, WARE_HOUSE_ZONE_SELECTED, ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import Community from "./Community";
 import StockKeeping from "./StockKeeping";
 import CommunityUser from "./CommunityUser";
 
 const mapStateToProps = (state) => ({
-  ...state.communitytab,
+  ...state.warehouse,
+  zone_list: state.common.zone_list,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
+  OnZoneItemSelect: (item) =>
+    dispatch({
+      type: WARE_HOUSE_ZONE_SELECTED,
+      item,
+    }),
   onSelectTabType: (tab_type) =>
     dispatch({
       type: COMMUNITY_SELECTED_TAB,
@@ -30,11 +43,20 @@ const path = "/community";
 class CommunityTab extends React.Component {
   constructor() {
     super();
+    this.state = {
+      isOpenAreaDropDown: false,
+      areaItem: false,
+    };
   }
 
   UNSAFE_componentWillMount() {
     const { path } = this.props.match;
     this.onCommunityTabClick = this.onCommunityTabClick.bind(this);
+    this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);
+    this.clickArea = this.clickArea.bind(this);
+    if (this.props.zone_list.length > 0 && !this.state.areaItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
 
     if (path.includes("/community/master")) {
       this.props.onSelectTabType(0);
@@ -44,13 +66,20 @@ class CommunityTab extends React.Component {
       this.props.onSelectTabType(2);
     }
   }
+
+  clickArea = (item) => {
+    store.dispatch({ type: ZONE_SELECT_ITEM, zoneItem: item });
+    this.setState({ areaItem: item });
+  };
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
   componentWillUnmount() {}
 
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
-    
+    if (this.props.zone_list.length > 0 && !this.state.areaItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
   }
   componentDidCatch() {}
   
@@ -65,6 +94,12 @@ class CommunityTab extends React.Component {
     // else if (tab === 2) {
     //   this.props.history.push("/community/dashboard");
     // }
+  };
+
+  toggleAreaDropDown = () => {
+    this.setState((prevState) => ({
+      isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
+    }));
   };
 
   render() {
@@ -101,7 +136,29 @@ class CommunityTab extends React.Component {
                 </ButtonGroup>
               </Col>
               <Col>
-                
+                <div className="float-right">
+                  <span className="mr-r-20">Zone</span>
+                  <ButtonDropdown
+                    className="max-height-30"
+                    isOpen={this.state.isOpenAreaDropDown}
+                    toggle={this.toggleAreaDropDown}
+                    size="sm"
+                  >
+                    <DropdownToggle caret>
+                      {this.props.zoneItem.Zonename || ""}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.props.zone_list.map((item, index) => (
+                        <DropdownItem
+                          onClick={() => this.clickArea(item)}
+                          key={index}
+                        >
+                          {item.Zonename}
+                        </DropdownItem>
+                      ))}
+                    </DropdownMenu>
+                  </ButtonDropdown>
+                </div>
               </Col>
             </Row>
             <Row>

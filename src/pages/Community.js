@@ -22,6 +22,8 @@ import {
   COMMUNITY_UPDATE,
   COMMUNITY_ADD,
   COMMUNITY_CLEAR,
+  ZONE_ITEM_REFRESH,
+  ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
@@ -74,6 +76,9 @@ const InputField = ({
 
 const mapStateToProps = (state) => ({
   ...state.community,
+  zone_list: state.common.zone_list,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -161,6 +166,16 @@ class Community extends React.Component {
   componentWillUnmount() {}
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
+
+    if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
+
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
+      this.setState({ isLoading: false });
+    }
+
     if (this.props.community_approval) {
       this.props.onGetClear();
       this.toggleCommunityView();
@@ -173,16 +188,21 @@ class Community extends React.Component {
     }
     this.onCommunityList();
   }
+
+  clickArea = (item) => {
+    store.dispatch({ type: ZONE_SELECT_ITEM, zoneItem: item });
+  };
+
   componentDidCatch() {}
   onCommunityList = () => {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
-      var data = {};
+      var data = {zoneid: this.props.zoneItem.id,};
       if (this.state.startdate) data.from_date = this.state.startdate;
       if (this.state.enddate) data.to_date = this.state.enddate;
       if (this.state.selectedPage) data.page = this.state.selectedPage;
       if (this.state.community_name)
-        data.community_name = this.state.community_name;
+        data.search = this.state.community_name;
       if (this.state.select_status && this.state.select_status.id !== -1)
         data.status = this.state.select_status.id;
       this.props.onGetCommunityList(data);
@@ -272,7 +292,7 @@ class Community extends React.Component {
         status: "All",
       },
     });
-    var data = {};
+    var data = {zoneid: this.props.zoneItem.id,};
     this.props.onGetCommunityList(data);
   };
   onSuccessRefresh = () => {
@@ -794,7 +814,7 @@ class Community extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
+                        validate={[required,requiredTrim]}
                       />
                     </div>
                   </div>
@@ -818,7 +838,15 @@ class Community extends React.Component {
                       />
                     </div>
                   </div>
-                  <div hidden={!this.state.isApprove} className="flex-column">
+                  <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        Community Created By:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.request_type===2?"User":"Admin"}
+                      </div>
+                    </div>
+                  <div hidden={!this.state.isApprove || this.state.addressItem.request_type===2} className="flex-column">
                     <div className="flex-row mr-t-10 font-size-14">
                       <div className="mr-r-10 width-200 border-none">
                         Registered user name:

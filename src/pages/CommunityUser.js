@@ -21,6 +21,8 @@ import {
   COMMUNITY_APPROVAL,
   COMMUNITY_UPDATE,
   COMMUNITY_CLEAR,
+  ZONE_ITEM_REFRESH,
+  ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
@@ -73,6 +75,9 @@ const InputField = ({
 
 const mapStateToProps = (state) => ({
   ...state.communityuser,
+  zone_list: state.common.zone_list,
+  zoneItem: state.common.zoneItem,
+  zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -142,7 +147,6 @@ class CommunityUser extends React.Component {
     this.submit = this.submit.bind(this);
     this.onSearchItem = this.onSearchItem.bind(this);
     this.onSuccessRefresh = this.onSuccessRefresh.bind(this);
-    this.addCommunity = this.addCommunity.bind(this);
     this.toggleOrderStatus = this.toggleOrderStatus.bind(this);
     this.onCommunityList();
   }
@@ -151,6 +155,16 @@ class CommunityUser extends React.Component {
   componentWillUnmount() {}
   componentDidMount() {}
   componentDidUpdate(nextProps, nextState) {
+
+    if (this.props.zone_list.length > 0 && !this.props.zoneItem) {
+      this.clickArea(this.props.zone_list[0]);
+    }
+
+    if (this.props.zoneRefresh) {
+      store.dispatch({ type: ZONE_ITEM_REFRESH });
+      this.setState({ isLoading: false });
+    }
+
     if (this.props.community_approval) {
       this.props.onGetClear();
       this.toggleCommunityView();
@@ -164,16 +178,19 @@ class CommunityUser extends React.Component {
     this.onCommunityList();
 
   }
+  clickArea = (item) => {
+    store.dispatch({ type: ZONE_SELECT_ITEM, zoneItem: item });
+  };
   componentDidCatch() {}
   onCommunityList = () => {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
-      var data = {};
+      var data = {zoneid: this.props.zoneItem.id};
       if (this.state.startdate) data.from_date = this.state.startdate;
       if (this.state.enddate) data.to_date = this.state.enddate;
       if (this.state.selectedPage) data.page = this.state.selectedPage;
       if (this.state.community_name)
-        data.community_name = this.state.community_name;
+        data.search = this.state.community_name;
       this.props.onGetCommunityUserList(data);
     }
   };
@@ -250,7 +267,7 @@ class CommunityUser extends React.Component {
       search_refresh: true,
       community_name:""
     });
-    var data = {};
+    var data = {zoneid: this.props.zoneItem.id};
     this.props.onGetCommunityUserList(data);
   };
   onSuccessRefresh = () => {
@@ -296,7 +313,6 @@ class CommunityUser extends React.Component {
     else return false;
   };
 
-  addCommunity = () => {};
 
   toggleOrderStatus = () => {
     this.setState({
@@ -312,13 +328,30 @@ class CommunityUser extends React.Component {
     this.setState({ lat: lat1, lng: lng1, mapRefresh: false });
   };
 
-  onEdit = () => {
+  onCommunityView =()=>{
+    this.setState({isCommView:true,isView: false});
+  }
+
+  onCommunityViewPopup =(Item)=>{
     this.setState({
-      isEdit: true,
-      isView: false,
-      isApprove: false,
-      mapRefresh: true,
-    });
+      isCommView:true,
+      isView: false, 
+      addressItem: Item,
+      lat: Item.lat,
+      lng: Item.lon});
+      this.toggleCommunityView();
+  }
+  // onEdit = () => {
+  //   this.setState({
+  //     isEdit: true,
+  //     isView: false,
+  //     isCommView:false,
+  //     mapRefresh: true,
+  //   });
+  // };
+
+  ImageDownload = (img) => {
+    if (document.getElementById(img)) document.getElementById(img).click();
   };
 
   render() {
@@ -405,7 +438,7 @@ class CommunityUser extends React.Component {
                 ></CSVLink>
               </Col>
             </Row>
-            <div className="search-vscroll mr-t-10">
+            <div className="search-cuser-scroll mr-t-10">
               <Table style={{ width: "1500px" }}>
                 <thead>
                   <tr>
@@ -417,7 +450,6 @@ class CommunityUser extends React.Component {
                     <th>Area</th>
                     <th>Total orders</th>
                     <th>Total order value</th>
-                    <th>DL Credits</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -434,13 +466,12 @@ class CommunityUser extends React.Component {
                         </Button>
                       </td>
                       <td>{item.name}</td>
-                      <td>{item.communityname}</td>
+                      <td onClick={()=>this.onCommunityViewPopup(item)} className="text-decoration-underline">{item.communityname}</td>
                       <td>{item.flat_no}</td>
                       <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
                       <td>{item.area}</td>
                       <td>{item.total_orders}</td>
                       <td>{item.total_Revenue}</td>
-                      <td>{item.dlcredits}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -511,19 +542,39 @@ class CommunityUser extends React.Component {
                           </div>
                         </div>
                         <div className="flex-row mr-t-10 font-size-14">
-                          <div className="mr-r-10 width-200">
-                          User profile picture:
-                          </div>
+                      <div className="mr-r-10 width-200">
+                        User profile picture:
+                      </div>
+
+                      <div className="border-none">
+                        {this.state.addressItem.profile_image ? (
                           <div>
-                            {this.state.addressItem.profile_image || "-"}
+                            <a
+                              id="img1"
+                              href={this.state.addressItem.profile_image}
+                              download
+                              hidden
+                              target="_blank"
+                            ></a>
+                            <Button
+                              size="sm"
+                              color="link"
+                              onClick={() => this.ImageDownload("img1")}
+                            >
+                              <FaDownload size="15" />
+                            </Button>
                           </div>
-                        </div>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
+                    </div>
                         <div className="flex-row mr-t-10 font-size-14">
                           <div className="mr-r-10 width-200">
                           Community name:
                           </div>
                           <div>
-                            {this.state.addressItem.communityname || "-"}
+                            <span onClick={()=>this.onCommunityView(this.state.addressItem)} className="text-decoration-underline">{this.state.addressItem.communityname || "-"}</span>
                             <span className="mr-l-10 font-weight-bold">{this.state.addressItem.status_msg||"-"}</span>
                           </div>
                         </div>
@@ -540,13 +591,128 @@ class CommunityUser extends React.Component {
                   </Row>
                 </div>
               ) : (
+              this.state.isCommView ? (
+                <div className="font-size-14 mr-t-20">
+                  <div className="flex-row mr-t-10">
+                    <div className="mr-r-20 width-200">Location</div>
+                    <MapContainer
+                      className="mr-t-10"
+                      handleLatlng={this.handleLatlng}
+                      editMap={false}
+                      address={"You"}
+                      clocation={false}
+                      zonearea={[]}
+                      lat={parseFloat(this.state.lat)}
+                      lng={parseFloat(this.state.lng)}
+                    />
+                  </div>
+                  <Row className="mr-t-10">
+                    <Col>
+                      <div className="flex-column">
+                        <div className="flex-row mr-t-10 font-size-14 ">
+                          <div
+                            className="mr-r-10 width-200"
+                            style={{ flexGrow: "1" }}
+                          >
+                            Latitude,Longitude :
+                          </div>
+                          <div style={{ flexGrow: "2" }}>
+                            {this.state.lat + "," + this.state.lng}
+                          </div>
+                          <div style={{ flexGrow: "1" }}>
+                            <Button
+                              size="sm"
+                              hidden={true}
+                              onClick={this.onEdit}
+                              className="width-100"
+                            >
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            Community name :
+                          </div>
+                          <div>
+                            {this.state.addressItem.communityname || "-"}
+                          </div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">Area:</div>
+                          <div>{this.state.addressItem.area || "-"}</div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            No. Of apartments:
+                          </div>
+                          <div>
+                            {this.state.addressItem.no_of_apartments || "-"}
+                          </div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            Community address:
+                          </div>
+                          <div>
+                            {this.state.addressItem.community_address || "-"}
+                          </div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            Community Whatsapp link:
+                          </div>
+                          <div>
+                            {this.state.addressItem.whatsapp_group_link || "-"}
+                          </div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            Converted user:
+                          </div>
+                          <div>
+                            {this.state.addressItem.total_converted_user || "-"}
+                          </div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            Total Revenue:
+                          </div>
+                          <div>
+                            {this.state.addressItem.total_Revenue || "-"}
+                          </div>
+                        </div>
+                        <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            Total Orders From Community:
+                          </div>
+                          <div>
+                            {this.state.addressItem.total_orders || "-"}
+                          </div>
+                        </div>
+
+                        {/* <div className="flex-row mr-t-10 font-size-14">
+                          <div className="mr-r-10 width-200">
+                            Total Community Earnings:
+                          </div>
+                          <div>
+                            {this.state.addressItem.community_earnings || "-"}
+                          </div>
+                        </div> */}
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              ) : (
                 <form>
                   <div className="flex-row mr-t-10">
-                    <div className="mr-r-20" style={{ flexGrow: "0.2" }}>Location</div>
+                    <div className="mr-r-20" style={{ flexGrow: "0.2" }}>
+                      Location
+                    </div>
                     <MapContainer
                       handleLatlng={this.handleLatlng}
                       style={{ flexGrow: "1" }}
-                      editMap={this.state.onEdit}
+                      editMap={this.state.isEdit || this.state.isadd}
                       address={"You"}
                       clocation={false}
                       zonearea={[]}
@@ -571,7 +737,7 @@ class CommunityUser extends React.Component {
                     <div style={{ flexGrow: "1" }}>
                       <Button
                         size="sm"
-                        hidden={this.state.isEdit}
+                        hidden={true}
                         onClick={this.onEdit}
                         className="width-100"
                       >
@@ -592,7 +758,7 @@ class CommunityUser extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
+                        validate={[required, requiredTrim]}
                       />
                     </div>
                   </div>
@@ -609,7 +775,7 @@ class CommunityUser extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
+                        validate={[required, requiredTrim]}
                       />
                     </div>
                   </div>
@@ -617,17 +783,16 @@ class CommunityUser extends React.Component {
                     <div className="mr-r-10 width-100">
                       <div className="pd-0 border-none">
                         No. Of apartments :
-                        <span className="must width-25">*</span>
+                        {/* <span className="must width-25">*</span> */}
                       </div>
                     </div>
                     <div>
                       <Field
                         name="noofapartments"
                         autoComplete="off"
-                        type="text"
+                        type="numbr"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
                       />
                     </div>
                   </div>
@@ -645,15 +810,18 @@ class CommunityUser extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
+                        validate={[required,requiredTrim]}
                       />
                     </div>
                   </div>
-                  <div className="flex-row mr-t-10 font-size-12">
+                  <div
+                    className="flex-row mr-t-10 font-size-12"
+                    hidden={this.state.isadd}
+                  >
                     <div className="mr-r-10 width-100">
                       <div className="pd-0 border-none">
                         Enter community WhatsApp group link :
-                        <span className="must width-25">*</span>
+                        {/* <span className="must width-25">*</span> */}
                       </div>
                     </div>
                     <div>
@@ -663,12 +831,77 @@ class CommunityUser extends React.Component {
                         type="text"
                         disabled={this.state.isApprove}
                         component={InputField}
-                        validate={[required]}
                       />
+                    </div>
+                  </div>
+                  <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        Community Created By:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.request_type===2?"User":"Admin"}
+                      </div>
+                    </div>
+                  <div hidden={!this.state.isApprove || this.state.addressItem.request_type===2} className="flex-column">
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        Registered user name:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.name || "-"}
+                      </div>
+                    </div>
+
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        User house number:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.flat_no || "-"}
+                      </div>
+                    </div>
+
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        User Floor number:
+                      </div>
+                      <div className="border-none">
+                        {this.state.addressItem.floor_no || "-"}
+                      </div>
+                    </div>
+
+                    <div className="flex-row mr-t-10 font-size-14">
+                      <div className="mr-r-10 width-200 border-none">
+                        User profile picture:
+                      </div>
+
+                      <div className="border-none">
+                        {this.state.addressItem.profile_image ? (
+                          <div>
+                            <a
+                              id="img1"
+                              href={this.state.addressItem.profile_image}
+                              download
+                              hidden
+                              target="_blank"
+                            ></a>
+                            <Button
+                              size="sm"
+                              color="link"
+                              onClick={() => this.ImageDownload("img1")}
+                            >
+                              <FaDownload size="15" />
+                            </Button>
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </div>
                     </div>
                   </div>
                 </form>
               )
+            )
             ) : (
               ""
             )}
@@ -677,24 +910,8 @@ class CommunityUser extends React.Component {
             <Button
               size="sm"
               className="mr-r-10"
-              onClick={() => this.onAccpect(1)}
-              hidden={this.state.isEdit || this.state.isView}
-            >
-              Approve
-            </Button>
-            <Button
-              size="sm"
-              className="mr-r-10"
-              onClick={() => this.onAccpect(2)}
-              hidden={this.state.isEdit || this.state.isView}
-            >
-              Unapprove
-            </Button>
-            <Button
-              size="sm"
-              className="mr-r-10"
               onClick={this.props.handleSubmit(this.submit)}
-              hidden={this.state.isApprove || this.state.isView}
+              hidden={this.state.isView}
             >
               Submit
             </Button>
