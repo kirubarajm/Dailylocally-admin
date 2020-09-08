@@ -843,7 +843,7 @@ class Community extends React.Component {
                         Community Created By:
                       </div>
                       <div className="border-none">
-                        {this.state.addressItem.request_type===2?"User":"Admin"}
+                        {this.state.addressItem.request_type===1?"User":"Admin"}
                       </div>
                     </div>
                   <div hidden={!this.state.isApprove || this.state.addressItem.request_type===2} className="flex-column">
