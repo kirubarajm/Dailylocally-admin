@@ -12,8 +12,8 @@ export default (
     sortingList: [],
     sortingreport: [],
     report_sorting: [
-      { id: 1, report: "Bad quality products" },
-      { id: 2, report: "Quantity shown is not available" },
+      { id: 2, report: "Bad quality products" },
+      { id: 1, report: "Quantity shown is not available" },
     ],
     isSaving: false,
     isSubmiting: false,

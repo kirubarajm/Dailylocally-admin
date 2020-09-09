@@ -587,7 +587,7 @@ class Missing extends React.Component {
               </Col>
             </Row>
               <div className="search-vscroll mr-t-10">
-                <Table style={{ width: "1500px" }}>
+                <Table style={{ width: "2000px" }}>
                   <thead>
                     <tr>
                       <th>Product id</th>
@@ -615,7 +615,7 @@ class Missing extends React.Component {
                         <td>{item.uom}</td>
                         <td>{item.quantity}</td>
                         <td>{item.cost}</td>
-                        <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
+                        <td>{Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}</td>
                         <td>{item.waste_tillnow}</td>
                         <td>{item.cost_tillnow}</td>
                       </tr>

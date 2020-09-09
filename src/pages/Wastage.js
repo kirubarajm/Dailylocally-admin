@@ -579,7 +579,7 @@ class Wastage extends React.Component {
               </Col>
             </Row>
               <div className="search-vscroll mr-t-10">
-                <Table style={{ width: "1500px" }}>
+                <Table style={{ width: "2000px" }}>
                   <thead>
                     <tr>
                       <th>Product id</th>
@@ -590,7 +590,6 @@ class Wastage extends React.Component {
                       <th>UOM</th>
                       <th>Wastage</th>
                       <th>Cost of wastage (₹)</th>
-                      <th>Po Line</th>
                       <th>Entry date/time</th>
                       <th>Waste till now</th>
                       <th>Cost of waste till now (₹)</th>

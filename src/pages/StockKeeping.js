@@ -589,7 +589,7 @@ class StockKeeping extends React.Component {
               </Col>
             </Row>
             <div className="search-vscroll mr-t-10">
-              <Table style={{ width: "2500px" }}>
+              <Table style={{ width: "3000px" }}>
                 <thead>
                   <tr>
                     <th>View</th>
@@ -654,7 +654,7 @@ class StockKeeping extends React.Component {
                           <FaTrashAlt size="16" />
                         </Button>
                       </td>
-                      <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
+                      <td>{Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}</td>
                       <td>{item.type === 0 ? "Daily" : "Weekly Audit"}</td>
                       <td>{item.vpid}</td>
                       <td>{item.product_name}</td>
