@@ -443,6 +443,7 @@ class CommunityUser extends React.Component {
                 <thead>
                   <tr>
                     <th>View</th>
+                    <th>User ID</th>
                     <th>User Name</th>
                     <th>Community Name</th>
                     <th>Apartment no</th>
@@ -465,10 +466,11 @@ class CommunityUser extends React.Component {
                           <FaEye size="16" />
                         </Button>
                       </td>
+                      <td>{item.userid}</td>
                       <td>{item.name}</td>
                       <td onClick={()=>this.onCommunityViewPopup(item)} className="text-decoration-underline">{item.communityname}</td>
                       <td>{item.flat_no}</td>
-                      <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
+                      <td>{Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}</td>
                       <td>{item.area}</td>
                       <td>{item.total_orders}</td>
                       <td>{item.total_Revenue}</td>

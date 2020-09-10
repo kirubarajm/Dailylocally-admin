@@ -539,7 +539,7 @@ class Community extends React.Component {
                         </Button>
                       </td>
                       <td>{item.communityname}</td>
-                      <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
+                      <td>{Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}</td>
                       <td className="table-cloumn-overflow">{item.area}</td>
                       <td className="table-cloumn-overflow">
                         {item.whatsapp_group_link}
@@ -709,7 +709,7 @@ class Community extends React.Component {
                 </div>
               ) : (
                 <form>
-                  <div className="flex-row mr-t-10">
+                  <div className="flex-row mr-t-10" style={{height:"250px"}}>
                     <div className="mr-r-20" style={{ flexGrow: "0.2" }}>
                       Location
                     </div>

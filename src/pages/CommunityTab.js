@@ -84,12 +84,17 @@ class CommunityTab extends React.Component {
   componentDidCatch() {}
   
   onCommunityTabClick = (tab) => {
+    if (tab===2){
+      window.open('https://dashboard.getsocial.im/','_blank');
+      return;
+    }
+
     this.props.onSelectTabType(tab);
     if (tab === 0) {
       this.props.history.push("/community/master");
     } else if (tab === 1) {
       this.props.history.push("/community/user");
-    } 
+    }
 
     // else if (tab === 2) {
     //   this.props.history.push("/community/dashboard");
