@@ -7,7 +7,7 @@ export const SidebarSuperAdmin = [
     Icon: MdDashboard,
     submenu: false,
     submenuItem: null,
-    enable_action: "catalog_sidenav",
+    enable_action: "dl_exculsive_sidenav",
   },
   {
     to: "/dashboard",

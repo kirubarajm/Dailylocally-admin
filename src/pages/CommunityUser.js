@@ -424,7 +424,7 @@ class CommunityUser extends React.Component {
                   size="sm"
                   color="link"
                   className="mr-r-20"
-                  hidden={onActionHidden("stockexport_catalog_master_report")}
+                  hidden={onActionHidden("community_user_export")}
                   onClick={() => this.onReportDownLoad()}
                 >
                   <FaDownload size="15" />
@@ -913,7 +913,7 @@ class CommunityUser extends React.Component {
               size="sm"
               className="mr-r-10"
               onClick={this.props.handleSubmit(this.submit)}
-              hidden={this.state.isView}
+              hidden={true}
             >
               Submit
             </Button>

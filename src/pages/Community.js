@@ -487,14 +487,14 @@ class Community extends React.Component {
                   size="sm"
                   color="link"
                   className="mr-r-20"
-                  hidden={onActionHidden("stockexport_catalog_master_report")}
+                  hidden={onActionHidden("community_export")}
                   onClick={() => this.onReportDownLoad()}
                 >
                   <FaDownload size="15" />
                 </Button>
                 <CSVLink
                   data={this.props.community_report}
-                  filename={"community_report.csv"}
+                  filename={"community_master_report.csv"}
                   className="mr-r-20"
                   ref={this.csvLink}
                   hidden={true}
@@ -531,7 +531,7 @@ class Community extends React.Component {
                       <td>
                         <Button
                           size="sm"
-                          disabled={onActionHidden("stockview")}
+                          disabled={onActionHidden("community_view")}
                           onClick={() => this.onView(item)}
                           color="link"
                         >
@@ -548,6 +548,7 @@ class Community extends React.Component {
                         {this.onCheckOrder(item) ? (
                           <Button
                             size="sm"
+                            disabled={onActionHidden("community_approve")}
                             onClick={() => this.onApproveView(item)}
                           >
                             Approve

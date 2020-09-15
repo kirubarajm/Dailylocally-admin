@@ -18,6 +18,7 @@ import {
 import Community from "./Community";
 import StockKeeping from "./StockKeeping";
 import CommunityUser from "./CommunityUser";
+import { onActionHidden } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.warehouse,
@@ -118,6 +119,7 @@ class CommunityTab extends React.Component {
                     color="primary"
                     size="sm"
                     onClick={() => this.onCommunityTabClick(0)}
+                    disabled={onActionHidden("community_master")}
                     active={this.props.community_tab_type === 0}
                   >
                     Community Master
@@ -125,6 +127,7 @@ class CommunityTab extends React.Component {
                   <Button
                     color="primary"
                     size="sm"
+                    disabled={onActionHidden("community_user")}
                     onClick={() => this.onCommunityTabClick(1)}
                     active={this.props.community_tab_type === 1}
                   >
@@ -133,6 +136,7 @@ class CommunityTab extends React.Component {
                   <Button
                     color="primary"
                     size="sm"
+                    disabled={onActionHidden("community_dashboard")}
                     onClick={() => this.onCommunityTabClick(2)}
                     active={this.props.community_tab_type === 2}
                   >
