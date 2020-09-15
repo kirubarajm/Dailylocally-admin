@@ -896,6 +896,13 @@ a, a:focus, a:hover, a:visited {
   height: 40vh !important;
 }
 
+.search-cuser-scroll {
+  margin-bottom: 40px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  height: 50vh !important;
+}
+
 .search-stock-add {
   margin-bottom: 40px !important;
   overflow: auto !important;
@@ -1317,7 +1324,7 @@ form>div>div>* {
 
 .adduser {
   width: 1100px !important;
-  height: 150px !important;
+  height: 250px !important;
 }
 
 .moveitmap {

@@ -347,6 +347,17 @@ class Crm extends React.Component {
     else return " - ";
   }
 
+  paymentmode(item) {
+    if(item.cod_price&&item.online_price){
+      return "Online/COD"
+    }else if(item.cod_price){
+      return "COD"
+    }else if(item.online_price){
+      return "Online"
+    }
+    else return " - ";
+  }
+
   dateOnlyConvert(date) {
     var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm");
     if (datestr !== "Invalid date") return datestr;
@@ -610,6 +621,12 @@ class Crm extends React.Component {
                     <th>Quantity</th>
                     <th>Pack Qty</th>
                     <th>Amt</th>
+                    <th>Online Amt</th>
+                    <th>COD Amt</th>
+                    <th>Payment Mode</th>
+                    <th>Payment Status</th>
+                    <th>Community id</th>
+                    <th>Community name</th>
                     <th>Weight</th>
                     <th>Distance</th>
                     <th>Due date/Time</th>
@@ -646,6 +663,12 @@ class Crm extends React.Component {
                       <td>{item.order_quantity}</td>
                       <td>{item.sorted_quantity}</td>
                       <td>{item.total_product_price}</td>
+                      <td>{item.online_price|| "-"}</td>
+                      <td>{item.cod_price || "-"}</td>
+                      <td>{this.paymentmode(item)}</td>
+                      <td>{item.payment_status===1?"Paid":"Not Paid"}</td>
+                      <td>{item.comid ||"-"}</td>
+                      <td>{item.community_name || "-"}</td>
                       <td>{item.total_product_weight?item.total_product_weight+" kg":"0 kg"}</td>
                       <td>{item.Lastmile?item.Lastmile+" km":"0 km"}</td>
                       <td>{this.dateOnlyConvert(item.date)+" PM"}</td>

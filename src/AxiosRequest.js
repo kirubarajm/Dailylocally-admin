@@ -1,7 +1,7 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
-const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+const BASE_URL_LIVE = "http://68.183.87.233:5000/";
 //const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
@@ -231,6 +231,14 @@ const MobileNumberVerify ={
   requests.post('/logistics/moveit/otpverify',data,AppVersion_1),
 }
 
+const CommunityList= {
+  getCommunityList:(data) => requests.post("/community/masterlist", data),
+  getUserList:(data) => requests.post("/community/userlist", data),
+  updateApproval:(data) => requests_base.post("user/communityapproval", data),
+  updateCommunity:(data) => requests.put("/community/edit", data),
+  addCommunity:(data) => requests.post("/new_community_registration", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
@@ -242,6 +250,7 @@ export default {
   Moveit,
   MobileNumberVerify,
   Admin,
+  CommunityList,
   setToken: (_token) => {
     token = _token;
   },

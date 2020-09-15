@@ -35,6 +35,9 @@ import refundapproval from './reducers/refundapproval'
 import returnpage from './reducers/returnpage'
 import wastage from './reducers/wastage'
 import missing from './reducers/missing'
+import community from './reducers/community'
+import communitytab from './reducers/communitytab'
+import communityuser from './reducers/communityuser'
 
 export default combineReducers({
   router: routerReducer,
@@ -72,5 +75,8 @@ export default combineReducers({
   refundapproval,
   returnpage,
   wastage,
-  missing
+  missing,
+  community,
+  communitytab,
+  communityuser,
 });
