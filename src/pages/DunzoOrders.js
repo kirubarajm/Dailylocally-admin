@@ -694,7 +694,7 @@ class DunzoOrders extends React.Component {
                         <td>{item.dayorderstatus_msg}</td>
                         <td>{item.slot}</td>
                         <td>{item.assigned_by}</td>
-                        <td>{this.dateConvert(item.date)}</td>
+                        <td>{this.dateConvert(item.assigned_datetime)}</td>
                         <td>{this.dateConvert(item.moveit_pickup_time)}</td>
                         <td>{this.dateConvert(item.moveit_actual_delivered_time)}</td>
 
