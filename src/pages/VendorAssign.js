@@ -829,20 +829,20 @@ class VendorAssign extends React.Component {
                           <FaTrashAlt size="15" />
                         </Button>
                       </td>
-                      <td className="table-cloumn-overflow">
+                      <td>
                         {item.catagory_name}
                       </td>
-                      <td className="table-cloumn-overflow">
+                      <td>
                         {item.subcatL1name}
                       </td>
-                      <td className="table-cloumn-overflow">
+                      <td>
                         {item.subcatL2name || "-"}
                       </td>
                       <td>{item.vpid}</td>
-                      <td className="table-cloumn-overflow">
+                      <td>
                         {item.Productname}
                       </td>
-                      <td className="table-cloumn-overflow">
+                      <td>
                         {item.product_productdetails || "-"}
                       </td>
                       <td>{item.vendor_name || "-"}</td>
