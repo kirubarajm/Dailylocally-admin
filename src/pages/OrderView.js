@@ -813,6 +813,17 @@ class OrderView extends React.Component {
     this.toggleQCChecklist();
   };
 
+  paymentmode(item) {
+    if(item.cod_price&&item.online_price){
+      return "Online/COD"
+    }else if(item.cod_price){
+      return "COD"
+    }else if(item.online_price){
+      return "Online"
+    }
+    else return " - ";
+  }
+
   render() {
     const propdata = this.props.orderview;
     const driverdata = propdata.moveitdetail || false;
@@ -887,7 +898,7 @@ class OrderView extends React.Component {
                 value={propdata.google_address}
               />
 
-              <CardRowCol lable="Community ID" value={propdata.community_id} />
+              <CardRowCol lable="Community ID" value={propdata.comid} />
               <CardRowCol
                 lable="Community Name"
                 value={propdata.community_name}
@@ -954,6 +965,11 @@ class OrderView extends React.Component {
                 lable="Total Amount"
                 value={propdata.total_product_price}
               />
+              <CardRowCol
+                lable="Payment Mode"
+                value={this.paymentmode(propdata)}
+              />
+
               <CardRowCol
                 lable="Payment Status"
                 value={propdata.payment_status === 1 ? "Paid" : "Not Paid"}

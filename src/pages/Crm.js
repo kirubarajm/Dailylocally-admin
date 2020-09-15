@@ -667,7 +667,7 @@ class Crm extends React.Component {
                       <td>{item.cod_price || "-"}</td>
                       <td>{this.paymentmode(item)}</td>
                       <td>{item.payment_status===1?"Paid":"Not Paid"}</td>
-                      <td>{item.community_id ||"-"}</td>
+                      <td>{item.comid ||"-"}</td>
                       <td>{item.community_name || "-"}</td>
                       <td>{item.total_product_weight?item.total_product_weight+" kg":"0 kg"}</td>
                       <td>{item.Lastmile?item.Lastmile+" km":"0 km"}</td>
