@@ -13,14 +13,15 @@ import {
   DropdownItem,
 } from "reactstrap";
 import {
-  CATALOG_SELECTED_TAB, CATALOG_ZONE_SELECTED,
+  CATALOG_SELECTED_TAB, CATALOG_ZONE_SELECTED, ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
 import Community from "./Community";
 import StockKeeping from "./StockKeeping";
 import CommunityUser from "./CommunityUser";
+import Catalog from "./Catalog";
 
 const mapStateToProps = (state) => ({
-  ...state.catalogTab,
+  ...state.catalogtab,
   zone_list: state.common.zone_list,
   zoneItem: state.common.zoneItem,
   zoneRefresh: state.common.zoneRefresh,
@@ -51,7 +52,7 @@ class CatalogTab extends React.Component {
 
   UNSAFE_componentWillMount() {
     const { path } = this.props.match;
-    this.onCommunityTabClick = this.onCommunityTabClick.bind(this);
+    this.onCatalogTabClick = this.onCatalogTabClick.bind(this);
     this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);
     this.clickArea = this.clickArea.bind(this);
     if (this.props.zone_list.length > 0 && !this.state.areaItem) {
@@ -114,7 +115,7 @@ class CatalogTab extends React.Component {
                   <Button
                     color="primary"
                     size="sm"
-                    onClick={() => this.onCommunityTabClick(0)}
+                    onClick={() => this.onCatalogTabClick(0)}
                     active={this.props.catalog_tab_type === 0}
                   >
                     View Catalog
@@ -122,7 +123,7 @@ class CatalogTab extends React.Component {
                   <Button
                     color="primary"
                     size="sm"
-                    onClick={() => this.onCommunityTabClick(1)}
+                    onClick={() => this.onCatalogTabClick(1)}
                     active={this.props.catalog_tab_type === 1}
                   >
                     Catalog editor
@@ -130,7 +131,7 @@ class CatalogTab extends React.Component {
                   <Button
                     color="primary"
                     size="sm"
-                    onClick={() => this.onCommunityTabClick(2)}
+                    onClick={() => this.onCatalogTabClick(2)}
                     active={this.props.catalog_tab_type === 2}
                   >
                     Vendors
@@ -138,8 +139,8 @@ class CatalogTab extends React.Component {
                   <Button
                     color="primary"
                     size="sm"
-                    onClick={() => this.onCommunityTabClick(2)}
-                    active={this.props.catalog_tab_type === 2}
+                    onClick={() => this.onCatalogTabClick(3)}
+                    active={this.props.catalog_tab_type === 3}
                   >
                     Brands
                   </Button>
@@ -171,15 +172,15 @@ class CatalogTab extends React.Component {
                 </div>
               </Col>
             </Row>
-            <Row>
+            <Row className="pd-8">
               <Switch>
                 <Route
-                  path={`${path}/master`}
+                  path={'/catalog/view'}
                   exact
-                  component={Community}
+                  component={Catalog}
                 />
-                <Route path={`${path}/user`} component={CommunityUser} />
-                <Redirect to={`${path}/master`} />
+                <Route path={'/catalog/edit'} exact component={Catalog} />
+                <Redirect to={'/catalog/view'} />
               </Switch>
             </Row>
         </div>
@@ -187,4 +188,4 @@ class CatalogTab extends React.Component {
     );
   }
 }
-export default connect(mapStateToProps, mapDispatchToProps)(CommunityTab);
+export default connect(mapStateToProps, mapDispatchToProps)(CatalogTab);

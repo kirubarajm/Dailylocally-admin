@@ -41,6 +41,7 @@ import {
 } from "./utils/ConstantFunction";
 import StockKeepingTab from "./pages/StockKeepingTab";
 import CommunityTab from "./pages/CommunityTab";
+import CatalogTab from "./pages/CatalogTab";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -322,6 +323,20 @@ class App extends React.Component {
               path="/orderview/:id"
               layout={MainLayout}
               component={OrderView}
+            />
+
+            <LayoutRoute
+              exact
+              path="/catalog/view"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/catalog/edit"
+              layout={MainLayout}
+              component={CatalogTab}
             />
 
             <Redirect to="/dashboard" />
