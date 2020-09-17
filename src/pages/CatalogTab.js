@@ -15,10 +15,9 @@ import {
 import {
   CATALOG_SELECTED_TAB, CATALOG_ZONE_SELECTED, ZONE_SELECT_ITEM,
 } from "../constants/actionTypes";
-import Community from "./Community";
-import StockKeeping from "./StockKeeping";
-import CommunityUser from "./CommunityUser";
 import Catalog from "./Catalog";
+import Vendor from "./Vendor";
+import Brand from "./Brand";
 
 const mapStateToProps = (state) => ({
   ...state.catalogtab,
@@ -180,6 +179,8 @@ class CatalogTab extends React.Component {
                   component={Catalog}
                 />
                 <Route path={'/catalog/edit'} exact component={Catalog} />
+                <Route path={'/vendors'} component={Vendor} />
+                <Route path={'/brands'} component={Brand} />
                 <Redirect to={'/catalog/view'} />
               </Switch>
             </Row>

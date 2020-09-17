@@ -42,6 +42,7 @@ import {
 import StockKeepingTab from "./pages/StockKeepingTab";
 import CommunityTab from "./pages/CommunityTab";
 import CatalogTab from "./pages/CatalogTab";
+import Vendor from "./pages/Vendor";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -339,7 +340,21 @@ class App extends React.Component {
               component={CatalogTab}
             />
 
-            <Redirect to="/dashboard" />
+<LayoutRoute
+              exact
+              path="/vendors"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+<LayoutRoute
+              exact
+              path="/brands"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+            <Redirect to="/catalog/view" />
           </Switch>
         </div>
       );

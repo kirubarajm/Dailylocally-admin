@@ -17,23 +17,23 @@ import {
   ModalHeader,
 } from "reactstrap";
 import {
-  VENDOR_LIST,
-  VENDOR_REPORT,
+  BRAND_LIST,
+  BRAND_REPORT,
   ZONE_ITEM_REFRESH,
   ZONE_SELECT_ITEM,
+  ADD_BRAND,
+  EDIT_BRAND,
+  ADDCLEAR_BRAND,
 } from "../constants/actionTypes";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
-import DateRangePicker from "react-bootstrap-daterangepicker";
-import SearchItem from "../components/SearchItem";
 import { store } from "../store";
 import { CSVLink } from "react-csv";
 import PaginationComponent from "react-reactstrap-pagination";
-import MapContainer from "../components/MapContainer";
-import { Field, reduxForm, reset } from "redux-form";
-import { COMMUNITY_FORM, VENDOR_REGISTER } from "../utils/constant";
 import { required, requiredTrim } from "../utils/Validation";
-import NewVendorAdd from "./NewVendorAdd";
+import { Field, reduxForm } from "redux-form";
+import { BRAND_FROM } from "../utils/constant";
+
 const InputField = ({
   input,
   label,
@@ -73,39 +73,53 @@ const InputField = ({
 };
 
 const mapStateToProps = (state) => ({
-  ...state.vendor,
+  ...state.brand,
   zone_list: state.common.zone_list,
   zoneItem: state.common.zoneItem,
   zoneRefresh: state.common.zoneRefresh,
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onGetVendorList: (data) =>
+  onGetBrandList: (data) =>
     dispatch({
-      type: VENDOR_LIST,
-      payload: AxiosRequest.Vendor.getVendorList(data),
+      type: BRAND_LIST,
+      payload: AxiosRequest.Brand.getBrandList(data),
     }),
-  onGetVendorReport: (data) =>
+  onGetBrandReport: (data) =>
     dispatch({
-      type: VENDOR_REPORT,
-      payload: AxiosRequest.Vendor.getVendorList(data),
+      type: BRAND_REPORT,
+      payload: AxiosRequest.Brand.getBrandList(data),
+    }),
+    onAddBrandDetails: (data) =>
+    dispatch({
+      type: ADD_BRAND,
+      payload: AxiosRequest.Brand.addBrand(data),
+    }),
+  onEditBrandDetails: (data) =>
+    dispatch({
+      type: EDIT_BRAND,
+      payload: AxiosRequest.Brand.editBrand(data),
+    }),
+  onClear: () =>
+    dispatch({
+      type: ADDCLEAR_BRAND,
     }),
 });
 
-class Vendor extends React.Component {
+class Brand extends React.Component {
   csvLink = React.createRef();
   constructor() {
     super();
     this.state = {
       isLoading: false,
-      vendoradd: false,
-      selectVendor: false,
+      brandadd: false,
+      selectBrand: false,
     };
   }
 
   UNSAFE_componentWillMount() {
-    this.toggleVendorAddPopup = this.toggleVendorAddPopup.bind(this);
-    this.onVendorList();
+    this.toggleBrandAddPopup = this.toggleBrandAddPopup.bind(this);
+    this.onBrandList();
   }
   UNSAFE_componentWillUpdate() {}
   UNSAFE_componentWillReceiveProps() {}
@@ -121,11 +135,18 @@ class Vendor extends React.Component {
       this.setState({ isLoading: false });
     }
 
-    if (this.props.vendor_report.length > 0 && this.state.isReport) {
+    if (this.props.brand_report.length > 0 && this.state.isReport) {
       this.setState({ isReport: false });
       this.csvLink.current.link.click();
     }
-    this.onVendorList();
+
+    if(this.props.isBrandUpdate){
+      this.toggleBrandAddPopup();
+      this.setState({isEdit:false,isLoading:false});
+      this.props.onClear();
+    }
+
+    this.onBrandList();
   }
 
   clickArea = (item) => {
@@ -133,12 +154,12 @@ class Vendor extends React.Component {
   };
 
   componentDidCatch() {}
-  onVendorList = () => {
+  onBrandList = () => {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
       var data = { zoneid: this.props.zoneItem.id };
       if (this.state.selectedPage) data.page = this.state.selectedPage;
-      this.props.onGetVendorList(data);
+      this.props.onGetBrandList(data);
     }
   };
 
@@ -146,7 +167,7 @@ class Vendor extends React.Component {
     this.setState({ isReport: true });
     var data = { zoneid: this.props.zoneItem.id };
     data.report = 1;
-    this.props.onGetVendorReport(data);
+    this.props.onGetBrandReport(data);
   };
 
   handleSelected = (selectedPage) => {
@@ -159,29 +180,46 @@ class Vendor extends React.Component {
     else return " - ";
   }
 
-  addVendor = () => {
+  addBrand = () => {
     this.setState({isEdit: false });
-    this.toggleVendorAddPopup();
+    this.toggleBrandAddPopup();
   };
 
-  editVendor = (item) => {
-    this.setState({ selectVendor: item, isEdit: true });
-    this.toggleVendorAddPopup();
+  editBrand = (item) => {
+    this.setState({ selectBrand: item, isEdit: true });
+    var initData = {
+      brand_name: item.brandname,
+    };
+    this.props.initialize(initData);
+    this.toggleBrandAddPopup();
   };
 
-  onAddVendSu= () => {
-    this.toggleVendorAddPopup();
+  onAddBrandSu= () => {
+    this.toggleBrandAddPopup();
     this.setState({ isEdit: false,isLoading:false});
   };
 
-  toggleVendorAddPopup = () => {
+  toggleBrandAddPopup = () => {
     this.setState({
-      vendoradd: !this.state.vendoradd,
+      brandadd: !this.state.brandadd,
     });
   };
 
+  updateBrand = (fdata) => {
+    var data = {};
+    data.brandname = fdata.brand_name;
+    data.done_by = getAdminId();
+    data.zoneid = this.props.zoneItem.id;
+    if (this.state.isEdit) {
+      data.id=this.state.selectBrand.id;
+      this.props.onEditBrandDetails(data);
+    } else {
+      this.props.onAddBrandDetails(data);
+    }
+  };
+
   render() {
-    const vendor_list = this.props.vendor_list || [];
+    const brand_list = this.props.brand_list || [];
     return (
       <div className="width-full">
         <div style={{ height: "75vh" }} className="pd-6">
@@ -198,55 +236,43 @@ class Vendor extends React.Component {
                   <FaDownload size="15" />
                 </Button>
                 <CSVLink
-                  data={this.props.vendor_report}
-                  filename={"vendor_master_report.csv"}
+                  data={this.props.brand_report}
+                  filename={"brand_master_report.csv"}
                   className="mr-r-20"
                   ref={this.csvLink}
                   hidden={true}
                 ></CSVLink>
                 <Button
                   size="sm"
-                  onClick={this.addVendor}
+                  onClick={this.addBrand}
                   hidden={onActionHidden("stockadd")}
                 >
-                  Add Vendor
+                  Add Brand
                 </Button>
               </Col>
             </Row>
             <div className="scroll-vendor mr-t-10">
-              <Table style={{ width: "1500px" }}>
+              <Table>
                 <thead>
                   <tr>
-                    <th>vid</th>
-                    <th>Vendor Name</th>
-                    <th>Phone No</th>
-                    <th>Address</th>
-                    <th>Email</th>
-                    <th>PAN</th>
-                    <th>FSSAI</th>
-                    <th>created_at</th>
-                    <th>GST No</th>
+                    <th>id</th>
+                    <th>Brand Name</th>
+                    <th>Created at</th>
                     <th>Edit</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {vendor_list.map((item, i) => (
+                  {brand_list.map((item, i) => (
                     <tr key={i}>
-                      <td>{item.vid}</td>
-                      <td>{item.name}</td>
-                      <td>{item.phoneno}</td>
-                      <td>{item.address}</td>
-                      <td className="table-cloumn-overflow">{item.email}</td>
-                      <td>{item.pan}</td>
-                      <td>{item.fssai}</td>
+                      <td>{item.id}</td>
+                      <td>{item.brandname}</td>
                       <td> {this.dateConvert(item.created_at)}</td>
-                      <td>{item.gst}</td>
                       <td>
                         <Button
                           size="sm"
                           className="pd-0"
                           disabled={onActionHidden("crm_view")}
-                          onClick={() => this.editVendor(item)}
+                          onClick={() => this.editBrand(item)}
                           color="link"
                         >
                           <FaPencilAlt size="16" />
@@ -273,24 +299,42 @@ class Vendor extends React.Component {
         </div>
 
         <Modal
-          isOpen={this.state.vendoradd}
-          toggle={this.toggleVendorAddPopup}
+          isOpen={this.state.brandadd}
+          toggle={this.toggleBrandAddPopup}
           className={this.props.className}
           backdrop={true}
         >
-          <ModalHeader toggle={this.toggleVendorAddPopup}>
+          <ModalHeader toggle={this.toggleBrandAddPopup}>
           </ModalHeader>
           <ModalBody>
-            <NewVendorAdd
-              selectVendor={this.state.selectVendor}
-              isEdit={this.state.isEdit}
-              update={this.onAddVendSu}
-            />
+          <div className="fieldset">
+          <div className="legend" style={{ width: "100px" }}>
+            {this.state.isEdit ? "Edit Brand" : "Add Brand"}
+          </div>
+          <form onSubmit={this.props.handleSubmit(this.updateBrand)}>
+            <div className="flex-column">
+              <Field
+                name="brand_name"
+                autoComplete="off"
+                type="name"
+                component={InputField}
+                label="Brand Name"
+                validate={[required,requiredTrim]}
+                required={true}
+              />
+            </div>
+            <div className="float-right">
+              <Button size="sm">Submit</Button>
+            </div>
+          </form>
+        </div>
           </ModalBody>
         </Modal>
       </div>
     );
   }
 }
-
-export default connect(mapStateToProps, mapDispatchToProps)(Vendor);
+Brand = reduxForm({
+  form: BRAND_FROM, // a unique identifier for this form
+})(Brand);
+export default connect(mapStateToProps, mapDispatchToProps)(Brand);
