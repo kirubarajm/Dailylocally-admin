@@ -956,6 +956,13 @@ a, a:focus, a:hover, a:visited {
   max-height: 35vh !important;
 }
 
+.scroll-vendor {
+  overflow: auto;
+  margin-bottom: 15px;
+  background: #ffffff !important;
+  max-height: 65vh !important;
+}
+
 .scroll-horizantal-logistics {
   width: 100%;
   overflow: auto;

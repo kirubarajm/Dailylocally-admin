@@ -38,6 +38,10 @@ import missing from './reducers/missing'
 import community from './reducers/community'
 import communitytab from './reducers/communitytab'
 import communityuser from './reducers/communityuser'
+import catalogtab from './reducers/catalogtab'
+import vendor from './reducers/vendor'
+import newvendor from './reducers/newvendor'
+import brand from './reducers/brand'
 
 export default combineReducers({
   router: routerReducer,
@@ -79,4 +83,8 @@ export default combineReducers({
   community,
   communitytab,
   communityuser,
+  catalogtab,
+  vendor,
+  newvendor,
+  brand
 });

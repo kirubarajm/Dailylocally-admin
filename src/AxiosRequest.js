@@ -2,7 +2,8 @@ import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
 //const BASE_URL_LIVE = "http://68.183.87.233:5000/";
-const BASE_URL_LIVE = "http://68.183.87.233:9000/";
+const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
@@ -239,6 +240,19 @@ const CommunityList= {
   addCommunity:(data) => requests.post("/new_community_registration", data),
 }
 
+
+const Vendor= {
+  getVendorList:(data) => requests.post("/vendor/list", data),
+  addVendor:(data) => requests.post("/vendor/add", data),
+  editVendor:(data) => requests.post("/vendor/edit", data),
+}
+
+const Brand= {
+  getBrandList:(data) => requests.post("/brand/list", data),
+  addBrand:(data) => requests.post("/brand/add", data),
+  editBrand:(data) => requests.post("/brand/edit", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
@@ -251,6 +265,8 @@ export default {
   MobileNumberVerify,
   Admin,
   CommunityList,
+  Vendor,
+  Brand,
   setToken: (_token) => {
     token = _token;
   },
