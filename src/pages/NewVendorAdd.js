@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { VENDOR_REGISTER } from "../utils/constant";
 import { Field, reduxForm } from "redux-form";
 import { Button } from "reactstrap";
-import { required, requiredTrim,email } from "../utils/Validation";
+import { required, requiredTrim,email,phoneNumber} from "../utils/Validation";
 import AxiosRequest from "../AxiosRequest";
 import Moment from "moment";
 import {
@@ -69,6 +69,58 @@ const InputField = ({
     </div>
   );
 };
+
+const InputFieldMob = ({
+  input,
+  label,
+  type,
+  meta: { touched, error, warning },
+  ...custom
+  //
+}) => {
+  return (
+    <div className="flex-row mr-b-10">
+      <label hidden={!label} className="width-150 mr-0 border-none">
+        {label}{" "}
+        <span className="must" hidden={!custom.required}>
+          *
+        </span>
+      </label>
+      <div className="border-none">
+      <input
+            {...input}
+            placeholder={" "+label}
+            type={type}
+            autoComplete="off"
+            min={0}
+            disabled={custom.disabled}
+            onWheel={event => {
+              event.preventDefault();
+            }}
+            oninput={
+              custom.maxLength
+                ? (input.value = input.value.slice(0, custom.maxLength))
+                : input.value
+            }
+          />
+        <div
+          style={{
+            flex: "0",
+            WebkitFlex: "0",
+            height: "10px",
+            fontSize: "12px",
+            color: "red",
+          }}
+        >
+          {touched &&
+            ((error && <span>{error}</span>) ||
+              (warning && <span>{warning}</span>))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 class NewVendorAdd extends React.Component {
   UNSAFE_componentWillMount() {
@@ -146,9 +198,10 @@ class NewVendorAdd extends React.Component {
                 name="phone_no"
                 autoComplete="off"
                 type="name"
-                component={InputField}
+                component={InputFieldMob}
                 label="Phone no"
-                validate={[required]}
+                maxLength={10}
+                validate={[required,phoneNumber]}
                 required={true}
               />
 

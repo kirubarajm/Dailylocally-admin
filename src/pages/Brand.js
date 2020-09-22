@@ -43,34 +43,34 @@ const InputField = ({
   //
 }) => {
   return (
-    <div className="border-none width-250">
-      <div className="flex-column">
-        <input
-          {...input}
-          placeholder={label}
-          type={type}
-          autoComplete="off"
-          disabled={custom.disabled}
-        />
-        <span
+    <div className="flex-row mr-b-10">
+      <label hidden={!label} className="width-150 mr-0 border-none">
+        {label}{" "}
+        <span className="must" hidden={!custom.required}>
+          *
+        </span>
+      </label>
+      <div className="border-none">
+        <input {...input} placeholder={label} type={type} autoComplete="off" />
+        <div
           style={{
             flex: "0",
             WebkitFlex: "0",
-            width: "150px",
             height: "10px",
             fontSize: "12px",
-            marginTop: "5px",
             color: "red",
           }}
         >
           {touched &&
             ((error && <span>{error}</span>) ||
               (warning && <span>{warning}</span>))}
-        </span>
+        </div>
       </div>
     </div>
   );
 };
+
+
 
 const mapStateToProps = (state) => ({
   ...state.brand,
@@ -182,6 +182,10 @@ class Brand extends React.Component {
 
   addBrand = () => {
     this.setState({isEdit: false });
+    var initData = {
+      brand_name: "",
+    };
+    this.props.initialize(initData);
     this.toggleBrandAddPopup();
   };
 
