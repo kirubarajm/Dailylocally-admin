@@ -18,6 +18,7 @@ import {
 import Catalog from "./Catalog";
 import Vendor from "./Vendor";
 import Brand from "./Brand";
+import { onActionHidden } from "../utils/ConstantFunction";
 
 const mapStateToProps = (state) => ({
   ...state.catalogtab,
@@ -110,7 +111,7 @@ class CatalogTab extends React.Component {
         <div style={{ height: "85vh" }} className="width-84">
             <Row>
               <Col>
-                <ButtonGroup size="sm">
+                <ButtonGroup size="sm" hidden={onActionHidden("catview")}>
                   <Button
                     color="primary"
                     size="sm"

@@ -115,12 +115,12 @@ class App extends React.Component {
         <div>
           <Notifications options={{ zIndex: 1052, top: "0px" }} />
           <Switch>
-            <LayoutRoute
+            {/* <LayoutRoute
               exact
               path="/dashboard"
               layout={MainLayout}
               component={Catalog}
-            />
+            /> */}
 
             <LayoutRoute
               exact
