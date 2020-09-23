@@ -19,6 +19,7 @@ import Catalog from "./Catalog";
 import Vendor from "./Vendor";
 import Brand from "./Brand";
 import { onActionHidden } from "../utils/ConstantFunction";
+import Collection from "./Collection";
 
 const mapStateToProps = (state) => ({
   ...state.catalogtab,
@@ -96,6 +97,8 @@ class CatalogTab extends React.Component {
       this.props.history.push("/vendors");
     } else if (tab === 3) {
       this.props.history.push("/brands");
+    } else if (tab === 4) {
+      this.props.history.push("/collection");
     }
   };
 
@@ -144,6 +147,15 @@ class CatalogTab extends React.Component {
                   >
                     Brands
                   </Button>
+
+                  <Button
+                    color="primary"
+                    size="sm"
+                    onClick={() => this.onCatalogTabClick(4)}
+                    active={this.props.catalog_tab_type === 4}
+                  >
+                    Collection
+                  </Button>
                 </ButtonGroup>
               </Col>
               <Col>
@@ -182,6 +194,7 @@ class CatalogTab extends React.Component {
                 <Route path={'/catalog/edit'} exact component={Catalog} />
                 <Route path={'/vendors'} component={Vendor} />
                 <Route path={'/brands'} component={Brand} />
+                <Route path={'/collection'} component={Collection} />
                 <Redirect to={'/catalog/view'} />
               </Switch>
             </Row>

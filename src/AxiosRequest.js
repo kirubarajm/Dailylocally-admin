@@ -2,8 +2,8 @@ import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
 //const BASE_URL_LIVE = "http://68.183.87.233:5000/";
-//const BASE_URL_LIVE = "http://68.183.87.233:8000/";
-const BASE_URL_LIVE = "http://68.183.87.233:9000/";
+const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
@@ -253,6 +253,13 @@ const Brand= {
   editBrand:(data) => requests.post("/brand/edit", data),
 }
 
+
+const Collection= {
+  getCollectionList:(data) => requests.post("/collection/list", data),
+  addCollection:(data) => requests.post("/collection/add", data),
+  editCollection:(data) => requests.post("/collection/edit", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
@@ -267,6 +274,7 @@ export default {
   CommunityList,
   Vendor,
   Brand,
+  Collection,
   setToken: (_token) => {
     token = _token;
   },
