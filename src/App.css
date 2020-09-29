@@ -1995,7 +1995,9 @@ hr.style-moveit:after {
 .max-width-800 {
   max-width: 800px !important;
 }
-
+.max-width-500 {
+  max-width: 500px !important;
+}
 .max-width-600 {
   max-width: 600px !important;
 }

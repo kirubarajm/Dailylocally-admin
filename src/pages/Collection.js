@@ -3,9 +3,22 @@ import { connect } from "react-redux";
 import AxiosRequest from "../AxiosRequest";
 import { CSVLink } from "react-csv";
 import { getAdminId, onActionHidden } from "../utils/ConstantFunction";
-import { ADD_COLLECTION, EDIT_COLLECTION, GET_COLLECTION } from "../constants/actionTypes";
+import {
+  ADD_COLLECTION,
+  EDIT_COLLECTION,
+  GET_COLLECTION,
+  DELETE_COLLECTION_IMAGES,
+  ACTIVE_COLLECTION,
+  UPDATE_COLLECTION_IMAGES,
+  GET_CLASSIFICATION,
+  GET_CLASSIFICATION_DATA,
+  SET_COLLECTION_IMAGES,
+  FROMCLEAR,
+} from "../constants/actionTypes";
 import { FaPencilAlt, FaDownload } from "react-icons/fa";
 import Moment from "moment";
+import { notify } from "react-notify-toast";
+import { notification_color } from "../utils/constant";
 import PaginationComponent from "react-reactstrap-pagination";
 import {
   Row,
@@ -16,12 +29,15 @@ import {
   Card,
   CardImg,
   Modal,
-  ModalBody,ModalHeader
+  ModalBody,
+  ModalHeader,
 } from "reactstrap";
 import SwitchButtonCommon from "../components/SwitchButtonCommon";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, reset } from "redux-form";
 import { required, requiredTrim } from "../utils/Validation";
 import { COLLECTION_FROM } from "../utils/constant";
+import Select from "react-dropdown-select";
+import DropzoneFieldMultiple from "../components/dropzoneFieldMultiple";
 
 const InputField = ({
   input,
@@ -33,13 +49,13 @@ const InputField = ({
 }) => {
   return (
     <div className="flex-row mr-b-10">
-      <label hidden={!label} className="width-150 mr-0 border-none">
+      <label hidden={!label} className="mr-0 border-none">
         {label}{" "}
         <span className="must" hidden={!custom.required}>
           *
         </span>
       </label>
-      <div className="border-none">
+      <div className="border-none" style={{marginLeft:"-90px"}}>
         <input {...input} placeholder={label} type={type} autoComplete="off" />
         <div
           style={{
@@ -59,6 +75,56 @@ const InputField = ({
   );
 };
 
+const InputSearchDropDown = ({
+  onSelection,
+  options,
+  label,
+  labelField,
+  searchable,
+  searchBy,
+  values,
+  disabled,
+  clearable,
+  noDataLabel,
+  valueField,
+}) => {
+  return (
+    <div className="border-none" style={{ marginBottom: "10px" }}>
+      <Row className="pd-0 mr-l-10 mr-r-10 border-none">
+        <Col lg="5" className="pd-0">
+          <label className="mr-0 color-grey pd-0 ">
+            {label} <span className="must">*</span>
+          </label>
+        </Col>
+        <Col
+          className="pd-0"
+          style={{
+            border: "1px solid #000",
+            height: "30px",
+            marginLeft: "-6px",
+            marginRight: "12px",
+          }}
+        >
+          <Select
+            options={options}
+            labelField={labelField}
+            searchable={searchable}
+            searchBy={searchBy}
+            values={[...values]}
+            noDataLabel={noDataLabel}
+            valueField={valueField}
+            dropdownHeight={"300px"}
+            disabled={disabled}
+            onChange={(value) => {
+              onSelection(value);
+            }}
+          />
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
 const mapStateToProps = (state) => ({
   ...state.collection,
   zoneItem: state.common.zoneItem,
@@ -71,7 +137,24 @@ const mapDispatchToProps = (dispatch) => ({
       type: GET_COLLECTION,
       payload: AxiosRequest.Collection.getCollectionList(data),
     }),
-    onAddCollectionDetails: (data) =>
+  onGetClassification: (data) =>
+    dispatch({
+      type: GET_CLASSIFICATION,
+      payload: AxiosRequest.Collection.getClassificationList(data),
+    }),
+  onGetClassificationdata: (data) =>
+    dispatch({
+      type: GET_CLASSIFICATION_DATA,
+      payload: AxiosRequest.Collection.getClassificationData(data),
+    }),
+
+    onSetImages: (image) =>
+    dispatch({
+      type: SET_COLLECTION_IMAGES,
+      image,
+    }),
+  //GET_CLASSIFICATION
+  onAddCollectionDetails: (data) =>
     dispatch({
       type: ADD_COLLECTION,
       payload: AxiosRequest.Collection.addCollection(data),
@@ -81,6 +164,26 @@ const mapDispatchToProps = (dispatch) => ({
       type: EDIT_COLLECTION,
       payload: AxiosRequest.Collection.editCollection(data),
     }),
+  onUpdateCOllectionImages: (data, imgtype) =>
+    dispatch({
+      type: UPDATE_COLLECTION_IMAGES,
+      imgtype,
+      payload: AxiosRequest.Catelog.fileUpload(data),
+    }),
+  onDeleteImages: () =>
+    dispatch({
+      type: DELETE_COLLECTION_IMAGES,
+    }),
+    activeCollection:(data) =>
+    dispatch({
+      type: ACTIVE_COLLECTION,
+      payload: AxiosRequest.Collection.activeCollection(data),
+    }),
+  onClear: () =>
+    dispatch({
+      type: FROMCLEAR,
+    }),
+  onFromClear: () => dispatch(reset(COLLECTION_FROM)),
 });
 
 class Collection extends React.Component {
@@ -91,6 +194,14 @@ class Collection extends React.Component {
       isReport: false,
       isImageModal: false,
       imageItem: false,
+      isNext: false,
+      isNextDisable: true,
+      collection_title: "",
+      cardtype: [],
+      classification: [],
+      classficationdata: [],
+      liveModal:false,
+      selectCollection:false,
     };
   }
 
@@ -98,6 +209,7 @@ class Collection extends React.Component {
     console.log("--componentWillMount-->");
     const { path } = this.props.match;
     this.props.onGetCollection();
+    this.props.onGetClassification();
   }
   UNSAFE_componentWillUpdate() {
     console.log("--componentWillUpdate-->");
@@ -115,12 +227,52 @@ class Collection extends React.Component {
   }
   componentDidUpdate(nextProps, nextState) {
     console.log("--componentDidUpdate-->");
+    if (
+      this.props.classification_Data.length !== 0 &&
+      this.state.isNextDisable
+    ) {
+      this.setState({ isNextDisable: false });
+    }
+
+    if(this.props.isLive){
+      this.props.onClear();
+      this.toggleLive();
+      this.props.onGetCollection();
+    }
+
+    if (this.props.isUpdate) {
+      this.props.onClear();
+      this.props.onFromClear();
+      this.setState({
+        cardtype: [],
+        classification: [],
+        classficationdata: [],
+        isNextDisable:true,
+      });
+      this.toggleNextPopup();
+      this.props.onGetCollection();
+    }
   }
   componentDidCatch() {
     console.log("--componentDidCatch-->");
   }
 
-  onEdit = (item) => {};
+  onEdit = (item) => {
+    this.setState({ isEdit: true, selectCollection: item });
+    var initData = {
+      collection_title: item.name,
+    };
+
+    this.setState({
+      isNextDisable:false,
+      cardtype: [{ id: item.tile_type, name: item.tile_type_name }],
+      classification: [{ id: item.classification_type, name: item.classification_type_name }],
+      classficationdata: [{ id: item.classification_id, name: item.classification_id_name }],
+    });
+    this.props.onSetImages(item.img_url);
+    this.props.initialize(initData);
+    this.toggleCollectionAddPopup();
+  };
 
   onReportDownLoad = () => {};
 
@@ -134,10 +286,10 @@ class Collection extends React.Component {
     }));
   };
 
-  addBrand = () => {
-    this.setState({isEdit: false });
+  addCollection = () => {
+    this.setState({ isEdit: false });
     var initData = {
-      brand_name: "",
+      collection_title: "",
     };
     this.props.initialize(initData);
     this.toggleCollectionAddPopup();
@@ -149,6 +301,12 @@ class Collection extends React.Component {
     });
   };
 
+  toggleNextPopup = () => {
+    this.setState({
+      collectionnext: !this.state.collectionnext,
+    });
+  };
+
   ImageDownload = (img) => {
     document.getElementById(img).click();
   };
@@ -156,20 +314,93 @@ class Collection extends React.Component {
   OnClickSwitch = () => (ev) => {
     if (ev) ev.stopPropagation();
   };
-  Onlive = (item, i, type) => (ev) => {
+  Onlive = (item) => (ev) => {
     if (ev) ev.stopPropagation();
+    this.setState({selectCollection:item});
+    this.toggleLive();
+  };
+
+  selectedCard = (item) => {
+    this.setState({ cardtype: item });
+  };
+
+  selectedClassficationData = (item) => {
+    this.setState({ classficationdata: item });
+  };
+
+  handleonRemove = () => {
+    this.props.onDeleteImages();
+  };
+
+  handleCollectionimages = (newImageFile) => {
+    var data = new FormData();
+    data.append("file", newImageFile[0]);
+    var type = 1;
+    data.append("type", type);
+    this.props.onUpdateCOllectionImages(data, type);
+  };
+
+  selectedClassification = (item) => {
+    this.setState({ classification: item, isNextDisable: false });
+    this.props.onGetClassificationdata({ type: "" + item[0].id });
+  };
+
+  onNext = () => {
+    this.setState({ isNext: true });
+  };
+
+  onBack = () => {
+    this.setState({ isNext: false });
+    this.toggleNextPopup();
+    this.toggleCollectionAddPopup();
   };
 
   updateCollection = (fdata) => {
+    this.setState({ collection_title: fdata.collection_title });
+    if (this.state.cardtype.length === 0) {
+      notify.show("Please select type", "custom", 1000, notification_color);
+    } else if (this.state.classification.length === 0) {
+      notify.show(
+        "Please select classification",
+        "custom",
+        1000,
+        notification_color
+      );
+    } else {
+      this.setState({ isNext: true });
+      this.toggleCollectionAddPopup();
+      this.toggleNextPopup();
+    }
+  };
+
+  toggleLive = () => {
+    this.setState((prevState) => ({
+      liveModal: !prevState.liveModal,
+    }));
+  };
+
+  MovetoLive = () => {
+    this.props.activeCollection({
+      cid: this.state.selectCollection.cid,
+      zoneid: this.props.zoneItem.id,
+      done_by: getAdminId(),
+    });
+  };
+  sendCollection = () => {
     var data = {};
-    data.brandname = fdata.brand_name;
+    data.name = this.state.collection_title;
+    data.tile_type = "" + this.state.cardtype[0].id;
+    data.classification_type = "" + this.state.classification[0].id;
+    data.classification_id = "" + this.state.classficationdata[0].id;
+    data.img_url = this.props.Collection_Img[0].img_url;
     data.done_by = getAdminId();
     data.zoneid = this.props.zoneItem.id;
+    console.log("data-->", data);
     if (this.state.isEdit) {
-      data.id=this.state.selectBrand.id;
-      this.props.onAddCollectionDetails(data);
-    } else {
+      data.cid = this.state.selectCollection.cid;
       this.props.onEditCollectionDetails(data);
+    } else {
+      this.props.onAddCollectionDetails(data);
     }
   };
 
@@ -199,11 +430,7 @@ class Collection extends React.Component {
                   hidden={true}
                 ></CSVLink>
 
-                <Button
-                  size="sm"
-                  onClick={this.addBrand}
-                  hidden={onActionHidden("stockadd")}
-                >
+                <Button size="sm" onClick={this.addCollection}>
                   Add New Collection
                 </Button>
               </div>
@@ -241,8 +468,8 @@ class Collection extends React.Component {
                   </td>
                   <td>{item.cid}</td>
                   <td>{item.name}</td>
-                  <td>{item.classification_type}</td>
-                  <td>{item.tile_type}</td>
+                  <td>{item.classification_type_name || "-"}</td>
+                  <td>{item.tile_type_name || "-"}</td>
                   <td>{item.category_Position}</td>
                   <td>
                     <Button
@@ -258,7 +485,7 @@ class Collection extends React.Component {
                     <SwitchButtonCommon
                       checked={item.active_status === "0" ? false : true}
                       handleClick={this.OnClickSwitch()}
-                      handleSwitchChange={this.Onlive(item, i, 1)}
+                      handleSwitchChange={this.Onlive(item)}
                     ></SwitchButtonCommon>
                   </td>
                 </tr>
@@ -268,7 +495,8 @@ class Collection extends React.Component {
         </div>
         <div
           className="float-right"
-          hidden={this.props.totalcount < this.props.pagelimit}
+          //hidden={this.props.totalcount < this.props.pagelimit}
+          hidden={true}
         >
           <PaginationComponent
             totalItems={this.props.totalcount}
@@ -316,7 +544,7 @@ class Collection extends React.Component {
                       top
                       style={{ width: "200px", height: "200px" }}
                       src={this.state.imageItem.img_url}
-                      alt="Cpllection Image"
+                      alt="Collection Image"
                     />
                     <Button
                       size="sm"
@@ -342,34 +570,170 @@ class Collection extends React.Component {
           isOpen={this.state.collectionadd}
           toggle={this.toggleCollectionAddPopup}
           className={this.props.className}
+          style={{ maxWidth: "700px" }}
           backdrop={true}
         >
-          <ModalHeader toggle={this.toggleCollectionAddPopup}>
-          </ModalHeader>
+          <ModalHeader toggle={this.toggleCollectionAddPopup}></ModalHeader>
           <ModalBody>
-          <div className="fieldset">
-          <div className="legend" style={{ width: "100px" }}>
-            {this.state.isEdit ? "Edit Collecton" : "Add Collection"}
-          </div>
-          <form onSubmit={this.props.handleSubmit(this.updateCollection)}>
-            <div className="flex-column">
-              <Field
-                name="brand_name"
-                autoComplete="off"
-                type="name"
-                component={InputField}
-                label="Brand Name"
-                validate={[required,requiredTrim]}
-                required={true}
-              />
+            <div className="fieldset">
+              <div className="legend" style={{ width: "150px" }}>
+                {this.state.isEdit ? "Edit Collecton" : "Add Collection"}
+              </div>
+              <form onSubmit={this.props.handleSubmit(this.updateCollection)}>
+                <div className="flex-column max-width-400">
+                  <Field
+                    name="collection_title"
+                    autoComplete="off"
+                    type="name"
+                    component={InputField}
+                    label="Collection Title"
+                    validate={[required, requiredTrim]}
+                    required={true}
+                  />
+
+                  <Field
+                    name="cat_id"
+                    component={InputSearchDropDown}
+                    options={this.props.Card_type}
+                    labelField="name"
+                    searchable={true}
+                    clearable={true}
+                    searchBy="name"
+                    valueField="id"
+                    noDataLabel="No matches found"
+                    values={this.state.cardtype}
+                    onSelection={this.selectedCard}
+                    label="Type"
+                  />
+
+                  <Field
+                    name="class_id"
+                    component={InputSearchDropDown}
+                    options={this.props.classification_list}
+                    labelField="name"
+                    searchable={true}
+                    clearable={true}
+                    searchBy="name"
+                    valueField="id"
+                    noDataLabel="No matches found"
+                    values={this.state.classification}
+                    onSelection={this.selectedClassification}
+                    label="Classification"
+                  />
+                </div>
+                <div className="float-right">
+                  <Button size="sm" disabled={this.state.isNextDisable}>
+                    Next
+                  </Button>
+                </div>
+              </form>
             </div>
-            <div className="float-right">
-              <Button size="sm">Submit</Button>
-            </div>
-          </form>
-        </div>
           </ModalBody>
         </Modal>
+
+        <Modal
+          isOpen={this.state.collectionnext}
+          toggle={this.toggleNextPopup}
+          className={this.props.className}
+          style={{ maxWidth: "700px" }}
+          backdrop={true}
+        >
+          <ModalHeader toggle={this.toggleNextPopup}></ModalHeader>
+          <ModalBody>
+            <div className="fieldset">
+              <div className="legend" style={{ width: "150px" }}>
+                {this.state.isEdit ? "Edit Collecton" : "Add Collection"}
+              </div>
+              <div className="flex-column max-width-500">
+                <div className="flex-row border-none mr-b-20">
+                  <label className="color-red font-size-12 border-none mr-l-20 mr-r-50">
+                    Image size{" "}
+                    {this.state.cardtype.length === 0
+                      ? ""
+                      : this.state.cardtype[0].id === 1
+                      ? "480*640 px"
+                      : "1000*540 px"}
+                  </label>
+                  <Field
+                    name={"Collection"}
+                    component={DropzoneFieldMultiple}
+                    type="file"
+                    imgPrefillDetail={
+                      this.props.Collection_Img.length
+                        ? this.props.Collection_Img[0]
+                        : ""
+                    }
+                    label="Photogropy"
+                    handleonRemove={() => this.handleonRemove()}
+                    handleOnDrop={() => this.handleCollectionimages}
+                  />
+                </div>
+
+                <Field
+                  name="class_data"
+                  component={InputSearchDropDown}
+                  options={this.props.classification_Data}
+                  labelField="name"
+                  searchable={true}
+                  clearable={true}
+                  searchBy="name"
+                  valueField="id"
+                  noDataLabel="No matches found"
+                  values={this.state.classficationdata}
+                  onSelection={this.selectedClassficationData}
+                  label={
+                    this.state.classification.length === 0
+                      ? ""
+                      : this.state.classification[0].name
+                  }
+                />
+              </div>
+              <div className="float-right mr-t-10">
+                <Button
+                  size="sm"
+                  className="mr-r-20"
+                  hidden={!this.state.isNext}
+                  onClick={this.onBack}
+                >
+                  Back
+                </Button>
+                <Button
+                  size="sm"
+                  hidden={!this.state.isNext}
+                  onClick={this.sendCollection}
+                >
+                  Submit
+                </Button>
+              </div>
+            </div>
+          </ModalBody>
+        </Modal>
+        <Modal
+            isOpen={this.state.liveModal}
+            toggle={this.toggleLive}
+            className="add_live_modal"
+            backdrop={"static"}
+          >
+            <ModalHeader>Conformation </ModalHeader>
+            <ModalBody>
+              {this.state.selectCollection.active_status === "0"
+                ? "Are you sure you want to active the '" +
+                  this.state.selectCollection.name +
+                  "' Collection"
+                : "Are you sure you want to deactive the '" +
+                  this.state.selectCollection.name +
+                  "' Collection"}{" "}
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.MovetoLive}>
+                Yes
+              </Button>{" "}
+              <Button color="secondary" onClick={this.toggleLive}>
+                NO
+              </Button>
+            </ModalFooter>
+          </Modal>
+
       </div>
     );
   }
