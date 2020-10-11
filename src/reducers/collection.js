@@ -8,14 +8,15 @@ import {
   ADD_COLLECTION,
   EDIT_COLLECTION,
   ACTIVE_COLLECTION,
-  FROMCLEAR
+  FROMCLEAR, 
+  GET_COLLECTION_REPORT
 } from "../constants/actionTypes";
 
 export default (
   state = {
     collectionlist: [],
+    collectionreport:[],
     classification_Data:[],
-    collection_report:[],
     Collection_Img:[],
     Card_type:[{id:1,name:"Vertical"},{id:2,name:"Horizontal"}],
     classification_list:[],
@@ -41,6 +42,12 @@ export default (
         ...state,
         classification_Data: action.payload.result || [],
       };
+      case GET_COLLECTION_REPORT:
+      return {
+        ...state,
+        collectionreport: action.payload.result || [],
+      };
+      
       case UPDATE_COLLECTION_IMAGES:
         var imagePath = {
           img_url: action.payload.result.Location,

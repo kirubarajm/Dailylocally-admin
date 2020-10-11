@@ -14,6 +14,7 @@ import {
   GET_CLASSIFICATION_DATA,
   SET_COLLECTION_IMAGES,
   FROMCLEAR,
+  GET_COLLECTION_REPORT
 } from "../constants/actionTypes";
 import { FaPencilAlt, FaDownload } from "react-icons/fa";
 import Moment from "moment";
@@ -137,6 +138,11 @@ const mapDispatchToProps = (dispatch) => ({
       type: GET_COLLECTION,
       payload: AxiosRequest.Collection.getCollectionList(data),
     }),
+    onGetCollectionReport: (data) =>
+    dispatch({
+      type: GET_COLLECTION_REPORT,
+      payload: AxiosRequest.Collection.getCollectionList(data),
+    }),
   onGetClassification: (data) =>
     dispatch({
       type: GET_CLASSIFICATION,
@@ -196,6 +202,7 @@ class Collection extends React.Component {
       imageItem: false,
       isNext: false,
       isNextDisable: true,
+      isReport:false,
       collection_title: "",
       cardtype: [],
       classification: [],
@@ -240,6 +247,11 @@ class Collection extends React.Component {
       this.props.onGetCollection();
     }
 
+    if(this.props.collectionreport.length > 0 && this.state.isReport){
+      this.setState({isReport:false});
+      this.csvLink.current.link.click();
+    }
+
     if (this.props.isUpdate) {
       this.props.onClear();
       this.props.onFromClear();
@@ -274,7 +286,11 @@ class Collection extends React.Component {
     this.toggleCollectionAddPopup();
   };
 
-  onReportDownLoad = () => {};
+  onReportDownLoad = () => {
+    this.setState({ isReport: true });
+    var data={report:1};
+    this.props.onGetCollectionReport(data);
+  };
 
   selectPickupImage = (item) => {
     this.setState({ imageItem: item });
@@ -341,8 +357,8 @@ class Collection extends React.Component {
   };
 
   selectedClassification = (item) => {
-    this.setState({ classification: item, isNextDisable: false });
-    this.props.onGetClassificationdata({ type: "" + item[0].id });
+    this.setState({ classification: item, isNextDisable: false,classficationdata: [], });
+   if(item[0]) this.props.onGetClassificationdata({ type: "" + item[0].id });
   };
 
   onNext = () => {
@@ -354,6 +370,27 @@ class Collection extends React.Component {
     this.toggleNextPopup();
     this.toggleCollectionAddPopup();
   };
+  onClose =()=>{
+    this.setState({
+      cardtype: [],
+      classification: [],
+      classficationdata: [],
+      isNextDisable:true,
+    });
+    this.toggleCollectionAddPopup();
+  }
+
+  onCloseNext =()=>{
+    this.props.onClear();
+    this.props.onFromClear();
+    this.setState({
+      cardtype: [],
+      classification: [],
+      classficationdata: [],
+      isNextDisable:true,
+    });
+    this.toggleNextPopup();
+  }
 
   updateCollection = (fdata) => {
     this.setState({ collection_title: fdata.collection_title });
@@ -387,6 +424,13 @@ class Collection extends React.Component {
     });
   };
   sendCollection = () => {
+    if(this.props.Collection_Img.length===0){
+      notify.show("Please upload image", "custom", 1000, notification_color);
+      return;
+    }else if(this.state.classficationdata.length===0){
+      notify.show("Please select "+this.state.classification[0].name, "custom", 1000, notification_color);
+      return;
+    }
     var data = {};
     data.name = this.state.collection_title;
     data.tile_type = "" + this.state.cardtype[0].id;
@@ -417,14 +461,13 @@ class Collection extends React.Component {
                   size="sm"
                   color="link"
                   className="mr-r-20"
-                  hidden={onActionHidden("catexport_catalog_master_report")}
                   onClick={() => this.onReportDownLoad()}
                 >
                   <FaDownload size="15" />
                 </Button>
                 <CSVLink
-                  data={this.props.collection_report}
-                  filename={"product_master.csv"}
+                  data={this.props.collectionreport}
+                  filename={"collection_report.csv"}
                   className="mr-r-20"
                   ref={this.csvLink}
                   hidden={true}
@@ -568,12 +611,12 @@ class Collection extends React.Component {
 
         <Modal
           isOpen={this.state.collectionadd}
-          toggle={this.toggleCollectionAddPopup}
+          toggle={this.onClose}
           className={this.props.className}
           style={{ maxWidth: "700px" }}
           backdrop={true}
         >
-          <ModalHeader toggle={this.toggleCollectionAddPopup}></ModalHeader>
+          <ModalHeader toggle={this.onClose}></ModalHeader>
           <ModalBody>
             <div className="fieldset">
               <div className="legend" style={{ width: "150px" }}>
@@ -633,12 +676,12 @@ class Collection extends React.Component {
 
         <Modal
           isOpen={this.state.collectionnext}
-          toggle={this.toggleNextPopup}
+          toggle={this.onCloseNext}
           className={this.props.className}
           style={{ maxWidth: "700px" }}
           backdrop={true}
         >
-          <ModalHeader toggle={this.toggleNextPopup}></ModalHeader>
+          <ModalHeader toggle={this.onCloseNext}></ModalHeader>
           <ModalBody>
             <div className="fieldset">
               <div className="legend" style={{ width: "150px" }}>
