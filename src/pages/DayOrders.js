@@ -228,6 +228,7 @@ class DayOrders extends React.Component {
   };
 
   confirmToprocurment = () => {
+    this.toggleProcuremPopUp();
     var checkItem_page = this.state.selected_page_dayorderid;
     var Values = Object.keys(checkItem_page);
     var AllValues=[]
