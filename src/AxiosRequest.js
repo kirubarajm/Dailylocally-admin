@@ -253,6 +253,16 @@ const Brand= {
   editBrand:(data) => requests.post("/brand/edit", data),
 }
 
+
+const Collection= {
+  getCollectionList:(data) => requests.post("/collection/list", data),
+  getClassificationList:(data) => requests.post("/collection/classificationlist", data),
+  getClassificationData:(data) => requests.post("/collection/classificationfilter", data),
+  addCollection:(data) => requests.post("/collection/add", data),
+  editCollection:(data) => requests.post("/collection/edit", data),
+  activeCollection:(data) => requests.put("/collection/live", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
@@ -267,6 +277,7 @@ export default {
   CommunityList,
   Vendor,
   Brand,
+  Collection,
   setToken: (_token) => {
     token = _token;
   },

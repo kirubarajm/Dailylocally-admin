@@ -7,13 +7,8 @@ import {
   Col,
   Table,
   Button,
-  ButtonDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   Modal,
   ModalBody,
-  ModalFooter,
   ModalHeader,
 } from "reactstrap";
 import {
