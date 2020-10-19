@@ -471,6 +471,7 @@ class Receiving extends React.Component {
               </Col>
             </Row>
           </div>
+          
           <div className="pd-6">
             <Row className="mr-b-10 mr-l-10 mr-r-10">
               <Col className="txt-align-right pd-0">

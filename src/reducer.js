@@ -33,6 +33,16 @@ import viewmoveit from './reducers/viewmoveit'
 import mobileverify from './reducers/mobileverify'
 import refundapproval from './reducers/refundapproval'
 import returnpage from './reducers/returnpage'
+import wastage from './reducers/wastage'
+import missing from './reducers/missing'
+import community from './reducers/community'
+import communitytab from './reducers/communitytab'
+import communityuser from './reducers/communityuser'
+import catalogtab from './reducers/catalogtab'
+import vendor from './reducers/vendor'
+import newvendor from './reducers/newvendor'
+import brand from './reducers/brand'
+import collection from './reducers/collection'
 
 export default combineReducers({
   router: routerReducer,
@@ -68,5 +78,15 @@ export default combineReducers({
   viewmoveit,
   mobileverify,
   refundapproval,
-  returnpage
+  returnpage,
+  wastage,
+  missing,
+  community,
+  communitytab,
+  communityuser,
+  catalogtab,
+  vendor,
+  newvendor,
+  brand,
+  collection
 });

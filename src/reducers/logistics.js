@@ -37,6 +37,10 @@ export default (
       { id: 2, status: "7 PM to 11 PM" },
     ],
     qualitytype: [],
+    actionList: [
+      { id: 1, name: "Assign to Trip" },
+      { id: 2, name: "Assign to Dunzo" },
+    ],
     orderStatus: [
       {
         id: -1,

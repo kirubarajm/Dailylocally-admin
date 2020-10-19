@@ -277,6 +277,7 @@ class OrderView extends React.Component {
       plainComment: false,
       qachecklist: false,
       qcchecklist: false,
+      maddress: false,
     };
   }
 
@@ -336,6 +337,28 @@ class OrderView extends React.Component {
       this.props.onClear();
       this.toggleZendeskModal();
       this.getOrderDetail();
+    }
+    var propdata = this.props.orderview || false;
+    if (propdata.complete_address && !this.state.maddress) {
+      var maddressData = "";
+      maddressData =
+        maddressData + (propdata.block_name ? propdata.block_name : "");
+      maddressData =
+        maddressData + (propdata.floor ? ", Floor no: " + propdata.floor : "");
+      maddressData =
+        maddressData +
+        (propdata.flat_house_no ? "," + propdata.flat_house_no : "");
+      maddressData =
+        maddressData +
+        (propdata.plot_house_no ? "," + propdata.plot_house_no : "");
+      maddressData =
+        maddressData +
+        (propdata.apartment_name ? "," + propdata.apartment_name : "");
+      maddressData = maddressData + "," + propdata.complete_address;
+      maddressData =
+        maddressData +
+        (propdata.landmark ? ", Landmark: " + propdata.landmark : "");
+      this.setState({ maddress: maddressData });
     }
   }
 
@@ -768,6 +791,12 @@ class OrderView extends React.Component {
     else return "";
   }
 
+  dateOnlyConvert(date) {
+    var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm");
+    if (datestr !== "Invalid date") return datestr;
+    else return " - ";
+  }
+
   dateConvertFormat(date) {
     var datestr = Moment(date).format("dddd DD MMM YYYY");
     if (datestr !== "Invalid date") return datestr;
@@ -783,6 +812,17 @@ class OrderView extends React.Component {
     this.setState({ qcchecklist: item.Products });
     this.toggleQCChecklist();
   };
+
+  paymentmode(item) {
+    if(item.cod_price&&item.online_price){
+      return "Online/COD"
+    }else if(item.cod_price){
+      return "COD"
+    }else if(item.online_price){
+      return "Online"
+    }
+    else return " - ";
+  }
 
   render() {
     const propdata = this.props.orderview;
@@ -851,11 +891,17 @@ class OrderView extends React.Component {
               <CardRowCol lable="Email" value={propdata.email} />
               <CardRowCol
                 lable="Manual Entered address"
-                value={propdata.complete_address}
+                value={this.state.maddress}
               />
               <CardRowCol
                 lable="Pinned google location"
                 value={propdata.google_address}
+              />
+
+              <CardRowCol lable="Community ID" value={propdata.comid} />
+              <CardRowCol
+                lable="Community Name"
+                value={propdata.community_name}
               />
             </Col>
 
@@ -889,7 +935,7 @@ class OrderView extends React.Component {
               />
               <CardRowCol
                 lable="Order Due date/ time"
-                value={this.dateConvert(propdata.date)}
+                value={this.dateOnlyConvert(propdata.date) + " PM"}
               />
               <CardRowCol
                 lable="Delivered date/ time"
@@ -898,27 +944,37 @@ class OrderView extends React.Component {
 
               <CardRowCol
                 lable="Distance"
-                value={propdata.Lastmile?propdata.Lastmile + " km" : "0 km"}
+                value={propdata.Lastmile ? propdata.Lastmile + " km" : "0 km"}
               />
               <CardRowCol
                 lable="Weight"
-                value={propdata.total_product_weight
-                  ? propdata.total_product_weight + " kg"
-                  : "0 kg"}
+                value={
+                  propdata.total_product_weight
+                    ? propdata.total_product_weight + " kg"
+                    : "0 kg"
+                }
               />
               <CardRowCol
                 lable="Total unique items"
                 value={propdata.u_product_count}
               />
-              <CardRowCol
-                lable="Total items"
-                value={propdata.order_quantity}
-              />
-
+              <CardRowCol lable="Total items" value={propdata.order_quantity} />
+              <CardRowCol lable="Online Amount" value={propdata.online_price} />
+              <CardRowCol lable="COD Amount" value={propdata.cod_price} />
               <CardRowCol
                 lable="Total Amount"
                 value={propdata.total_product_price}
               />
+              <CardRowCol
+                lable="Payment Mode"
+                value={this.paymentmode(propdata)}
+              />
+
+              <CardRowCol
+                lable="Payment Status"
+                value={propdata.payment_status === 1 ? "Paid" : "Not Paid"}
+              />
+
               <Row
                 hidden={!propdata.zendesk_ticketid}
                 className="list-text cart-item font-size-14"

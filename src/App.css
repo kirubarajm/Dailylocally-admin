@@ -893,7 +893,14 @@ a, a:focus, a:hover, a:visited {
   margin-bottom: 40px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 45vh !important;
+  height: 40vh !important;
+}
+
+.search-cuser-scroll {
+  margin-bottom: 40px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+  height: 50vh !important;
 }
 
 .search-stock-add {
@@ -949,6 +956,13 @@ a, a:focus, a:hover, a:visited {
   max-height: 35vh !important;
 }
 
+.scroll-vendor {
+  overflow: auto;
+  margin-bottom: 15px;
+  background: #ffffff !important;
+  max-height: 65vh !important;
+}
+
 .scroll-horizantal-logistics {
   width: 100%;
   overflow: auto;
@@ -978,11 +992,11 @@ a, a:focus, a:hover, a:visited {
 }
 
 .search-v-scroll {
-  white-space: nowrap;
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 70vh !important;
+  max-height: 42vh !important;
+  min-height: 42vh !important;
 }
 
 .search-horizantal-scroll {
@@ -1027,8 +1041,16 @@ a, a:focus, a:hover, a:visited {
   width: 84% !important;
 }
 
+.width-80 {
+  width: 80% !important;
+}
+
 .width-85 {
   width: 85% !important;
+}
+
+.width-85-p {
+  width: 83% !important;
 }
 
 .card-body-with-scroll {
@@ -1309,7 +1331,7 @@ form>div>div>* {
 
 .adduser {
   width: 1100px !important;
-  height: 150px !important;
+  height: 250px !important;
 }
 
 .moveitmap {
@@ -1973,7 +1995,9 @@ hr.style-moveit:after {
 .max-width-800 {
   max-width: 800px !important;
 }
-
+.max-width-500 {
+  max-width: 500px !important;
+}
 .max-width-600 {
   max-width: 600px !important;
 }
@@ -2251,3 +2275,12 @@ hr.style-moveit:after {
   color: #9900ff;
   border: 1px solid #9900ff;
 }
+
+thead th {
+  position: sticky !important;
+  top: 0 !important;
+  background-color: #fff !important;
+  /* border: none !important; */
+  z-index: 5;
+}
+

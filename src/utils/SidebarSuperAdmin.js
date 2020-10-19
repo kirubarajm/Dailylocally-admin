@@ -1,7 +1,16 @@
 import { MdDashboard } from "react-icons/md";
 export const SidebarSuperAdmin = [
   {
-    to: "/dashboard",
+    to: "/community/master",
+    name: "DL Exclusive",
+    exact: true,
+    Icon: MdDashboard,
+    submenu: false,
+    submenuItem: null,
+    enable_action: "dl_exculsive_sidenav",
+  },
+  {
+    to: "/catalog/view",
     name: "Catalog",
     exact: true,
     Icon: MdDashboard,
@@ -10,7 +19,7 @@ export const SidebarSuperAdmin = [
     enable_action: "catalog_sidenav",
   },
   {
-    to: "/stock-keeping",
+    to: "/stock/keeping",
     name: "Stock keeping",
     exact: true,
     Icon: MdDashboard,

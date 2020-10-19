@@ -2,17 +2,17 @@ import {
   STOCK_CATEGORY_LIST,
   STOCK_L1CATEGORY_LIST,
   STOCK_KEEPING_CLEAR,
-  STOCK_KEEPING_LIST,
   STOCK_KEEPING_EDIT,
-  STOCK_KEEPING_REPORT,
+  MISSING_REPORT,
   STOCK_KEEPING_DELETE,
   STOCK_KEEPING_VIEW,
+  MISSING_LIST,
 } from "../constants/actionTypes";
 //{ id: 2, name: "UnReceiving" },
 export default (
   state = {
-    stock_keeping_list: [],
-    stock_keeping_report:[],
+    missing_list: [],
+    missing_report:[],
     category_list: [],
     subcat_L1: [],
     totalcount:0,
@@ -36,10 +36,10 @@ export default (
         ...state,
         subcat_L1: action.payload.result || [],
       };
-    case STOCK_KEEPING_LIST:
+    case MISSING_LIST:
       return {
         ...state,
-        stock_keeping_list: action.payload.result || [],
+        missing_list: action.payload.result || [],
         totalcount:action.payload.totalcount || 0,
         pagelimit:action.payload.pagelimit || 0,
       };
@@ -58,10 +58,10 @@ export default (
         ...state,
         stock_keeping_edit: action.payload.status || false,
       };
-      case STOCK_KEEPING_REPORT:
+      case MISSING_REPORT:
       return {
         ...state,
-        stock_keeping_report: action.payload.result || [],
+        missing_report: action.payload.result || [],
       };
     case STOCK_KEEPING_CLEAR:
       return {

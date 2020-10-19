@@ -17,8 +17,8 @@ export default (
       { id: 1, name: "Yes" },
     ],
     report_sorting: [
-      { id: 1, report: "Bad quality products" },
-      { id: 2, report: "Quantity shown is not available" },
+      { id: 2, report: "Bad quality products" },
+      { id: 1, report: "Quantity shown is not available" },
     ],
     qualitytype: [],
     qa_submitted: false,

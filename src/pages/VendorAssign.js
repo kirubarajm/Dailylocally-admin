@@ -40,6 +40,9 @@ import Select from "react-dropdown-select";
 import { required, minLength2 } from "../utils/Validation";
 import { store } from "../store";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
+import Search from "../components/Search";
+import Searchnew from "../components/Searchnew";
+import SearchItem from "../components/SearchItem";
 
 const InputField = ({
   input,
@@ -332,9 +335,12 @@ class VendorAssign extends React.Component {
   onGetPoWaitngList = () => {
     if (!this.state.isLoading) {
       this.setState({ isLoading: true });
-      this.props.onGetPrWatingList({
-        zoneid: this.props.zoneItem.id,
-      });
+      var data = { zoneid: this.props.zoneItem.id };
+      if (this.state.category) data.categorysearch = this.state.category;
+      if (this.state.l1category)
+        data.L1subcategorysearch = this.state.l1category;
+      if (this.state.item_name) data.productsearch = this.state.item_name;
+      this.props.onGetPrWatingList(data);
     }
   };
   toggleAddVendorPopUp = () => {
@@ -395,6 +401,7 @@ class VendorAssign extends React.Component {
   };
 
   createPo = () => {
+    this.toggleConfirmPopUp();
     var item = {
       zoneid: this.props.zoneItem.id,
       templist: this.state.sPoList,
@@ -574,40 +581,62 @@ class VendorAssign extends React.Component {
       isOpenAreaDropDown: !prevState.isOpenAreaDropDown,
     }));
   };
+
+  onSearchCategory = (e) => {
+    const value = e.target.value || "";
+    this.setState({ category: value });
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
+  };
+  onSearchL1Cat = (e) => {
+    const value = e.target.value || "";
+    this.setState({ l1category: value });
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
+  };
+
+  onSearchItem = (e) => {
+    const value = e.target.value || "";
+    this.setState({ item_name: value });
+    if (e.keyCode === 13 && (e.shiftKey === false || value === "")) {
+      e.preventDefault();
+      this.setState({ isLoading: false });
+    }
+  };
+
+  onSuccessRefresh = () => {
+    this.setState({ search_refresh: false });
+  };
+
+  onReset = () => {
+    this.setState({
+      category: "",
+      l1category: "",
+      item_name: "",
+      search_refresh: true,
+    });
+    var data = {
+      zoneid: this.props.zoneItem.id,
+    };
+    this.props.onGetPrWatingList(data);
+  };
+
+  onSearch = () => {
+    this.setState({ isLoading: false });
+  };
+
   render() {
     const pocreatelist = this.props.pocreatelist || [];
     return (
-      <div className="width-full">
-        <div style={{ height: "85vh" }} className="pd-6">
+      <div className="pd-6 width-full mr-t-20" style={{ position: "fixed" }}>
+        <div style={{ height: "75vh" }} className="width-85">
           <div className="pd-6">
-            <Row className="width-84 mr-0 pd-b-10">
-              <Col className="pd-0 mr-l-10">
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div>
-                    <div>
-                      <label className="container-check">
-                        <input
-                          type="checkbox"
-                          name="selectall"
-                          checked={this.state.selected_proid["selectall"]}
-                          onChange={(e) => this.handleChange(e, "All")}
-                        />
-                        <span className="checkmark"></span>
-                      </label>
-                    </div>
-                    <div className="font-size-12 mr-l-20">{" Select All "}</div>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={this.onAddVendor}
-                    className="mr-l-20"
-                    hidden={onActionHidden("wh_vendor_add")}
-                  >
-                    + Add Supplier
-                  </Button>
-                </div>
-              </Col>
-              <Col className="pd-0">
+            <Row className="mr-0 pd-b-10">
+              <Col className="pd-0 mr-r-10">
                 <div
                   className="float-right"
                   style={{ display: "flex", flexDirection: "row" }}
@@ -640,119 +669,211 @@ class VendorAssign extends React.Component {
                 </div>
               </Col>
             </Row>
-            <div className="search-horizantal-scroll">
-              <div className="search-v-scroll">
-                <Table style={{ width: "2000px" }}>
-                  <thead>
-                    <tr>
-                      <th>Select</th>
-                      <th>Supplier details Edit</th>
-                      <th>Delete</th>
-                      <th>Category</th>
-                      <th>L1 Sub category</th>
-                      <th>L2 Sub category</th>
-                      <th>Product Code</th>
-                      <th>Product Name</th>
-                      <th>Description</th>
-                      <th>Supplier Name</th>
-                      <th>Supplier code</th>
-                      <th>UOM</th>
-                      <th>Quantity</th>
-                      <th>Rate</th>
-                      <th>Expected Date/Time</th>
-                      <th>Other charges</th>
-                      <th>Amount</th>
-                      <th>Buyer Comment</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {pocreatelist.map((item, i) => (
-                      <tr key={i}>
-                        <td>
-                          <label className="container-check">
-                            <input
-                              type="checkbox"
-                              name={"" + item.tempid}
-                              checked={this.state.selected_proid[item.tempid]}
-                              onChange={(e) => this.handleChange(e, item)}
-                            />
-                            <span className="checkmark"></span>{" "}
-                          </label>
-                        </td>
-                        <td>
-                          <Button
-                            size="sm"
-                            color="link"
-                            className="pd-0"
-                            onClick={() => this.VendorEdit(item)}
-                            disabled={
-                              !item.vid || onActionHidden("wh_vendor_edit")
-                            }
-                          >
-                            <FaRegEdit
-                              className={
-                                item.vid ? "txt-color-theme" : "color-disable"
-                              }
-                              size="18"
-                            />
-                          </Button>
-                        </td>
-                        <td>
-                          <Button
-                            size="sm"
-                            onClick={() => this.onDelete(item)}
-                            color="link"
-                            disabled={onActionHidden("wh_vendor_delete")}
-                          >
-                            <FaTrashAlt size="15" />
-                          </Button>
-                        </td>
-                        <td>{item.catagory_name}</td>
-                        <td>{item.subcatL1name}</td>
-                        <td>{item.subcatL2name || "-"}</td>
-                        <td>{item.vpid}</td>
-                        <td>{item.Productname}</td>
-                        <td>{item.product_productdetails || "-"}</td>
-                        <td>{item.vendor_name || "-"}</td>
-                        <td>{item.vid || "-"}</td>
-                        <td>{item.uom_name}</td>
-                        <td className="makeit-process-action">
-                          <EditQuantity
-                            action={() => this.onAction(item, i)}
-                            index={i}
-                            item={item}
-                            onChangeQuantity={this.onChangeQuantity}
+            <div className="fieldset">
+              <div className="legend">Search Criteri</div>
+              <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
+                <Col lg="4" className="pd-0">
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div className="mr-r-10 flex-row-vertical-center width-120">
+                      Category :{" "}
+                    </div>
+                    <Search
+                      onSearch={this.onSearchCategory}
+                      type="text"
+                      onRefreshUpdate={this.onSuccessRefresh}
+                      isRefresh={this.state.search_refresh}
+                    />
+                  </div>
+                </Col>
+                <Col lg="4" className="pd-0">
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div className="mr-r-10 flex-row-vertical-center width-120">
+                      Product Name :{" "}
+                    </div>
+                    <SearchItem
+                      onSearch={this.onSearchItem}
+                      type="text"
+                      onRefreshUpdate={this.onSuccessRefresh}
+                      isRefresh={this.state.search_refresh}
+                    />
+                  </div>
+                </Col>
+              </Row>
+              <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
+                <Col lg="4" className="pd-0">
+                  <div style={{ display: "flex", flexDirection: "row" }}>
+                    <div className="mr-r-10 flex-row-vertical-center width-120">
+                      L1 Category :
+                    </div>
+                    <Searchnew
+                      onSearch={this.onSearchL1Cat}
+                      type="text"
+                      onRefreshUpdate={this.onSuccessRefresh}
+                      isRefresh={this.state.search_refresh}
+                    />
+                  </div>
+                </Col>
+              </Row>
+              <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
+                <Col lg="10"></Col>
+                <Col className="txt-align-right">
+                  <Button size="sm" className="mr-r-10" onClick={this.onReset}>
+                    Reset
+                  </Button>
+                  <Button size="sm" onClick={this.onSearch}>
+                    Search
+                  </Button>
+                </Col>
+              </Row>
+            </div>
+            <Row className="mr-b-10">
+              <Col className="pd-0 mr-l-20">
+                <div style={{ display: "flex", flexDirection: "row" }}>
+                  <div>
+                    <div>
+                      <label className="container-check">
+                        <input
+                          type="checkbox"
+                          name="selectall"
+                          checked={this.state.selected_proid["selectall"]}
+                          onChange={(e) => this.handleChange(e, "All")}
+                        />
+                        <span className="checkmark"></span>
+                      </label>
+                    </div>
+                    <div className="font-size-12 mr-l-20">{" Select All "}</div>
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={this.onAddVendor}
+                    className="mr-l-20"
+                    hidden={onActionHidden("wh_vendor_add")}
+                  >
+                    + Add Supplier
+                  </Button>
+                </div>
+              </Col>
+              <Col className="txt-align-right">
+                <Button
+                  size="sm"
+                  className="mr-r-10"
+                  onClick={this.submitPo}
+                  hidden={onActionHidden("wh_po_create")}
+                >
+                  Submit
+                </Button>
+              </Col>
+            </Row>
+            <div className="search-v-scroll">
+              <Table style={{ width: "2000px" }}>
+                <thead>
+                  <tr>
+                    <th>Select</th>
+                    <th>Supplier details Edit</th>
+                    <th>Delete</th>
+                    <th>Category</th>
+                    <th>L1 Sub category</th>
+                    <th>L2 Sub category</th>
+                    <th>Product Code</th>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Supplier Name</th>
+                    <th>Supplier code</th>
+                    <th>UOM</th>
+                    <th>Quantity</th>
+                    <th>Rate</th>
+                    <th>Expected Date/Time</th>
+                    <th>Other charges</th>
+                    <th>Amount</th>
+                    <th>Buyer Comment</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pocreatelist.map((item, i) => (
+                    <tr key={i}>
+                      <td>
+                        <label className="container-check">
+                          <input
+                            type="checkbox"
+                            name={"" + item.tempid}
+                            checked={this.state.selected_proid[item.tempid]}
+                            onChange={(e) => this.handleChange(e, item)}
                           />
-                        </td>
-                        <td>{item.rate || "-"}</td>
-                        <td>
-                          {item.due_date
-                            ? Moment(item.due_date).format(
-                                "DD-MMM-YYYY/hh:mm a"
-                              )
-                            : "-"}
-                        </td>
-                        <td>{item.other_charges || "-"}</td>
-                        <td>{item.amount || "-"}</td>
-                        <td>{item.buyer_comment || "-"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
+                          <span className="checkmark"></span>{" "}
+                        </label>
+                      </td>
+                      <td>
+                        <Button
+                          size="sm"
+                          color="link"
+                          className="pd-0"
+                          onClick={() => this.VendorEdit(item)}
+                          disabled={
+                            !item.vid || onActionHidden("wh_vendor_edit")
+                          }
+                        >
+                          <FaRegEdit
+                            className={
+                              item.vid ? "txt-color-theme" : "color-disable"
+                            }
+                            size="18"
+                          />
+                        </Button>
+                      </td>
+                      <td>
+                        <Button
+                          size="sm"
+                          onClick={() => this.onDelete(item)}
+                          color="link"
+                          disabled={onActionHidden("wh_vendor_delete")}
+                        >
+                          <FaTrashAlt size="15" />
+                        </Button>
+                      </td>
+                      <td>
+                        {item.catagory_name}
+                      </td>
+                      <td>
+                        {item.subcatL1name}
+                      </td>
+                      <td>
+                        {item.subcatL2name || "-"}
+                      </td>
+                      <td>{item.vpid}</td>
+                      <td>
+                        {item.Productname}
+                      </td>
+                      <td>
+                        {item.product_productdetails || "-"}
+                      </td>
+                      <td>{item.vendor_name || "-"}</td>
+                      <td>{item.vid || "-"}</td>
+                      <td>{item.uom_name}</td>
+                      <td className="makeit-process-action">
+                        <EditQuantity
+                          action={() => this.onAction(item, i)}
+                          index={i}
+                          item={item}
+                          onChangeQuantity={this.onChangeQuantity}
+                        />
+                      </td>
+                      <td>{item.rate || "-"}</td>
+                      <td>
+                        {item.due_date
+                          ? Moment(item.due_date).format("DD-MMM-YYYY/hh:mm a")
+                          : "-"}
+                      </td>
+                      <td>{item.other_charges || "-"}</td>
+                      <td>{item.amount || "-"}</td>
+                      <td>{item.buyer_comment || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
           </div>
         </div>
-        <div className="txt-align-right width-84 mr-b-10">
-          <Button
-            size="sm"
-            className="mr-l-10"
-            onClick={this.submitPo}
-            hidden={onActionHidden("wh_po_create")}
-          >
-            Submit
-          </Button>
-        </div>
+
         <Modal
           isOpen={this.state.isaddvendor}
           toggle={this.toggleAddVendorPopUp}

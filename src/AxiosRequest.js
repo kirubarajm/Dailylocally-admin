@@ -1,6 +1,7 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
+//const BASE_URL_LIVE = "http://68.183.87.233:5000/";
 //const BASE_URL_LIVE = "http://68.183.87.233:8000/";
 const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
@@ -115,6 +116,7 @@ const Warehouse = {
   movetoStock:(data) => requests.post("/stock/autoassign", data),
   movetoPRRemove:(data) => requests.post("/po/removebohmapping", data),
   getPoList:(data) => requests.post("/po/getpolist", data),
+  getPoReasonList:(data) => requests.post("/po/reason/list", data),
   getPoReport:(data) => requests.post("/po/getpolist", data),
   getPoView:(data) => requests.post("/po/view", data),
   getPoDelete:(data) => requests.post("/po/delete", data),
@@ -147,6 +149,8 @@ const Warehouse = {
 
 const StockKeeping= {
   getStockKeepingList:(data) => requests.post("/stockkeeping/list", data),
+  getWastageList:(data) => requests.post("/stockkeeping/wastage/list", data),
+  getMissingList:(data) => requests.post("/stockkeeping/missingitem/list", data),
   getStockKeepingReport:(data) => requests.post("/stockkeeping/list", data),
   getProductList:(data) => requests.post("/stockkeeping/openlist", data),
   deleteStockKeeping:(data) => requests.post("/stockkeeping/delete", data),
@@ -228,6 +232,37 @@ const MobileNumberVerify ={
   requests.post('/logistics/moveit/otpverify',data,AppVersion_1),
 }
 
+const CommunityList= {
+  getCommunityList:(data) => requests.post("/community/masterlist", data),
+  getUserList:(data) => requests.post("/community/userlist", data),
+  updateApproval:(data) => requests_base.post("user/communityapproval", data),
+  updateCommunity:(data) => requests.put("/community/edit", data),
+  addCommunity:(data) => requests.post("/new_community_registration", data),
+}
+
+
+const Vendor= {
+  getVendorList:(data) => requests.post("/vendor/list", data),
+  addVendor:(data) => requests.post("/vendor/add", data),
+  editVendor:(data) => requests.post("/vendor/edit", data),
+}
+
+const Brand= {
+  getBrandList:(data) => requests.post("/brand/list", data),
+  addBrand:(data) => requests.post("/brand/add", data),
+  editBrand:(data) => requests.post("/brand/edit", data),
+}
+
+
+const Collection= {
+  getCollectionList:(data) => requests.post("/collection/list", data),
+  getClassificationList:(data) => requests.post("/collection/classificationlist", data),
+  getClassificationData:(data) => requests.post("/collection/classificationfilter", data),
+  addCollection:(data) => requests.post("/collection/add", data),
+  editCollection:(data) => requests.post("/collection/edit", data),
+  activeCollection:(data) => requests.put("/collection/live", data),
+}
+
 export default {
   BASE_URL_LIVE,
   Auth,
@@ -239,6 +274,10 @@ export default {
   Moveit,
   MobileNumberVerify,
   Admin,
+  CommunityList,
+  Vendor,
+  Brand,
+  Collection,
   setToken: (_token) => {
     token = _token;
   },
