@@ -44,6 +44,7 @@ import CommunityTab from "./pages/CommunityTab";
 import CatalogTab from "./pages/CatalogTab";
 import Vendor from "./pages/Vendor";
 import Collection from "./pages/Collection";
+import CollectionDragDrop from "./pages/CollectionDragDrop";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -202,6 +203,13 @@ class App extends React.Component {
 
             <LayoutRoute
               exact
+              path="/collection-reorder"
+              layout={MainLayout}
+              component={CollectionDragDrop}
+            />
+
+            <LayoutRoute
+              exact
               path="/stock/keeping"
               layout={MainLayout}
               component={StockKeepingTab}
@@ -341,21 +349,21 @@ class App extends React.Component {
               component={CatalogTab}
             />
 
-<LayoutRoute
+            <LayoutRoute
               exact
               path="/vendors"
               layout={MainLayout}
               component={CatalogTab}
             />
 
-<LayoutRoute
+            <LayoutRoute
               exact
               path="/brands"
               layout={MainLayout}
               component={CatalogTab}
             />
 
-<LayoutRoute
+            <LayoutRoute
               exact
               path="/collection"
               layout={MainLayout}

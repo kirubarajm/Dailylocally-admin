@@ -43,6 +43,7 @@ import vendor from './reducers/vendor'
 import newvendor from './reducers/newvendor'
 import brand from './reducers/brand'
 import collection from './reducers/collection'
+import collectionreorder from './reducers/collectionreorder'
 
 export default combineReducers({
   router: routerReducer,
@@ -88,5 +89,6 @@ export default combineReducers({
   vendor,
   newvendor,
   brand,
-  collection
+  collection,
+  collectionreorder
 });

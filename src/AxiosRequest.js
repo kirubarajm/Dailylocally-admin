@@ -1,9 +1,9 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
-//const BASE_URL_LIVE = "http://68.183.87.233:5000/";
+const BASE_URL_LIVE = "http://68.183.87.233:5000/";
 //const BASE_URL_LIVE = "http://68.183.87.233:8000/";
-const BASE_URL_LIVE = "http://68.183.87.233:9000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 //const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
@@ -261,6 +261,11 @@ const Collection= {
   addCollection:(data) => requests.post("/collection/add", data),
   editCollection:(data) => requests.post("/collection/edit", data),
   activeCollection:(data) => requests.put("/collection/live", data),
+  getCollectionCurrentList:(data) => requests_base.post("user/categorylist", {
+    "userid": 4,
+    "lat": "13.05067500",
+    "lon": "80.00000000"
+  }),
 }
 
 export default {
