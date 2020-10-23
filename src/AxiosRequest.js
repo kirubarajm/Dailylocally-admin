@@ -261,8 +261,9 @@ const Collection= {
   addCollection:(data) => requests.post("/collection/add", data),
   editCollection:(data) => requests.post("/collection/edit", data),
   activeCollection:(data) => requests.put("/collection/live", data),
+  updateOrderCollection:(data) => requests.post("/layout", data),
   getCollectionCurrentList:(data) => requests_base.post("user/categorylist", {
-    "userid": 4,
+    "userid": 14,
     "lat": "13.05067500",
     "lon": "80.00000000"
   }),

@@ -757,7 +757,7 @@ class Collection extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.state.selectCollection.active_status === "0"
                 ? "Are you sure you want to active the '" +

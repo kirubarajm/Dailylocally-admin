@@ -205,7 +205,7 @@ class App extends React.Component {
               exact
               path="/collection-reorder"
               layout={MainLayout}
-              component={CollectionDragDrop}
+              component={CatalogTab}
             />
 
             <LayoutRoute

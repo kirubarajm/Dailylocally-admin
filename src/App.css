@@ -963,6 +963,13 @@ a, a:focus, a:hover, a:visited {
   max-height: 65vh !important;
 }
 
+.scroll-collecton-reorder {
+  overflow: auto;
+  margin-bottom: 15px;
+  background: #ffffff !important;
+  max-height: 80vh !important;
+}
+
 .scroll-horizantal-logistics {
   width: 100%;
   overflow: auto;
@@ -2282,5 +2289,14 @@ thead th {
   background-color: #fff !important;
   /* border: none !important; */
   z-index: 5;
+}
+
+.undo-btn{
+  position: absolute;
+    margin-left: 15px;
+    background-color: #5451516b;
+    margin-top: 15px;
+    border: none;
+    color: white;
 }
 

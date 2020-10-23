@@ -20,6 +20,7 @@ import Vendor from "./Vendor";
 import Brand from "./Brand";
 import { onActionHidden } from "../utils/ConstantFunction";
 import Collection from "./Collection";
+import CollectionDragDrop from "./CollectionDragDrop";
 
 const mapStateToProps = (state) => ({
   ...state.catalogtab,
@@ -56,6 +57,7 @@ class CatalogTab extends React.Component {
     this.onCatalogTabClick = this.onCatalogTabClick.bind(this);
     this.toggleAreaDropDown = this.toggleAreaDropDown.bind(this);
     this.clickArea = this.clickArea.bind(this);
+    this.onUpdateTab = this.onUpdateTab.bind(this);
     if (this.props.zone_list.length > 0 && !this.state.areaItem) {
       this.clickArea(this.props.zone_list[0]);
     }
@@ -86,7 +88,23 @@ class CatalogTab extends React.Component {
     }
   }
   componentDidCatch() {}
-  
+  onUpdateTab= () => {
+    const { path } = this.props.match;
+    if (path.includes("/catalog/view")) {
+      this.props.onSelectTabType(0);
+    } else if (path.includes("/catalog/edit")) {
+      this.props.onSelectTabType(1);
+    } else if (path.includes("/vendors")) {
+      this.props.onSelectTabType(2);
+    } else if (path.includes("/brands")) {
+      this.props.onSelectTabType(3);
+    }else if (path.includes("/collection")) {
+      this.props.onSelectTabType(4);
+    }else if (path.includes("/collection-reorder")) {
+      this.props.onSelectTabType(5);
+    }
+    
+  }
   onCatalogTabClick = (tab) => {
     this.props.onSelectTabType(tab);
     if (tab === 0) {
@@ -99,6 +117,8 @@ class CatalogTab extends React.Component {
       this.props.history.push("/brands");
     } else if (tab === 4) {
       this.props.history.push("/collection");
+    }else if (tab === 5) {
+      this.props.history.push("/collection-reorder");
     }
   };
 
@@ -156,7 +176,17 @@ class CatalogTab extends React.Component {
                   >
                     Collection
                   </Button>
+
+                  <Button
+                    color="primary"
+                    size="sm"
+                    onClick={() => this.onCatalogTabClick(5)}
+                    active={this.props.catalog_tab_type === 5}
+                  >
+                    Reorder App tiles
+                  </Button>
                 </ButtonGroup>
+                
               </Col>
               <Col>
                 <div className="float-right">
@@ -195,6 +225,7 @@ class CatalogTab extends React.Component {
                 <Route path={'/vendors'} component={Vendor} />
                 <Route path={'/brands'} component={Brand} />
                 <Route path={'/collection'} component={Collection} />
+                <Route path={'/collection-reorder'} component={CollectionDragDrop} />
                 <Redirect to={'/catalog/view'} />
               </Switch>
             </Row>

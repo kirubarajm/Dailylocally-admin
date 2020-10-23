@@ -1080,7 +1080,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.iscategoryitem.active_status === 0
                 ? "Are you sure you want to live the '" +
@@ -1106,7 +1106,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.isL1subcategoryitem.active_status === 0
                 ? "Are you sure you want to live the '" +
@@ -1132,7 +1132,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.isL2subcategoryitem.active_status === 0
                 ? "Are you sure you want to live the '" +
@@ -1158,7 +1158,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.isProductitem.live_status === "0"
                 ? "Are you sure you want to live the '" +
@@ -1246,7 +1246,7 @@ class Catalog extends React.Component {
           className="add_live_modal"
           backdrop={"static"}
         >
-          <ModalHeader>Conformation </ModalHeader>
+          <ModalHeader>Confirmation </ModalHeader>
           <ModalBody>
             {this.state.isProductdelete
               ? "Are you sure you want to delete the '" +
