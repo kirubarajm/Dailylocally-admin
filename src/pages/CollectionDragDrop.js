@@ -231,7 +231,7 @@ class CollectionDragDrop extends React.Component {
             }}
           >
             {collectionFirstItem &&
-              collectiondraglist.map((item, i) => (
+              collectionlist.map((item, i) => (
                 <DropTargetItem
                   targetKey={item.tile_type}
                   citem={item}
@@ -273,7 +273,7 @@ class CollectionDragDrop extends React.Component {
         >
           <ModalHeader>Confirmation </ModalHeader>
           <ModalBody>
-            Are you sure you want to update the app lites layout?
+            Are you sure you want to update the app tiles layout?
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.onConfirmToupdate}>

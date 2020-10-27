@@ -180,6 +180,7 @@ class CatalogTab extends React.Component {
                   <Button
                     color="primary"
                     size="sm"
+                    hidden={onActionHidden("reorder_app_tiles_tab")}
                     onClick={() => this.onCatalogTabClick(5)}
                     active={this.props.catalog_tab_type === 5}
                   >
