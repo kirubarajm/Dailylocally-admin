@@ -14,7 +14,7 @@ import {
   GET_CLASSIFICATION_DATA,
   SET_COLLECTION_IMAGES,
   FROMCLEAR,
-  GET_COLLECTION_REPORT
+  GET_COLLECTION_REPORT,
 } from "../constants/actionTypes";
 import { FaPencilAlt, FaDownload } from "react-icons/fa";
 import Moment from "moment";
@@ -56,8 +56,44 @@ const InputField = ({
           *
         </span>
       </label>
-      <div className="border-none" style={{marginLeft:"-90px"}}>
+      <div className="border-none" style={{ marginLeft: "-90px" }}>
         <input {...input} placeholder={label} type={type} autoComplete="off" />
+        <div
+          style={{
+            flex: "0",
+            WebkitFlex: "0",
+            height: "10px",
+            fontSize: "12px",
+            color: "red",
+          }}
+        >
+          {touched &&
+            ((error && <span>{error}</span>) ||
+              (warning && <span>{warning}</span>))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const InputFielddiv = ({
+  input,
+  label,
+  type,
+  meta: { touched, error, warning },
+  ...custom
+  //
+}) => {
+  return (
+    <div className="flex-row mr-b-10">
+      <label hidden={!label} className="mr-0 border-none width-200">
+        {label}{" "}
+        <span className="must" hidden={!custom.required}>
+          *
+        </span>
+      </label>
+      <div className="border-none">
+        <input {...input} value={custom.mvalue} placeholder={label} type={type} autoComplete="off" onChange={(e) => input.onChange(e)}/>
         <div
           style={{
             flex: "0",
@@ -88,9 +124,14 @@ const InputSearchDropDown = ({
   clearable,
   noDataLabel,
   valueField,
+  hidden,
 }) => {
   return (
-    <div className="border-none" style={{ marginBottom: "10px" }}>
+    <div
+      className="border-none"
+      style={{ marginBottom: "10px" }}
+      hidden={hidden}
+    >
       <Row className="pd-0 mr-l-10 mr-r-10 border-none">
         <Col lg="5" className="pd-0">
           <label className="mr-0 color-grey pd-0 ">
@@ -126,6 +167,63 @@ const InputSearchDropDown = ({
   );
 };
 
+const InputSearchDropDownMulti = ({
+  onSelection,
+  options,
+  label,
+  labelField,
+  searchable,
+  searchBy,
+  values,
+  disabled,
+  clearable,
+  noDataLabel,
+  valueField,
+  hidden,
+}) => {
+  return (
+    <div
+      className="border-none"
+      style={{ marginBottom: "10px" }}
+      hidden={hidden}
+    >
+      <Row className="pd-0 mr-l-10 mr-r-10 border-none">
+        <Col lg="5" className="pd-0">
+          <label className="mr-0 color-grey pd-0 ">
+            {label} <span className="must">*</span>
+          </label>
+        </Col>
+        <Col
+          className="pd-0"
+          style={{
+            border: "1px solid #000",
+            height: "30px",
+            marginLeft: "-6px",
+            marginRight: "12px",
+          }}
+        >
+          <Select
+            multi
+            options={options}
+            labelField={labelField}
+            searchable={searchable}
+            searchBy={searchBy}
+            values={[...values]}
+            noDataLabel={noDataLabel}
+            dropdownPosition="auto"
+            valueField={valueField}
+            dropdownHeight={"300px"}
+            disabled={disabled}
+            onChange={(value) => {
+              onSelection(value);
+            }}
+          />
+        </Col>
+      </Row>
+    </div>
+  );
+};
+
 const mapStateToProps = (state) => ({
   ...state.collection,
   zoneItem: state.common.zoneItem,
@@ -138,7 +236,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: GET_COLLECTION,
       payload: AxiosRequest.Collection.getCollectionList(data),
     }),
-    onGetCollectionReport: (data) =>
+  onGetCollectionReport: (data) =>
     dispatch({
       type: GET_COLLECTION_REPORT,
       payload: AxiosRequest.Collection.getCollectionList(data),
@@ -154,7 +252,7 @@ const mapDispatchToProps = (dispatch) => ({
       payload: AxiosRequest.Collection.getClassificationData(data),
     }),
 
-    onSetImages: (image) =>
+  onSetImages: (image) =>
     dispatch({
       type: SET_COLLECTION_IMAGES,
       image,
@@ -180,7 +278,7 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch({
       type: DELETE_COLLECTION_IMAGES,
     }),
-    activeCollection:(data) =>
+  activeCollection: (data) =>
     dispatch({
       type: ACTIVE_COLLECTION,
       payload: AxiosRequest.Collection.activeCollection(data),
@@ -202,13 +300,15 @@ class Collection extends React.Component {
       imageItem: false,
       isNext: false,
       isNextDisable: true,
-      isReport:false,
+      isReport: false,
       collection_title: "",
       cardtype: [],
       classification: [],
       classficationdata: [],
-      liveModal:false,
-      selectCollection:false,
+      liveModal: false,
+      selectCollection: false,
+      stPrice:0,
+      edPrice:0
     };
   }
 
@@ -241,14 +341,14 @@ class Collection extends React.Component {
       this.setState({ isNextDisable: false });
     }
 
-    if(this.props.isLive){
+    if (this.props.isLive) {
       this.props.onClear();
       this.toggleLive();
       this.props.onGetCollection();
     }
 
-    if(this.props.collectionreport.length > 0 && this.state.isReport){
-      this.setState({isReport:false});
+    if (this.props.collectionreport.length > 0 && this.state.isReport) {
+      this.setState({ isReport: false });
       this.csvLink.current.link.click();
     }
 
@@ -259,7 +359,7 @@ class Collection extends React.Component {
         cardtype: [],
         classification: [],
         classficationdata: [],
-        isNextDisable:true,
+        isNextDisable: true,
       });
       this.toggleNextPopup();
       this.props.onGetCollection();
@@ -269,6 +369,14 @@ class Collection extends React.Component {
     console.log("--componentDidCatch-->");
   }
 
+  onChangeStPrice =(e)=>{
+    this.setState({stPrice:e.target.value});
+
+  }
+
+  onChangeEdPrice =(e)=>{
+    this.setState({edPrice:e.target.value});
+  }
   onEdit = (item) => {
     this.setState({ isEdit: true, selectCollection: item });
     var initData = {
@@ -276,10 +384,17 @@ class Collection extends React.Component {
     };
 
     this.setState({
-      isNextDisable:false,
+      isNextDisable: false,
       cardtype: [{ id: item.tile_type, name: item.tile_type_name }],
-      classification: [{ id: item.classification_type, name: item.classification_type_name }],
-      classficationdata: [{ id: item.classification_id, name: item.classification_id_name }],
+      classification: [
+        { id: item.classification_type, name: item.classification_type_name },
+      ],
+      stPrice:item.start_price,
+      edPrice:item.end_price,
+      classficationdata:
+        item.classification_type !== 5
+          ? [{ id: item.classification_id, name: item.classification_id_name }]
+          : item.collectionproducts,
     });
     this.props.onSetImages(item.img_url);
     this.props.initialize(initData);
@@ -288,7 +403,7 @@ class Collection extends React.Component {
 
   onReportDownLoad = () => {
     this.setState({ isReport: true });
-    var data={report:1};
+    var data = { report: 1 };
     this.props.onGetCollectionReport(data);
   };
 
@@ -303,7 +418,8 @@ class Collection extends React.Component {
   };
 
   addCollection = () => {
-    this.setState({ isEdit: false });
+    this.setState({ isEdit: false,stPrice:0,
+      edPrice:0 });
     var initData = {
       collection_title: "",
     };
@@ -332,7 +448,7 @@ class Collection extends React.Component {
   };
   Onlive = (item) => (ev) => {
     if (ev) ev.stopPropagation();
-    this.setState({selectCollection:item});
+    this.setState({ selectCollection: item });
     this.toggleLive();
   };
 
@@ -357,8 +473,12 @@ class Collection extends React.Component {
   };
 
   selectedClassification = (item) => {
-    this.setState({ classification: item, isNextDisable: false,classficationdata: [], });
-   if(item[0]) this.props.onGetClassificationdata({ type: "" + item[0].id });
+    this.setState({
+      classification: item,
+      isNextDisable: false,
+      classficationdata: [],
+    });
+    if (item[0]) this.props.onGetClassificationdata({ type: "" + item[0].id });
   };
 
   onNext = () => {
@@ -370,27 +490,27 @@ class Collection extends React.Component {
     this.toggleNextPopup();
     this.toggleCollectionAddPopup();
   };
-  onClose =()=>{
+  onClose = () => {
     this.setState({
       cardtype: [],
       classification: [],
       classficationdata: [],
-      isNextDisable:true,
+      isNextDisable: true,
     });
     this.toggleCollectionAddPopup();
-  }
+  };
 
-  onCloseNext =()=>{
+  onCloseNext = () => {
     this.props.onClear();
     this.props.onFromClear();
     this.setState({
       cardtype: [],
       classification: [],
       classficationdata: [],
-      isNextDisable:true,
+      isNextDisable: true,
     });
     this.toggleNextPopup();
-  }
+  };
 
   updateCollection = (fdata) => {
     this.setState({ collection_title: fdata.collection_title });
@@ -424,18 +544,35 @@ class Collection extends React.Component {
     });
   };
   sendCollection = () => {
-    if(this.props.Collection_Img.length===0){
+    if (this.props.Collection_Img.length === 0) {
       notify.show("Please upload image", "custom", 1000, notification_color);
       return;
-    }else if(this.state.classficationdata.length===0){
-      notify.show("Please select "+this.state.classification[0].name, "custom", 1000, notification_color);
+    } else if (this.state.classficationdata.length === 0 && this.state.classification[0].id!==6) {
+      notify.show(
+        "Please select " + this.state.classification[0].name,
+        "custom",
+        1000,
+        notification_color
+      );
       return;
     }
     var data = {};
     data.name = this.state.collection_title;
     data.tile_type = "" + this.state.cardtype[0].id;
     data.classification_type = "" + this.state.classification[0].id;
-    data.classification_id = "" + this.state.classficationdata[0].id;
+    if (this.state.classification[0].id === 5) {
+      var pid = [];
+      for (var i = 0; i < this.state.classficationdata.length; i++) {
+        pid.push(this.state.classficationdata[i].id);
+      }
+      data.products = pid;
+    }else if (this.state.classification[0].id === 6) {
+      data.start_price = this.state.stPrice;
+      data.end_price = this.state.edPrice;
+    } else {
+      data.classification_id = "" + this.state.classficationdata[0].id;
+    }
+
     data.img_url = this.props.Collection_Img[0].img_url;
     data.done_by = getAdminId();
     data.zoneid = this.props.zoneItem.id;
@@ -711,25 +848,86 @@ class Collection extends React.Component {
                     handleOnDrop={() => this.handleCollectionimages}
                   />
                 </div>
+                <div hidden={
+                      (this.state.classification.length !== 0 &&
+                        this.state.classification[0].id === 6)
+                    }>
+                  <Field
+                    name="class_data"
+                    component={InputSearchDropDown}
+                    options={this.props.classification_Data}
+                    labelField="name"
+                    searchable={true}
+                    hidden={
+                      this.state.classification.length !== 0 &&
+                      this.state.classification[0].id === 5
+                    }
+                    clearable={true}
+                    searchBy="name"
+                    valueField="id"
+                    noDataLabel="No matches found"
+                    values={this.state.classficationdata}
+                    onSelection={this.selectedClassficationData}
+                    label={
+                      this.state.classification.length === 0
+                        ? ""
+                        : this.state.classification[0].name
+                    }
+                  />
 
+                  <Field
+                    name="class_data"
+                    component={InputSearchDropDownMulti}
+                    options={this.props.classification_Data}
+                    hidden={
+                      (this.state.classification.length !== 0 &&
+                        this.state.classification[0].id !== 5)
+                    }
+                    labelField="name"
+                    searchable={true}
+                    clearable={true}
+                    searchBy="name"
+                    valueField="id"
+                    noDataLabel="No matches found"
+                    values={this.state.classficationdata}
+                    onSelection={this.selectedClassficationData}
+                    label={
+                      this.state.classification.length === 0
+                        ? ""
+                        : this.state.classification[0].name
+                    }
+                  />
+                </div>
+              
+              <div hidden={
+                      (this.state.classification.length !== 0 &&
+                        this.state.classification[0].id !== 6)
+                    }>
+                      <form>
                 <Field
-                  name="class_data"
-                  component={InputSearchDropDown}
-                  options={this.props.classification_Data}
-                  labelField="name"
-                  searchable={true}
-                  clearable={true}
-                  searchBy="name"
-                  valueField="id"
-                  noDataLabel="No matches found"
-                  values={this.state.classficationdata}
-                  onSelection={this.selectedClassficationData}
-                  label={
-                    this.state.classification.length === 0
-                      ? ""
-                      : this.state.classification[0].name
-                  }
-                />
+                    name="st_price"
+                    autoComplete="off"
+                    type="number"
+                    mvalue={this.state.stPrice}
+                    component={InputFielddiv}
+                    label="Start Price"
+                    onChange={this.onChangeStPrice}
+                    validate={[required]}
+                    required={true}
+                  />
+                  <Field
+                    name="ed_price"
+                    autoComplete="off"
+                    type="number"
+                    mvalue={this.state.edPrice}
+                    component={InputFielddiv}
+                    label="End Price"
+                    onChange={this.onChangeEdPrice}
+                    validate={[required]}
+                    required={true}
+                  />
+                  </form>
+                  </div>
               </div>
               <div className="float-right mr-t-10">
                 <Button
@@ -752,31 +950,30 @@ class Collection extends React.Component {
           </ModalBody>
         </Modal>
         <Modal
-            isOpen={this.state.liveModal}
-            toggle={this.toggleLive}
-            className="add_live_modal"
-            backdrop={"static"}
-          >
-            <ModalHeader>Confirmation </ModalHeader>
-            <ModalBody>
-              {this.state.selectCollection.active_status === "0"
-                ? "Are you sure you want to active the '" +
-                  this.state.selectCollection.name +
-                  "' Collection"
-                : "Are you sure you want to deactive the '" +
-                  this.state.selectCollection.name +
-                  "' Collection"}{" "}
-            </ModalBody>
-            <ModalFooter>
-              <Button color="primary" onClick={this.MovetoLive}>
-                Yes
-              </Button>{" "}
-              <Button color="secondary" onClick={this.toggleLive}>
-                NO
-              </Button>
-            </ModalFooter>
-          </Modal>
-
+          isOpen={this.state.liveModal}
+          toggle={this.toggleLive}
+          className="add_live_modal"
+          backdrop={"static"}
+        >
+          <ModalHeader>Confirmation </ModalHeader>
+          <ModalBody>
+            {this.state.selectCollection.active_status === "0"
+              ? "Are you sure you want to active the '" +
+                this.state.selectCollection.name +
+                "' Collection"
+              : "Are you sure you want to deactive the '" +
+                this.state.selectCollection.name +
+                "' Collection"}{" "}
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={this.MovetoLive}>
+              Yes
+            </Button>{" "}
+            <Button color="secondary" onClick={this.toggleLive}>
+              NO
+            </Button>
+          </ModalFooter>
+        </Modal>
       </div>
     );
   }
