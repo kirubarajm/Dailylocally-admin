@@ -2300,3 +2300,9 @@ thead th {
     color: white;
 }
 
+.mut-collection .css-v1jrxw-ContentComponent{
+  max-height: 200px !important;
+  overflow: scroll;
+  overflow-x: hidden;
+}
+

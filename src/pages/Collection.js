@@ -194,10 +194,9 @@ const InputSearchDropDownMulti = ({
           </label>
         </Col>
         <Col
-          className="pd-0"
+          className="pd-0 mut-collection"
           style={{
             border: "1px solid #000",
-            height: "30px",
             marginLeft: "-6px",
             marginRight: "12px",
           }}
