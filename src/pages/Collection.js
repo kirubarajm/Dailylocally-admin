@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import AxiosRequest from "../AxiosRequest";
 import { CSVLink } from "react-csv";
 import { getAdminId, onActionHidden } from "../utils/ConstantFunction";
+import DualListBox from "react-dual-listbox";
+
 import {
   ADD_COLLECTION,
   EDIT_COLLECTION,
@@ -12,6 +14,7 @@ import {
   UPDATE_COLLECTION_IMAGES,
   GET_CLASSIFICATION,
   GET_CLASSIFICATION_DATA,
+  GET_CLASSIFICATION_PRODUCT_DATA,
   SET_COLLECTION_IMAGES,
   FROMCLEAR,
   GET_COLLECTION_REPORT,
@@ -93,7 +96,14 @@ const InputFielddiv = ({
         </span>
       </label>
       <div className="border-none">
-        <input {...input} value={custom.mvalue} placeholder={label} type={type} autoComplete="off" onChange={(e) => input.onChange(e)}/>
+        <input
+          {...input}
+          value={custom.mvalue}
+          placeholder={label}
+          type={type}
+          autoComplete="off"
+          onChange={(e) => input.onChange(e)}
+        />
         <div
           style={{
             flex: "0",
@@ -251,6 +261,12 @@ const mapDispatchToProps = (dispatch) => ({
       payload: AxiosRequest.Collection.getClassificationData(data),
     }),
 
+  onGetClassificationProductdata: (data) =>
+    dispatch({
+      type: GET_CLASSIFICATION_PRODUCT_DATA,
+      payload: AxiosRequest.Collection.getClassificationData(data),
+    }),
+
   onSetImages: (image) =>
     dispatch({
       type: SET_COLLECTION_IMAGES,
@@ -306,8 +322,8 @@ class Collection extends React.Component {
       classficationdata: [],
       liveModal: false,
       selectCollection: false,
-      stPrice:0,
-      edPrice:0
+      stPrice: 0,
+      edPrice: 0,
     };
   }
 
@@ -368,32 +384,42 @@ class Collection extends React.Component {
     console.log("--componentDidCatch-->");
   }
 
-  onChangeStPrice =(e)=>{
-    this.setState({stPrice:e.target.value});
+  onChangeStPrice = (e) => {
+    this.setState({ stPrice: e.target.value });
+  };
 
-  }
-
-  onChangeEdPrice =(e)=>{
-    this.setState({edPrice:e.target.value});
-  }
+  onChangeEdPrice = (e) => {
+    this.setState({ edPrice: e.target.value });
+  };
   onEdit = (item) => {
     this.setState({ isEdit: true, selectCollection: item });
     var initData = {
       collection_title: item.name,
     };
 
+    var Cselect=[];
+    if (item.classification_type !== 5)
+        this.props.onGetClassificationdata({ type: "" + item.classification_type });
+      else this.props.onGetClassificationProductdata({ type: "" + item.classification_type });
+    if(item.classification_type === 5){
+      var classList=item.collectionproducts;
+      for(var i=0;i<classList.length;i++){
+        //Cselect.push({value:classList[i].id,label:classList[i].name})
+        Cselect.push(classList[i].id);
+      }
+    }
     this.setState({
       isNextDisable: false,
       cardtype: [{ id: item.tile_type, name: item.tile_type_name }],
       classification: [
         { id: item.classification_type, name: item.classification_type_name },
       ],
-      stPrice:item.start_price,
-      edPrice:item.end_price,
+      stPrice: item.start_price,
+      edPrice: item.end_price,
       classficationdata:
         item.classification_type !== 5
           ? [{ id: item.classification_id, name: item.classification_id_name }]
-          : item.collectionproducts,
+          : Cselect,
     });
     this.props.onSetImages(item.img_url);
     this.props.initialize(initData);
@@ -417,8 +443,7 @@ class Collection extends React.Component {
   };
 
   addCollection = () => {
-    this.setState({ isEdit: false,stPrice:0,
-      edPrice:0 });
+    this.setState({ isEdit: false, stPrice: 0, edPrice: 0 });
     var initData = {
       collection_title: "",
     };
@@ -477,7 +502,11 @@ class Collection extends React.Component {
       isNextDisable: false,
       classficationdata: [],
     });
-    if (item[0]) this.props.onGetClassificationdata({ type: "" + item[0].id });
+    if (item[0]) {
+      if (item[0].id !== 5)
+        this.props.onGetClassificationdata({ type: "" + item[0].id });
+      else this.props.onGetClassificationProductdata({ type: "" + item[0].id });
+    }
   };
 
   onNext = () => {
@@ -546,7 +575,10 @@ class Collection extends React.Component {
     if (this.props.Collection_Img.length === 0) {
       notify.show("Please upload image", "custom", 1000, notification_color);
       return;
-    } else if (this.state.classficationdata.length === 0 && this.state.classification[0].id!==6) {
+    } else if (
+      this.state.classficationdata.length === 0 &&
+      this.state.classification[0].id !== 6
+    ) {
       notify.show(
         "Please select " + this.state.classification[0].name,
         "custom",
@@ -554,18 +586,26 @@ class Collection extends React.Component {
         notification_color
       );
       return;
+    } else if (
+      this.state.classification[0].id === 6
+    ) {
+      if (this.state.stPrice >= this.state.edPrice) {
+        notify.show(
+          "Please enter end price value greaterthan the start price.",
+          "custom",
+          2000,
+          notification_color
+        );
+        return;
+      }
     }
     var data = {};
     data.name = this.state.collection_title;
     data.tile_type = "" + this.state.cardtype[0].id;
     data.classification_type = "" + this.state.classification[0].id;
     if (this.state.classification[0].id === 5) {
-      var pid = [];
-      for (var i = 0; i < this.state.classficationdata.length; i++) {
-        pid.push(this.state.classficationdata[i].id);
-      }
-      data.products = pid;
-    }else if (this.state.classification[0].id === 6) {
+      data.products = this.state.classficationdata;
+    } else if (this.state.classification[0].id === 6) {
       data.start_price = this.state.stPrice;
       data.end_price = this.state.edPrice;
     } else {
@@ -814,7 +854,8 @@ class Collection extends React.Component {
           isOpen={this.state.collectionnext}
           toggle={this.onCloseNext}
           className={this.props.className}
-          style={{ maxWidth: "700px" }}
+          style={(this.state.classification.length !== 0 &&
+            this.state.classification[0].id !== 5)?{ maxWidth: "700px" }:{maxWidth:"1200px"}}
           backdrop={true}
         >
           <ModalHeader toggle={this.onCloseNext}></ModalHeader>
@@ -847,10 +888,12 @@ class Collection extends React.Component {
                     handleOnDrop={() => this.handleCollectionimages}
                   />
                 </div>
-                <div hidden={
-                      (this.state.classification.length !== 0 &&
-                        this.state.classification[0].id === 6)
-                    }>
+                <div
+                  hidden={
+                    this.state.classification.length !== 0 &&
+                    this.state.classification[0].id === 6
+                  }
+                >
                   <Field
                     name="class_data"
                     component={InputSearchDropDown}
@@ -874,7 +917,19 @@ class Collection extends React.Component {
                     }
                   />
 
-                  <Field
+                  <div className="flex-row width-1200 height-300 margin-bottom-40"  hidden={
+                        this.state.classification.length !== 0 &&
+                        this.state.classification[0].id !== 5
+                      }>
+                    <label className="mr-r-10 mr-l-10 width-200">Select Product</label>
+                    <DualListBox
+                      canFilter
+                      options={this.props.classification_ProductData}
+                      selected={this.state.classficationdata}
+                      onChange={this.selectedClassficationData}
+                    />
+                  </div>
+                  {/* <Field
                     name="class_data"
                     component={InputSearchDropDownMulti}
                     options={this.props.classification_Data}
@@ -895,38 +950,40 @@ class Collection extends React.Component {
                         ? ""
                         : this.state.classification[0].name
                     }
-                  />
+                  /> */}
                 </div>
-              
-              <div hidden={
-                      (this.state.classification.length !== 0 &&
-                        this.state.classification[0].id !== 6)
-                    }>
-                      <form>
-                <Field
-                    name="st_price"
-                    autoComplete="off"
-                    type="number"
-                    mvalue={this.state.stPrice}
-                    component={InputFielddiv}
-                    label="Start Price"
-                    onChange={this.onChangeStPrice}
-                    validate={[required]}
-                    required={true}
-                  />
-                  <Field
-                    name="ed_price"
-                    autoComplete="off"
-                    type="number"
-                    mvalue={this.state.edPrice}
-                    component={InputFielddiv}
-                    label="End Price"
-                    onChange={this.onChangeEdPrice}
-                    validate={[required]}
-                    required={true}
-                  />
+
+                <div
+                  hidden={
+                    this.state.classification.length !== 0 &&
+                    this.state.classification[0].id !== 6
+                  }
+                >
+                  <form>
+                    <Field
+                      name="st_price"
+                      autoComplete="off"
+                      type="number"
+                      mvalue={this.state.stPrice}
+                      component={InputFielddiv}
+                      label="Start Price"
+                      onChange={this.onChangeStPrice}
+                      validate={[required]}
+                      required={true}
+                    />
+                    <Field
+                      name="ed_price"
+                      autoComplete="off"
+                      type="number"
+                      mvalue={this.state.edPrice}
+                      component={InputFielddiv}
+                      label="End Price"
+                      onChange={this.onChangeEdPrice}
+                      validate={[required]}
+                      required={true}
+                    />
                   </form>
-                  </div>
+                </div>
               </div>
               <div className="float-right mr-t-10">
                 <Button

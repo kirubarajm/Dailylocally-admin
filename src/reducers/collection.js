@@ -4,6 +4,7 @@ import {
   UPDATE_COLLECTION_IMAGES,
   DELETE_COLLECTION_IMAGES,
   GET_CLASSIFICATION_DATA,
+  GET_CLASSIFICATION_PRODUCT_DATA,
   SET_COLLECTION_IMAGES,
   ADD_COLLECTION,
   EDIT_COLLECTION,
@@ -17,6 +18,7 @@ export default (
     collectionlist: [],
     collectionreport:[],
     classification_Data:[],
+    classification_ProductData:[],
     Collection_Img:[],
     Card_type:[{id:1,name:"Vertical"},{id:2,name:"Horizontal"}],
     classification_list:[],
@@ -42,6 +44,18 @@ export default (
         ...state,
         classification_Data: action.payload.result || [],
       };
+
+      case GET_CLASSIFICATION_PRODUCT_DATA:
+        var res =action.payload.result || [];
+        var resbuld=[];
+        for(var i=0;i<res.length;i++){
+          resbuld.push({value:res[i].id,label:res[i].name})
+        }
+      return {
+        ...state,
+        classification_ProductData: resbuld,
+      };
+
       case GET_COLLECTION_REPORT:
       return {
         ...state,
