@@ -41,6 +41,7 @@ import {
 } from "./utils/ConstantFunction";
 import StockKeepingTab from "./pages/StockKeepingTab";
 import CommunityTab from "./pages/CommunityTab";
+import PushnotificationTab from "./pages/Pushnotification";
 import CatalogTab from "./pages/CatalogTab";
 import Vendor from "./pages/Vendor";
 import Collection from "./pages/Collection";
@@ -336,6 +337,13 @@ class App extends React.Component {
             />
 
             <LayoutRoute
+              exact
+              path="/sendnotification"
+              layout={MainLayout}
+              component={PushnotificationTab}
+            />
+
+<LayoutRoute
               exact
               path="/catalog/view"
               layout={MainLayout}

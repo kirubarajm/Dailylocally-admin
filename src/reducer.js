@@ -38,6 +38,8 @@ import missing from './reducers/missing'
 import community from './reducers/community'
 import communitytab from './reducers/communitytab'
 import communityuser from './reducers/communityuser'
+import pushnotificationlist from './reducers/pushnotificationlist'
+
 import catalogtab from './reducers/catalogtab'
 import vendor from './reducers/vendor'
 import newvendor from './reducers/newvendor'
@@ -85,7 +87,7 @@ export default combineReducers({
   community,
   communitytab,
   communityuser,
-  catalogtab,
+  pushnotificationlist,
   vendor,
   newvendor,
   brand,

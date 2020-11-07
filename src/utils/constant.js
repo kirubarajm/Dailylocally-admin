@@ -25,3 +25,4 @@ export const MasterOrderStatusV={0:"Post",1:"Accept",2:"Preparing",3:"Prepared",
 export const MasterPOStatus={0:"Request",1:"Received",2:"Un Received",3:"Close",4:"Deleted"};
 export const MasterOrderStatus={0:"Open",1:"SCM",2:"SCM",3:"SCM",5:"SCM",6:"Ready to dispatch",7:"Moveit Assign",8:"Moveit Pickup",9:"Moveit Delivered",10:"Completed",11:"Cancel",12:"Return"};
 export const notification_color = { background: "#ffffff", text: "#000000" };
+export const PUSH_NOTIFICATION_FROM="push_notification_from"

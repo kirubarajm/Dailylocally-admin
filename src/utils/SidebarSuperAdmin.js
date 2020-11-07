@@ -99,5 +99,14 @@ export const SidebarSuperAdmin = [
     submenuItem: null,
     enable_action: "refund_sidenav",
   },
+  {
+    to: "/sendnotification",
+    name: "Notification",
+    exact: true,
+    Icon: MdDashboard,
+    submenu: false,
+    submenuItem: null,
+    enable_action: "notification_sidenav",
+  },
 ];
 export const navBarSuperAdminItems = [];
