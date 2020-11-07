@@ -41,7 +41,14 @@ import {
 } from "./utils/ConstantFunction";
 import StockKeepingTab from "./pages/StockKeepingTab";
 import CommunityTab from "./pages/CommunityTab";
+<<<<<<< HEAD
 import PushnotificationTab from "./pages/Pushnotification";
+=======
+import CatalogTab from "./pages/CatalogTab";
+import Vendor from "./pages/Vendor";
+import Collection from "./pages/Collection";
+import CollectionDragDrop from "./pages/CollectionDragDrop";
+>>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -114,12 +121,12 @@ class App extends React.Component {
         <div>
           <Notifications options={{ zIndex: 1052, top: "0px" }} />
           <Switch>
-            <LayoutRoute
+            {/* <LayoutRoute
               exact
               path="/dashboard"
               layout={MainLayout}
               component={Catalog}
-            />
+            /> */}
 
             <LayoutRoute
               exact
@@ -196,6 +203,13 @@ class App extends React.Component {
               path="/vendor-assign"
               layout={MainLayout}
               component={VendorAssign}
+            />
+
+            <LayoutRoute
+              exact
+              path="/collection-reorder"
+              layout={MainLayout}
+              component={CatalogTab}
             />
 
             <LayoutRoute
@@ -327,12 +341,49 @@ class App extends React.Component {
 
             <LayoutRoute
               exact
+<<<<<<< HEAD
               path="/sendnotification"
               layout={MainLayout}
               component={PushnotificationTab}
             />
 
             <Redirect to="/dashboard" />
+=======
+              path="/catalog/view"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/catalog/edit"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/vendors"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/brands"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+            <LayoutRoute
+              exact
+              path="/collection"
+              layout={MainLayout}
+              component={CatalogTab}
+            />
+
+            <Redirect to="/catalog/view" />
+>>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
           </Switch>
         </div>
       );

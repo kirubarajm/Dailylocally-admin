@@ -87,6 +87,7 @@ export const onActionHidden =(key)=>{
   var login = false;
   if (token && key) {
     login = JSON.parse(token);
+    console.log("login-->"+login.logindetail[key]);
     var hidden=login.logindetail[key] || 0;
     return hidden===0?true:false;
   }

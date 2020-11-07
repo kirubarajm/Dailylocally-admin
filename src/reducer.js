@@ -38,8 +38,17 @@ import missing from './reducers/missing'
 import community from './reducers/community'
 import communitytab from './reducers/communitytab'
 import communityuser from './reducers/communityuser'
+<<<<<<< HEAD
 import pushnotificationlist from './reducers/pushnotificationlist'
 
+=======
+import catalogtab from './reducers/catalogtab'
+import vendor from './reducers/vendor'
+import newvendor from './reducers/newvendor'
+import brand from './reducers/brand'
+import collection from './reducers/collection'
+import collectionreorder from './reducers/collectionreorder'
+>>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
 
 export default combineReducers({
   router: routerReducer,
@@ -81,5 +90,14 @@ export default combineReducers({
   community,
   communitytab,
   communityuser,
+<<<<<<< HEAD
   pushnotificationlist
+=======
+  catalogtab,
+  vendor,
+  newvendor,
+  brand,
+  collection,
+  collectionreorder
+>>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
 });

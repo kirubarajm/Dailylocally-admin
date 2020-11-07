@@ -1095,7 +1095,7 @@ class LogisticsOrders extends React.Component {
                         <td>{item.phoneno}</td>
                         <td>
                           {Moment(item.date).format("DD-MMM-YYYY/hh:mm") +
-                            " PM"}
+                            "  pm"}
                         </td>
                         <td>
                           {item.total_product_weight

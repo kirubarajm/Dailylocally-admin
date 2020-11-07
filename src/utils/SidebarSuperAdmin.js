@@ -10,7 +10,7 @@ export const SidebarSuperAdmin = [
     enable_action: "dl_exculsive_sidenav",
   },
   {
-    to: "/dashboard",
+    to: "/catalog/view",
     name: "Catalog",
     exact: true,
     Icon: MdDashboard,

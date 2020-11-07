@@ -4,7 +4,7 @@ import { Row, Col, Button } from "reactstrap";
 import AxiosRequest from "../AxiosRequest";
 import { PRODUCT_VIEW } from "../constants/actionTypes";
 import Moment from "moment";
-import { history } from '../store';
+import { history } from "../store";
 
 const mapStateToProps = (state) => ({ ...state.productview });
 
@@ -126,10 +126,7 @@ class ProductView extends React.Component {
                     lable="Product Name"
                     value={productdetail.productname}
                   />
-                  <CardRowCol
-                    lable="Product Code"
-                    value={productdetail.pid}
-                  />
+                  <CardRowCol lable="Product Code" value={productdetail.pid} />
                   <CardRowCol
                     lable="Weight (kg)"
                     value={productdetail.weight}
@@ -150,27 +147,37 @@ class ProductView extends React.Component {
                     lable="Product details"
                     value={productdetail.productdetails}
                   />
-                  
+
                   <CardRowCol lable="HSN code" value={productdetail.hsn_code} />
                   <CardRowCol lable="Tag" value={productdetail.tagname} />
                   <CardRowCol
                     lable="Perishable"
-                    value={productdetail.Perishable?"No":"Yes"}
+                    value={productdetail.Perishable ? "No" : "Yes"}
                   />
                   <CardRowCol
                     lable="Veg/Vegan/Non veg"
-                    value={productdetail.vegtype===0?"Veg":productdetail.vegtype===1?"Non veg":"Vegan"}
+                    value={
+                      productdetail.vegtype === 0
+                        ? "Veg"
+                        : productdetail.vegtype === 1
+                        ? "Non veg"
+                        : "Vegan"
+                    }
                   />
                   <CardRowCol
                     lable="Targeted Base Price"
                     value={productdetail.targetedbaseprice}
                   />
 
-<CardRowCol
+                  <CardRowCol
                     lable="Subscription"
-                    value={productdetail.subscription===1?"On":"Off"}
+                    value={productdetail.subscription === 1 ? "On" : "Off"}
                   />
-                  
+
+                  <CardRowCol
+                    lable="Combo Product"
+                    value={productdetail.combo_flag === 1 ? "Yes" : "No"}
+                  />
                 </Col>
                 <Col lg="4">
                   <CardRowColImage
@@ -192,8 +199,12 @@ class ProductView extends React.Component {
               <Row className="mr-b-10">
                 <Col></Col>
                 <Col className="txt-align-right">
-                {/* <Link to={`/product_edit/${productdetail.pid}`}><Button size="sm">Edit</Button></Link> */}
-                  <Button size="sm" className="mr-l-10 mr-r-10" onClick={history.goBack}>
+                  {/* <Link to={`/product_edit/${productdetail.pid}`}><Button size="sm">Edit</Button></Link> */}
+                  <Button
+                    size="sm"
+                    className="mr-l-10 mr-r-10"
+                    onClick={history.goBack}
+                  >
                     Back
                   </Button>
                 </Col>

@@ -228,6 +228,7 @@ class DayOrders extends React.Component {
   };
 
   confirmToprocurment = () => {
+    this.toggleProcuremPopUp();
     var checkItem_page = this.state.selected_page_dayorderid;
     var Values = Object.keys(checkItem_page);
     var AllValues=[]
@@ -571,7 +572,7 @@ class DayOrders extends React.Component {
                       <td>
                         {Moment(item.created_at).format("DD-MMM-YYYY/hh:mm a")}
                       </td>
-                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm")+" pm"}</td>
                       <td>{item.userid}</td>
                       <td>
                         <Button

@@ -1,6 +1,10 @@
 {
   "name": "daily-locally",
+<<<<<<< HEAD
   "version": "0.0.12",
+=======
+  "version": "0.0.15",
+>>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
   "private": true,
   "homepage": "http://dailylocally.co.in/d2admin/",
   "dependencies": {
@@ -20,8 +24,10 @@
     "react-date-range": "^1.0.0-beta",
     "react-datepicker": "^3.0.0",
     "react-dom": "^16.7.0",
+    "react-drag-drop-container": "^6.1.1",
     "react-dropdown-select": "^3.7.0",
     "react-dropzone": "^5.0.1",
+    "react-dual-listbox": "^2.0.0",
     "react-icons": "^3.3.0",
     "react-mentions": "^4.0.1",
     "react-notify-toast": "^0.5.0",
@@ -30,7 +36,7 @@
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
     "react-router-redux": "^5.0.0-alpha.6",
-    "react-scripts": "^3.4.1",
+    "react-scripts": "^3.4.3",
     "react-scrollbar": "^0.5.4",
     "react-switch": "^5.0.1",
     "reactstrap": "^7.1.0",

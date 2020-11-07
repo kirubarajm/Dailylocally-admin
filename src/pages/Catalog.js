@@ -234,6 +234,8 @@ class Catalog extends React.Component {
 
   UNSAFE_componentWillMount() {
     console.log("--componentWillMount-->");
+    const { path } = this.props.match;
+    
     //if (this.props.category_list.length === 0) this.catList();
     if (this.props.zone_list.length === 0) this.props.onGetZone();
     this.onCatlogTabClick = this.onCatlogTabClick.bind(this);
@@ -293,8 +295,17 @@ class Catalog extends React.Component {
   UNSAFE_componentWillUpdate() {
     console.log("--componentWillUpdate-->");
   }
-  UNSAFE_componentWillReceiveProps() {
-    console.log("--componentWillReceiveProps-->");
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    console.log("--componentWillReceiveProps-->next",nextProps.match);
+    console.log("--componentWillReceiveProps-->",this.props.match);
+    if (nextProps.match.path !== this.props.match.path) {
+      const { path } = nextProps.match;
+      if (path.includes("/catalog/edit")) {
+        this.onCatlogTabClick(1);
+      }else if(path.includes("/catalog/view")){
+        this.onCatlogTabClick(0);
+      }
+    }
   }
   componentWillUnmount() {
     console.log("--componentWillUnmount-->");
@@ -705,11 +716,11 @@ class Catalog extends React.Component {
     const subcat_L2 = this.props.subcat_L2 || [];
     const product = this.props.product || [];
     return (
-      <div>
+      <div className="width-full">
         <div className="pd-12">
           <Row>
             <Col>
-              <ButtonGroup size="sm" hidden={onActionHidden("catview")}>
+              <ButtonGroup size="sm" hidden={onActionHidden("catview")} hidden="true">
                 <Button
                   color="primary"
                   onClick={() => this.onCatlogTabClick(0)}
@@ -753,9 +764,10 @@ class Catalog extends React.Component {
                   ref={this.csvLink}
                   hidden={true}
                 ></CSVLink>
-                <spna className="mr-r-20">Zone</spna>
+                <spna className="mr-r-20" hidden="true">Zone</spna>
                 <ButtonDropdown
                   className="max-height-30"
+                  hidden="true"
                   isOpen={this.state.isOpenAreaDropDown}
                   toggle={this.toggleAreaDropDown}
                   size="sm"
@@ -1068,7 +1080,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.iscategoryitem.active_status === 0
                 ? "Are you sure you want to live the '" +
@@ -1094,7 +1106,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.isL1subcategoryitem.active_status === 0
                 ? "Are you sure you want to live the '" +
@@ -1120,7 +1132,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.isL2subcategoryitem.active_status === 0
                 ? "Are you sure you want to live the '" +
@@ -1146,7 +1158,7 @@ class Catalog extends React.Component {
             className="add_live_modal"
             backdrop={"static"}
           >
-            <ModalHeader>Conformation </ModalHeader>
+            <ModalHeader>Confirmation </ModalHeader>
             <ModalBody>
               {this.props.isProductitem.live_status === "0"
                 ? "Are you sure you want to live the '" +
@@ -1234,7 +1246,7 @@ class Catalog extends React.Component {
           className="add_live_modal"
           backdrop={"static"}
         >
-          <ModalHeader>Conformation </ModalHeader>
+          <ModalHeader>Confirmation </ModalHeader>
           <ModalBody>
             {this.state.isProductdelete
               ? "Are you sure you want to delete the '" +

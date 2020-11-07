@@ -219,6 +219,7 @@ class Procurement extends React.Component {
   };
 
   confirmTopo = () => {
+    this.togglePoPopUp();
     var checkItem_page = this.state.selected_page_procument;
     var Values = Object.keys(checkItem_page);
     var AllValues=[]

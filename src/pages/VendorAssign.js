@@ -401,6 +401,7 @@ class VendorAssign extends React.Component {
   };
 
   createPo = () => {
+    this.toggleConfirmPopUp();
     var item = {
       zoneid: this.props.zoneItem.id,
       templist: this.state.sPoList,

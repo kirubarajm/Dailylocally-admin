@@ -231,7 +231,8 @@ class ProductAddEdit extends React.Component {
       selectedVendor: {},
       today: Moment(new Date()),
       expiry_date: false,
-      checkBoxVal:1
+      checkBoxVal: 1,
+      checkBoxComboVal: 0,
     };
   }
 
@@ -251,7 +252,7 @@ class ProductAddEdit extends React.Component {
     } else {
     }
     if (!this.props.zoneItem.id) {
-     // this.props.history.goBack();
+      // this.props.history.goBack();
       //return;
     }
     this.props.onGetCategory({ zoneid: this.props.zoneItem.id });
@@ -311,10 +312,15 @@ class ProductAddEdit extends React.Component {
         discount_cost: productDe.discount_cost,
         //discountedamount: productDe.discountedamount,
       };
-      
+
       if (productDe && productDe.subscription) {
         this.setState({ checkBoxVal: productDe.subscription });
       }
+
+      if (productDe && productDe.combo_flag) {
+        this.setState({ checkBoxComboVal: productDe.combo_flag });
+      }
+
       if (productDe && productDe.catid) {
         var cat = [{ catid: productDe.catid, name: productDe.category_name }];
         this.setState({ category: cat });
@@ -332,10 +338,8 @@ class ProductAddEdit extends React.Component {
           { scl2_id: productDe.scl2_id, name: productDe.subcategory2_name },
         ];
         this.setState({ sub2Cat: subcat2 });
-      }else{
-        var subcat2 = [
-          { scl2_id: 0, name: "No L2 SC" },
-        ];
+      } else {
+        var subcat2 = [{ scl2_id: 0, name: "No L2 SC" }];
         this.setState({ sub2Cat: subcat2 });
       }
 
@@ -415,11 +419,17 @@ class ProductAddEdit extends React.Component {
       }
     }
   }
-  onCheckMoveit = ()=>{
+  onCheckMoveit = () => {
     var radVal = document.radioForm.sur_type.value;
-    var checkVal=parseInt(radVal);
-    this.setState({checkBoxVal:checkVal});
-  }
+    var checkVal = parseInt(radVal);
+    this.setState({ checkBoxVal: checkVal });
+  };
+
+  onCheckComboProduct = () => {
+    var radVal = document.comboForm.sur_type.value;
+    var checkVal = parseInt(radVal);
+    this.setState({ checkBoxComboVal: checkVal });
+  };
   componentDidCatch() {}
   submit = (data) => {
     // if (this.state.category.length>0) {
@@ -472,7 +482,8 @@ class ProductAddEdit extends React.Component {
     }
     data.done_by = getAdminId();
     data.zoneid = this.props.zoneItem.id;
-    data.subscription=this.state.checkBoxVal;
+    data.subscription = this.state.checkBoxVal;
+    data.combo_flag = this.state.checkBoxComboVal;
     if (this.state.isEdit) {
       var productDe = this.props.productdetail;
       data.pid = productDe.pid;
@@ -847,7 +858,7 @@ class ProductAddEdit extends React.Component {
                         <form
                           id="radioForm"
                           name="radioForm"
-                          style={{height:"15px"}}
+                          style={{ height: "15px" }}
                           className="mr-t-10 pr-from"
                         >
                           <input
@@ -866,6 +877,40 @@ class ProductAddEdit extends React.Component {
                             className="mr-r-5"
                           />{" "}
                           <label className="mr-r-10">Off</label>
+                        </form>
+                      </div>
+                    </div>
+
+                    <div className="flex-row border-none">
+                      <div className="width-150 align_self_center">
+                        Combo Product :
+                      </div>
+                      <div
+                        className="width-120 mr-l-20 align_self_center"
+                        onClick={this.onCheckComboProduct}
+                      >
+                        <form
+                          id="comboForm"
+                          name="comboForm"
+                          style={{ height: "15px" }}
+                          className="mr-t-10 pr-from"
+                        >
+                          <input
+                            type="radio"
+                            name="sur_type"
+                            value="1"
+                            checked={this.state.checkBoxComboVal === 1}
+                            className="mr-r-5"
+                          />
+                          <label className="mr-r-10">Yes</label>
+                          <input
+                            type="radio"
+                            name="sur_type"
+                            value="0"
+                            checked={this.state.checkBoxComboVal === 0}
+                            className="mr-r-5"
+                          />{" "}
+                          <label className="mr-r-10">No</label>
                         </form>
                       </div>
                     </div>
@@ -1040,9 +1085,11 @@ class ProductAddEdit extends React.Component {
               <div className="flex-column">
                 <Row className="mr-l-10 mr-r-10 mr-b-10">
                   <Col className="float-right ">
-                    <Button size="sm" 
-                    hidden={onActionHidden('catadd_price_agreement')}
-                    onClick={this.toggleVendorAddPopup}>
+                    <Button
+                      size="sm"
+                      hidden={onActionHidden("catadd_price_agreement")}
+                      onClick={this.toggleVendorAddPopup}
+                    >
                       Add Vendor
                     </Button>
                   </Col>
@@ -1076,7 +1123,9 @@ class ProductAddEdit extends React.Component {
                                 <Button
                                   size="sm"
                                   color="primary"
-                                  hidden={onActionHidden('catedit_price_agreement')}
+                                  hidden={onActionHidden(
+                                    "catedit_price_agreement"
+                                  )}
                                   onClick={() => this.onEditVendor(item)}
                                 >
                                   Edit

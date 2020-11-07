@@ -6,8 +6,7 @@ import axios from "axios";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 // const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
-let token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjkwOTQ5MzkzNDciLCJpYXQiOjE1NjYyMTEyNDZ9.jOg5m2fkw6U6dGyhKpNWn594N34deElh5kqKemXe_x8"; //window.localStorage.getItem('jwt');
+let token ="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjkwOTQ5MzkzNDciLCJpYXQiOjE1NjYyMTEyNDZ9.jOg5m2fkw6U6dGyhKpNWn594N34deElh5kqKemXe_x8"; //window.localStorage.getItem('jwt');
 const responseBody = (res) => res.data;
 const fileUploadHeader = { headers: { "Content-Type": "multipart/form-data" } };
 const AppVersion_1 = "1.0.0";
@@ -239,8 +238,38 @@ const CommunityList= {
   addCommunity:(data) => requests.post("/new_community_registration", data),
 }
 
+<<<<<<< HEAD
 const Pushnotification= {
    sendPushNotification:(data) => requests.post("/sendnotification", data),
+=======
+
+const Vendor= {
+  getVendorList:(data) => requests.post("/vendor/list", data),
+  addVendor:(data) => requests.post("/vendor/add", data),
+  editVendor:(data) => requests.post("/vendor/edit", data),
+}
+
+const Brand= {
+  getBrandList:(data) => requests.post("/brand/list", data),
+  addBrand:(data) => requests.post("/brand/add", data),
+  editBrand:(data) => requests.post("/brand/edit", data),
+}
+
+
+const Collection= {
+  getCollectionList:(data) => requests.post("/collection/list", data),
+  getClassificationList:(data) => requests.post("/collection/classificationlist", data),
+  getClassificationData:(data) => requests.post("/collection/classificationfilter", data),
+  addCollection:(data) => requests.post("/collection/add", data),
+  editCollection:(data) => requests.post("/collection/edit", data),
+  activeCollection:(data) => requests.put("/collection/live", data),
+  updateOrderCollection:(data) => requests.post("/layout", data),
+  getCollectionCurrentList:(data) => requests_base.post("user/categorylist", {
+    "userid": 14,
+    "lat": "13.05067500",
+    "lon": "80.00000000"
+  }),
+>>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
 }
 
 export default {
@@ -255,7 +284,13 @@ export default {
   MobileNumberVerify,
   Admin,
   CommunityList,
+<<<<<<< HEAD
   Pushnotification,
+=======
+  Vendor,
+  Brand,
+  Collection,
+>>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
   setToken: (_token) => {
     token = _token;
   },
