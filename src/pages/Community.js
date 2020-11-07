@@ -502,7 +502,7 @@ class Community extends React.Component {
                 <Button
                   size="sm"
                   onClick={this.addCommunity}
-                  hidden={onActionHidden("stockadd")}
+                  hidden={onActionHidden("community_add")}
                 >
                   Create new community
                 </Button>

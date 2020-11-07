@@ -10,7 +10,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 //adminbugfixing
 ReactDOM.render(
   <Provider store={store}>
-    <Router history={history} basename="/d2admin/">
+    <Router history={history} basename="/dl2liveadmin/">
       <Switch>
         <Route path="/" component={App} />
       </Switch>
