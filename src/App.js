@@ -41,14 +41,11 @@ import {
 } from "./utils/ConstantFunction";
 import StockKeepingTab from "./pages/StockKeepingTab";
 import CommunityTab from "./pages/CommunityTab";
-<<<<<<< HEAD
 import PushnotificationTab from "./pages/Pushnotification";
-=======
 import CatalogTab from "./pages/CatalogTab";
 import Vendor from "./pages/Vendor";
 import Collection from "./pages/Collection";
 import CollectionDragDrop from "./pages/CollectionDragDrop";
->>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -341,14 +338,13 @@ class App extends React.Component {
 
             <LayoutRoute
               exact
-<<<<<<< HEAD
               path="/sendnotification"
               layout={MainLayout}
               component={PushnotificationTab}
             />
 
-            <Redirect to="/dashboard" />
-=======
+<LayoutRoute
+              exact
               path="/catalog/view"
               layout={MainLayout}
               component={CatalogTab}
@@ -383,7 +379,6 @@ class App extends React.Component {
             />
 
             <Redirect to="/catalog/view" />
->>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
           </Switch>
         </div>
       );
