@@ -1,8 +1,9 @@
 import axios from "axios";
 
 //const BASE_URL_LIVE='http://dailylocally.co.in:7000/';
- const BASE_URL_LIVE = "http://68.183.87.233:5000/";
-// const BASE_URL_LIVE = "http://68.183.87.233:9000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:5000/";
+const BASE_URL_LIVE = "http://68.183.87.233:8000/";
+//const BASE_URL_LIVE = "http://68.183.87.233:9000/";
 //const BASE_URL_LIVE = "http://dailylocally.co.in:5000/";
 // const BASE_URL_LIVE = 'http://localhost:4000/';
 const ADMIN_URL = BASE_URL_LIVE + "admin";
@@ -238,10 +239,6 @@ const CommunityList= {
   addCommunity:(data) => requests.post("/new_community_registration", data),
 }
 
-<<<<<<< HEAD
-const Pushnotification= {
-   sendPushNotification:(data) => requests.post("/sendnotification", data),
-=======
 
 const Vendor= {
   getVendorList:(data) => requests.post("/vendor/list", data),
@@ -269,7 +266,10 @@ const Collection= {
     "lat": "13.05067500",
     "lon": "80.00000000"
   }),
->>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
+}
+
+const Pushnotification= {
+  sendPushNotification:(data) => requests.post("/sendnotification", data),
 }
 
 export default {
@@ -284,13 +284,10 @@ export default {
   MobileNumberVerify,
   Admin,
   CommunityList,
-<<<<<<< HEAD
   Pushnotification,
-=======
   Vendor,
   Brand,
   Collection,
->>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
   setToken: (_token) => {
     token = _token;
   },

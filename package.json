@@ -1,10 +1,6 @@
 {
   "name": "daily-locally",
-<<<<<<< HEAD
-  "version": "0.0.12",
-=======
   "version": "0.0.15",
->>>>>>> 456604c16b6c2a520ba99e7efbe107a9ab300551
   "private": true,
   "homepage": "http://dailylocally.co.in/d2admin/",
   "dependencies": {
