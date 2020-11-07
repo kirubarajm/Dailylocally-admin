@@ -1,8 +1,8 @@
 {
   "name": "daily-locally",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "private": true,
-  "homepage": "http://dailylocally.co.in/dl2liveadmin/",
+  "homepage": "http://dailylocally.co.in/d2admin/",
   "dependencies": {
     "@react-pdf/renderer": "^1.6.4",
     "axios": "^0.18.1",

@@ -41,6 +41,7 @@ import {
 } from "./utils/ConstantFunction";
 import StockKeepingTab from "./pages/StockKeepingTab";
 import CommunityTab from "./pages/CommunityTab";
+import PushnotificationTab from "./pages/Pushnotification";
 const mapStateToProps = (state) => ({ ...state.common });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -322,6 +323,13 @@ class App extends React.Component {
               path="/orderview/:id"
               layout={MainLayout}
               component={OrderView}
+            />
+
+            <LayoutRoute
+              exact
+              path="/sendnotification"
+              layout={MainLayout}
+              component={PushnotificationTab}
             />
 
             <Redirect to="/dashboard" />

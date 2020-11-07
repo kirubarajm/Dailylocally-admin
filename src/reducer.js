@@ -38,6 +38,8 @@ import missing from './reducers/missing'
 import community from './reducers/community'
 import communitytab from './reducers/communitytab'
 import communityuser from './reducers/communityuser'
+import pushnotificationlist from './reducers/pushnotificationlist'
+
 
 export default combineReducers({
   router: routerReducer,
@@ -79,4 +81,5 @@ export default combineReducers({
   community,
   communitytab,
   communityuser,
+  pushnotificationlist
 });
