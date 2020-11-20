@@ -9,6 +9,7 @@ import {
   ModalBody,
   ModalHeader,
   ModalFooter,
+  Container,
 } from "reactstrap";
 import Select from "react-dropdown-select";
 import { CSVLink } from "react-csv";
@@ -33,7 +34,7 @@ import SearchItem from "../components/SearchItem";
 import { store } from "../store";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
-import { FaDownload } from "react-icons/fa";
+import { FaDownload, FaCaretDown, FaCaretUp } from "react-icons/fa";
 
 const InputSearchDropDown = ({
   onSelection,
@@ -49,48 +50,40 @@ const InputSearchDropDown = ({
   valueField,
 }) => {
   return (
-    <Row className="pd-0">
-      <div
-        className="border-none"
-        style={{ display: "flex", flexDirection: "row" }}
+    <Row className="pd-12">
+      <Col className="border-none pd-0 mr-b-10" xs={12} md={6} lg={5} sm={12}>
+        <label className="mr-0 color-grey">
+          {label} <span className="must">*</span>
+        </label>
+      </Col>
+      <Col
+        className="mr-b-10"
+        xs={12}
+        md={6}
+        lg={6}
+        sm={8}
+        style={{
+          border: "1px solid #000",
+          height: "auto",
+          marginLeft: "10px",
+          marginRight: "10px",
+        }}
       >
-        <div
-          className="mr-0 border-none pd-0"
-          style={{
-            height: "auto",
-            width: "175px",
+        <Select
+          options={options}
+          labelField={labelField}
+          searchable={searchable}
+          searchBy={searchBy}
+          values={[...values]}
+          noDataLabel={noDataLabel}
+          valueField={valueField}
+          dropdownHeight={"300px"}
+          disabled={disabled}
+          onChange={(value) => {
+            onSelection(value);
           }}
-        >
-          <label className="mr-0 color-grey">
-            {label} <span className="must">*</span>
-          </label>
-        </div>
-        <div
-          className="mr-0"
-          style={{
-            border: "1px solid #000",
-            height: "auto",
-            width: "210px",
-            marginLeft: "-6px",
-            marginRight: "12px",
-          }}
-        >
-          <Select
-            options={options}
-            labelField={labelField}
-            searchable={searchable}
-            searchBy={searchBy}
-            values={[...values]}
-            noDataLabel={noDataLabel}
-            valueField={valueField}
-            dropdownHeight={"300px"}
-            disabled={disabled}
-            onChange={(value) => {
-              onSelection(value);
-            }}
-          />
-        </div>
-      </div>
+        />
+      </Col>
     </Row>
   );
 };
@@ -104,24 +97,30 @@ const InputField = ({
   //
 }) => {
   return (
-    <div className="border-none">
-      <div>
-        <input {...input} placeholder={label} type={type} autoComplete="off" />
-        <span
-          style={{
-            flex: "0",
-            WebkitFlex: "0",
-            width: "100px",
-            height: "10px",
-            fontSize: "12px",
-            color: "red",
-          }}
-        >
-          {touched &&
-            ((error && <span>{error}</span>) ||
-              (warning && <span>{warning}</span>))}
-        </span>
-      </div>
+    <div
+      className="border-none"
+      style={{ display: "flex", flexDirection: "column" }}
+    >
+      <input
+        {...input}
+        placeholder={label}
+        type={type}
+        autoComplete="off"
+      />
+      <span
+        style={{
+          flex: "0",
+          WebkitFlex: "0",
+          width: "150px",
+          height: "10px",
+          fontSize: "12px",
+          color: "red",
+        }}
+      >
+        {touched &&
+          ((error && <span>{error}</span>) ||
+            (warning && <span>{warning}</span>))}
+      </span>
     </div>
   );
 };
@@ -138,12 +137,12 @@ const mapDispatchToProps = (dispatch) => ({
       type: RECEIVING_LIST,
       payload: AxiosRequest.Warehouse.getReceivingList(data),
     }),
-    onGetReceivingReport: (data) =>
+  onGetReceivingReport: (data) =>
     dispatch({
       type: RECEIVING_REPORT,
       payload: AxiosRequest.Warehouse.getReceivingReport(data),
     }),
-    
+
   onUpdateList: (data) =>
     dispatch({
       type: RECEIVING_UPDATE,
@@ -186,6 +185,7 @@ class Receiving extends React.Component {
       isConfrimModal: false,
       today: Moment(new Date()),
       isReport: false,
+      isFilter: false,
     };
   }
 
@@ -246,12 +246,18 @@ class Receiving extends React.Component {
       if (this.state.po_createdate) data.from_date = this.state.po_createdate;
       if (this.state.enddate) data.to_date = this.state.enddate;
       if (this.state.selectedPage) data.page = this.state.selectedPage;
-      if (this.state.supplier_name) data.vendorsearch = this.state.supplier_name;
+      if (this.state.supplier_name)
+        data.vendorsearch = this.state.supplier_name;
       if (this.state.item_name) data.productsearch = this.state.item_name;
       if (this.state.pono) data.poid = this.state.pono;
 
       this.props.onGetReceivingList(data);
     }
+  };
+  onToggleFilter = () => {
+    this.setState({
+      isFilter: !this.state.isFilter,
+    });
   };
   toggleConfirmPopup = () => {
     this.setState({
@@ -382,193 +388,223 @@ class Receiving extends React.Component {
     const recevingList = this.props.recevingList || [];
     return (
       <div className="width-full pd-6" style={{ position: "fixed" }}>
-        <div style={{ height: "85vh" }} className="width-85">
-          <div className="fieldset">
-            <div className="legend">PO search Criteri</div>
-            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="4" className="pd-0">
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div className="mr-r-10 flex-row-vertical-center width-120">
-                    PO No :{" "}
-                  </div>
-                  <Search
-                    onSearch={this.onSearchPOno}
-                    type="text"
-                    onRefreshUpdate={this.onSuccessRefresh}
-                    isRefresh={this.state.search_refresh}
-                  />
-                </div>
-              </Col>
-              <Col lg="4" className="pd-0">
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <div className="mr-r-10 width-120">Date: </div>
-                  <DateRangePicker
-                    opens="right"
-                    maxDate={this.state.today}
-                    drops="down"
-                    onApply={this.pocreateDate}
-                  >
-                    <Button
-                      className="mr-r-10"
-                      style={{ width: "30px", height: "30px", padding: "0px" }}
+        <Row>
+          <Col sm={12} md={12} lg={12} xl={10} xs={12}>
+            <div style={{ height: "85vh" }}>
+              <div className="d-xl-none d-md-none mr-b-20 mr-l-10 mr-r-10 mr-t-10">
+                <Button onClick={this.onToggleFilter} className="width-full">
+                  Filter{" "}
+                  <span className="float-right">
+                    {this.state.isFilter ? <FaCaretDown /> : <FaCaretUp />}
+                  </span>
+                </Button>
+              </div>
+              <div className="fieldset" hidden={this.state.isFilter}>
+                <div className="legend">PO search Criteri</div>
+                <Row className="pd-0 mr-l-10 mr-r-10  font-size-14">
+                  <Col lg="4" sm="12" className="pd-0 mr-b-10">
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <div className="mr-r-10 flex-row-vertical-center width-120">
+                        PO No :{" "}
+                      </div>
+                      <Search
+                        onSearch={this.onSearchPOno}
+                        type="text"
+                        onRefreshUpdate={this.onSuccessRefresh}
+                        isRefresh={this.state.search_refresh}
+                      />
+                    </div>
+                  </Col>
+                  <Col lg="4" sm="12" className="pd-0 mr-b-10">
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
                     >
-                      <i className="far fa-calendar-alt"></i>
-                    </Button>
-                  </DateRangePicker>
-                  {this.state.po_createdate
-                    ? Moment(this.state.po_createdate).format("DD/MM/YYYY")
-                    : "DD/MM/YYYY"}
-                  {this.state.po_createdate
-                    ? " - " + Moment(this.state.enddate).format("DD/MM/YYYY")
-                    : ""}
-                </div>
-              </Col>
-            </Row>
-            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="4" className="pd-0">
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div className="mr-r-10 flex-row-vertical-center width-120">
-                    Supplier Name :{" "}
-                  </div>
-                  <Searchnew
-                    onSearch={this.onSearchSupplier}
-                    type="text"
-                    onRefreshUpdate={this.onSuccessRefresh}
-                    isRefresh={this.state.search_refresh}
-                  />
-                </div>
-              </Col>
-
-              <Col lg="4" className="pd-0">
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div className="mr-r-10 flex-row-vertical-center width-120">
-                    Product Name/Code :{" "}
-                  </div>
-                  <SearchItem
-                    onSearch={this.onSearchItem}
-                    type="text"
-                    onRefreshUpdate={this.onSuccessRefresh}
-                    isRefresh={this.state.search_refresh}
-                  />
-                </div>
-              </Col>
-            </Row>
-            <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
-              <Col lg="10"></Col>
-              <Col className="txt-align-right">
-                <Button size="sm" className="mr-r-10" onClick={this.onReset}>
-                  Reset
-                </Button>
-                <Button size="sm" onClick={this.onSearch}>
-                  Search
-                </Button>
-              </Col>
-            </Row>
-          </div>
-          
-          <div className="pd-6">
-            <Row className="mr-b-10 mr-l-10 mr-r-10">
-              <Col className="txt-align-right pd-0">
-                <Button
-                  size="sm"
-                  color="link"
-                  className="mr-r-20"
-                  hidden={onActionHidden("wh_receving_export")}
-                  onClick={() => this.onReportDownLoad()}
-                  >
-                    <FaDownload size="15" />
-                  </Button>
-  
-                  <CSVLink
-                    data={this.props.recevingReport}
-                    filename={"RecevingReport.csv"}
-                    className="mr-r-20"
-                    ref={this.csvLink}
-                    hidden={true}
-                  ></CSVLink>
-              </Col>
-            </Row>
-            <div className="search-horizantal-reci">
-              <Table style={{ width: "1400px" }}>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Product Code</th>
-                    <th>Product Name</th>
-                    <th>PO No - Supplier name</th>
-                    <th>UOM</th>
-                    <th>BOH</th>
-                    <th>PO quantity</th>
-                    <th>received quantity</th>
-                    <th>Receive/Unreceive</th>
-                    <th>Standby count</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recevingList.map((item, i) => (
-                    <tr key={i}>
-                      <td>{Moment(item.created_at).format("DD-MMM-YYYY")}</td>
-                      <td>{item.vpid}</td>
-                      <td>{item.productname}</td>
-                      <td>
-                        PO#{item.poid} - {item.name}
-                      </td>
-                      <td>{item.uom}</td>
-                      <td>{item.boh}</td>
-                      <td>{item.total_quantity}</td>
-                      <td>{item.received_quantity}</td>
-                      <td>
+                      <div className="mr-r-10 width-120">Date: </div>
+                      <DateRangePicker
+                        opens="right"
+                        maxDate={this.state.today}
+                        drops="down"
+                        onApply={this.pocreateDate}
+                      >
                         <Button
-                          className="btn-custom"
-                          disabled={onActionHidden("wh_receving_action")}
-                          onClick={this.onActionClick(item)}
+                          className="mr-r-10"
+                          style={{
+                            width: "30px",
+                            height: "30px",
+                            padding: "0px",
+                          }}
                         >
-                          Action
+                          <i className="far fa-calendar-alt"></i>
                         </Button>
-                      </td>
-                      <td>
-                        <div className="flex-row">
-                          <div hidden={item.stand_by === 0}>
-                            {item.stand_by}
-                          </div>
-                          <Button
-                            size="sm"
-                            className="btn-custom mr-l-10"
-                            disabled={
-                              item.stand_by === 0 ||
-                              onActionHidden("wh_push_sort")
-                            }
-                            onClick={this.onSortingClick(item)}
-                          >
-                            Push to Sort
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+                      </DateRangePicker>
+                      {this.state.po_createdate
+                        ? Moment(this.state.po_createdate).format("DD/MM/YYYY")
+                        : "DD/MM/YYYY"}
+                      {this.state.po_createdate
+                        ? " - " +
+                          Moment(this.state.enddate).format("DD/MM/YYYY")
+                        : ""}
+                    </div>
+                  </Col>
+                </Row>
+                <Row className="pd-0 mr-l-10 mr-r-10 font-size-14">
+                  <Col lg="4" sm="12" className="pd-0 mr-b-10">
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <div className="mr-r-10 flex-row-vertical-center width-120">
+                        Supplier Name :{" "}
+                      </div>
+                      <Searchnew
+                        onSearch={this.onSearchSupplier}
+                        type="text"
+                        onRefreshUpdate={this.onSuccessRefresh}
+                        isRefresh={this.state.search_refresh}
+                      />
+                    </div>
+                  </Col>
+                  <Col lg="4" sm="12" className="pd-0 mr-b-10">
+                    <div style={{ display: "flex", flexDirection: "row" }}>
+                      <div className="mr-r-10 flex-row-vertical-center width-120">
+                        Product Name/Code :{" "}
+                      </div>
+                      <SearchItem
+                        onSearch={this.onSearchItem}
+                        type="text"
+                        onRefreshUpdate={this.onSuccessRefresh}
+                        isRefresh={this.state.search_refresh}
+                      />
+                    </div>
+                  </Col>
+                </Row>
+                <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14 txt-align-right">
+                  <Col lg="10"></Col>
+                  <Col className="txt-align-right">
+                    <Button
+                      size="sm"
+                      className="mr-r-10"
+                      onClick={this.onReset}
+                    >
+                      Reset
+                    </Button>
+                    <Button size="sm" onClick={this.onSearch}>
+                      Search
+                    </Button>
+                  </Col>
+                </Row>
+              </div>
+
+              <div className="pd-6">
+                <Row className="mr-b-10 mr-l-10 mr-r-10 d-none d-sm-block">
+                  <Col className="txt-align-right pd-0">
+                    <Button
+                      size="sm"
+                      color="link"
+                      className="mr-r-20"
+                      hidden={onActionHidden("wh_receving_export")}
+                      onClick={() => this.onReportDownLoad()}
+                    >
+                      <FaDownload size="15" />
+                    </Button>
+                    <CSVLink
+                      data={this.props.recevingReport}
+                      filename={"RecevingReport.csv"}
+                      className="mr-r-20"
+                      ref={this.csvLink}
+                      hidden={true}
+                    ></CSVLink>
+                  </Col>
+                </Row>
+                <div
+                  className="search-horizantal-reci"
+                  style={
+                    this.state.isFilter
+                      ? { height: "70vh" }
+                      : { height: "40vh" }
+                  }
+                >
+                  <Table style={{ width: "1400px" }}>
+                    <thead>
+                      <tr>
+                        <th>Action</th>
+                        <th>Push to Sort</th>
+                        <th>Date</th>
+                        <th className="d-none d-xl-block">Product Code</th>
+                        <th>Product Name</th>
+                        <th>PO No - Supplier name</th>
+                        <th className="d-none d-xl-block">UOM</th>
+                        <th>BOH</th>
+                        <th className="d-none d-xl-block">PO quantity</th>
+                        <th>Received quantity</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recevingList.map((item, i) => (
+                        <tr key={i}>
+                          <td style={{ width: 50 }}>
+                            <Button
+                              className="btn-custom"
+                              disabled={onActionHidden("wh_receving_action")}
+                              onClick={this.onActionClick(item)}
+                            >
+                              Action
+                            </Button>
+                          </td>
+                          <td style={{ width: 50 }}>
+                            <div className="flex-row">
+                              <div hidden={item.stand_by === 0}>
+                                {item.stand_by}
+                              </div>
+                              <Button
+                                size="sm"
+                                className="btn-custom mr-l-10"
+                                disabled={
+                                  item.stand_by === 0 ||
+                                  onActionHidden("wh_push_sort")
+                                }
+                                onClick={this.onSortingClick(item)}
+                              >
+                                Push to Sort
+                              </Button>
+                            </div>
+                          </td>
+                          <td style={{ width: 120 }}>
+                            {Moment(item.created_at).format("DD-MMM-YYYY")}
+                          </td>
+                          <td className="d-none d-xl-block">{item.vpid}</td>
+                          <td>{item.productname}</td>
+                          <td>
+                            PO#{item.poid} - {item.name}
+                          </td>
+                          <td className="d-none d-xl-block">{item.uom}</td>
+                          <td>{item.boh}</td>
+                          <td className="d-none d-xl-block">
+                            {item.total_quantity}
+                          </td>
+                          <td>{item.received_quantity}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+                <div
+                  className="float-right"
+                  hidden={this.props.totalcount < this.props.pagelimit}
+                >
+                  <PaginationComponent
+                    totalItems={this.props.totalcount}
+                    pageSize={this.props.pagelimit}
+                    onSelect={this.handleSelected}
+                    activePage={this.state.selectedPage}
+                    size="sm"
+                  />
+                </div>
+              </div>
             </div>
-            <div
-              className="float-right"
-              hidden={this.props.totalcount < this.props.pagelimit}
-            >
-              <PaginationComponent
-                totalItems={this.props.totalcount}
-                pageSize={this.props.pagelimit}
-                onSelect={this.handleSelected}
-                activePage={this.state.selectedPage}
-                size="sm"
-              />
-            </div>
-          </div>
-        </div>
+          </Col>
+        </Row>
         <Modal
           isOpen={this.state.recevingModal}
           toggle={this.onReceivingModal}
@@ -578,88 +614,98 @@ class Receiving extends React.Component {
           <ModalBody>
             <div className="fieldset">
               <div className="legend">Receiving/Unreceiving</div>
-              <div className="mr-r-20 mr-l-20">
-                <form onSubmit={this.props.handleSubmit(this.submit)}>
-                  <Row className="pd-0">
-                    <Col lg="5" className="color-grey pd-0">
-                      <div className="border-none pd-0">Product name</div>
-                    </Col>
-                    <Col lg="7" className="mr-l-10">
-                      {this.state.selectedItem.productname}
-                    </Col>
-                  </Row>
-                  <Field
-                    name="ac_id"
-                    component={InputSearchDropDown}
-                    options={this.props.receivingAction}
-                    labelField="name"
-                    searchable={true}
-                    clearable={true}
-                    searchBy="name"
-                    valueField="id"
-                    noDataLabel="No matches found"
-                    values={this.state.receivingSelection}
-                    onSelection={this.selectedReceiving}
-                    label="Select Action"
-                  />
+              <div className="mr-r-10 mr-l-10">
+                <Row className="pd-12">
+                  <Col
+                    xs={12}
+                    md={6}
+                    lg={5}
+                    sm={12}
+                    className="mr-l-10 mr-b-10 color-grey pd-0"
+                  >
+                    <div className="border-none pd-0">Product name</div>
+                  </Col>
+                  <Col
+                    xs={12}
+                    md={6}
+                    lg={6}
+                    sm={12}
+                    className="mr-l-10 pd-r-30 pd-0"
+                  >
+                    {this.state.selectedItem.productname}
+                  </Col>
+                </Row>
+                <Field
+                  name="ac_id"
+                  component={InputSearchDropDown}
+                  options={this.props.receivingAction}
+                  labelField="name"
+                  searchable={true}
+                  clearable={true}
+                  searchBy="name"
+                  valueField="id"
+                  noDataLabel="No matches found"
+                  values={this.state.receivingSelection}
+                  onSelection={this.selectedReceiving}
+                  label="Select Action"
+                />
 
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <Row
-                      className="pd-0"
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        marginLeft: "3px",
-                      }}
+                <form onSubmit={this.props.handleSubmit(this.submit)}>
+                  <Row className="mr-t-10 mr-b-10 nflex-row">
+                    <Col
+                      xs={12}
+                      md={6}
+                      lg={5}
+                      sm={12}
+                      className="mr-b-10 color-grey pd-0"
                     >
-                      <Col lg="5" className="color-grey pd-0 border-none">
-                        <div className="border-none">
-                          Quantity<span className="must">*</span>
-                        </div>
-                      </Col>
-                      <Col lg="7" className="border-none">
-                        <Field
-                          name="item_quantity"
-                          autoComplete="off"
-                          type="number"
-                          component={InputField}
-                          validate={[required]}
-                          required={true}
-                        />
-                      </Col>
-                    </Row>
-                    <Row
-                      className="pd-0"
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                        marginLeft: "3px",
-                      }}
+                      <div className="border-none pd-0">
+                        Quantity<span className="must">*</span>
+                      </div>
+                    </Col>
+                    <Col
+                      xs={12} md={6} lg={6} sm={6}
+                      className="border-none pd-0"
                     >
-                      <Col lg="5" className="color-grey pd-0 border-none">
-                        <div className="border-none">Delivery Note</div>
-                      </Col>
-                      <Col lg="7" className="border-none">
-                        <Field
-                          name="delivery_note"
-                          autoComplete="off"
-                          type="text"
-                          component={InputField}
-                        />
-                      </Col>
-                    </Row>
-                  </div>
-                  <Row className="pd-10">
-                    <Col className="txt-align-right">
-                      <Button color="secondary">Submit</Button>
+                      <Field
+                        name="item_quantity"
+                        autoComplete="off"
+                        type="number"
+                        component={InputField}
+                        validate={[required]}
+                        required={true}
+                      />
                     </Col>
                   </Row>
+                  <Row className="mr-t-10 mr-b-10 nflex-row">
+                    <Col
+                      xs={12} md={6} lg={6} sm={6}
+                      className="mr-b-10 color-grey pd-0"
+                    >
+                      <div className="border-none pd-0 mr-b-10">
+                        Delivery Note
+                      </div>
+                    </Col>
+                    <Col
+                      xs={12} md={6} lg={6} sm={6}
+                      className="border-none pd-0"
+                    >
+                      <Field
+                        name="delivery_note"
+                        autoComplete="off"
+                        type="text"
+                        component={InputField}
+                      />
+                    </Col>
+                  </Row>
+                  <Button color="secondary" className="float-right mr-t-10">
+                    Submit
+                  </Button>
                 </form>
               </div>
             </div>
           </ModalBody>
         </Modal>
-
         <Modal
           isOpen={this.state.isConfrimModal}
           toggle={this.togglePoPopUp}

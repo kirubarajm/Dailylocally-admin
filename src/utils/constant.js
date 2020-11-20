@@ -21,6 +21,7 @@ export const PO_COMMEND_FORM="po_commend_form"
 export const MOVEIT_REGISTRATION_FORM="moveit_registaration"
 export const MOBILE_NUMBER_VERIFY="moveit_number_verify"
 export const LoginType={1:"/",2:"/",3:"/makeit-vorders",4:"/",5:"/",6:"/"};
+export const MasterOrderStatusColor={0:"Red",1:"Grey",2:"Grey",3:"Grey",4:"Grey",5:"Grey",6:"#ff9900",7:"#ff9900",8:"#ff9900",9:"green",10:"green",11:"red",12:"red",13:"red"};
 export const MasterOrderStatusV={0:"Post",1:"Accept",2:"Preparing",3:"Prepared",5:"Pickedup",6:"Delivered",7:"Cancel"};
 export const MasterPOStatus={0:"Request",1:"Received",2:"Un Received",3:"Close",4:"Deleted"};
 export const MasterOrderStatus={0:"Open",1:"SCM",2:"SCM",3:"SCM",5:"SCM",6:"Ready to dispatch",7:"Moveit Assign",8:"Moveit Pickup",9:"Moveit Delivered",10:"Completed",11:"Cancel",12:"Return"};

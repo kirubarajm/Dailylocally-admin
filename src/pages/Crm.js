@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import DateRangePicker from "react-bootstrap-daterangepicker";
 import PaginationComponent from "react-reactstrap-pagination";
 import { CSVLink } from "react-csv";
-import { onActionHidden } from "../utils/ConstantFunction";
+import { onActionHidden,onGetColor } from "../utils/ConstantFunction";
 import {
   Row,
   Col,
@@ -33,7 +33,6 @@ import {
   TRACK_SELECT_TRIP,
   TRACK_SELECT_VIEW,
 } from "../constants/actionTypes";
-import { getOrderStatus } from "../utils/ConstantFunction";
 import SearchTrip from "../components/SearchTrip";
 
 const mapStateToProps = (state) => ({
@@ -358,11 +357,14 @@ class Crm extends React.Component {
     else return " - ";
   }
 
+  
   dateOnlyConvert(date) {
     var datestr = Moment(date).format("DD-MMM-YYYY/hh:mm");
     if (datestr !== "Invalid date") return datestr;
     else return " - ";
   }
+  
+  
 
   onReportDownLoad = () => {
     this.setState({ isReport: true });
@@ -673,7 +675,7 @@ class Crm extends React.Component {
                       <td>{item.Lastmile?item.Lastmile+" km":"0 km"}</td>
                       <td>{this.dateOnlyConvert(item.date)+" pm"}</td>
                       <td>{item.slot_msg}</td>
-                      <td>{item.dayorderstatus_msg}</td>
+                      <td style={{ color: onGetColor(item.dayorderstatus) }}>{item.dayorderstatus_msg}</td>
                       <td>
                         {item.moveit_type === 1
                           ? item.trip_id

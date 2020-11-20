@@ -36,7 +36,7 @@ import { Field, reduxForm } from "redux-form";
 import { required } from "../utils/Validation";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
-import { FaDownload, FaRegFilePdf } from "react-icons/fa";
+import { FaDownload, FaCaretDown, FaCaretUp  } from "react-icons/fa";
 
 const mapStateToProps = (state) => ({
   ...state.qapage,
@@ -91,14 +91,16 @@ const InputField = ({
   //
 }) => {
   return (
-    <div className="border-none">
-      <div>
+    <div
+      className="border-none"
+      style={{ display: "flex", flexDirection: "column" }}
+    >
         <input {...input} placeholder={label} type={type} autoComplete="off" />
         <span
           style={{
             flex: "0",
             WebkitFlex: "0",
-            width: "100px",
+            width: "150px",
             height: "10px",
             fontSize: "12px",
             color: "red",
@@ -108,7 +110,6 @@ const InputField = ({
             ((error && <span>{error}</span>) ||
               (warning && <span>{warning}</span>))}
         </span>
-      </div>
     </div>
   );
 };
@@ -118,6 +119,7 @@ class QAPage extends React.Component {
   constructor() {
     super();
     this.state = {
+      isFilter: false,
       isLoading: false,
       poid_refresh: false,
       qaModal: false,
@@ -408,15 +410,29 @@ class QAPage extends React.Component {
     this.props.onGetQAReport(data);
   };
 
+  onToggleFilter = () => {
+    this.setState({
+      isFilter: !this.state.isFilter,
+    });
+  };
+
   render() {
     const qaList = this.props.qaList || [];
     return (
       <div className="width-full">
         <div style={{ height: "85vh" }} className="pd-6">
-          <div className="fieldset">
+          <div className="d-xl-none d-md-none mr-b-20 mr-l-10 mr-r-10 mr-t-10">
+            <Button onClick={this.onToggleFilter} className="width-full">
+              Filter{" "}
+              <span className="float-right">
+                {this.state.isFilter ? <FaCaretDown /> : <FaCaretUp />}
+              </span>
+            </Button>
+          </div>
+          <div className="fieldset" hidden={this.state.isFilter}>
             <div className="legend">Order Search criteria</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="4" className="pd-0">
+              <Col lg="4" sm="12" className="pd-0 mr-b-10">
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div className="mr-r-10 flex-row-vertical-center width-100">
                     Order ID :{" "}
@@ -429,7 +445,7 @@ class QAPage extends React.Component {
                   />
                 </div>
               </Col>
-              <Col lg="4" className="pd-0">
+              <Col sm="12" className="pd-0 mr-b-10">
                 <div
                   style={{
                     display: "flex",
@@ -437,7 +453,7 @@ class QAPage extends React.Component {
                     alignItems: "center",
                   }}
                 >
-                  <div className="mr-r-10 width-50">Date: </div>
+                  <div className="mr-r-10 width-100">Date: </div>
                   <DateRangePicker
                     opens="right"
                     maxDate={this.state.today}
@@ -473,7 +489,7 @@ class QAPage extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <Row className="mr-b-10 mr-l-10 mr-r-10">
+            <Row className="mr-b-10 mr-l-10 mr-r-10 d-none d-sm-block">
               <Col className="txt-align-right pd-0">
                 <Button
                   size="sm"
@@ -493,8 +509,12 @@ class QAPage extends React.Component {
                   ></CSVLink>
               </Col>
             </Row>
-            <div className="search-horizantal-qc">
-              <Table>
+            <div className="search-horizantal-qc" style={
+                    this.state.isFilter
+                      ? { height: "70vh" }
+                      : { height: "40vh" }
+                  }>
+              <Table style={{ width: "600px" }}>
                 <thead>
                   <tr>
                     <th>Date/Time</th>
@@ -506,7 +526,7 @@ class QAPage extends React.Component {
                 <tbody>
                   {qaList.map((item, i) => (
                     <tr key={i}>
-                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td style={{ width: 145 }}>{Moment(item.date).format("DD-MMM-YYYY/ hh:mm a")}</td>
                       <td>{item.doid}</td>
                       <td>
                         <Button
@@ -556,7 +576,8 @@ class QAPage extends React.Component {
           className="max-width-1000"
         >
           <ModalHeader toggle={this.onQAModal}>Order Id # {this.state.selectedItem.doid}</ModalHeader>
-          <ModalBody>
+          <ModalBody >
+            <div className="search-horizantal-qc">
             <div style={{ display: "flex", flexDirection: "row" }}>
               <div
                 style={{
@@ -641,6 +662,7 @@ class QAPage extends React.Component {
                 </div>
               ))}
             </div>
+            </div>
           </ModalBody>
           <ModalFooter>
             <Button size="sm" onClick={this.onQaRevoke}>
@@ -686,41 +708,63 @@ class QAPage extends React.Component {
                   ))}
                 </DropdownMenu>
               </ButtonDropdown>
-              <Row className="mr-t-10 mr-l-10 mr-b-10">
-                <Col lg="3" className="color-grey pd-0 border-none">
-                  <div className="border-none font-size-12">Product Name</div>
+              <Row className="pd-12">
+                <Col
+                  xs={12}
+                  md={6}
+                  lg={5}
+                  sm={12}
+                  className="mr-l-10 mr-b-10 color-grey pd-0"
+                >
+                  <div className="border-none">Product Name :</div>
                 </Col>
-                <Col lg="1" className="pd-0">
-                  :
-                </Col>
-                <Col lg="7" className="border-none pd-0">
+                <Col xs={12}
+                  md={6}
+                  lg={5}
+                  sm={12}
+                  className="mr-l-10 mr-b-10 mr-r-10 color-grey pd-0 pd-r-15"
+                >
                   {this.state.reportingSortingItem
                     ? this.state.reportingSortingItem.productname
                     : ""}
                 </Col>
               </Row>
-              <Row className="mr-t-10 mr-l-10 mr-b-10">
-                <Col lg="3" className="color-grey pd-0 border-none">
-                  <div className="border-none font-size-12">Quantity shown</div>
+              <Row className="pd-12">
+                <Col
+                  xs={6}
+                  md={6}
+                  lg={5}
+                  sm={6}
+                  className="mr-l-10 mr-b-10 color-grey pd-0"
+                >
+                  <div className="border-none">Quantity shown</div>
                 </Col>
-                <Col lg="1" className="pd-0">
-                  :
-                </Col>
-                <Col lg="7" className="border-none pd-0">
+                
+                <Col xs={4}
+                  md={6}
+                  lg={5}
+                  sm={6}
+                  className="mr-l-10 mr-b-10 color-grey pd-0"
+                >
                   {this.state.reportingSortingItem
                     ? this.state.reportingSortingItem.quantity
                     : ""}
                 </Col>
               </Row>
               <form onSubmit={this.props.handleSubmit(this.reportSubmit)}>
-                <Row className="mr-t-10 mr-b-10">
-                  <Col lg="3" className="color-grey pd-0 border-none">
-                    <div className="border-none font-size-12">
+                <Row className="mr-t-10 mr-b-10 nflex-row">
+                  <Col
+                    xs={12}
+                    md={6}
+                    lg={5}
+                    sm={6}
+                    className="mr-b-10 color-grey pd-0"
+                  >
+                    <div className="border-none pd-0">
                       Quantity to report<span className="must">*</span>
                     </div>
                   </Col>
-                  <Col lg="1" className="pd-0"></Col>
-                  <Col lg="7" className="border-none pd-0">
+                  <Col xs={12} md={6} lg={6} sm={6} className="border-none pd-0">
                     <Field
                       name="item_quantity"
                       autoComplete="off"

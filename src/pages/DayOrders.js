@@ -26,7 +26,7 @@ import {
 import Moment from "moment";
 import AxiosRequest from "../AxiosRequest";
 import DateRangePicker from "react-bootstrap-daterangepicker";
-import { getOrderStatus, onActionHidden } from "../utils/ConstantFunction";
+import { getAdminId, getOrderStatus, onActionHidden } from "../utils/ConstantFunction";
 import { FaEye, FaDownload } from "react-icons/fa";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
@@ -244,6 +244,7 @@ class DayOrders extends React.Component {
     this.props.onCreateProcurement({
       doid: AllValues,
       zoneid: this.props.zoneItem.id,
+      done_by:getAdminId(),
     });
   };
   movetoprocurement = () => {

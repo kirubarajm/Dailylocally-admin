@@ -7,12 +7,13 @@ import {
   HOME_REDIRECT,
   LOGOUT,
   REDIRECT,
+  PAGE_TITLE,
 } from "../constants/actionTypes";
 import { notify } from "react-notify-toast";
 import { notification_color } from "../utils/constant";
 
 export default (
-  state = { zone_list: [], zoneItem: false, zoneRefresh: false,userdetail:false },
+  state = { zone_list: [], zoneItem: false, zoneRefresh: false,userdetail:false,title:"Home" },
   action
 ) => {
   switch (action.type) {
@@ -27,6 +28,11 @@ export default (
         zoneItem: action.zoneItem || false,
         zoneRefresh: true,
       };
+      case PAGE_TITLE:
+        return{
+          ...state,
+          title:action.title ||"",
+        }
     case ZONE_ITEM_REFRESH:
       return {
         ...state,

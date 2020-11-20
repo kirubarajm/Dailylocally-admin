@@ -35,7 +35,7 @@ import { required } from "../utils/Validation";
 import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import PaginationComponent from "react-reactstrap-pagination";
 import { CSVLink } from "react-csv";
-import { FaDownload } from "react-icons/fa";
+import { FaDownload, FaCaretDown, FaCaretUp } from "react-icons/fa";
 const InputField = ({
   input,
   label,
@@ -45,14 +45,16 @@ const InputField = ({
   //
 }) => {
   return (
-    <div className="border-none">
-      <div>
+    <div
+      className="border-none"
+      style={{ display: "flex", flexDirection: "column" }}
+    >
         <input {...input} placeholder={label} type={type} autoComplete="off" />
         <span
           style={{
             flex: "0",
             WebkitFlex: "0",
-            width: "100px",
+            width: "150px",
             height: "10px",
             fontSize: "12px",
             color: "red",
@@ -62,7 +64,6 @@ const InputField = ({
             ((error && <span>{error}</span>) ||
               (warning && <span>{warning}</span>))}
         </span>
-      </div>
     </div>
   );
 };
@@ -79,7 +80,7 @@ const mapDispatchToProps = (dispatch) => ({
       type: SORTING_LIST,
       payload: AxiosRequest.Warehouse.getSortingList(data),
     }),
-    onGetSortingReport: (data) =>
+  onGetSortingReport: (data) =>
     dispatch({
       type: SORTING_REPORT,
       payload: AxiosRequest.Warehouse.getSortingReport(data),
@@ -122,9 +123,10 @@ class Sorting extends React.Component {
       selected_dopid: false,
       orderdate: false,
       enddate: false,
-      isReport:false,
+      isReport: false,
       selectedPage: 1,
       orderid: "",
+      isFilter: false,
       selectedItem: { products: [] },
       today: Moment(new Date()),
     };
@@ -357,6 +359,12 @@ class Sorting extends React.Component {
       this.setState({ isLoading: false });
     }
   };
+  onToggleFilter = () => {
+    this.setState({
+      isFilter: !this.state.isFilter,
+    });
+  };
+
   onReportDownLoad = () => {
     this.setState({ isReport: true });
     var data = {
@@ -365,7 +373,7 @@ class Sorting extends React.Component {
     if (this.state.orderdate) data.from_date = this.state.orderdate;
     if (this.state.enddate) data.to_date = this.state.enddate;
     if (this.state.orderid) data.doid = this.state.orderid;
-    data.report=1;
+    data.report = 1;
     this.props.onGetSortingReport(data);
   };
   render() {
@@ -373,12 +381,20 @@ class Sorting extends React.Component {
     return (
       <div className="width-full">
         <div style={{ height: "85vh" }} className="pd-6">
-          <div className="fieldset">
+          <div className="d-xl-none d-md-none mr-b-20 mr-l-10 mr-r-10 mr-t-10">
+            <Button onClick={this.onToggleFilter} className="width-full">
+              Filter{" "}
+              <span className="float-right">
+                {this.state.isFilter ? <FaCaretDown /> : <FaCaretUp />}
+              </span>
+            </Button>
+          </div>
+          <div className="fieldset" hidden={this.state.isFilter}>
             <div className="legend">Sorting / packing Search criteria</div>
             <Row className="pd-0 mr-l-10 mr-r-10 mr-b-10 font-size-14">
-              <Col lg="4" className="pd-0">
+              <Col lg="4" sm="12" className="pd-0 mr-b-10">
                 <div style={{ display: "flex", flexDirection: "row" }}>
-                  <div className="mr-r-10 flex-row-vertical-center width-100">
+                  <div className="mr-r-10 flex-row-vertical-center width-75">
                     Order ID :{" "}
                   </div>
                   <Search
@@ -389,7 +405,7 @@ class Sorting extends React.Component {
                   />
                 </div>
               </Col>
-              <Col lg="4" className="pd-0">
+              <Col lg="4" sm="12" className="pd-0 mr-b-10">
                 <div
                   style={{
                     display: "flex",
@@ -397,7 +413,7 @@ class Sorting extends React.Component {
                     alignItems: "center",
                   }}
                 >
-                  <div className="mr-r-10 width-50">Date: </div>
+                  <div className="mr-r-10 width-75">Date: </div>
                   <DateRangePicker
                     opens="right"
                     maxDate={this.state.today}
@@ -433,7 +449,7 @@ class Sorting extends React.Component {
             </Row>
           </div>
           <div className="pd-6">
-            <Row className="mr-b-10 mr-l-10 mr-r-10">
+            <Row className="mr-b-10 mr-l-10 mr-r-10 d-none d-sm-block">
               <Col className="txt-align-right pd-0">
                 <Button
                   size="sm"
@@ -453,7 +469,12 @@ class Sorting extends React.Component {
                 ></CSVLink>
               </Col>
             </Row>
-            <div className="search-horizantal-sort">
+            <div
+              className="search-horizantal-sort"
+              style={
+                this.state.isFilter ? { height: "75vh" } : { height: "40vh" }
+              }
+            >
               <Table>
                 <thead>
                   <tr>
@@ -465,7 +486,9 @@ class Sorting extends React.Component {
                 <tbody>
                   {sortingList.map((item, i) => (
                     <tr key={i}>
-                      <td>{Moment(item.date).format("DD-MMM-YYYY/hh:mm a")}</td>
+                      <td style={{ width: 142 }}>
+                        {Moment(item.date).format("DD-MMM-YYYY/ hh:mm a")}
+                      </td>
                       <td>{item.doid}</td>
                       <td>
                         <Button
@@ -500,7 +523,9 @@ class Sorting extends React.Component {
           toggle={this.onSortingModal}
           backdrop={"static"}
         >
-          <ModalHeader toggle={this.onSortingModal}>Order Id # {this.state.selectedItem.doid}</ModalHeader>
+          <ModalHeader toggle={this.onSortingModal}>
+            Order Id # {this.state.selectedItem.doid}
+          </ModalHeader>
           <ModalBody>
             <div style={{ display: "flex", flexDirection: "row" }}>
               <div className="width-100 pd-4">Quality</div>
@@ -584,41 +609,66 @@ class Sorting extends React.Component {
                   ))}
                 </DropdownMenu>
               </ButtonDropdown>
-              <Row className="mr-t-10 mr-l-10 mr-b-10">
-                <Col lg="3" className="color-grey pd-0 border-none">
-                  <div className="border-none font-size-12">Product Name</div>
+              <Row className="pd-12">
+                <Col
+                  xs={12}
+                  md={6}
+                  lg={5}
+                  sm={12}
+                  className="mr-l-10 mr-b-10 color-grey pd-0"
+                >
+                  <div className="border-none">Product Name :</div>
                 </Col>
-                <Col lg="1" className="pd-0">
-                  :
-                </Col>
-                <Col lg="7" className="border-none pd-0">
+
+                <Col
+                  xs={12}
+                  md={6}
+                  lg={5}
+                  sm={12}
+                  className="mr-l-10 mr-b-10 mr-r-10 color-grey pd-0 pd-r-15"
+                >
                   {this.state.reportingSortingItem
                     ? this.state.reportingSortingItem.product_name
                     : ""}
                 </Col>
               </Row>
-              <Row className="mr-t-10 mr-l-10 mr-b-10">
-                <Col lg="3" className="color-grey pd-0 border-none">
-                  <div className="border-none font-size-12">Quantity shown</div>
+              <Row className="pd-12">
+                <Col
+                  xs={6}
+                  md={6}
+                  lg={5}
+                  sm={6}
+                  className="mr-l-10 mr-b-10 color-grey pd-0"
+                >
+                  <div className="border-none">Quantity shown :</div>
                 </Col>
-                <Col lg="1" className="pd-0">
-                  :
-                </Col>
-                <Col lg="7" className="border-none pd-0">
+
+                <Col
+                  xs={4}
+                  md={6}
+                  lg={5}
+                  sm={6}
+                  className="mr-l-10 mr-b-10 color-grey pd-0"
+                >
                   {this.state.reportingSortingItem
                     ? this.state.reportingSortingItem.quantity
                     : ""}
                 </Col>
               </Row>
               <form onSubmit={this.props.handleSubmit(this.reportSubmit)}>
-                <Row className="mr-t-10 mr-b-10">
-                  <Col lg="3" className="color-grey pd-0 border-none">
-                    <div className="border-none font-size-12">
+                <Row className="mr-t-10 mr-b-10 nflex-row">
+                  <Col
+                    xs={12}
+                    md={6}
+                    lg={5}
+                    sm={6}
+                    className="mr-b-10 color-grey pd-0"
+                  >
+                    <div className="border-none pd-0">
                       Quantity to report<span className="must">*</span>
                     </div>
                   </Col>
-                  <Col lg="1" className="pd-0"></Col>
-                  <Col lg="7" className="border-none pd-0">
+                  <Col xs={12} md={6} lg={6} sm={6} className="border-none pd-0">
                     <Field
                       name="item_quantity"
                       autoComplete="off"

@@ -10,6 +10,12 @@
 html, body, main {
   overflow: hidden;
 }
+.daterangepicker{
+  top: 70px !important; 
+  left: auto; 
+  right: 40px !important; 
+}
+
 
 #nprogress .bar {
   background: red !important;
@@ -342,6 +348,11 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   flex-direction: row;
 }
 
+.nflex-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+}
+
 .flex-row-vertical-center {
   display: flex;
   flex-direction: row;
@@ -434,8 +445,17 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   padding-right: 10px !important;
 }
 
+.pd-r-15 {
+  padding-right: 15px !important;
+}
+
 .pd-r-20 {
   padding-right: 20px !important;
+}
+
+
+.pd-r-30 {
+  padding-right: 30px !important;
 }
 
 .pd-b-10 {
@@ -470,6 +490,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 
 .mr-r-20 {
   margin-right: 20px !important;
+}
+
+.mr-r-30 {
+  margin-right: 30px !important;
 }
 
 .mr-l-15 {
@@ -1024,8 +1048,14 @@ a, a:focus, a:hover, a:visited {
   margin-bottom: 10px !important;
   overflow: auto !important;
   background: #ffffff !important;
-  height: 40vh !important;
 }
+
+.search-horizantal-qc {
+  margin-bottom: 10px !important;
+  overflow: auto !important;
+  background: #ffffff !important;
+}
+
 .search-horizantal-sort {
   margin-bottom: 10px !important;
   overflow: auto !important;
@@ -2119,6 +2149,7 @@ hr.style-moveit:after {
   background-color: #fff;
   border: 1px solid #000;
   margin: 10px !important;
+  transition: width 600ms ease-out, height 600ms ease-out;
 }
 
 .legend {

@@ -53,6 +53,7 @@ export default combineReducers({
   auth,
   sample,
   catalog,
+  catalogtab,
   productview,
   productaddedit,
   catsubaddedit,

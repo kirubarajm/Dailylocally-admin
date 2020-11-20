@@ -780,6 +780,7 @@ class VendorAssign extends React.Component {
                     <th>Supplier Name</th>
                     <th>Supplier code</th>
                     <th>UOM</th>
+                    <th>BOH</th>
                     <th>Quantity</th>
                     <th>Rate</th>
                     <th>Expected Date/Time</th>
@@ -849,6 +850,7 @@ class VendorAssign extends React.Component {
                       <td>{item.vendor_name || "-"}</td>
                       <td>{item.vid || "-"}</td>
                       <td>{item.uom_name}</td>
+                      <td>{item.boh || "-"}</td>
                       <td className="makeit-process-action">
                         <EditQuantity
                           action={() => this.onAction(item, i)}

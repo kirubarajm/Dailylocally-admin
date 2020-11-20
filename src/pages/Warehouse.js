@@ -16,6 +16,7 @@ import {
   WARE_HOUSE_ZONE_SELECTED,
   WARE_HOUSE_SELECTED_TAB,
   ZONE_SELECT_ITEM,
+  PAGE_TITLE
 } from "../constants/actionTypes";
 import DayOrders from "./DayOrders";
 import Procurement from "./Procurement";
@@ -70,10 +71,23 @@ class Warehouse extends React.Component {
       this.props.onSelectTabType(1);
     } else if (path.includes("/warehouse/po")) {
       this.props.onSelectTabType(2);
+    }else if (path.includes("/warehouse/receiving")) {
+      this.props.onSelectTabType(3);
+      store.dispatch({ type: PAGE_TITLE, title: "Receving" });
+    } else if (path.includes("/warehouse/sorting")) {
+      this.props.onSelectTabType(4);
+      store.dispatch({ type: PAGE_TITLE, title: "Sorting" });
+    } else if (path.includes("/warehouse/qc")) {
+      this.props.onSelectTabType(5);
+      store.dispatch({ type: PAGE_TITLE, title: "QC" });
+    }else if (path.includes("/warehouse/return")) {
+      this.props.onSelectTabType(6);
     }
   }
   UNSAFE_componentWillUpdate() {}
-  UNSAFE_componentWillReceiveProps() {}
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    
+  }
   componentWillUnmount() {}
 
   componentDidMount() {}
@@ -98,10 +112,13 @@ class Warehouse extends React.Component {
       this.props.history.push("/warehouse/po");
     } else if (tab === 3) {
       this.props.history.push("/warehouse/receiving");
+      store.dispatch({ type: PAGE_TITLE, title: "Receving" });
     } else if (tab === 4) {
       this.props.history.push("/warehouse/sorting");
+      store.dispatch({ type: PAGE_TITLE, title: "Sorting" });
     } else if (tab === 5) {
       this.props.history.push("/warehouse/qc");
+      store.dispatch({ type: PAGE_TITLE, title: "QC" });
     } else if (tab === 6) {
       this.props.history.push("/warehouse/return");
     }
@@ -116,12 +133,13 @@ class Warehouse extends React.Component {
     return (
       <div>
         <div className="pd-12">
-          <Row>
+          <Row >
             <Col>
               <ButtonGroup size="sm">
                 <Button
                   color="primary"
                   size="sm"
+                  className="d-none d-sm-block"
                   onClick={() => this.onWarehouseTabClick(0)}
                   active={this.props.warehouse_tab_type === 0}
                 >
@@ -130,6 +148,7 @@ class Warehouse extends React.Component {
                 <Button
                   color="primary"
                   size="sm"
+                  className="d-none d-sm-block"
                   onClick={() => this.onWarehouseTabClick(1)}
                   active={this.props.warehouse_tab_type === 1}
                 >
@@ -138,6 +157,7 @@ class Warehouse extends React.Component {
                 <Button
                   color="primary"
                   size="sm"
+                  className="d-none d-sm-block"
                   onClick={() => this.onWarehouseTabClick(2)}
                   active={this.props.warehouse_tab_type === 2}
                 >
@@ -169,6 +189,7 @@ class Warehouse extends React.Component {
                 <Button
                   color="primary"
                   size="sm"
+                  className="d-none d-sm-block"
                   onClick={() => this.onWarehouseTabClick(6)}
                   active={this.props.warehouse_tab_type === 6}
                 >
@@ -176,8 +197,8 @@ class Warehouse extends React.Component {
                 </Button>
               </ButtonGroup>
             </Col>
-            <Col>
-              <div className="float-right">
+            <Col >
+              <div className="float-right d-none d-sm-block">
                 <span className="mr-r-20">Zone</span>
                 <ButtonDropdown
                   className="max-height-30"

@@ -3,6 +3,7 @@ import {
   MasterOrderStatusV,
   LoginType,
   MasterPOStatus,
+  MasterOrderStatusColor,
 } from "../utils/constant";
 
 export const getOrderStatus = (orderstatus) => {
@@ -30,6 +31,9 @@ export const getOrderNextStatusValue = (orderstatus) => {
   var morder = MasterOrderStatus[getOrderNextStatus(orderstatus)];
   return morder;
 };
+
+
+
 export const getOrderNextStatusValueV = (orderstatus) => {
   var morder = MasterOrderStatusV[getOrderNextStatus(orderstatus)];
   return morder;
@@ -87,10 +91,15 @@ export const onActionHidden =(key)=>{
   var login = false;
   if (token && key) {
     login = JSON.parse(token);
-    console.log("login-->"+login.logindetail[key]);
+    //console.log("login-->"+login.logindetail[key]);
     var hidden=login.logindetail[key] || 0;
     return hidden===0?true:false;
   }
   return false ;
 }
 
+export const onGetColor=(orderstatus)=>{
+    orderstatus = orderstatus || 0;
+    orderstatus = orderstatus > 12 ? 0 : orderstatus;
+    return MasterOrderStatusColor[orderstatus];
+}
