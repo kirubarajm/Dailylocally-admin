@@ -472,7 +472,7 @@ class Sorting extends React.Component {
             <div
               className="search-horizantal-sort"
               style={
-                this.state.isFilter ? { height: "75vh" } : { height: "40vh" }
+                this.state.isFilter ? { height: "60vh" } : { height: "40vh" }
               }
             >
               <Table>

@@ -43,6 +43,7 @@ import { onActionHidden, getAdminId } from "../utils/ConstantFunction";
 import Search from "../components/Search";
 import Searchnew from "../components/Searchnew";
 import SearchItem from "../components/SearchItem";
+import vendor from "../reducers/vendor";
 
 const InputField = ({
   input,
@@ -223,29 +224,25 @@ const InputSearchDropDown = ({
   valueField,
 }) => {
   return (
-    <Row className="mr-0 border-none">
-      <Col className="pd-0" lg="5">
-        <label className="mr-0 border-none">
-          {label} <span className="must">*</span>
-        </label>
-      </Col>
-      <Col className="pd-0" lg="5">
-        <Select
-          options={options}
-          labelField={labelField}
-          searchable={searchable}
-          searchBy={searchBy}
-          values={[...values]}
-          noDataLabel={noDataLabel}
-          valueField={valueField}
-          dropdownHeight={"300px"}
-          disabled={disabled}
-          onChange={(value) => {
-            onSelection(value);
-          }}
-        />
-      </Col>
-    </Row>
+    <div className="mr-0 border-none flex-row mr-l-20">
+      <label className="mr-0 border-none mr-r-20">
+        {label} <span className="must">*</span>
+      </label>
+      <Select
+        options={options}
+        labelField={labelField}
+        searchable={searchable}
+        searchBy={searchBy}
+        values={[...values]}
+        noDataLabel={noDataLabel}
+        valueField={valueField}
+        dropdownHeight={"300px"}
+        disabled={disabled}
+        onChange={(value) => {
+          onSelection(value);
+        }}
+      />
+    </div>
   );
 };
 
@@ -263,7 +260,10 @@ class VendorAssign extends React.Component {
       sPoList: [],
       select_item: false,
       selected_vpid: [],
+      sVendor: [],
+      selectVendor: [],
       isOpenAreaDropDown: false,
+      selectedVendor: false,
       today: Moment(new Date()),
     };
   }
@@ -340,6 +340,8 @@ class VendorAssign extends React.Component {
       if (this.state.l1category)
         data.L1subcategorysearch = this.state.l1category;
       if (this.state.item_name) data.productsearch = this.state.item_name;
+      if (this.state.sVendor.length !== 0)
+        data.supplier_id = this.state.sVendor[0].vid;
       this.props.onGetPrWatingList(data);
     }
   };
@@ -384,19 +386,25 @@ class VendorAssign extends React.Component {
     selected_vpid.push(item.pid);
     var arvalue = {};
     arvalue[item.tempid] = true;
-
+    var vendor=[];
+    vendor.push({vid:item.vid,name:item.vendor_name});
     this.setState({
       selected_proid: arvalue,
       selected_vpid: selected_vpid,
+      selectVendor:vendor
     });
 
-    this.props.onGetVendorList({
-      zoneid: this.props.zoneItem.id,
-      products: [item.pid],
-    });
+    // this.props.onGetVendorList({
+    //   zoneid: this.props.zoneItem.id,
+    //   products: [item.pid],
+    // });
 
-    this.setState({ startdate: today, suplier: [] });
+    this.setState({ startdate: Moment(item.due_date).format("YYYY-MM-DD"), suplier: [] });
     this.props.onFromClear();
+    var initData={
+      buyer_comment:item.buyer_comment
+    }
+    this.props.initialize(initData);
     this.toggleAddVendorPopUp();
   };
 
@@ -448,12 +456,16 @@ class VendorAssign extends React.Component {
       .map((value) => value)
       .filter((value, index, _req) => _req.indexOf(value) === index);
     if (filtervpid.length > 0) {
-      this.props.onGetVendorList({
-        zoneid: this.props.zoneItem.id,
-        products: filtervpid,
-      });
-      this.setState({ startdate: today, suplier: [] });
+      // this.props.onGetVendorList({
+      //   zoneid: this.props.zoneItem.id,
+      //   products: filtervpid,
+      // });
+      this.setState({ startdate: today, suplier: [],selectVendor:this.state.sVendor });
       this.props.onFromClear();
+      var initData={
+        buyer_comment:""
+      }
+      this.props.initialize(initData);
       this.toggleAddVendorPopUp();
     } else {
       notify.show(
@@ -481,7 +493,7 @@ class VendorAssign extends React.Component {
       zoneid: this.props.zoneItem.id,
       buyer_comment: values.buyer_comment,
       due_date: this.state.startdate,
-      vid: this.state.suplier[0].vid,
+      vid: this.state.selectVendor[0].vid, //this.state.suplier[0].vid,
       tempid: Values,
       done_by: getAdminId(),
     };
@@ -612,6 +624,16 @@ class VendorAssign extends React.Component {
     this.setState({ search_refresh: false });
   };
 
+  selectedVendor = (item) => {
+    this.setState({ sVendor: item,selectVendor:item});
+    var data = { zoneid: this.props.zoneItem.id };
+    if (this.state.category) data.categorysearch = this.state.category;
+    if (this.state.l1category) data.L1subcategorysearch = this.state.l1category;
+    if (this.state.item_name) data.productsearch = this.state.item_name;
+    if (item.length !== 0) data.supplier_id = item[0].vid;
+    this.props.onGetPrWatingList(data);
+  };
+
   onReset = () => {
     this.setState({
       category: "",
@@ -727,7 +749,7 @@ class VendorAssign extends React.Component {
               </Row>
             </div>
             <Row className="mr-b-10">
-              <Col className="pd-0 mr-l-20">
+              <Col lg="10" className="pd-0 mr-l-20">
                 <div style={{ display: "flex", flexDirection: "row" }}>
                   <div>
                     <div>
@@ -743,14 +765,37 @@ class VendorAssign extends React.Component {
                     </div>
                     <div className="font-size-12 mr-l-20">{" Select All "}</div>
                   </div>
+                  <div
+                    hidden={this.state.sVendor.length === 0}
+                    className="font-size-15 mr-l-20 float-center"
+                  >
+                    {this.state.sVendor.length !== 0
+                      ? this.state.sVendor[0].name
+                      : ""}
+                  </div>
                   <Button
                     size="sm"
                     onClick={this.onAddVendor}
-                    className="mr-l-20"
+                    className="mr-l-20 addvendor mr-r-10"
+                    disabled={this.state.sVendor.length === 0}
                     hidden={onActionHidden("wh_vendor_add")}
                   >
                     + Add Supplier
                   </Button>
+
+                  <InputSearchDropDown
+                    name="vid"
+                    options={this.props.vendor_drop_list}
+                    labelField="name"
+                    searchable={true}
+                    clearable={true}
+                    searchBy="name"
+                    valueField="vid"
+                    noDataLabel="No matches found"
+                    values={this.state.sVendor}
+                    onSelection={this.selectedVendor}
+                    label="Vendor"
+                  />
                 </div>
               </Col>
               <Col className="txt-align-right">
@@ -758,6 +803,7 @@ class VendorAssign extends React.Component {
                   size="sm"
                   className="mr-r-10"
                   onClick={this.submitPo}
+                  disabled={this.props.submitbutton===0}
                   hidden={onActionHidden("wh_po_create")}
                 >
                   Submit
@@ -831,22 +877,12 @@ class VendorAssign extends React.Component {
                           <FaTrashAlt size="15" />
                         </Button>
                       </td>
-                      <td>
-                        {item.catagory_name}
-                      </td>
-                      <td>
-                        {item.subcatL1name}
-                      </td>
-                      <td>
-                        {item.subcatL2name || "-"}
-                      </td>
+                      <td>{item.catagory_name}</td>
+                      <td>{item.subcatL1name}</td>
+                      <td>{item.subcatL2name || "-"}</td>
                       <td>{item.vpid}</td>
-                      <td>
-                        {item.Productname}
-                      </td>
-                      <td>
-                        {item.product_productdetails || "-"}
-                      </td>
+                      <td>{item.Productname}</td>
+                      <td>{item.product_productdetails || "-"}</td>
                       <td>{item.vendor_name || "-"}</td>
                       <td>{item.vid || "-"}</td>
                       <td>{item.uom_name}</td>
@@ -893,7 +929,7 @@ class VendorAssign extends React.Component {
               onSubmit={this.props.handleSubmit(this.submit)}
               style={{ width: "30vw" }}
             >
-              <Field
+              {/* <Field
                 name="vendor"
                 component={InputSearchDropDown}
                 options={this.props.vendor_list}
@@ -906,7 +942,17 @@ class VendorAssign extends React.Component {
                 values={this.state.suplier}
                 onSelection={this.selectedSuplier}
                 label="Suplier Name"
-              />
+              /> */}
+              <Row>
+                <Col className="pd-0" lg="5">
+                  Suplier Name
+                </Col>
+                <Col className="pd-0" lg="5">
+                  {this.state.selectVendor.length !== 0
+                    ? this.state.selectVendor[0].name
+                    : ""}
+                </Col>
+              </Row>
               <Row>
                 <Col className="pd-0" lg="5">
                   Due Date{" "}

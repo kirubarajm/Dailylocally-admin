@@ -521,7 +521,7 @@ class Receiving extends React.Component {
                   className="search-horizantal-reci"
                   style={
                     this.state.isFilter
-                      ? { height: "70vh" }
+                      ? { height: "60vh" }
                       : { height: "40vh" }
                   }
                 >

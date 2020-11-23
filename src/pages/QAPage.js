@@ -511,7 +511,7 @@ class QAPage extends React.Component {
             </Row>
             <div className="search-horizantal-qc" style={
                     this.state.isFilter
-                      ? { height: "70vh" }
+                      ? { height: "60vh" }
                       : { height: "40vh" }
                   }>
               <Table style={{ width: "600px" }}>

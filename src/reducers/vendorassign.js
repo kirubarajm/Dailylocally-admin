@@ -14,9 +14,11 @@ import {
 export default (
   state = {
     pocreatelist: [],
+    submitbutton:0,
     poCreated: false,
     poItemDelete:false,
     vendor_list: [],
+    vendor_drop_list:[],
     vendor_assign_updated:false,
     poEdittQuantity: false,
     poEditQuantityStatus: false,
@@ -28,6 +30,8 @@ export default (
       return {
         ...state,
         pocreatelist: action.payload.result || [],
+        vendor_drop_list: action.payload.vendorlist || [],
+        submitbutton:action.payload.submitbutton||0,
       };
     case GET_VENDOR_LIST:
       return {

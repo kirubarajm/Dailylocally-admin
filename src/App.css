@@ -571,6 +571,10 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
   margin-top: 20px !important;
 }
 
+.mr-t-5 {
+  margin-top: 5px !important;
+}
+
 .mr-t-50 {
   margin-top: 50px !important;
 }
