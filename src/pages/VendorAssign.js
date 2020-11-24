@@ -386,12 +386,12 @@ class VendorAssign extends React.Component {
     selected_vpid.push(item.pid);
     var arvalue = {};
     arvalue[item.tempid] = true;
-    var vendor=[];
-    vendor.push({vid:item.vid,name:item.vendor_name});
+    var vendor = [];
+    vendor.push({ vid: item.vid, name: item.vendor_name });
     this.setState({
       selected_proid: arvalue,
       selected_vpid: selected_vpid,
-      selectVendor:vendor
+      selectVendor: vendor,
     });
 
     // this.props.onGetVendorList({
@@ -399,11 +399,14 @@ class VendorAssign extends React.Component {
     //   products: [item.pid],
     // });
 
-    this.setState({ startdate: Moment(item.due_date).format("YYYY-MM-DD"), suplier: [] });
+    this.setState({
+      startdate: Moment(item.due_date).format("YYYY-MM-DD"),
+      suplier: [],
+    });
     this.props.onFromClear();
-    var initData={
-      buyer_comment:item.buyer_comment
-    }
+    var initData = {
+      buyer_comment: item.buyer_comment,
+    };
     this.props.initialize(initData);
     this.toggleAddVendorPopUp();
   };
@@ -460,11 +463,15 @@ class VendorAssign extends React.Component {
       //   zoneid: this.props.zoneItem.id,
       //   products: filtervpid,
       // });
-      this.setState({ startdate: today, suplier: [],selectVendor:this.state.sVendor });
+      this.setState({
+        startdate: today,
+        suplier: [],
+        selectVendor: this.state.sVendor,
+      });
       this.props.onFromClear();
-      var initData={
-        buyer_comment:""
-      }
+      var initData = {
+        buyer_comment: "",
+      };
       this.props.initialize(initData);
       this.toggleAddVendorPopUp();
     } else {
@@ -625,7 +632,7 @@ class VendorAssign extends React.Component {
   };
 
   selectedVendor = (item) => {
-    this.setState({ sVendor: item,selectVendor:item});
+    this.setState({ sVendor: item, selectVendor: item });
     var data = { zoneid: this.props.zoneItem.id };
     if (this.state.category) data.categorysearch = this.state.category;
     if (this.state.l1category) data.L1subcategorysearch = this.state.l1category;
@@ -649,6 +656,10 @@ class VendorAssign extends React.Component {
 
   onSearch = () => {
     this.setState({ isLoading: false });
+  };
+
+  onClearVendor = () => {
+    this.setState({ sVendor: [], isLoading: false, selectVendor: [] });
   };
 
   render() {
@@ -796,6 +807,14 @@ class VendorAssign extends React.Component {
                     onSelection={this.selectedVendor}
                     label="Vendor"
                   />
+                  <Button
+                    color="link"
+                    disabled={this.state.sVendor.length === 0}
+                    className="font-size-12"
+                    onClick={this.onClearVendor}
+                  >
+                    Reset
+                  </Button>
                 </div>
               </Col>
               <Col className="txt-align-right">
@@ -803,7 +822,7 @@ class VendorAssign extends React.Component {
                   size="sm"
                   className="mr-r-10"
                   onClick={this.submitPo}
-                  disabled={this.props.submitbutton===0}
+                  disabled={this.props.submitbutton === 0}
                   hidden={onActionHidden("wh_po_create")}
                 >
                   Submit
